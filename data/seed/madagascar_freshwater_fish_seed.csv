@@ -1,0 +1,142 @@
+scientific_name,authority,year_described,family,genus,endemic_status,iucn_status,iucn_taxon_id,population_trend,cares_status,taxonomic_status,provisional_name,shoal_priority,fishbase_id,distribution_narrative,habitat_type,max_length_cm,in_captivity,captive_institutions,notes
+Bedotia albomarginata,"Sparks & Rush, 2005",2005,Bedotiidae,Bedotia,endemic,EN,,unknown,CEN,described,,Y,,Eastern Madagascar; restricted to forested highland habitats,stream,7,N,,
+Bedotia alveyi,"Jones, Smith & Sparks, 2010",2010,Bedotiidae,Bedotia,endemic,NT,,unknown,,described,,N,65532,Eastern Madagascar,stream,6,N,,Rediscovered Sept 2023 by Re:wild in Makira Natural Park; lost since 2003
+Bedotia geayi,"Pellegrin, 1907",1907,Bedotiidae,Bedotia,endemic,EN,,decreasing,,described,,Y,9883,"Mananjary River drainage, SE Madagascar",river,9,Y,Cologne Zoo; multiple European zoos,ZIMS + ZTL records
+Bedotia leucopteron,"Loiselle & Rodriguez, 2007",2007,Bedotiidae,Bedotia,endemic,EN,,unknown,,described,,Y,,Eastern Madagascar,stream,7,N,,
+Bedotia longianalis,"Pellegrin, 1914",1914,Bedotiidae,Bedotia,endemic,EN,,stable,,described,,Y,,Eastern Madagascar,river,8,Y,,ZIMS records
+Bedotia madagascariensis,"Regan, 1903",1903,Bedotiidae,Bedotia,endemic,EN,,decreasing,,described,,Y,9882,Lower Ivoloina to Manambolo Creek; translocated to Betsiboka,river,9,Y,Cologne Zoo; Citizen Conservation network,Citizen Conservation Category III since 2021
+Bedotia marojejy,"Stiassny & Harrison, 2000",2000,Bedotiidae,Bedotia,endemic,EN,,decreasing,CEN,described,,Y,58332,"Manantenina River, NE Madagascar",stream,7,Y,ZIMS institutions,Authority: Stiassny & Harrison 2000 (not Sparks & Rush 2005)
+Bedotia masoala,"Loiselle, 2006",2006,Bedotiidae,Bedotia,endemic,VU,,unknown,CVU,described,,Y,,"Masoala Peninsula, NE Madagascar",stream,6,N,,
+Bedotia tricolor,"Pellegrin, 1932",1932,Bedotiidae,Bedotia,endemic,CR,,unknown,CCR,described,,Y,65663,"Lower Mangoro River, E Madagascar",river,7,N,,No captive population
+Rheocles alaotrensis,"(Pellegrin, 1914)",1914,Bedotiidae,Rheocles,endemic,EN,,decreasing,CEN,described,,Y,9884,"Lake Alaotra and tributaries, E Madagascar",lake,8,N,,
+Rheocles derhami,"Sparks & Stiassny, 2003",2003,Bedotiidae,Rheocles,endemic,CR,44659,decreasing,CCR,described,,Y,58323,"Amboaboa River / Mangarahara tributary, Sofia drainage, NW Madagascar",river,6,N,,REDISCOVERED 2024 via eDNA (Oliveira Carvalho et al. 2024). No captive population.
+Rheocles lateralis,"Reinthal & Stiassny, 1997",1997,Bedotiidae,Rheocles,endemic,CR,,decreasing,CCR,described,,Y,,"Upper Mandolotra / Nosivolo River, E Madagascar",river,5,N,,Micro-endemic
+Rheocles pellegrini,"(Fowler, 1938)",1938,Bedotiidae,Rheocles,endemic,DD,,unknown,CVU,described,,N,,NE coast of Madagascar,river,6,N,,
+Rheocles sikorae,"(Sauvage, 1891)",1891,Bedotiidae,Rheocles,endemic,DD,,unknown,CEN,described,,N,,"Streams and rivers near Anosibe, E Madagascar",river,7,N,,
+Rheocles vatosoa,"Stiassny, Rodriguez & Loiselle, 2002",2002,Bedotiidae,Rheocles,endemic,EN,,decreasing,CEN,described,,Y,59769,"Upper Lokoho basin near Andapa, NE Madagascar",stream,5,Y,Cologne Zoo; Toronto Zoo; ~81 individuals in North America,
+Rheocles wrightae,"Stiassny & Rodriguez, 2001",2001,Bedotiidae,Rheocles,endemic,EN,,decreasing,CEN,described,,Y,,"Manambola River near Anosibe, E Madagascar",river,5,N,,
+Bedotia sp. 'ankavia-ankavanana',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CVU,undescribed_morphospecies,ankavia-ankavanana,N,,"Ankavia-Ankavanana river system, NE Madagascar",stream,,,,CARES 2026 R4.1
+Bedotia sp. 'bemarivo',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CVU,undescribed_morphospecies,bemarivo,N,,"Bemarivo River drainage, NE Madagascar",river,,,,CARES 2026 R4.1
+Bedotia sp. 'betampona',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CVU,undescribed_morphospecies,betampona,N,,"Betampona area, E Madagascar",stream,,,,CARES 2026 R4.1
+Bedotia sp. 'lazana',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CVU,undescribed_morphospecies,lazana,N,,"Lazana River, E Madagascar",stream,,,,CARES 2026 R4.1
+Bedotia sp. 'mahanara',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CVU,undescribed_morphospecies,mahanara,N,,"Mahanara River area, NE Madagascar",river,,,,CARES 2026 R4.1
+Bedotia sp. 'manombo',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CCR,undescribed_morphospecies,manombo,N,,"Manombo area, SE Madagascar",stream,,,,CARES 2026 R4.1; CCR = highest CARES threat
+Bedotia sp. 'namorona',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CVU,undescribed_morphospecies,namorona,N,,"Namorona River near Ranomafana, SE Madagascar",stream,,,,CARES 2026 R4.1
+Bedotia sp. 'nosivola',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CVU,undescribed_morphospecies,nosivola,N,,"Nosivola River, E Madagascar",river,,,,CARES 2026 R4.1
+Bedotia sp. 'sambava',,,Bedotiidae,Bedotia,endemic,NE,,unknown,CCR,undescribed_morphospecies,sambava,N,,"Sambava area, NE Madagascar",stream,,,,CARES 2026 R4.1; CCR
+Rheocles sp. 'ambatovy',,,Bedotiidae,Rheocles,endemic,NE,,unknown,CCR,undescribed_morphospecies,ambatovy,N,,"Ambatovy area, E Madagascar",stream,,,,CARES 2026 R4.1; CCR
+Rheocles sp. 'antainambalana',,,Bedotiidae,Rheocles,endemic,NE,,unknown,CVU,undescribed_morphospecies,antainambalana,N,,"Antainambalana River near Maroantsetra, NE Madagascar",river,,,,CARES 2026 R4.1
+Katria katria,"(Reinthal & Stiassny, 1997)",1997,Cichlidae,Katria,endemic,EN,,decreasing,CEN,described,,Y,47038,"Nosivolo River, E Madagascar",river,12,N,,CARES=CEN vs IUCN=EN discrepancy
+Oxylapia polli,"Kiener & Mauge, 1966",1966,Cichlidae,Oxylapia,endemic,EN,15778,unknown,,described,,Y,8780,"Marolambo Rapids, Nosivolo River, E Madagascar",river,12,N,,"Monotypic genus. IUCN=EN (2016), was CR in 2004. Functional extinction concerns."
+Paratilapia polleni,"Bleeker, 1868",1868,Cichlidae,Paratilapia,endemic,VU,,decreasing,CVU,described,,Y,8786,Nosy Be crater lakes; various drainages across Madagascar,river,26,Y,7+ European countries; ZIMS + ZTL,Likely a species complex
+Paretroplus dambabe,"Sparks, 2002",2002,Cichlidae,Paretroplus,endemic,CR,,decreasing,CCR,described,,Y,61389,"Lake Kinkony, Mahavavy Sud River, NW Madagascar",lake,15,Y,Private keepers,CARES=CCR; IUCN=CR
+Paretroplus damii,"Bleeker, 1868",1868,Cichlidae,Paretroplus,endemic,VU,,unknown,CVU,described,,Y,,NW and far N Madagascar,river,18,Y,ZIMS institutions,
+Paretroplus gymnopreopercularis,"Sparks, 2008",2008,Cichlidae,Paretroplus,endemic,CR,,decreasing,,described,,Y,,"Amboaboa River, NW Madagascar",river,15,N,,Confirmed extant 2024 (Oliveira Carvalho et al.)
+Paretroplus kieneri,"Arnoult, 1960",1960,Cichlidae,Paretroplus,endemic,VU,,unknown,CVU,described,,Y,,NW Madagascar,river,16,Y,,
+Paretroplus lamenabe,"Sparks, 2008",2008,Cichlidae,Paretroplus,endemic,EN,,unknown,,described,,Y,,NW Madagascar,lake,18,N,,
+Paretroplus loisellei,"Sparks & Schelly, 2011",2011,Cichlidae,Paretroplus,endemic,EN,,unknown,,described,,Y,65930,NW Madagascar,river,15,Y,,Named for Paul Loiselle. Authority: Sparks & Schelly 2011.
+Paretroplus maculatus,"Kiener & Mauge, 1966",1966,Cichlidae,Paretroplus,endemic,CR,,decreasing,CCR,described,,Y,8789,"Betsiboka River drainage, NW Madagascar",river,15,Y,ZIMS + private keepers,
+Paretroplus maromandia,"Sparks & Reinthal, 1999",1999,Cichlidae,Paretroplus,endemic,EN,,decreasing,CEN,described,,Y,,"Maromandia area, NW Madagascar",river,13,N,,
+Paretroplus menarambo,"Allgayer, 1996",1996,Cichlidae,Paretroplus,endemic,CR,,unknown,CCR,described,,Y,57958,"Lake Tseny, Sofia River basin, NW Madagascar",lake,15,Y,ZSL London Zoo; Bolton Museum; hobbyists,Remnant wild population rediscovered after EW classification
+Paretroplus nourissati,"(Allgayer, 1998)",1998,Cichlidae,Paretroplus,endemic,EN,,decreasing,CEN,described,,Y,,"Sofia River basin, NW Madagascar",river,15,Y,Private keepers,
+Paretroplus petiti,"Pellegrin, 1929",1929,Cichlidae,Paretroplus,endemic,DD,,unknown,,described,,N,,NW Madagascar,river,11,N,,
+Paretroplus polyactis,"(Bleeker, 1878)",1878,Cichlidae,Paretroplus,endemic,LC,,decreasing,CLC,described,,N,,E coast of Madagascar,river,18,N,,CARES=CLC vs IUCN=LC; pop trend decreasing
+Paretroplus risengi,"Sparks & Sparks, 2025",2025,Cichlidae,Paretroplus,endemic,NE,,unknown,,described,,N,,"Anjingo-Ankofia drainage incl. Lake Andrapongy, NW Madagascar",river,17,N,,NEW SPECIES 2025. Formerly 'Paretroplus sp. anjingo'. Named for Karen J. Riseng.
+Paretroplus tsimoly,"Stiassny, Chakrabarty & Loiselle, 2001",2001,Cichlidae,Paretroplus,endemic,EN,,decreasing,CEN,described,,Y,,"Betsiboka River basin, NW Madagascar",river,20,N,,
+Ptychochromis curvidens,"Stiassny & Sparks, 2006",2006,Cichlidae,Ptychochromis,endemic,DD,,unknown,CVU,described,,N,,Eastern Madagascar,river,12,N,,
+Ptychochromis ernestmagnusi,"Martinez, Arroyave & Sparks, 2015",2015,Cichlidae,Ptychochromis,endemic,DD,,unknown,,described,,N,,Eastern Madagascar,river,10,N,,
+Ptychochromis grandidieri,"(Sauvage, 1882)",1882,Cichlidae,Ptychochromis,endemic,LC,,unknown,CVU,described,,N,,Eastern-draining waters of Madagascar,river,15,Y,ZIMS institutions,CARES=CVU vs IUCN=LC
+Ptychochromis inornatus,"Sparks, 2004",2004,Cichlidae,Ptychochromis,endemic,EN,,decreasing,CEN,described,,Y,,"Clear streams and deeper pools, E Madagascar",river,14,N,,
+Ptychochromis insolitus,"Stiassny & Sparks, 2006",2006,Cichlidae,Ptychochromis,endemic,CR,,decreasing,CCR,described,,Y,62937,"Amboaboa River, Mangarahara tributary, NW Madagascar",river,12,Y,Cologne Zoo; Toronto Zoo; ZSL London,Mangarahara Cichlid. Confirmed extant 2024. 215+ fry distributed by Cologne Zoo.
+Ptychochromis loisellei,"Stiassny & Sparks, 2006",2006,Cichlidae,Ptychochromis,endemic,EN,,decreasing,CVU,described,,Y,,"Mahanara River, NE Madagascar",river,12,Y,Cologne Zoo; 9 European zoos,Citizen Conservation species. Named for Paul Loiselle.
+Ptychochromis mainty,"Sparks, 2004",2004,Cichlidae,Ptychochromis,endemic,DD,,unknown,CVU,described,,N,,"SE Madagascar, Fort Dauphin region",river,10,N,,
+Ptychochromis makira,"Sparks & Stiassny, 2010",2010,Cichlidae,Ptychochromis,endemic,DD,,decreasing,CVU,described,,N,,"Antainambalana River, NE Madagascar",river,10,N,,Rediscovered Sept 2023 in Makira Natural Park; lost since 2003
+Ptychochromis oligacanthus,"(Bleeker, 1868)",1868,Cichlidae,Ptychochromis,endemic,EN,,decreasing,CEN,described,,Y,,"Sambirano drainage / Nosy Be, NW Madagascar",river,15,Y,Cologne Zoo; Citizen Conservation,Breeding guidelines published Dec 2022
+Ptychochromis onilahy,"Sparks & Stiassny, 2010",2010,Cichlidae,Ptychochromis,endemic,EX,,,,described,,N,62921,"Formerly Onilahy River system, SW Madagascar",river,12,N,,EXTINCT
+Ptychochromoides betsileanus,"(Boulenger, 1899)",1899,Cichlidae,Ptychochromoides,endemic,CR,,unknown,CCR,described,,Y,8822,"Ilanana and Vahifito rivers, central highlands",river,25,N,,N populations almost certainly extinct
+Ptychochromoides itasy,"(Kiener, 1963)",1963,Cichlidae,Ptychochromoides,endemic,CR,,unknown,,described,,Y,,"Lake Itasy, central Madagascar",lake,25,N,,Presumed extinct from type locality
+Ptychochromoides vondrozo,"Sparks, 2002",2002,Cichlidae,Ptychochromoides,endemic,EN,,unknown,CEN,described,,Y,,"Mananara du Sud River basin, SE Madagascar",river,20,N,,
+Paratilapia sp. 'andapa',,,Cichlidae,Paratilapia,endemic,NE,,unknown,CEN,undescribed_morphospecies,andapa,N,,"Andapa area, NE Madagascar",river,,Y,,CARES 2026 R4.1
+Paratilapia sp. 'betsiboka',,,Cichlidae,Paratilapia,endemic,NE,,unknown,CEN,undescribed_morphospecies,betsiboka,N,,"Betsiboka River drainage, W Madagascar",river,,,,CARES 2026 R4.1
+Paratilapia sp. 'betsileo highlands',,,Cichlidae,Paratilapia,endemic,NE,,unknown,CEN,undescribed_morphospecies,betsileo highlands,N,,"Betsileo highlands, central Madagascar",river,,,,CARES 2026 R4.1
+Paratilapia sp. 'fony',,,Cichlidae,Paratilapia,endemic,NE,,unknown,CVU,undescribed_morphospecies,fony,N,,East coast Madagascar,river,,,,CARES 2026 R4.1; east coast small spot form
+Paratilapia sp. 'southwest',,,Cichlidae,Paratilapia,endemic,NE,,unknown,CCR,undescribed_morphospecies,southwest,N,,SW Madagascar,river,,,,CARES 2026 R4.1; CCR
+Paratilapia sp. 'vevembe',,,Cichlidae,Paratilapia,endemic,NE,,unknown,CCR,undescribed_morphospecies,vevembe,N,,"Vevembe River area, SE Madagascar",river,,,,CARES 2026 R4.1; CCR
+Paretroplus cf. kieneri 'sofia drainage',,,Cichlidae,Paretroplus,endemic,NE,,unknown,CEN,undescribed_morphospecies,sofia drainage,N,,"Sofia River drainage, NW Madagascar",river,,,,CARES 2026 R4.1
+Paretroplus sp. 'dridrimena',,,Cichlidae,Paretroplus,endemic,NE,,unknown,VU,undescribed_morphospecies,dridrimena,N,,Madagascar,river,,,,CARES 2026 R4.1; NOTE: CARES uses 'VU' not 'CVU' — classification scheme inconsistency
+Paretroplus sp. 'giant lamena',,,Cichlidae,Paretroplus,endemic,NE,,unknown,CVU,undescribed_morphospecies,giant lamena,N,,Madagascar; large-bodied lamena form,lake,,,,CARES 2026 R4.1
+Paretroplus sp. 'lake amparihinandrina',,,Cichlidae,Paretroplus,endemic,NE,,unknown,CCR,undescribed_morphospecies,lake amparihinandrina,N,,"Lake Amparihinandrina, NW Madagascar",lake,,,,CARES 2026 R4.1; CCR; micro-endemic
+Paretroplus sp. 'ventitry',,,Cichlidae,Paretroplus,endemic,NE,,unknown,CVU,undescribed_morphospecies,ventitry,N,,"Ventitry area, Madagascar",river,,,,CARES 2026 R4.1
+Ptychochromis sp. 'mananara',,,Cichlidae,Ptychochromis,endemic,NE,,unknown,CVU,undescribed_morphospecies,mananara,N,,"Mananara area, NE Madagascar",river,,,,CARES 2026 R4.1
+Ancharius fuscus,"Steindachner, 1880",1880,Anchariidae,Ancharius,endemic,LC,,unknown,,described,,N,9645,"Eastern coast drainages (Tohizona, Onibe, Mananjary, Mangoro)",river,30,N,,
+Ancharius griseus,"(Vaillant, 1894)",1894,Anchariidae,Ancharius,endemic,EN,,unknown,,described,,Y,,"Onilahy River drainage, SW Madagascar",river,25,N,,
+Gogo arcuatus,"Ng & Sparks, 2005",2005,Anchariidae,Gogo,endemic,DD,,unknown,,described,,N,,"Sandrananta drainage, SE highlands",river,15,N,,
+Gogo atratus,"Ng, Sparks & Loiselle, 2008",2008,Anchariidae,Gogo,endemic,DD,,unknown,,described,,N,,"Lower Mananara du Nord River, NE Madagascar",river,12,N,,Micro-endemic. Leiss et al. recommended upgrade to VU.
+Gogo brevibarbis,"Ng & Sparks, 2005",2005,Anchariidae,Gogo,endemic,DD,,unknown,,described,,N,,"Mananjary River basin, E Madagascar",river,12,N,,Micro-endemic
+Gogo ornatus,"Ng & Sparks, 2005",2005,Anchariidae,Gogo,endemic,EN,,unknown,,described,,Y,,"Mangoro River basin, E Madagascar",river,15,N,,
+Pachypanchax arnoulti,"(Loiselle, 2006)",2006,Aplocheilidae,Pachypanchax,endemic,VU,,decreasing,,described,,Y,,NW Madagascar,stream,6,Y,ZIMS + ZTL institutions,
+Pachypanchax omalonotus,"(Dumeril, 1861)",1861,Aplocheilidae,Pachypanchax,endemic,EN,,decreasing,,described,,Y,,"Nosy Be and nearby mainland, NW Madagascar",stream,5,Y,ZIMS + ZTL institutions,
+Pachypanchax patriciae,"(Loiselle, 2006)",2006,Aplocheilidae,Pachypanchax,endemic,EN,,unknown,,described,,Y,,"Masoala area, NE Madagascar",stream,5,Y,,
+Pachypanchax sakaramyi,"Holly, 1928",1928,Aplocheilidae,Pachypanchax,endemic,EN,,decreasing,,described,,Y,11855,"Sakaramy basin, extreme N Madagascar",stream,6,Y,Cologne Zoo; ZIMS + ZTL,Leiss et al. recommended upgrade to CR
+Pachypanchax sparksorum,"Loiselle, 2006",2006,Aplocheilidae,Pachypanchax,endemic,EN,,decreasing,,described,,Y,,NW Madagascar,stream,5,Y,Private keepers only,
+Pachypanchax varatraza,"Loiselle, 2006",2006,Aplocheilidae,Pachypanchax,endemic,EN,,unknown,,described,,Y,,Far N Madagascar,stream,5,Y,Cologne Zoo,
+Teramulus kieneri,"Pellegrin, 1932",1932,Atherinidae,Teramulus,endemic,LC,,unknown,,described,,N,,Widespread in Madagascar,river,9,N,,
+Teramulus waterloti,"Pellegrin, 1932",1932,Atherinidae,Teramulus,endemic,EN,,decreasing,,described,,Y,,"Forested region of Mahambo, NE Madagascar",river,9,N,,Possibly extinct
+Typhleotris madagascariensis,"Petit, 1933",1933,Milyeringidae,Typhleotris,endemic,EN,22595,unknown,,described,,Y,10026,"Cave systems, Mahafaly Plateau, SW Madagascar",cave,8,N,,Blind cave fish. May be species complex.
+Typhleotris mararybe,"Sparks & Chakrabarty, 2012",2012,Milyeringidae,Typhleotris,endemic,CR,57499221,stable,,described,,Y,,"Single cave: Grotte de Vitane near Itampolo, SW Madagascar",cave,6,N,,Uniquely darkly pigmented blind cave fish
+Typhleotris pauliani,"Arnoult, 1959",1959,Milyeringidae,Typhleotris,endemic,CR,22596,unknown,,described,,Y,10027,"Cave systems, Mahafaly Plateau, SW Madagascar",cave,8,N,,SHOAL 1000 Priority Fish
+Malagodon madagascariensis,"(Arnoult, 1963)",1963,Pantanodontidae,Malagodon,endemic,EX,,,,described,,N,9651,"Formerly from forested swamps near Mahambo, NE coastal Madagascar",wetland,,N,,EXTINCT. Formerly Pantanodon madagascariensis. Reclassified Meinema & Huber 2023.
+Malagodon honahona,"Carr, Martin & Sparks, 2024",2024,Pantanodontidae,Malagodon,endemic,NE,,,,described,,N,,"Pandanus swamp in Reserve Speciale de Manombo, SE coastal Madagascar",wetland,,N,,NEW SPECIES 2024. Presumed extinct. Am. Mus. Novitates 4012. 'honahona' = swampy in Malagasy.
+Arius festinus,"Ng & Sparks, 2003",2003,Ariidae,Arius,endemic,CR,,decreasing,,described,,Y,,"Amboaboa River, NW Madagascar",river,20,N,,Freshwater rapids specialist
+Arius uncinatus,"Ng & Sparks, 2003",2003,Ariidae,Arius,endemic,CR,,decreasing,,described,,Y,,"Lake Andrapongy, Ankofia River drainage, NW Madagascar",lake,20,N,,Micro-endemic
+Sauvagella madagascariensis,"(Sauvage, 1891)",1891,Clupeidae,Sauvagella,endemic,LC,,unknown,,described,,N,,Widespread in Madagascar freshwaters,river,5,N,,
+Sauvagella robusta,"Stiassny, 2002",2002,Clupeidae,Sauvagella,endemic,EN,,unknown,,described,,Y,,"Amboaboa River area, NW Madagascar",river,4,N,,
+Ambassis fontoynonti,"Pellegrin, 1933",1933,Ambassidae,Ambassis,endemic,DD,,unknown,,described,,N,,"Faraony River, E Madagascar",river,5,N,,
+Kuhlia sauvagii,"(Sauvage, 1882)",1882,Kuhliidae,Kuhlia,endemic,VU,,stable,,described,,Y,,Madagascar; widespread,river,20,N,,
+Mesopristes elongatus,"(Guichenot, 1866)",1866,Terapontidae,Mesopristes,endemic,DD,,unknown,,described,,N,,"Lake Kinkony, NW Madagascar",lake,15,N,,
+Ratsirakia legendrei,"(Pellegrin, 1919)",1919,Eleotridae,Ratsirakia,endemic,DD,,unknown,,described,,N,,E Madagascar,river,6,N,,
+Glossogobius ankaranensis,"Banister, 1994",1994,Gobiidae,Glossogobius,endemic,LC,,unknown,,described,,N,,"Ankarana Cave system, N Madagascar",cave,5,N,,
+Arius madagascariensis,"(Vaillant, 1894)",1894,Ariidae,Arius,native,LC,,unknown,,described,,N,,"Lower/middle rivers, especially W Madagascar; also brackish",river,40,N,,
+Ambassis urotaenia,,,Ambassidae,Ambassis,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Anguilla bicolor,,,Anguillidae,Anguilla,native,NT,,unknown,,described,,N,,Madagascar,river,,N,,
+Anguilla labiata,,,Anguillidae,Anguilla,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Anguilla marmorata,,,Anguillidae,Anguilla,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Anguilla mossambica,,,Anguillidae,Anguilla,native,NT,,unknown,,described,,N,,Madagascar,river,,N,,
+Awaous aeneofuscus,,,Gobiidae,Awaous,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Awaous commersoni,,,Gobiidae,Awaous,native,NE,,unknown,,described,,N,,Madagascar,river,,N,,
+Awaous macrorhynchus,,,Gobiidae,Awaous,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Eleotris acanthopoma,,,Eleotridae,Eleotris,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Eleotris mauritiana,,,Eleotridae,Eleotris,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Giuris margaritacea,,,Eleotridae,Giuris,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Agonostomus telfairii,,,Mugilidae,Agonostomus,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Sicyopterus fasciatus,,,Gobiidae,Sicyopterus,native,DD,,unknown,,described,,N,,Madagascar,stream,,N,,
+Stenogobius polyzona,,,Gobiidae,Stenogobius,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Taenioides gracilis,,,Gobiidae,Taenioides,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Bathygobius fuscus,,,Gobiidae,Bathygobius,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Plicofollis dussumieri,,,Ariidae,Plicofollis,native,LC,,unknown,,described,,N,,Madagascar,river,,N,,
+Oreochromis niloticus,,,Cichlidae,Oreochromis,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,60,N,,Introduced 1956; dominant invasive
+Oreochromis mossambicus,,,Cichlidae,Oreochromis,introduced,NT,,unknown,,described,,N,,Madagascar (introduced),,39,N,,Widespread invader
+Oreochromis aureus,,,Cichlidae,Oreochromis,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,46,N,,Confirmed via DNA barcoding
+Oreochromis macrochir,,,Cichlidae,Oreochromis,introduced,VU,,unknown,,described,,N,,Madagascar (introduced),,38,N,,
+Oreochromis spilurus,,,Cichlidae,Oreochromis,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,20,N,,
+Coptodon rendalli,,,Cichlidae,Coptodon,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,45,N,,Displaces Paratilapia polleni
+Coptodon zillii,,,Cichlidae,Coptodon,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,40,N,,
+Tilapia sparrmanii,,,Cichlidae,Tilapia,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,23,N,,
+Channa maculata,,,Channidae,Channa,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,33,N,,
+Channa striata,,,Channidae,Channa,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,100,N,,Introduced 1976-78
+Gambusia holbrooki,,,Poeciliidae,Gambusia,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,6,N,,Major threat to endemic killifishes
+Gambusia affinis,,,Poeciliidae,Gambusia,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,6,N,,Mosquito control introduction
+Poecilia reticulata,,,Poeciliidae,Poecilia,introduced,NE,,unknown,,described,,N,,Madagascar (introduced),,5,N,,
+Xiphophorus hellerii,,,Poeciliidae,Xiphophorus,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,16,N,,
+Xiphophorus maculatus,,,Poeciliidae,Xiphophorus,introduced,DD,,unknown,,described,,N,,Madagascar (introduced),,6,N,,Abundant in Sofia basin (2024 survey)
+Micropterus salmoides,,,Centrarchidae,Micropterus,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,97,N,,Major predatory threat in highlands
+Lepomis macrochirus,,,Centrarchidae,Lepomis,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,41,N,,
+Cyprinus carpio,,,Cyprinidae,Cyprinus,introduced,VU,,unknown,,described,,N,,Madagascar (introduced),,120,N,,Multiple basins
+Carassius auratus,,,Cyprinidae,Carassius,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,41,N,,Found in Sofia basin
+Labeo rohita,,,Cyprinidae,Labeo,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,200,N,,Aquaculture introduction
+Tanichthys albonubes,,,Cyprinidae,Tanichthys,introduced,DD,,unknown,,described,,N,,Madagascar (introduced),,4,N,,
+Oncorhynchus mykiss,,,Salmonidae,Oncorhynchus,introduced,NE,,unknown,,described,,N,,Madagascar (introduced),,120,N,,Introduced from France 1922; highland rivers
+Macropodus opercularis,,,Osphronemidae,Macropodus,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,11,N,,
+Osphronemus goramy,,,Osphronemidae,Osphronemus,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,70,N,,
+Heterotis niloticus,,,Arapaimidae,Heterotis,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,100,N,,
+Microctenopoma ansorgii,,,Anabantidae,Microctenopoma,introduced,LC,,unknown,,described,,N,,Madagascar (introduced),,8,N,,
