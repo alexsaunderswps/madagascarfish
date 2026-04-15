@@ -131,6 +131,16 @@ The MVP gate number is not fixed — it depends on the project's scope decomposi
 For a typical web application, MVP often lands around Gate 4–6, but let the acceptance
 criteria determine this, not an arbitrary count.
 
+## Git Workflow
+
+**Never write files on `main`.** Before writing any spec file, check the current branch (`git branch --show-current`). If on `main`, create and check out a feature branch first:
+
+```
+git checkout -b docs/<topic>
+```
+
+Use branch naming `docs/<topic>` for planning documents (e.g., `docs/gate-specs-mvp`). Commit your output to that branch. `main` receives merges only after human review.
+
 ## Output Format
 
 Write specs to `docs/planning/specs/` with filenames like `gate-01-foundation.md`,

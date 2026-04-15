@@ -1,11 +1,13 @@
 # BA Assessment v1: Madagascar Freshwater Fish Conservation Platform
 
-**Date:** 2026-04-12 (rev 2)
-**Status:** Draft -- Awaiting Human Review
+**Date:** 2026-04-12 (rev 3)
+**Status:** Draft -- Open Questions Resolved; Pending PM Integration
 **Analyst:** Business Analyst Agent
 **Input Documents:** Architecture Proposal (2026-04-09), Extinction Crisis Report, Data Infrastructure Gap Analysis, January 2026 Workshop Notes, ECA Workshop Invitation (Feb 2026), SHOAL 1,000 Fishes Blueprint (2024), Leiss et al. (2022) -- Zoo Biology 41:244-262, CARES program materials
 **Context:** Five issues raised during human review of the architecture proposal require BA evaluation before the PM can write tickets.
 **Rev 2 Note:** Updated after reading full reference documents. Leiss et al. 2022 confirms all baseline figures used in rev 1 -- no data model changes. ECA Workshop invitation and SHOAL 1,000 Fishes Blueprint produce material updates to Sections 1, 2, 4, and 5 (SHOAL landscape characterization corrected; ECA/SHOAL strategic relationship clarified; Q5/Q6 updated; prioritization criteria note revised).
+
+**Rev 3 Note:** Section 5 updated with project lead decisions on all open questions (2026-04-12). Q1, Q2, Q3 resolved. Q6 acknowledged and deferred. Additional decisions logged for PM integration: Gate 03 simplification (email verification cut from MVP), ExternalReference table moved to Gate 02, deployment infrastructure gap flagged, CARES classification normalization requirement, Gate 07 About page placeholder added.
 
 ---
 
@@ -318,20 +320,29 @@ The architecture proposal's `integration` Django app with SyncJob, ExternalRefer
 
 ## 5. Open Questions for Human Resolution
 
-**Resolution status:** Q5 resolved 2026-04-12.
+**Resolution status:** Q1 resolved 2026-04-12. Q2 resolved 2026-04-12. Q3 resolved 2026-04-12. Q5 resolved 2026-04-12 (rev 2). Q6 acknowledged, deferred to pre-ECA Workshop 2026.
 
 ### Blocking for MVP
 
 These decisions must be made before the PM can write tickets for the first implementation gate.
 
-**Q1: What is the initial species dataset, and who curates it?**
-The architecture proposal recommends seeding from Leiss et al. 2022 (173 species). The January 2026 workshop asked "who will implement it and how?" For MVP, the project lead must manually prepare a seed dataset (CSV or fixtures) covering at minimum: scientific_name, authority, year_described, family, genus, endemic_status, iucn_status, taxonomic_status, and cares_status for all species to be included. This is a data preparation task, not a development task. **Decision needed: Will the MVP seed dataset include only the ~79 described endemics, or also the ~15-20 undescribed morphospecies from CARES beta / recent literature?** This BA recommends including undescribed taxa (see Issue 2), but the scope is the project lead's call.
+**Q1: What is the initial species dataset, and who curates it? [RESOLVED 2026-04-12]**
 
-**Q2: Does the MVP frontend use Next.js or Django templates?**
-The architecture proposal specifies Next.js 14 for the frontend. For an MVP targeting the June 2026 ECA Workshop (~7 weeks away), building a full decoupled Next.js frontend may not be achievable alongside the Django backend, data model, auth system, IUCN sync, and data seeding. An alternative MVP path: use Django templates (with Tailwind or similar) for the public species directory and conservation dashboard, plus Django Admin for coordinator data entry. The DRF API is still built and the Next.js frontend replaces the Django templates post-MVP. **Decision needed: Django templates for MVP speed, or Next.js from the start?** This BA recommends Django templates for MVP given the timeline constraint, but this is an architecture decision the project lead should make with full awareness of the tradeoff.
+**Decision:** The seed dataset will be built from Leiss et al. 2022 Table 1 (173 species) as the backbone, overlaid with CARES Beta Program data (Bedotiidae + Cichlidae spreadsheets) for `cares_status` values, cross-referenced against the IUCN Red List, FishBase, and recent literature (2022–2026). Scope includes both described endemics AND undescribed morphospecies (~23 from CARES).
 
-**Q3: Licensing decision.**
-The architecture proposal lists AGPL-3.0, MIT/BSD, and Apache-2.0 as options. This does not block implementation gates but blocks the first public commit. The gap analysis notes that institutional adoption (EAZA, AZA members) may be sensitive to AGPL's copyleft requirements. **Decision needed before first public release, which should coincide with MVP.**
+A comprehensive seed dataset research document has been produced covering ~198 taxa across 36 families, including two newly described species since Leiss et al.: *Malagodon honahona* (2024) and *Paretroplus risengi* (2025), and 23 undescribed morphospecies. The project lead will curate the final CSV from this research document.
+
+**Ownership:** Data preparation task owned by the project lead. Not a development task.
+
+**Q2: Does the MVP frontend use Next.js or Django templates? [RESOLVED 2026-04-12]**
+
+**Decision:** Next.js 14 is confirmed for the MVP frontend. The project lead overrides the BA's recommendation. Gate 07 spec is already correct; no changes required to existing gate specs.
+
+**Note:** This decision was made with full awareness of the timeline risk. The BA recommended Django templates for MVP speed given the ~7-week window to the ECA Workshop. The project lead accepted that risk in favor of Next.js from the start.
+
+**Q3: Licensing decision. [RESOLVED 2026-04-12]**
+
+**Decision:** Apache-2.0 is approved. Gate 01 already commits this. No further action required.
 
 ### Blocking for Post-MVP but Should Be Tracked Now
 
@@ -341,8 +352,11 @@ The project lead should establish a communication channel with CARES 2.0 develop
 **Q5: ECA Workshop attendance and data alignment. [RESOLVED]**
 The project lead (Aleksei Saunders) is registered and will attend the June 2026 CPSG Ex-situ Conservation Assessment Workshop (ABQ BioPark, June 1-5). The platform should be in a demonstrable state by then -- species profiles and basic ex-situ population tracking as the minimum. The workshop is co-organized by SHOAL, so this is also the natural moment to initiate the Q6 conversation with Georgie Bull in person. Preparation task (not a code task): prepare a brief one-pager on the platform to share with workshop participants, framing it as the regional data infrastructure for Malagasy species ECA outcomes.
 
-**Q6: SHOAL partnership scope.**
-The SHOAL 1,000 Fishes Blueprint confirms that SHOAL is not building a competing species database -- its data foundation is the IUCN Red List. The January 2026 workshop reference to Georgie Bull building a "conservation project database" likely refers to a project registry (tracking which organizations are working on which species), not a species profile or ex-situ tracking system. This platform is complementary. **Decision needed: Has the project lead contacted Georgie Bull to (a) understand exactly what SHOAL's project database covers, (b) clarify whether this platform could serve as the Malagasy data source feeding SHOAL's network, and (c) coordinate on how ECA Workshop outputs for Malagasy species will be captured?** Given SHOAL's co-organizer role in the ECA Workshop, this conversation is now more urgent than the January 2026 framing suggested.
+**Q6: SHOAL partnership scope. [ACKNOWLEDGED — DEFERRED]**
+
+The SHOAL 1,000 Fishes Blueprint confirms that SHOAL is not building a competing species database — its data foundation is the IUCN Red List. This platform is complementary.
+
+**Status:** The project lead has not yet contacted Georgie Bull. This is not blocking any development gate. The project lead will initiate the SHOAL conversation before or at the June 2026 ECA Workshop (ABQ BioPark, June 1–5), where SHOAL is a co-organizer. Deferred — project lead will action before June 2026.
 
 ### Not Blocking -- Can Be Deferred
 
@@ -353,6 +367,58 @@ The following open questions from the architecture proposal are real but do not 
 - **Multilingual scope** -- English for MVP. French and Malagasy common names stored in the CommonName model from day one, but UI internationalization is post-MVP.
 - **Governance handover** -- Resolved for now (Aleksei owns at launch). Long-term handover is a post-MVP organizational question. Architecture mitigates lock-in risk (org-level credentials, no personal account dependencies).
 - **Data entry responsibility** -- For MVP, the project lead is the primary data entrant via Django Admin. Post-MVP, the Tier 3+ coordinator community enters population data. Distributed data entry with review workflows is a post-MVP capability.
+
+### Additional Decisions for PM Integration (2026-04-12)
+
+These decisions were communicated by the project lead on 2026-04-12. They do not modify existing gate spec files — the PM must incorporate them when revising gates.
+
+**Gate 03 Simplification: Email Verification Removed from MVP**
+
+Self-registration and email verification are cut from MVP scope. The project lead will create user accounts directly in Django Admin.
+
+Gate 03 retains:
+- `TierPermission` model and `for_tier()` queryset managers
+- Institution-scoped filtering
+- Session + token authentication
+- Login endpoint
+
+Deferred to post-MVP: user self-registration, email verification, rate-limited login.
+
+*Flag for PM:* Revise Gate 03 acceptance criteria to remove registration endpoint, email confirmation flow, and rate-limiting stories.
+
+---
+
+**ExternalReference Table: Move to Gate 02**
+
+The architecture proposal's `ExternalReference` model — a polymorphic external ID table for IUCN taxon IDs, FishBase IDs, GBIF taxon keys, and future CARES 2.0 IDs — should be included in Gate 02's data layer rather than stored as inline fields on Species. A single lookup table for all external identifiers avoids adding columns to Species when new integrations are built.
+
+*Flag for PM:* Incorporate `ExternalReference` into Gate 02. Update Gate 06 IUCN sync story to match species via `ExternalReference` rather than a direct `iucn_taxon_id` field on Species.
+
+---
+
+**Deployment Infrastructure: No Gate Currently Covers This**
+
+Gate 07 exit criteria require a deployed staging environment for the ECA Workshop, but no gate currently specifies: deployment target (Fly.io, Railway, Vercel, etc.), CI/CD pipeline, environment variable management, or database hosting.
+
+*Flag for PM:* Recommend adding deployment tasks to Gate 01 (foundation) or creating a lightweight Gate 00.5 / deployment addendum. This must be resolved before Gate 07 can exit.
+
+---
+
+**CARES Classification Scheme: Normalization Required at Seed Time**
+
+The CARES beta data uses both CARES-specific codes (CCR/CEN/CVU/CLC) and standard IUCN codes (CR/EN/VU) interchangeably. This creates ambiguity in the `cares_status` field — a value of "CR" may mean IUCN CR or a mislabeled CCR.
+
+The `cares_status` enum on Species must either: (a) accept both sets of values, or (b) the seed data cleaning step must normalize all CARES entries to CARES-specific codes before import.
+
+*Flag for PM:* Add a data normalization note to Gate 02 acceptance criteria. The project lead will decide during CSV curation. Either way, the enum definition must explicitly list all accepted values.
+
+---
+
+**Gate 07: About Page Content**
+
+The MVP frontend needs an About page with positioning text for the ECA Workshop audience. The project lead will provide copy.
+
+*Flag for PM:* Add a placeholder story to Gate 07 for the About page. Acceptance criteria: page exists with project lead-provided content before the ECA Workshop demo.
 
 ---
 

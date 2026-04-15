@@ -80,6 +80,20 @@ Ideation documents live in `docs/ideation/`:
 - `extinction-crisis-report.md` — domain context and species data
 - `data-infrastructure-gap.md` — gap analysis and platform rationale
 
+## Git Workflow
+
+**All file changes — by agents and by the orchestrator — must be made on a feature branch, never directly on `main`.**
+
+Before writing or editing any file:
+1. Check the current branch (`git branch --show-current`). If on `main`, create and check out an appropriate branch first.
+2. Name branches by type and topic:
+   - Planning docs: `docs/<topic>` (e.g., `docs/ba-assessment-updates`)
+   - Implementation gates: `gate/<number>-<description>` (e.g., `gate/02-data-model`)
+   - Features: `feat/<description>`
+   - Fixes: `fix/<description>`
+
+No agent or session should commit directly to `main`. `main` receives merges only after human review.
+
 ## Agent Delegation
 
 This project uses specialized agents in `.claude/agents/`. Delegate as follows:
