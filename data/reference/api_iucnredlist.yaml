@@ -1,0 +1,2193 @@
+---
+openapi: 3.0.1
+info:
+  title: API V4
+  version: v4
+tags:
+- name: Assessment
+  description: Return assessment data relating to a specific <code>assessment_id</code>.
+    You do not need to supply a latest <code>assessment_id</code>; you can therefore
+    return data on latest and historic assessments if the <code>assessment_id</code>
+    is known. You can gather a list of current and historic <code>assessment_id</code>
+    for a specific species by using <code>api/v4/taxa/scientific_name/{scientific_name}</code>
+- name: Biogeographical Realms
+  description: Return the latest assessments for a biogeographical realm.
+- name: Comprehensive Groups
+  description: Return the latest assessments for a comprehensive group
+- name: Conservation Actions
+  description: Description coming soon...
+- name: Countries
+  description: Return the latest assessments for a given country.
+- name: FAOs
+  description: Documentation coming soon..
+- name: Growth Forms
+  description: Return the latest assessments for a given growth form.
+- name: Green Status
+  description: Return the latest Green Status assessments.
+- name: Habitats
+  description: Return the latest assessments for a given habitat (e.g. Forest - Temperate
+    or Marine Intertidal). These habitat codes correspond to the IUCN Red List Habitats
+    Classification Scheme (v3.1)
+- name: Information
+  description: Endpoints for supplying general API-specific information.
+- name: Population Trends
+  description: Return a list of the latest assessments based on a population trend
+    (i.e. increasing, decreasing stable or unknown)
+- name: Red List Categories
+  description: Return a list of the latest assessments for a given category. (Not
+    Evaluated,Â Data Deficient,Â Least Concern,Â Near Threatened,Â Vulnerable,Â Endangered,Â Critically
+    Endangered,Â Extinct in the WildÂ andÂ Extinct).
+- name: Research
+  description: Return a list of the latest assessments for a given research category.
+- name: Scopes
+  description: Return latest assessments for a given geographical assessment scope
+    (e.g. Global,  Mediterranean)
+- name: Statistics
+  description: Return aggregated statistics.
+- name: Stresses
+  description: Return a list of the latest assessments based on the stresses speciesâ€™
+    are subject to (e.g. Ecosystem degradation, species disturbance etc.)
+- name: Systems
+  description: Return assessments belonging to broad systems (e.g. terrestrial, freshwater
+    or marine)
+- name: Taxa
+  description: 'Return summary assessment data at the species level and other higher
+    taxonomic levels (kingdom to family, inclusive). When querying at the species
+    level, the API returns the latest and historic assessment information. '
+- name: Threats
+  description: Return a list of the latest assessments which are subject to a specific
+    threat (e.g. energy production and mining, climate change and severe weather)
+- name: Use and Trade
+  description: Return a list of the latest assessments which are subject to a specific
+    uses and trade.
+components:
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Your Bearer token
+paths:
+  "/api/v4/assessment/{assessment_id}":
+    get:
+      summary: Retrieves an assessment
+      tags:
+      - Assessment
+      description: Returns assessment data for a supplied <code>assessment_id</code>.
+        This endpoint returns the same assessment data that you would see on an assessment
+        page on the IUCN Red List website. Accepts both latest and historic <code>assessment_id</code>.
+      security:
+      - Bearer: []
+      parameters:
+      - name: assessment_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: assessment found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                required:
+                - assessment_id
+        '401':
+          description: unauthorised
+        '404':
+          description: not found
+  "/api/v4/assessment_search":
+    get:
+      summary: Searches for assessments
+      tags:
+      - AssessmentSearch
+      description: 'Returns a paginated list of **latest** assessment IDs matching
+        the filter_on criteria. Allowed values are: eu_27_post_2020_endemic, amazing,
+        cr_pe, cr_pew, endemic, gss, needs_updating. **Please note that this endpoint
+        is currently in beta**. While the assessment IDs provided are accurate, the
+        JSON response structure may change in the future.'
+      security:
+      - Bearer: []
+      parameters:
+      - name: filter_on[]
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+          example:
+          - eu_27_post_2020_endemic
+        style: form
+        explode: true
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: valid filter_on
+        '400':
+          description: empty search options
+        '401':
+          description: unauthorised
+  "/api/v4/biogeographical_realms/":
+    get:
+      summary: Returns a list of biogeographic realm codes
+      security:
+      - Bearer: []
+      tags:
+      - Biogeographical Realms
+      description: List available biogeographical realms (e.g. Neotropical or Palearctic)
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/biogeographical_realms/{code}":
+    get:
+      summary: Returns a collection of assessments for a biogeographical realm code
+      tags:
+      - Biogeographical Realms
+      description: Returns a list of the latest assessments for a given biogeographical
+        realm. Results are paginated (100 assessments per page).
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: biogeographical realm found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The biogeographical realm code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: biogeographical realm not found
+  "/api/v4/comprehensive_groups/":
+    get:
+      summary: Returns a list of comprehensive groups
+      tags:
+      - Comprehensive Groups
+      description: List the available comprehensive groups.
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/comprehensive_groups/{name}":
+    get:
+      summary: Returns a collection of assessments for a comprehensive group name
+      tags:
+      - Comprehensive Groups
+      description: Returns a list of the latest assessments for an comprehensive group
+        name. Results are paginated (100 assessments per page).
+      security:
+      - Bearer: []
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: comprehensive group found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: The comprehensive group name
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: comprehensive group not found
+  "/api/v4/conservation_actions/":
+    get:
+      summary: returns a list of conservation actions
+      tags:
+      - Conservation Actions
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/conservation_actions/{code}":
+    get:
+      summary: returns a collection of assessments for a conservation action code
+      tags:
+      - Conservation Actions
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: conservation action found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The conservation actions code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: conservation action not found
+  "/api/v4/countries/":
+    get:
+      summary: Returns a list of countries by ISO alpha-2 code
+      tags:
+      - Countries
+      description: Return a list of countries
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/countries/{code}":
+    get:
+      summary: Returns a collection of assessments for a given country ISO alpha-2
+        code
+      tags:
+      - Countries
+      description: Return the latest assessments for a given country code. Results
+        are paginated (100 assessments per page)
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: country found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The iso alpha 2 country code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: country not found
+  "/api/v4/faos/":
+    get:
+      summary: Returns a list of FAOs
+      tags:
+      - FAOs
+      description: List the available FAOs.
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/faos/{code}":
+    get:
+      summary: Returns a collection of assessments for an FAO code
+      tags:
+      - FAOs
+      description: Returns a list of the latest assessments for an FAO code. Results
+        are paginated (100 assessments per page).
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: fao found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The fao code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: fao not found
+  "/api/v4/green_status/all":
+    get:
+      summary: Returns a list of all Green Status assessments
+      tags:
+      - Green Status
+      description: List all Green Status assessments.
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/growth_forms/":
+    get:
+      summary: Returns a list of growth forms
+      tags:
+      - Growth Forms
+      description: List the available growth forms.
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/growth_forms/{code}":
+    get:
+      summary: Returns a collection of assessments for a given growth form code
+      tags:
+      - Growth Forms
+      description: Returns a list of the latest assessments for a given growth form
+        code. Results are paginated (100 assessments per page)
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: measure found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The growth form code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: measure not found
+  "/api/v4/habitats/":
+    get:
+      summary: Returns a list of habitat codes.
+      security:
+      - Bearer: []
+      tags:
+      - Habitats
+      description: List the available habitat codes as per the Habitats Classification
+        Scheme (v3.1)
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/habitats/{code}":
+    get:
+      summary: Returns a collection of assessments for a given habitat code
+      tags:
+      - Habitats
+      description: Return the latest assessments for a given habitat code (e.g. Forest
+        - Temperate or Marine Intertidal). These habitat codes correspond to the IUCN
+        Red List Habitats Classification Scheme (v3.1)
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: habitat found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The habitat code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: habitat not found
+  "/api/v4/information/api_version":
+    get:
+      summary: Returns the current version number of the IUCN Red List of Threatened
+        Species API
+      security:
+      - Bearer: []
+      tags:
+      - Information
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/information/red_list_version":
+    get:
+      summary: Returns the current IUCN Red List of Threatened Species version
+      security:
+      - Bearer: []
+      tags:
+      - Information
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/population_trends/":
+    get:
+      summary: Returns a list of population trends
+      tags:
+      - Population Trends
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/population_trends/{code}":
+    get:
+      summary: Returns a collection of assessments for a given population trend code
+      tags:
+      - Population Trends
+      description: Return a list of the latest assessments based on a population trend
+        (i.e. increasing, decreasing, stable or unknown)
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: population trend found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The population trend code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: population trend not found
+  "/api/v4/red_list_categories/":
+    get:
+      summary: Returns a list of Red List categories
+      tags:
+      - Red List Categories
+      description: |-
+        Returns a list of Red List categories. This endpoint returns categories for the current IUCN Red List
+              Categories and Criteria (v3.1) as well as older versions (i.e. v2.3)
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/red_list_categories/{code}":
+    get:
+      summary: Returns a collection of assessments for a given Red List category code
+      tags:
+      - Red List Categories
+      description: Returns a list of the latest assessments for a given Red List category
+        code. Note that a code may not be unique across Categories and Criteria versions.
+        Therefore, codes like â€œEXâ€ will return assessments for EX v3.1 and EX v2.3.
+        Results are paginated (100 assessments per page).
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: red list category found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The red list category code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: red list category not found
+  "/api/v4/research/":
+    get:
+      summary: Returns a list of habitat codes.
+      security:
+      - Bearer: []
+      tags:
+      - Research
+      description: List the available research codes as per the Research Needed Classification
+        Scheme (v1.0)
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/research/{code}":
+    get:
+      summary: Returns a collection of assessments for a given research code
+      tags:
+      - Research
+      description: Return the latest assessments for a given research code. These
+        research codes correspond to the IUCN Red List Research Needed Classification
+        Scheme (v1.0)
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: research found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The research code.
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: research not found
+  "/api/v4/scopes/":
+    get:
+      summary: returns a list of scopes
+      tags:
+      - Scopes
+      description: Returns a list of assessment scopes
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/scopes/{code}":
+    get:
+      summary: Returns a collection of assessments for a given scope code
+      tags:
+      - Scopes
+      description: Returns a list of the latest assessments for a given geographic
+        scope. Results are paginated (100 assessments per page)
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: scope found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The scope code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: scope not found
+  "/api/v4/statistics/count":
+    get:
+      summary: Return count of the number of species with assessments
+      tags:
+      - Statistics
+      description: Returns a count of the number of species which have assessments.
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/stresses/":
+    get:
+      summary: Returns a list of stressors
+      tags:
+      - Stresses
+      description: Returns a list of stressors
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/stresses/{code}":
+    get:
+      summary: returns a collection of assessments for a given stress code
+      tags:
+      - Stresses
+      description: Returns a list of the latest assessments for a given stressor.
+        Results are paginated (100 assessments per page)
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: stress found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The stress code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: stress not found
+  "/api/v4/systems/":
+    get:
+      summary: Returns a list of systems
+      tags:
+      - Systems
+      description: Returns a list of systems
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/systems/{code}":
+    get:
+      summary: Returns a collection of assessments for a given system code
+      tags:
+      - Systems
+      description: Returns a list of the latest assessments for a given system Results
+        are paginated (100 assessments per page)
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: system found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The system code
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: system not found
+  "/api/v4/taxa/sis/{sis_id}":
+    get:
+      summary: Returns a collection of assessments for a given SIS id
+      tags:
+      - Taxa
+      description: Returns summary latest and historic assessment data for a given
+        <code>SIS id</code>. This endpoint does not provide all assessment data that
+        can be found from querying <code>api/v4/assessments/{assessment_id}</code>
+        but provides enough ancillary information at the species level such that full
+        assessment data can be returned if required.
+      security:
+      - Bearer: []
+      parameters:
+      - name: sis_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: taxon found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sis_id:
+                    type: integer
+                    description: The taxon sis_id
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+                required:
+                - sis_id
+        '401':
+          description: unauthorised
+        '404':
+          description: taxon not found
+  "/api/v4/taxa/scientific_name":
+    get:
+      summary: Returns a collection of assessments for a given genus_name and species_name
+        (i.e. Latin binomial) and optional infra_name (i.e. Latin trinomial)
+      tags:
+      - Taxa
+      description: Returns summary latest and historic assessment data for a given
+        <code>genus_name</code> and <code>species_name</code> and optional <code>infra_name</code>.
+        This endpoint does not provide all assessment data - that can be found from
+        querying <code>api/v4/assessments/{assessment_id}</code> - but provides enough
+        ancillary information at the species level such that full assessment data
+        can be returned if required.
+      security:
+      - Bearer: []
+      parameters:
+      - name: genus_name
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: species_name
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: infra_name
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: subpopulation_name
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: taxon found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  genus_name:
+                    type: string
+                    description: The taxon genus_name
+                  species_name:
+                    type: string
+                    description: The taxon species_name
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: taxon not found
+  "/api/v4/taxa/kingdom/":
+    get:
+      summary: Returns a list of all kingdom names
+      tags:
+      - Taxa
+      description: Returns a collection of all kingdom names
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: kingdom found
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/kingdom/{kingdom_name}":
+    get:
+      summary: Returns a collection of the latests assessments for a given kingdom_name
+      tags:
+      - Taxa
+      description: 'Returns the latest assessments for the supplied kingdom. Results
+        are paginated (100 assessments per page) '
+      security:
+      - Bearer: []
+      parameters:
+      - name: kingdom_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: kingdom found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kingdom_name:
+                    type: string
+                    description: The kingdom name
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/phylum/":
+    get:
+      summary: Returns a list of all phylum names
+      tags:
+      - Taxa
+      description: Returns a collection of all phylum names
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: kingdom found
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/phylum/{phylum_name}":
+    get:
+      summary: Returns a collection of the latests assessments for a given phylum_name
+      tags:
+      - Taxa
+      description: 'Returns the latest assessments for the supplied phylum. Results
+        are paginated (100 assessments per page) '
+      security:
+      - Bearer: []
+      parameters:
+      - name: phylum_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: phylum found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  phylum_name:
+                    type: string
+                    description: The phylum name
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/class/":
+    get:
+      summary: Returns a list of all class names
+      tags:
+      - Taxa
+      description: Returns a collection of all class names
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: class found
+  "/api/v4/taxa/class/{class_name}":
+    get:
+      summary: Returns a collection of the latests assessments for a given class_name
+      tags:
+      - Taxa
+      description: 'Returns the latest assessments for the supplied class. Results
+        are paginated (100 assessments per page) '
+      security:
+      - Bearer: []
+      parameters:
+      - name: class_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: class found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  class_name:
+                    type: string
+                    description: The class name
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/order/":
+    get:
+      summary: Returns a list of all order names
+      tags:
+      - Taxa
+      description: Returns a collection of the all order names
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: order found
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/order/{order_name}":
+    get:
+      summary: Returns a collection of the latests assessments for a given order_name
+      tags:
+      - Taxa
+      description: Returns the latest assessments for the supplied order. Results
+        are paginated (100 assessments per page)
+      security:
+      - Bearer: []
+      parameters:
+      - name: order_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: order found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_name:
+                    type: string
+                    description: The order name
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/family/":
+    get:
+      summary: Returns a list of all family names
+      tags:
+      - Taxa
+      description: Returns a collection of the all family names
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: family found
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/family/{family_name}":
+    get:
+      summary: Returns a collection of the latests assessments for a given family_name
+      tags:
+      - Taxa
+      description: 'Returns the latest assessments for the supplied family. Results
+        are paginated (100 assessments per page) '
+      security:
+      - Bearer: []
+      parameters:
+      - name: family_name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: family found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  family_name:
+                    type: string
+                    description: The family name
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/possibly_extinct":
+    get:
+      summary: Returns a collection of the all latest global assessments for taxa
+        that are possibly extinct
+      tags:
+      - Taxa
+      description: Returns a collection of all latest global assessments for taxa
+        that are possibly extinct
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: assessments found
+        '401':
+          description: unauthorised
+  "/api/v4/taxa/possibly_extinct_in_the_wild":
+    get:
+      summary: Returns a collection of the all latest global assessments for taxa
+        that are possibly extinct in the wild
+      tags:
+      - Taxa
+      description: Returns a collection of all latest global assessments for taxa
+        that are possibly extinct in the wild
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: assessments found
+        '401':
+          description: unauthorised
+  "/api/v4/threats/":
+    get:
+      summary: Returns a list of threats
+      tags:
+      - Threats
+      description: Returns a list of threat codes.
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/threats/{code}":
+    get:
+      summary: Returns a collection of assessments for a given threat code
+      tags:
+      - Threats
+      description: Returns the latest assessments for a given threat code. This will
+        only return assessments for the threat code specified.  You will need to do
+        additional requests for sub-threats e.g. a request for threat code 2_1 will
+        need additional requests for codes 2_1_1, 2_1_2 etc.
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: threat found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The threat code.
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: threat not found
+  "/api/v4/use_and_trade/":
+    get:
+      summary: Returns a list of use and trades
+      tags:
+      - Use and Trade
+      description: Returns a list of use and trade codes.
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorised
+  "/api/v4/use_and_trade/{code}":
+    get:
+      summary: Returns a collection of assessments for a given use and trade code
+      tags:
+      - Use and Trade
+      description: Returns the latest assessments for a given use and trade code.
+      security:
+      - Bearer: []
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: year_published
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: latest
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: possibly_extinct_in_the_wild
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: scope_code
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: use and trade found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: The use and trade code.
+                  page:
+                    type: integer
+                    minimum: 0
+                    nullable: true
+                    description: Page number (defaults to 1)
+                  year_published:
+                    type: string
+                    description: Filter by year published
+                  latest:
+                    type: boolean
+                    description: Filter by latest (true or false)
+                  possibly_extinct:
+                    type: boolean
+                    description: Filter by possibly extinct (true or false)
+                  possibly_extinct_in_the_wild:
+                    type: boolean
+                    description: Filter by possibly extinct in the wild (true or false)
+                  scope_code:
+                    type: string
+                    description: Filter by scope code (e.g. 1 for Global)
+                  per_page:
+                    type: integer
+                    maximum: 100
+                    nullable: true
+                    description: Number of assessments returned per page (defaults
+                      to 100 with a maximum 100)
+        '401':
+          description: unauthorised
+        '404':
+          description: Use and trade code not found

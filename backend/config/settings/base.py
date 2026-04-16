@@ -94,6 +94,12 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
+# IUCN Red List API
+IUCN_API_BASE_URL = env("IUCN_API_BASE_URL", default="https://api.iucnredlist.org/api/v4")
+IUCN_API_TOKEN = env("IUCN_API_TOKEN", default="")
+IUCN_CACHE_TTL_SECONDS = env.int("IUCN_CACHE_TTL_SECONDS", default=60 * 60 * 24 * 7)
+IUCN_REQUEST_TIMEOUT_SECONDS = env.int("IUCN_REQUEST_TIMEOUT_SECONDS", default=30)
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

@@ -11,6 +11,7 @@ class SyncJobAdmin(admin.ModelAdmin):
         "started_at",
         "completed_at",
         "records_processed",
+        "records_created",
         "records_updated",
         "records_skipped",
     ]
@@ -21,6 +22,7 @@ class SyncJobAdmin(admin.ModelAdmin):
         "started_at",
         "completed_at",
         "records_processed",
+        "records_created",
         "records_updated",
         "records_skipped",
         "error_log",

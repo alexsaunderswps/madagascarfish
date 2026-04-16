@@ -174,6 +174,13 @@ class ConservationAssessment(models.Model):
         related_name="flagged_assessments",
     )
     flagged_date = models.DateTimeField(null=True, blank=True)
+    last_sync_job = models.ForeignKey(
+        "integration.SyncJob",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assessments",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
