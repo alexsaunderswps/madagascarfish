@@ -24,7 +24,7 @@ Both are in this gate because they share the Celery + Redis infrastructure and b
 - `iucn_sync` Celery task — fetches current assessment for each `Species` with `iucn_taxon_id` set; creates or updates `ConservationAssessment` with `source = 'iucn_official'`, `review_status = 'accepted'`; skips undescribed taxa without `iucn_taxon_id`; logs all errors to `SyncJob.error_log`
 - `celery beat` schedule: `iucn_sync` runs weekly (Sunday 02:00 UTC)
 - `SyncJob` lifecycle management: job creates a `SyncJob` record on start, updates it on completion or failure
-- Management command `seed_species` — idempotently loads species from `data/seed/species.csv`
+- Management command `seed_species` — idempotently loads species from `data/seed/madagascar_freshwater_fish_seed.csv`
 - Management command `load_reference_layers` — loads HydroSHEDS watershed and WDPA protected area shapefiles into PostGIS
 - Management command `seed_localities` — loads species locality records from `data/localities/madagascar_freshwater_fish_localities.csv` into `SpeciesLocality` model
 - Management command `generate_map_layers` — serializes reference layer tables to static GeoJSON files for frontend map overlays
@@ -99,18 +99,41 @@ def iucn_sync(self):
 
 Location: `species/management/commands/seed_species.py`
 
-The seed CSV (`data/seed/species.csv`) is prepared separately from this gate (data preparation is the project lead's task). The management command is code; the CSV is data.
+The seed CSV (`data/seed/madagascar_freshwater_fish_seed.csv`) is prepared separately from this gate (data preparation is the project lead's task). The management command is code; the CSV is data. See [Data Preparation Guide](data-preparation-guide.md) for column-by-column guidance.
 
-**CSV schema:**
-```
-scientific_name, taxonomic_status, provisional_name, authority, year_described,
-family, genus, endemic_status, iucn_status, cares_status, shoal_priority,
-description, ecology_notes, iucn_taxon_id, fishbase_id, gbif_taxon_key
-```
+**CSV schema (20 columns):**
+
+| Column | Maps to Field | Required | Validation |
+|--------|--------------|----------|------------|
+| `scientific_name` | `scientific_name` | Yes | Unique key for upsert; non-empty |
+| `authority` | `authority` | No | Null for undescribed taxa |
+| `year_described` | `year_described` | No | Integer year; null for undescribed taxa |
+| `family` | `family` | Yes | Non-empty string |
+| `genus` | `genus` | Yes | Non-empty string |
+| `endemic_status` | `endemic_status` | Yes | Enum: `endemic`/`native`/`introduced` |
+| `iucn_status` | `iucn_status` | No | Enum: `EX`/`EW`/`CR`/`EN`/`VU`/`NT`/`LC`/`DD`/`NE`; null if blank |
+| `iucn_taxon_id` | `iucn_taxon_id` | No | Integer; enables IUCN sync for this species |
+| `population_trend` | `population_trend` | No | Enum: `increasing`/`stable`/`decreasing`/`unknown` |
+| `cares_status` | `cares_status` | No | Enum: `CCR`/`CEN`/`CVU`/`CLC`; null if not listed |
+| `taxonomic_status` | `taxonomic_status` | Yes | Enum: `described`/`undescribed_morphospecies`/`species_complex`/`uncertain` |
+| `provisional_name` | `provisional_name` | No | Informal epithet for undescribed taxa (e.g., `'manombo'`) |
+| `shoal_priority` | `shoal_priority` | No | `true`/`false`; default `false` |
+| `fishbase_id` | `fishbase_id` | No | Integer; FishBase species ID |
+| `distribution_narrative` | `distribution_narrative` | No | Free text description of range |
+| `habitat_type` | `habitat_type` | No | Free text (e.g., `streams`, `rivers and lakes`) |
+| `max_length_cm` | `max_length_cm` | No | Decimal; maximum total length in centimeters |
+| `in_captivity` | `in_captivity` | No | `Y`/`N`; default `false`. Boolean flag for public display before ExSituPopulation records exist |
+| `captive_institutions` | *(not stored directly)* | No | Comma-separated institution names; informational for later ExSituPopulation seeding |
+| `notes` | *(not stored directly)* | No | Provenance notes for data curator; not imported to database |
+
+**Columns NOT in CSV (set by the platform):**
+- `gbif_taxon_key` — populated by future GBIF integration, not at seed time
+- `description`, `ecology_notes`, `morphology` — populated via IUCN sync or manual admin entry
+- `taxon` FK — populated by a future taxonomy management command
 
 Command behavior:
 ```
-python manage.py seed_species --csv data/seed/species.csv [--dry-run]
+python manage.py seed_species --csv data/seed/madagascar_freshwater_fish_seed.csv [--dry-run]
 ```
 
 - `--dry-run` validates the CSV and reports what would be created/updated without writing to the database
@@ -153,29 +176,32 @@ python manage.py seed_localities \
     [--dry-run]
 ```
 
-**CSV Schema:**
+**CSV Schema (14 columns):**
 
-| Column | Maps to Field | Required | Validation |
-|--------|--------------|----------|------------|
-| `scientific_name` | FK lookup → Species | Yes | Must match `Species.scientific_name` exactly; skip row with warning if not found |
-| `locality_name` | `locality_name` | Yes | Non-empty string |
-| `latitude` | `location` (y) | Yes | Between -26.0 and -11.5 (Madagascar extent) |
-| `longitude` | `location` (x) | Yes | Between 43.0 and 51.0 (Madagascar extent) |
-| `water_body` | `water_body` | No | Free text |
-| `water_body_type` | `water_body_type` | No | Enum: `river`/`lake`/`stream`/`cave_system`/`wetland`/`estuary` |
-| `locality_type` | `locality_type` | Yes | Enum: `type_locality`/`collection_record`/`literature_record`/`observation` |
-| `presence_status` | `presence_status` | Yes | Enum: `present`/`historically_present_extirpated`/`presence_unknown`/`reintroduced` |
-| `coordinate_precision` | `coordinate_precision` | Yes | Enum: `exact`/`approximate`/`locality_centroid`/`water_body_centroid` |
-| `source_citation` | `source_citation` | Yes | Non-empty string |
-| `year_collected` | `year_collected` | No | Integer year; null if blank |
-| `collector` | `collector` | No | Free text |
-| `is_sensitive` | `is_sensitive` | No | `true`/`false`; default `false` |
-| `notes` | `notes` | No | Free text |
+See [Data Preparation Guide](data-preparation-guide.md) for column-by-column guidance and example rows.
+
+| Column | Maps to Field | Required | Default | Validation |
+|--------|--------------|----------|---------|------------|
+| `scientific_name` | FK lookup → Species | Yes | — | Must match `Species.scientific_name` exactly; skip row with warning if not found |
+| `latitude` | `location` (y) | Yes | — | Decimal degrees WGS84; between -26.0 and -11.5 (Madagascar extent) |
+| `longitude` | `location` (x) | Yes | — | Decimal degrees WGS84; between 43.0 and 51.0 (Madagascar extent) |
+| `locality_name` | `locality_name` | Yes | — | Non-empty string (e.g., "Sakaramy River near Joffreville") |
+| `locality_type` | `locality_type` | Yes | — | Enum: `type_locality`/`collection_record`/`literature_record`/`observation` |
+| `presence_status` | `presence_status` | No | `present` | Enum: `present`/`historically_present_extirpated`/`presence_unknown`/`reintroduced` |
+| `water_body` | `water_body` | No | *(blank)* | Name of water body (e.g., "Sakaramy River") |
+| `water_body_type` | `water_body_type` | No | *(blank)* | Enum: `river`/`lake`/`stream`/`cave_system`/`wetland`/`estuary` |
+| `coordinate_precision` | `coordinate_precision` | No | `exact` | Enum: `exact`/`approximate`/`locality_centroid`/`water_body_centroid` |
+| `year_collected` | `year_collected` | No | *(null)* | Integer year of collection/observation |
+| `collector` | `collector` | No | *(blank)* | Person or expedition name |
+| `source_citation` | `source_citation` | Yes | — | Where the record comes from (publication, database, field survey) |
+| `is_sensitive` | `is_sensitive` | No | `false` | `true`/`false`; set `true` for CR species with exact coords that should be generalized for public display |
+| `notes` | `notes` | No | *(blank)* | Free text |
 
 **Columns NOT in CSV (auto-computed on import):**
 - `drainage_basin` — assigned via `ST_Contains` spatial query against loaded Watershed polygons
-- `drainage_basin_name` — populated from FK on save
-- `location_generalized` — computed from `location` + `is_sensitive` on save
+- `drainage_basin_name` — denormalized from FK on save
+- `location_key` — deterministic coordinate key computed from lat/lng on save
+- `location_generalized` — computed from `location` + `is_sensitive` on save (rounded to 0.1 degree)
 
 **Behavior:**
 - Idempotent: keyed on `(species__scientific_name, location, locality_type)`. Existing records are updated; new records are created; records not in the CSV are not deleted.
