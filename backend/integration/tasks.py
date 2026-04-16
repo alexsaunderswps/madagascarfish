@@ -5,6 +5,7 @@ from datetime import date, datetime
 from typing import Any
 
 from celery import shared_task
+from django.conf import settings
 from django.db import transaction
 from django.utils.timezone import now
 
@@ -131,14 +132,23 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
                 last_sync_job=job,
                 **parsed,
             )
-            return "created"
+            outcome = "created"
+        else:
+            for field, value in parsed.items():
+                setattr(existing, field, value)
+            existing.review_status = ConservationAssessment.ReviewStatus.ACCEPTED
+            existing.last_sync_job = job
+            existing.save()
+            outcome = "updated"
 
-        for field, value in parsed.items():
-            setattr(existing, field, value)
-        existing.review_status = ConservationAssessment.ReviewStatus.ACCEPTED
-        existing.last_sync_job = job
-        existing.save()
-        return "updated"
+        # Mirror the accepted IUCN category onto Species.iucn_status so the
+        # public badge and DwC export stay aligned with the authoritative source.
+        # See CLAUDE.md "Conservation status sourcing".
+        if getattr(settings, "ALLOW_IUCN_STATUS_OVERWRITE", True) and species.iucn_status != category:
+            species.iucn_status = category
+            species.save(update_fields=["iucn_status", "updated_at"])
+
+        return outcome
 
 
 def _pick_latest_assessment(summary: dict[str, Any]) -> dict[str, Any] | None:

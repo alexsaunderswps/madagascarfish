@@ -34,6 +34,7 @@ Covers:
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -1047,3 +1048,108 @@ class TestApiReturnsNoneForSummary:
 
         job = SyncJob.objects.get(pk=result["job_id"])
         assert len(job.error_log) == 0
+
+
+# ---------------------------------------------------------------------------
+# Mirror policy: Species.iucn_status tracks accepted iucn_official assessment
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+class TestIUCNStatusMirror:
+    """After a successful sync, Species.iucn_status must mirror the accepted category.
+
+    Per CLAUDE.md "Conservation status sourcing": the public badge field is a
+    denormalized mirror of the authoritative assessment, not independently
+    editable. The ALLOW_IUCN_STATUS_OVERWRITE setting gates this behavior so
+    operators can freeze statuses during review windows.
+    """
+
+    def test_mirror_sets_iucn_status_on_create(
+        self, species_with_iucn_id: Species
+    ) -> None:
+        species_with_iucn_id.iucn_status = None
+        species_with_iucn_id.save(update_fields=["iucn_status"])
+        summary = make_summary(code="CR")
+        detail = make_detail(category_code="CR")
+        client = _make_mock_client(summary, detail)
+
+        with patch("integration.tasks.IUCNClient", return_value=client):
+            iucn_sync()
+
+        species_with_iucn_id.refresh_from_db()
+        assert species_with_iucn_id.iucn_status == "CR"
+
+    def test_mirror_overwrites_stale_status(
+        self, species_with_iucn_id: Species
+    ) -> None:
+        # Pre-existing manual status "VU" must be overwritten to match IUCN "EN".
+        species_with_iucn_id.iucn_status = "VU"
+        species_with_iucn_id.save(update_fields=["iucn_status"])
+        summary = make_summary(code="EN")
+        detail = make_detail(category_code="EN")
+        client = _make_mock_client(summary, detail)
+
+        with patch("integration.tasks.IUCNClient", return_value=client):
+            iucn_sync()
+
+        species_with_iucn_id.refresh_from_db()
+        assert species_with_iucn_id.iucn_status == "EN"
+
+    def test_mirror_respects_allow_iucn_status_overwrite_false(
+        self, species_with_iucn_id: Species, settings: Any
+    ) -> None:
+        # With the toggle off, sync creates the assessment but leaves iucn_status alone.
+        settings.ALLOW_IUCN_STATUS_OVERWRITE = False
+        species_with_iucn_id.iucn_status = "VU"
+        species_with_iucn_id.save(update_fields=["iucn_status"])
+        summary = make_summary(code="EN")
+        detail = make_detail(category_code="EN")
+        client = _make_mock_client(summary, detail)
+
+        with patch("integration.tasks.IUCNClient", return_value=client):
+            iucn_sync()
+
+        species_with_iucn_id.refresh_from_db()
+        assert species_with_iucn_id.iucn_status == "VU"
+        # The assessment itself should still be recorded.
+        assert ConservationAssessment.objects.filter(
+            species=species_with_iucn_id, source="iucn_official"
+        ).exists()
+
+    def test_mirror_skipped_species_not_touched(
+        self, species_without_iucn_id: Species
+    ) -> None:
+        # Species with null iucn_taxon_id is never processed — iucn_status stays NULL.
+        species_without_iucn_id.iucn_status = None
+        species_without_iucn_id.save(update_fields=["iucn_status"])
+        client = _make_mock_client(summary_return=None, detail_return=None)
+
+        with patch("integration.tasks.IUCNClient", return_value=client):
+            iucn_sync()
+
+        species_without_iucn_id.refresh_from_db()
+        assert species_without_iucn_id.iucn_status is None
+
+    def test_mirror_does_not_fire_for_pending_review(
+        self, species_with_iucn_id: Species
+    ) -> None:
+        # Existing pending_review assessment means sync returns "skipped" for this
+        # species — iucn_status must NOT be rewritten.
+        ConservationAssessment.objects.create(
+            species=species_with_iucn_id,
+            category="VU",
+            source=ConservationAssessment.Source.IUCN_OFFICIAL,
+            review_status=ConservationAssessment.ReviewStatus.PENDING_REVIEW,
+        )
+        species_with_iucn_id.iucn_status = "VU"
+        species_with_iucn_id.save(update_fields=["iucn_status"])
+        summary = make_summary(code="EN")
+        detail = make_detail(category_code="EN")
+        client = _make_mock_client(summary, detail)
+
+        with patch("integration.tasks.IUCNClient", return_value=client):
+            iucn_sync()
+
+        species_with_iucn_id.refresh_from_db()
+        assert species_with_iucn_id.iucn_status == "VU"

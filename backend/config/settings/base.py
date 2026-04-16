@@ -99,6 +99,10 @@ IUCN_API_BASE_URL = env("IUCN_API_BASE_URL", default="https://api.iucnredlist.or
 IUCN_API_TOKEN = env("IUCN_API_TOKEN", default="")
 IUCN_CACHE_TTL_SECONDS = env.int("IUCN_CACHE_TTL_SECONDS", default=60 * 60 * 24 * 7)
 IUCN_REQUEST_TIMEOUT_SECONDS = env.int("IUCN_REQUEST_TIMEOUT_SECONDS", default=30)
+# When True, iucn_sync mirrors the accepted IUCN category onto Species.iucn_status
+# (see CLAUDE.md "Conservation status sourcing"). Toggle off to freeze existing
+# statuses during an operator review window.
+ALLOW_IUCN_STATUS_OVERWRITE = env.bool("ALLOW_IUCN_STATUS_OVERWRITE", default=True)
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

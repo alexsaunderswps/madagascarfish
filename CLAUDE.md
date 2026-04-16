@@ -69,6 +69,33 @@ breeding coordination.
 
 [To be filled by Architecture Agent — coding standards, patterns, naming conventions]
 
+### Conservation status sourcing (mirror policy)
+
+`Species.iucn_status` is a **denormalized mirror** of the most-recent-accepted
+`ConservationAssessment` for that species, never an independently editable field.
+This exists to guarantee one source of truth for the public status badge and for
+Darwin Core / GBIF exports.
+
+Rules:
+- When `iucn_sync` accepts a new `iucn_official` assessment, it must update
+  `Species.iucn_status` to match `assessment.category` (gated on the
+  `ALLOW_IUCN_STATUS_OVERWRITE` setting, default True).
+- Operators must not edit `Species.iucn_status` directly in admin. Manual status
+  changes must go through creating a `ConservationAssessment` row
+  (`source=manual_expert` once that source is added) with assessor, date, and
+  reasoning — the mirror then picks up the change via the same path.
+- A species with no `iucn_taxon_id` and no manual assessment keeps
+  `iucn_status=NULL`; the public profile renders "Not yet assessed" rather than
+  a stale category.
+- If a manual assessment disagrees with an incoming IUCN assessment, the
+  conflict must be flagged for review (see the Conservation Status Governance
+  spec) — the sync must never silently overwrite a human-reviewed category
+  without surfacing the divergence.
+
+No foot-guns: if you find yourself reaching for `species.iucn_status = "..."`
+outside the mirror path, stop and route through a `ConservationAssessment`
+instead.
+
 ## Planning Documents
 
 Planning artifacts live in `docs/planning/`:
