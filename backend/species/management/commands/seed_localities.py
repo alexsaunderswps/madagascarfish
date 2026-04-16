@@ -10,7 +10,6 @@ from django.db import transaction
 
 from species.models import Species, SpeciesLocality, Watershed
 
-
 BOOLEAN_TRUE = {"true", "yes", "y", "1"}
 BOOLEAN_FALSE = {"false", "no", "n", "0", ""}
 
@@ -80,8 +79,7 @@ class Command(BaseCommand):
                     if not species:
                         skipped += 1
                         errors.append(
-                            f"line {lineno}: species not found: "
-                            f"{parsed['scientific_name']!r}"
+                            f"line {lineno}: species not found: {parsed['scientific_name']!r}"
                         )
                         continue
 
@@ -204,15 +202,11 @@ class Command(BaseCommand):
 
     @staticmethod
     def _resolve_basin(point: Point) -> Watershed | None:
-        matches = list(
-            Watershed.objects.filter(geometry__contains=point).order_by("area_sq_km")
-        )
+        matches = list(Watershed.objects.filter(geometry__contains=point).order_by("area_sq_km"))
         return matches[0] if matches else None
 
     @staticmethod
-    def _decimal_coord(
-        row: dict[str, str], column: str, low: float, high: float
-    ) -> float:
+    def _decimal_coord(row: dict[str, str], column: str, low: float, high: float) -> float:
         raw = (row.get(column) or "").strip()
         if not raw:
             raise ValueError(f"{column} is required")

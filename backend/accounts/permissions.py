@@ -3,7 +3,7 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 
 
-def TierPermission(min_tier: int = 1) -> type[BasePermission]:
+def TierPermission(min_tier: int = 1) -> type[BasePermission]:  # noqa: N802
     """Factory that returns a DRF permission class requiring a minimum access tier.
 
     Usage:

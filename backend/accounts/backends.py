@@ -14,7 +14,11 @@ class EmailBackend(ModelBackend):
     """
 
     def authenticate(
-        self, request: HttpRequest | None, email: str | None = None, password: str | None = None, **kwargs: Any
+        self,
+        request: HttpRequest | None,
+        email: str | None = None,
+        password: str | None = None,
+        **kwargs: Any,
     ) -> User | None:
         if email is None or password is None:
             return None

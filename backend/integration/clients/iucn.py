@@ -39,15 +39,14 @@ class IUCNClient:
         resolved_base = (base_url or settings.IUCN_API_BASE_URL).rstrip("/")
         if not any(resolved_base.startswith(prefix) for prefix in ALLOWED_BASE_URL_PREFIXES):
             raise IUCNAPIError(
-                f"IUCN base_url must start with one of {ALLOWED_BASE_URL_PREFIXES}; got {resolved_base!r}"
+                f"IUCN base_url must start with one of {ALLOWED_BASE_URL_PREFIXES}; "
+                f"got {resolved_base!r}"
             )
         self.base_url = resolved_base
         self.timeout = timeout if timeout is not None else settings.IUCN_REQUEST_TIMEOUT_SECONDS
         self.cache_ttl = cache_ttl if cache_ttl is not None else settings.IUCN_CACHE_TTL_SECONDS
 
-    def get_species_assessment(
-        self, iucn_taxon_id: int
-    ) -> tuple[dict[str, Any] | None, bool]:
+    def get_species_assessment(self, iucn_taxon_id: int) -> tuple[dict[str, Any] | None, bool]:
         """Fetch the SIS taxon summary (includes latest + historic assessment IDs).
 
         Returns ``(payload, cache_hit)``. ``payload`` is None on 404.
@@ -55,9 +54,7 @@ class IUCNClient:
         cache_key = f"iucn:taxa:sis:{int(iucn_taxon_id)}"
         return self._get_cached(cache_key, path=f"/taxa/sis/{int(iucn_taxon_id)}")
 
-    def get_species_by_name(
-        self, scientific_name: str
-    ) -> tuple[dict[str, Any] | None, bool]:
+    def get_species_by_name(self, scientific_name: str) -> tuple[dict[str, Any] | None, bool]:
         """Look up a taxon by scientific name (binomial or trinomial).
 
         Returns ``(payload, cache_hit)``. ``payload`` is None on 404.
@@ -77,9 +74,7 @@ class IUCNClient:
         cache_key = f"iucn:taxa:name:{name_digest}"
         return self._get_cached(cache_key, path="/taxa/scientific_name", params=params)
 
-    def get_assessment(
-        self, assessment_id: int
-    ) -> tuple[dict[str, Any] | None, bool]:
+    def get_assessment(self, assessment_id: int) -> tuple[dict[str, Any] | None, bool]:
         """Fetch full assessment detail by assessment_id.
 
         Returns ``(payload, cache_hit)``. ``payload`` is None on 404.
@@ -130,9 +125,7 @@ class IUCNClient:
         if response.status_code == 404:
             return None
         if not response.ok:
-            logger.debug(
-                "IUCN API %s for %s: %s", response.status_code, path, response.text[:200]
-            )
+            logger.debug("IUCN API %s for %s: %s", response.status_code, path, response.text[:200])
             raise IUCNAPIError(f"IUCN API returned {response.status_code} for {path}")
 
         try:

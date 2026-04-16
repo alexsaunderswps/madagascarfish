@@ -28,7 +28,6 @@ from species.models import (
     Watershed,
 )
 
-
 # --- Fixtures ---
 
 
@@ -150,7 +149,9 @@ def population(species_cr: Species, institution: Institution) -> ExSituPopulatio
         last_census_date="2026-02-15",
     )
     HoldingRecord.objects.create(population=pop, date="2026-02-15", count_total=18)
-    HoldingRecord.objects.create(population=pop, date="2025-11-01", count_total=24, notes="mortality event")
+    HoldingRecord.objects.create(
+        population=pop, date="2025-11-01", count_total=24, notes="mortality event"
+    )
     return pop
 
 
@@ -300,7 +301,10 @@ class TestSpeciesList:
 @pytest.mark.django_db
 class TestSpeciesDetail:
     def test_anonymous_detail(
-        self, api_client: APIClient, species_en: Species, assessment_accepted: ConservationAssessment
+        self,
+        api_client: APIClient,
+        species_en: Species,
+        assessment_accepted: ConservationAssessment,
     ) -> None:
         resp = api_client.get(f"/api/v1/species/{species_en.pk}/")
         assert resp.status_code == 200
@@ -387,7 +391,9 @@ class TestInstitution:
         assert result["name"] == "ABQ BioPark"
         assert "contact_email" not in result
 
-    def test_anonymous_detail_hides_email(self, api_client: APIClient, institution: Institution) -> None:
+    def test_anonymous_detail_hides_email(
+        self, api_client: APIClient, institution: Institution
+    ) -> None:
         resp = api_client.get(f"/api/v1/institutions/{institution.pk}/")
         assert resp.status_code == 200
         data = resp.json()
@@ -455,7 +461,11 @@ class TestPopulations:
         assert data["holding_records"][1]["notes"] == "mortality event"
 
     def test_filter_by_species(
-        self, api_client: APIClient, tier3_user: User, population: ExSituPopulation, species_cr: Species
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        population: ExSituPopulation,
+        species_cr: Species,
     ) -> None:
         _auth_client(api_client, tier3_user)
         resp = api_client.get(f"/api/v1/populations/?species_id={species_cr.pk}")

@@ -21,7 +21,12 @@ Pillow>=10,<11
 django-filter>=24,<25
 
 # GIS
-GDAL==3.10.3
+# NOTE: GDAL Python bindings must match the libgdal version available on the
+# host (via apt/brew). Install after system packages with:
+#   pip install "GDAL==$(gdal-config --version)"
+# See backend/Dockerfile and .github/workflows/ci.yml. Do not re-add a hard pin
+# here — Ubuntu 24.04 CI ships libgdal 3.8.4 while our Debian-based Docker
+# image ships 3.10.x, so a single pin can't satisfy both environments.
 djangorestframework-gis>=1.0,<2
 
 # API docs

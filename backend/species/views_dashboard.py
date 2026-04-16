@@ -48,9 +48,7 @@ class DashboardView(APIView):
             iucn_counts[key] = iucn_counts.get(key, 0) + row["c"]
 
         # Ex-situ coverage
-        threatened_total = Species.objects.filter(
-            iucn_status__in=_THREATENED_STATUSES
-        ).count()
+        threatened_total = Species.objects.filter(iucn_status__in=_THREATENED_STATUSES).count()
         threatened_with_captive = (
             Species.objects.filter(iucn_status__in=_THREATENED_STATUSES)
             .filter(ex_situ_populations__isnull=False)
@@ -75,10 +73,10 @@ class DashboardView(APIView):
             "ex_situ_coverage": {
                 "threatened_species_total": threatened_total,
                 "threatened_species_with_captive_population": threatened_with_captive,
-                "threatened_species_without_captive_population": threatened_total - threatened_with_captive,
-                "institutions_active": Institution.objects.filter(
-                    ex_situ_populations__isnull=False
-                )
+                "threatened_species_without_captive_population": (
+                    threatened_total - threatened_with_captive
+                ),
+                "institutions_active": Institution.objects.filter(ex_situ_populations__isnull=False)
                 .distinct()
                 .count(),
                 "total_populations_tracked": ExSituPopulation.objects.count(),

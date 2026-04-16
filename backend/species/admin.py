@@ -146,7 +146,9 @@ class SpeciesLocalityAdmin(GISModelAdmin):
     ]
     raw_id_fields = ["species", "drainage_basin"]
 
-    def get_readonly_fields(self, request: HttpRequest, obj: object = None) -> tuple[str, ...] | list[str]:
+    def get_readonly_fields(
+        self, request: HttpRequest, obj: object = None
+    ) -> tuple[str, ...] | list[str]:
         readonly = list(super().get_readonly_fields(request, obj))
         # Only superusers can toggle is_sensitive — controls coordinate visibility
         if not request.user.is_superuser:

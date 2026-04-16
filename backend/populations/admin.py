@@ -75,23 +75,29 @@ class ExSituPopulationAdmin(admin.ModelAdmin):
             return qs.filter(institution_id=request.user.institution_id)  # type: ignore[union-attr]
         return qs
 
-    def has_change_permission(self, request: HttpRequest, obj: ExSituPopulation | None = None) -> bool:  # type: ignore[override]
+    def has_change_permission(  # type: ignore[override]
+        self, request: HttpRequest, obj: ExSituPopulation | None = None
+    ) -> bool:
         if not super().has_change_permission(request, obj):
             return False
         if obj is not None and self._is_institution_scoped(request):
             return obj.institution_id == request.user.institution_id  # type: ignore[union-attr]
         return True
 
-    def has_delete_permission(self, request: HttpRequest, obj: ExSituPopulation | None = None) -> bool:  # type: ignore[override]
+    def has_delete_permission(  # type: ignore[override]
+        self, request: HttpRequest, obj: ExSituPopulation | None = None
+    ) -> bool:
         if not super().has_delete_permission(request, obj):
             return False
         if obj is not None and self._is_institution_scoped(request):
             return obj.institution_id == request.user.institution_id  # type: ignore[union-attr]
         return True
 
-    def save_model(self, request: HttpRequest, obj: ExSituPopulation, form: object, change: bool) -> None:
+    def save_model(
+        self, request: HttpRequest, obj: ExSituPopulation, form: object, change: bool
+    ) -> None:
         if self._is_institution_scoped(request):
-            # For updates, check the original DB value — form binding may have changed institution_id
+            # For updates, check the original DB value — form binding may have changed institution
             if change:
                 original = ExSituPopulation.objects.get(pk=obj.pk)
                 if original.institution_id != request.user.institution_id:  # type: ignore[union-attr]
@@ -101,7 +107,9 @@ class ExSituPopulationAdmin(admin.ModelAdmin):
                 raise PermissionDenied("You can only create records for your own institution.")
         super().save_model(request, obj, form, change)
 
-    def save_formset(self, request: HttpRequest, form: object, formset: object, change: bool) -> None:
+    def save_formset(
+        self, request: HttpRequest, form: object, formset: object, change: bool
+    ) -> None:
         instances = formset.save(commit=False)  # type: ignore[union-attr]
         for obj in instances:
             if isinstance(obj, HoldingRecord) and obj.pk is None:
