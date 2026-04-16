@@ -17,12 +17,35 @@ next tier of name↔outlet correspondences confirmed.
 from __future__ import annotations
 
 CANONICAL_BASIN_NAMES: dict[int, str] = {
-    1060036860: "Betsiboka",
-    1060035590: "Mangoky",
-    1060036020: "Tsiribihina",
-    1060035400: "Onilahy",
+    # North / Far North
+    1060037310: "Mahavavy-Nord",
+    # Northwest
+    1060037110: "Mahajamba",
     1060037100: "Sofia",
+    1060036860: "Betsiboka",
+    1060036750: "Mahavavy-Sud",
+    # West
+    1060036120: "Manambolo",
+    1060036020: "Tsiribihina",
+    # Southwest
+    1060035590: "Mangoky",
+    1060035410: "Fiherenana",
+    1060035400: "Onilahy",
+    # Deep South
+    1060035180: "Menarandra",
+    1060040020: "Manambovo",
+    1060040000: "Mandrare",
+    # Southeast
+    1060039740: "Mananara-Sud",
+    1060039620: "Matitanana",
+    1060039470: "Faraony",
+    1060039460: "Namorona",
+    1060039260: "Mananjary",
+    # East
     1060038860: "Mangoro",
+    # Northeast
+    1060038850: "Maningory",
+    1060038200: "Bemarivo-Nord",
 }
 
 
