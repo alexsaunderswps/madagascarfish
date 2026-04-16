@@ -5,6 +5,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from config.celery import app as celery_app
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -23,7 +25,19 @@ def health_check(request: Request) -> Response:
     except Exception:
         cache_status = "error"
 
-    healthy = db_status == "connected" and cache_status == "connected"
+    celery_status = "connected"
+    try:
+        replies = celery_app.control.ping(timeout=1)
+        if not replies:
+            celery_status = "error"
+    except Exception:
+        celery_status = "error"
+
+    healthy = (
+        db_status == "connected"
+        and cache_status == "connected"
+        and celery_status == "connected"
+    )
     status_code = 200 if healthy else 503
     return Response(
         {
@@ -31,6 +45,7 @@ def health_check(request: Request) -> Response:
             "version": "0.1.0",
             "database": db_status,
             "cache": cache_status,
+            "celery": celery_status,
         },
         status=status_code,
     )

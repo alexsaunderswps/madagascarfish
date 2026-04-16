@@ -34,6 +34,7 @@ class IUCNClient:
         self.base_url = (base_url or settings.IUCN_API_BASE_URL).rstrip("/")
         self.timeout = timeout if timeout is not None else settings.IUCN_REQUEST_TIMEOUT_SECONDS
         self.cache_ttl = cache_ttl if cache_ttl is not None else settings.IUCN_CACHE_TTL_SECONDS
+        self.last_request_was_cache_hit: bool = False
 
     def get_species_assessment(self, iucn_taxon_id: int) -> dict[str, Any] | None:
         """Fetch the SIS taxon summary (includes latest + historic assessment IDs).
@@ -85,8 +86,10 @@ class IUCNClient:
     ) -> dict[str, Any] | None:
         cached = cache.get(cache_key)
         if cached is not None:
+            self.last_request_was_cache_hit = True
             return cached if cached != "__NOT_FOUND__" else None
 
+        self.last_request_was_cache_hit = False
         data = self._request(path, params=params)
         cache.set(
             cache_key,

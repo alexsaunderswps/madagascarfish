@@ -9,6 +9,13 @@ def client() -> APIClient:
     return APIClient()
 
 
+@pytest.fixture(autouse=True)
+def _stub_celery_ping():
+    with patch("config.views.celery_app") as mock_app:
+        mock_app.control.ping.return_value = [{"worker1": {"ok": "pong"}}]
+        yield mock_app
+
+
 @pytest.mark.django_db
 def test_health_check_returns_200(client: APIClient) -> None:
     response = client.get("/api/v1/health/")
@@ -17,6 +24,7 @@ def test_health_check_returns_200(client: APIClient) -> None:
     assert data["status"] == "ok"
     assert data["version"] == "0.1.0"
     assert data["database"] == "connected"
+    assert data["celery"] == "connected"
 
 
 @pytest.mark.django_db
@@ -44,3 +52,12 @@ def test_health_check_cache_error_returns_503(client: APIClient) -> None:
         data = response.json()
         assert data["status"] == "degraded"
         assert data["cache"] == "error"
+
+
+def test_health_check_celery_error_returns_503(client: APIClient, _stub_celery_ping) -> None:
+    _stub_celery_ping.control.ping.return_value = []
+    response = client.get("/api/v1/health/")
+    assert response.status_code == 503
+    data = response.json()
+    assert data["status"] == "degraded"
+    assert data["celery"] == "error"
