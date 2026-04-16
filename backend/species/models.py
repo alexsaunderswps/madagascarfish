@@ -116,6 +116,7 @@ class Species(models.Model):
     iucn_taxon_id = models.IntegerField(null=True, blank=True, unique=True)
     fishbase_id = models.IntegerField(null=True, blank=True)
     gbif_taxon_key = models.IntegerField(null=True, blank=True)
+    in_captivity = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
