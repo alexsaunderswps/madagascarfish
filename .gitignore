@@ -1,2 +1,46 @@
-docs/ideation
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Django
+*.sqlite3
+backend/staticfiles/
+backend/media/
+
+# Docker
+docker-compose.override.yml
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Node (for future frontend)
+node_modules/
+.next/
+
+# Docs ideation (tracked separately)
+docs/ideation
