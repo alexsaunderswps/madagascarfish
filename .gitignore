@@ -44,3 +44,6 @@ node_modules/
 
 # Docs ideation (tracked separately)
 docs/ideation
+
+# Reference data source downloads (full-continent/global files; clipped outputs are committed)
+data/reference/source/
