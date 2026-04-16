@@ -9,6 +9,7 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
+from species.basins import basin_display_name
 from species.models import ProtectedArea, Watershed
 
 
@@ -58,11 +59,19 @@ class Command(BaseCommand):
         layer = ds[0]
         created = updated = 0
         verts_before = verts_after = 0
+        # main_bas -> root hybas_id, so we can resolve parent_basin FKs in pass 2.
+        root_by_main_bas: dict[int, int] = {}
 
         for feat in layer:
             hybas_id = int(feat["HYBAS_ID"].value)
+            main_bas = int(feat["MAIN_BAS"].value)
             pfaf_id = int(feat["PFAF_ID"].value)
             sub_area = feat["SUB_AREA"].value
+            centroid = feat.geom.centroid
+            outlet_lng, outlet_lat = centroid.x, centroid.y
+
+            if hybas_id == main_bas:
+                root_by_main_bas[main_bas] = hybas_id
 
             geom = self._to_multipolygon(feat.geom.geos)
             verts_before += geom.num_coords
@@ -72,7 +81,7 @@ class Command(BaseCommand):
             verts_after += geom.num_coords
 
             defaults = {
-                "name": f"Basin {hybas_id}",
+                "name": basin_display_name(main_bas, hybas_id, outlet_lng, outlet_lat),
                 "pfafstetter_level": 6,
                 "pfafstetter_code": pfaf_id,
                 "area_sq_km": Decimal(str(sub_area)) if sub_area is not None else None,
@@ -84,10 +93,35 @@ class Command(BaseCommand):
             created += int(was_created)
             updated += int(not was_created)
 
+        # Pass 2: wire parent_basin FKs now that every row exists.
+        parented = self._link_parent_basins(layer, root_by_main_bas)
+
         self.stdout.write(
-            f"watersheds: {created} created, {updated} updated "
+            f"watersheds: {created} created, {updated} updated, {parented} parented "
             f"(vertices {verts_before} -> {verts_after})"
         )
+
+    @staticmethod
+    def _link_parent_basins(layer: Any, root_by_main_bas: dict[int, int]) -> int:
+        """Set parent_basin FK on each sub-polygon to its root basin row."""
+        root_ids = set(root_by_main_bas.values())
+        pk_by_hybas = {
+            w.hybas_id: w.id
+            for w in Watershed.objects.filter(
+                hybas_id__in=list(root_ids)
+            ).only("id", "hybas_id")
+        }
+        parented = 0
+        for feat in layer:
+            hybas_id = int(feat["HYBAS_ID"].value)
+            main_bas = int(feat["MAIN_BAS"].value)
+            if hybas_id == main_bas:
+                continue
+            root_hybas = root_by_main_bas.get(main_bas)
+            parent_pk = pk_by_hybas.get(root_hybas) if root_hybas is not None else None
+            Watershed.objects.filter(hybas_id=hybas_id).update(parent_basin_id=parent_pk)
+            parented += 1
+        return parented
 
     def _load_protected_areas(self, path: Path, tolerance: float) -> None:
         if not path.exists():
