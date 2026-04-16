@@ -10,6 +10,8 @@ env:
   DJANGO_SETTINGS_MODULE: config.settings.test
   DATABASE_URL: postgis://postgres:postgres@localhost:5432/test_mffcp
   REDIS_URL: redis://localhost:6379/0
+  # CI-only dummy value. Real secret is set per-environment in deploy configs.
+  DJANGO_SECRET_KEY: ci-only-not-a-real-secret
 
 jobs:
   lint:
