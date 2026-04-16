@@ -1,3 +1,5 @@
+# Build context must be the repo root (not backend/).
+# Use: docker build -f backend/Dockerfile .
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1

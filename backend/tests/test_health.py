@@ -34,3 +34,13 @@ def test_health_check_db_error_returns_503(client: APIClient) -> None:
         data = response.json()
         assert data["status"] == "degraded"
         assert data["database"] == "error"
+
+
+def test_health_check_cache_error_returns_503(client: APIClient) -> None:
+    with patch("config.views.cache") as mock_cache:
+        mock_cache.set.side_effect = Exception("redis down")
+        response = client.get("/api/v1/health/")
+        assert response.status_code == 503
+        data = response.json()
+        assert data["status"] == "degraded"
+        assert data["cache"] == "error"

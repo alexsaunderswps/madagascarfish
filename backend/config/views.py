@@ -23,10 +23,11 @@ def health_check(request: Request) -> Response:
     except Exception:
         cache_status = "error"
 
-    status_code = 200 if db_status == "connected" else 503
+    healthy = db_status == "connected" and cache_status == "connected"
+    status_code = 200 if healthy else 503
     return Response(
         {
-            "status": "ok" if status_code == 200 else "degraded",
+            "status": "ok" if healthy else "degraded",
             "version": "0.1.0",
             "database": db_status,
             "cache": cache_status,

@@ -26,5 +26,5 @@ django_settings_module = "config.settings.dev"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["tests.py", "test_*.py"]
-python_paths = ["backend"]
+pythonpath = ["backend"]
 addopts = "--reuse-db -q"
