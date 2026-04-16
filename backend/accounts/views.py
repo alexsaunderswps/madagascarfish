@@ -1,0 +1,176 @@
+from __future__ import annotations
+
+import hashlib
+
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.core.cache import cache
+from django.core.mail import send_mail
+from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+
+from accounts.models import User
+from accounts.serializers import LoginSerializer, RegisterSerializer, UserProfileSerializer
+
+signer = TimestampSigner()
+
+# Verification tokens valid for 48 hours
+VERIFICATION_MAX_AGE = 48 * 60 * 60
+
+# Rate limiting: 5 failed login attempts per 15-minute window per IP
+RATE_LIMIT_MAX_ATTEMPTS = 5
+RATE_LIMIT_WINDOW_SECONDS = 900
+
+
+def _get_rate_limit_key(ip: str) -> str:
+    # Truncated to 16 hex chars (64 bits) — sufficient for cache key uniqueness
+    hashed = hashlib.sha256(ip.encode()).hexdigest()[:16]
+    return f"login_rate:{hashed}"
+
+
+def _check_and_record_rate_limit(ip: str) -> bool:
+    """Atomically check and increment the login attempt counter.
+
+    Returns True if the IP is rate-limited (at or over the threshold).
+    """
+    key = _get_rate_limit_key(ip)
+    # cache.add only sets if key is missing, establishing the TTL window
+    cache.add(key, 0, timeout=RATE_LIMIT_WINDOW_SECONDS)
+    count = cache.incr(key)
+    return count > RATE_LIMIT_MAX_ATTEMPTS
+
+
+def _get_client_ip(request: Request) -> str:
+    xff = request.META.get("HTTP_X_FORWARDED_FOR")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR", "0.0.0.0")
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def register(request: Request) -> Response:
+    serializer = RegisterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    data = serializer.validated_data
+    user = User.objects.create_user(
+        email=data["email"],
+        password=data["password"],
+        name=data["name"],
+        is_active=False,
+    )
+    if data.get("institution_id"):
+        user.institution_id = data["institution_id"]
+        user.save(update_fields=["institution_id"])
+
+    # Send verification email
+    token = signer.sign(str(user.pk))
+    frontend_url = settings.FRONTEND_BASE_URL
+    verification_url = f"{frontend_url}/verify?token={token}"
+
+    send_mail(
+        subject="Verify your Madagascar Fish account",
+        message=f"Click to verify your account: {verification_url}",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        fail_silently=True,
+    )
+
+    return Response(
+        {"detail": "Registration successful. Check your email to verify your account."},
+        status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def verify_email(request: Request) -> Response:
+    token = request.data.get("token")
+    if not token:
+        return Response(
+            {"detail": "Missing verification token."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        user_pk = signer.unsign(token, max_age=VERIFICATION_MAX_AGE)
+    except SignatureExpired:
+        return Response(
+            {"detail": "Verification link has expired."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except BadSignature:
+        return Response(
+            {"detail": "Invalid verification token."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        user = User.objects.get(pk=user_pk)
+    except User.DoesNotExist:
+        return Response(
+            {"detail": "Invalid verification token."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if user.is_active:
+        return Response({"detail": "Account already verified."})
+
+    user.is_active = True
+    user.save(update_fields=["is_active"])
+
+    return Response({"detail": "Account verified successfully."})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def login(request: Request) -> Response:
+    ip = _get_client_ip(request)
+
+    if _check_and_record_rate_limit(ip):
+        return Response(
+            {"detail": "Too many login attempts. Try again in 15 minutes."},
+            status=status.HTTP_429_TOO_MANY_REQUESTS,
+        )
+
+    serializer = LoginSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    data = serializer.validated_data
+    user = authenticate(request, email=data["email"], password=data["password"])
+
+    if user is None:
+        # Covers: wrong password, non-existent email, and inactive accounts.
+        # All return the same generic message to prevent account enumeration.
+        return Response(
+            {"detail": "Invalid email or password."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    token, _ = Token.objects.get_or_create(user=user)
+
+    return Response({
+        "token": token.key,
+        "access_tier": user.access_tier,  # type: ignore[union-attr]
+        "user_id": user.pk,
+    })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout(request: Request) -> Response:
+    Token.objects.filter(user=request.user).delete()
+    return Response({"detail": "Logged out successfully."})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def me(request: Request) -> Response:
+    serializer = UserProfileSerializer(request.user)
+    return Response(serializer.data)

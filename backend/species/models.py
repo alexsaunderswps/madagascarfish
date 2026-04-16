@@ -1,8 +1,24 @@
+from __future__ import annotations
+
 from django.conf import settings
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import Point
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
+
+
+class SpeciesQuerySet(models.QuerySet["Species"]):
+    def for_tier(self, tier: int) -> SpeciesQuerySet:
+        """Species are public at all tiers — no filtering."""
+        return self.all()
+
+
+class ConservationAssessmentQuerySet(models.QuerySet["ConservationAssessment"]):
+    def for_tier(self, tier: int) -> ConservationAssessmentQuerySet:
+        """Tier 1-2 sees accepted only; Tier 3+ sees all."""
+        if tier >= 3:
+            return self.all()
+        return self.filter(review_status="accepted")
 
 
 class Taxon(MPTTModel):
@@ -64,6 +80,8 @@ class Species(models.Model):
         CEN = "CEN", "CARES Endangered"
         CVU = "CVU", "CARES Vulnerable"
         CLC = "CLC", "CARES Least Concern"
+
+    objects = SpeciesQuerySet.as_manager()
 
     scientific_name = models.CharField(max_length=200)
     taxonomic_status = models.CharField(
@@ -132,6 +150,8 @@ class ConservationAssessment(models.Model):
         PENDING_REVIEW = "pending_review"
         UNDER_REVISION = "under_revision"
         SUPERSEDED = "superseded"
+
+    objects = ConservationAssessmentQuerySet.as_manager()
 
     species = models.ForeignKey(
         Species, on_delete=models.CASCADE, related_name="conservation_assessments"

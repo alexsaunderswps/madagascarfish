@@ -1,6 +1,6 @@
 # Gate 02 — Data Layer
 
-**Status:** Not started
+**Status:** Complete
 **Preconditions:** Gate 01 complete
 **Unlocks:** Gate 03 (Auth & Access Control)
 
@@ -347,3 +347,18 @@ Before marking Gate 02 complete:
 5. Unique constraints enforced on `hybas_id`, `wdpa_id`, and `(species, location, locality_type)`
 6. `save()` override on SpeciesLocality correctly computes `location_generalized` for sensitive records and populates `drainage_basin_name` from FK
 7. Invoke **@code-quality-reviewer** on all model files
+
+---
+
+## Reconciliation
+
+Gate 02 implementation was reconciled on 2026-04-16. Full reconciliation report:
+[gate-02-reconciliation.md](gate-02-reconciliation.md)
+
+Key deviations from spec (all justified, none blocking):
+- SpeciesLocality unique constraint uses deterministic `location_key` CharField instead of raw geometry equality
+- CheckConstraint uses `condition=` (Django 5.1+ forward-compatible) instead of deprecated `check=`
+- Circular accounts/populations migration dependency resolved via split 0001/0002 migration
+- `drainage_basin_name` always syncs from FK on save (not conditional on empty)
+- SyncJob.error_log implemented as JSONField instead of TextField
+- FieldProgram.end_date added (not in original spec)
