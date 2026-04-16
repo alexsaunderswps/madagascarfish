@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 import time
 from typing import Any
@@ -70,7 +71,10 @@ class IUCNClient:
         if len(parts) >= 3:
             params["infra_name"] = " ".join(parts[2:])
 
-        cache_key = f"iucn:taxa:name:{scientific_name.lower()}"
+        # Hash the name component so exotic characters (colons, whitespace) in
+        # operator-supplied CSVs can't produce overlapping or malformed cache keys.
+        name_digest = hashlib.sha256(scientific_name.lower().encode()).hexdigest()[:16]
+        cache_key = f"iucn:taxa:name:{name_digest}"
         return self._get_cached(cache_key, path="/taxa/scientific_name", params=params)
 
     def get_assessment(

@@ -7,6 +7,7 @@ from typing import Any
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.db.models import Q
 
 from species.models import Species
 
@@ -112,7 +113,9 @@ class Command(BaseCommand):
             self._run_iucn_lookup()
 
     def _parse_row(self, row: dict[str, str]) -> dict[str, Any]:
-        scientific_name = (row.get("scientific_name") or "").strip()
+        # Strip embedded CR/LF so operator-controlled names can't forge log lines
+        # when echoed to stdout/stderr from _run_iucn_lookup.
+        scientific_name = (row.get("scientific_name") or "").replace("\r", " ").replace("\n", " ").strip()
         if not scientific_name:
             raise ValueError("scientific_name is required")
 
@@ -211,9 +214,7 @@ class Command(BaseCommand):
         candidates = Species.objects.filter(
             iucn_taxon_id__isnull=True,
             taxonomic_status=Species.TaxonomicStatus.DESCRIBED,
-        ).exclude(provisional_name__isnull=False).exclude(provisional_name="")
-        # Also include rows where taxonomic_status is "described" but provisional_name
-        # happens to be NULL — the exclude() above handles both NULL and empty string.
+        ).filter(Q(provisional_name__isnull=True) | Q(provisional_name=""))
 
         total = candidates.count()
         matched = mismatched = no_match = unparseable = errored = 0
@@ -292,18 +293,23 @@ def _extract_strict_match(
         species_epithet = (cand.get("species_name") or "").strip().lower()
         sci = (cand.get("scientific_name") or "").strip().lower()
 
+        matched_binomial = False
         if genus and species_epithet:
-            if genus == want_genus and species_epithet == want_species and sis_id:
-                return int(sis_id), LOOKUP_MATCH
+            matched_binomial = genus == want_genus and species_epithet == want_species
         elif sci:
             sci_parts = sci.split()
-            if (
+            matched_binomial = (
                 len(sci_parts) >= 2
                 and sci_parts[0] == want_genus
                 and sci_parts[1] == want_species
-                and sis_id
-            ):
+            )
+
+        if matched_binomial and sis_id is not None:
+            try:
                 return int(sis_id), LOOKUP_MATCH
+            except (TypeError, ValueError):
+                # Shape drift: sis_taxon_id came back as a non-coercible type.
+                return None, LOOKUP_UNPARSEABLE
 
     # We had *something* back but nothing matched the requested binomial.
     if candidates:
