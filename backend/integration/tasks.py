@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 VALID_IUCN_CATEGORIES = {choice[0] for choice in Species.IUCNStatus.choices}
 
 
-@shared_task(bind=True, max_retries=3)
-def iucn_sync(self) -> dict[str, int]:
+@shared_task(bind=True, max_retries=3)  # type: ignore[untyped-decorator]
+def iucn_sync(self: Any) -> dict[str, Any]:
     """Pull current IUCN assessments for every Species with iucn_taxon_id set.
 
     Per gate 06 spec: creates/updates ConservationAssessment with
@@ -82,7 +82,12 @@ def iucn_sync(self) -> dict[str, int]:
 
 def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str:
     """Returns 'created', 'updated', or 'skipped'."""
-    summary, cache_hit = client.get_species_assessment(species.iucn_taxon_id)
+    # Caller filters with exclude(iucn_taxon_id__isnull=True), but mypy can't
+    # narrow a nullable model field through a QuerySet filter.
+    iucn_taxon_id = species.iucn_taxon_id
+    if iucn_taxon_id is None:
+        return "skipped"
+    summary, cache_hit = client.get_species_assessment(iucn_taxon_id)
     if not cache_hit:
         client.wait_between_requests()
 
@@ -161,7 +166,7 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
 
 
 def _pick_latest_assessment(summary: dict[str, Any]) -> dict[str, Any] | None:
-    assessments = summary.get("assessments") or []
+    assessments: list[dict[str, Any]] = summary.get("assessments") or []
     if not assessments:
         return None
     flagged = [a for a in assessments if a.get("latest")]

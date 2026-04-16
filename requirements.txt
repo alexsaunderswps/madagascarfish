@@ -45,4 +45,5 @@ ruff>=0.4,<1
 mypy>=1.10,<2
 django-stubs>=5,<6
 djangorestframework-stubs>=3,<4
+types-requests>=2.32,<3
 pre-commit>=3,<4

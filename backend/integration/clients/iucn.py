@@ -129,6 +129,9 @@ class IUCNClient:
             raise IUCNAPIError(f"IUCN API returned {response.status_code} for {path}")
 
         try:
-            return response.json()
+            payload = response.json()
         except ValueError as exc:
             raise IUCNAPIError(f"IUCN API returned non-JSON response: {exc}") from exc
+        if not isinstance(payload, dict):
+            raise IUCNAPIError("IUCN API returned unexpected JSON (expected object)")
+        return payload

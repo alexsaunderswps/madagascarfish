@@ -13,7 +13,7 @@ class EmailBackend(ModelBackend):
     Django Admin permission checks work for non-superuser staff.
     """
 
-    def authenticate(
+    def authenticate(  # type: ignore[override]
         self,
         request: HttpRequest | None,
         email: str | None = None,
