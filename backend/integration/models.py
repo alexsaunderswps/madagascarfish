@@ -16,6 +16,7 @@ class SyncJob(models.Model):
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     records_processed = models.IntegerField(default=0)
+    records_created = models.IntegerField(default=0)
     records_updated = models.IntegerField(default=0)
     records_skipped = models.IntegerField(default=0)
     error_log = models.JSONField(default=list, blank=True)

@@ -116,6 +116,7 @@ class Species(models.Model):
     iucn_taxon_id = models.IntegerField(null=True, blank=True, unique=True)
     fishbase_id = models.IntegerField(null=True, blank=True)
     gbif_taxon_key = models.IntegerField(null=True, blank=True)
+    in_captivity = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -174,6 +175,13 @@ class ConservationAssessment(models.Model):
         related_name="flagged_assessments",
     )
     flagged_date = models.DateTimeField(null=True, blank=True)
+    last_sync_job = models.ForeignKey(
+        "integration.SyncJob",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assessments",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

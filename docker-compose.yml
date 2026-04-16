@@ -44,6 +44,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./data:/data
 
   worker:
     build:
@@ -60,6 +61,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./data:/data
 
   beat:
     build:
@@ -76,6 +78,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./data:/data
 
   minio:
     image: minio/minio
