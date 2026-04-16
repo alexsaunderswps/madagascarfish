@@ -397,7 +397,7 @@ readonly_fields = ["wdpa_id", "geometry", "created_at"]  # geometry loaded via m
 
 1. **`seed_localities` management command:**
    ```
-   python manage.py seed_localities --csv data/localities/madagascar_freshwater_fish_localities.csv [--dry-run]
+   python manage.py seed_localities --csv data/seed/madagascar_freshwater_fish_localities_seed.csv [--dry-run]
    ```
    - Idempotent: keyed on `(species__scientific_name, location, locality_type)`
    - Validates coordinates are within Madagascar bounding box (43.0-51.0 E, -26.0 to -11.5 S)
@@ -425,8 +425,8 @@ readonly_fields = ["wdpa_id", "geometry", "created_at"]  # geometry loaded via m
 **Execution order for full seed:**
 ```bash
 python manage.py load_reference_layers --watersheds ... --protected-areas ...
-python manage.py seed_species --csv data/seed/species.csv
-python manage.py seed_localities --csv data/localities/madagascar_freshwater_fish_localities.csv
+python manage.py seed_species --csv data/seed/madagascar_freshwater_fish_seed.csv
+python manage.py seed_localities --csv data/seed/madagascar_freshwater_fish_localities_seed.csv
 python manage.py generate_map_layers --output-dir staticfiles/map-layers/
 ```
 
@@ -474,7 +474,7 @@ python manage.py generate_map_layers --output-dir staticfiles/map-layers/
 
 ## 7. Recommended CSV Schema
 
-### File: `data/localities/madagascar_freshwater_fish_localities.csv`
+### File: `data/seed/madagascar_freshwater_fish_localities_seed.csv`
 
 | Column | Maps to Field | Required | Notes |
 |--------|--------------|----------|-------|

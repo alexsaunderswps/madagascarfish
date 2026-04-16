@@ -352,7 +352,7 @@ Location: `species/management/commands/seed_localities.py`
 
 ```
 python manage.py seed_localities \
-    --csv data/localities/madagascar_freshwater_fish_localities.csv \
+    --csv data/seed/madagascar_freshwater_fish_localities_seed.csv \
     [--dry-run]
 ```
 
@@ -420,11 +420,11 @@ python manage.py load_reference_layers \
     --protected-areas data/reference/wdpa_madagascar.shp
 
 # 2. Load species (existing Gate 06 command)
-python manage.py seed_species --csv data/seed/species.csv
+python manage.py seed_species --csv data/seed/madagascar_freshwater_fish_seed.csv
 
 # 3. Load species localities (requires both reference layers and species)
 python manage.py seed_localities \
-    --csv data/localities/madagascar_freshwater_fish_localities.csv
+    --csv data/seed/madagascar_freshwater_fish_localities_seed.csv
 
 # 4. Generate static GeoJSON files for frontend (requires reference layers loaded)
 python manage.py generate_map_layers --output-dir staticfiles/map-layers/
