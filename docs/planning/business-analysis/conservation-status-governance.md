@@ -324,4 +324,22 @@ No prior gates need to be reopened. All four requirements can land on a new feat
 
 ---
 
+## 8. Decisions (2026-04-16)
+
+Answers to Section 6 open questions from the project owner:
+
+1. **Audit log:** Hand-rolled `AuditEntry` model. No point-in-time reads needed.
+2. **Tier 3 scoped audit view:** Ship in phase 1 (inline panel on species admin, last 12 months).
+3. **Dual-approval for `manual_expert` → `accepted`:** Not required. Tier 5 can create-and-accept in one step. (Overrides the draft's `under_revision` default for manual_expert.)
+4. **Authorship field:** Add separate `created_by` FK to `ConservationAssessment`. Do not overload `flagged_by`.
+5. **Conflict model:** Standalone `ConservationStatusConflict` model.
+6. **`reason` prompt scope:** Prompt only on `manual_expert` saves and conflict resolutions. Not for routine edits or IUCN sync writes.
+7. **`DEBUG` assertion on direct `iucn_status` writes:** Acceptable. Raise `AssertionError` in DEBUG when a save touches `iucn_status` outside the sanctioned mirror path.
+8. **IUCN `assessment_id` stability:** Verify against live API v4 now before PM breakdown. If IDs are unstable, substitute a composite idempotency key.
+9. **Public badge attribution:** Show "Expert review" (Option a) when the mirror's source assessment is `manual_expert`. Standard IUCN attribution otherwise.
+
+These decisions supersede any conflicting draft language above (notably the draft's dual-approval default in Requirement 2's table, which is withdrawn per decision 3).
+
+---
+
 *End of BA spec. Ready for PM review and gate breakdown.*
