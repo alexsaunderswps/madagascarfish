@@ -27,6 +27,9 @@ Tier-aware serializers are the primary access control mechanism at the API layer
 | `GET` | `/api/v1/field-programs/` | 1 (public) | Field program list |
 | `GET` | `/api/v1/field-programs/{id}/` | 1 (public) | Field program detail |
 | `GET` | `/api/v1/dashboard/` | 1 (public) | Conservation summary statistics |
+| `GET` | `/api/v1/map/localities/` | 1 (public) | Species localities as GeoJSON FeatureCollection |
+| `GET` | `/api/v1/map/watersheds/` | 1 (public) | Watershed list (no geometry; for filters and info panels) |
+| `GET` | `/api/v1/map/summary/` | 1 (public) | Map aggregate statistics |
 
 All endpoints are read-only at MVP. Write operations go through Django Admin (Gate 04).
 
@@ -325,6 +328,170 @@ This endpoint is cache-invalidated when any `Species`, `ExSituPopulation`, or `C
 
 ---
 
+### BE-05-7: Species Localities GeoJSON Endpoint
+
+**As** the Next.js map page,
+**I want** `GET /api/v1/map/localities/` to return a GeoJSON FeatureCollection of species localities,
+**so that** I can render locality markers on the Leaflet map.
+
+**New dependency:** Add `djangorestframework-gis` to `requirements.txt`. Add `rest_framework_gis` to `INSTALLED_APPS`.
+
+**Query parameters:**
+- `species_id` (integer) — filter to a single species
+- `family` (string) — filter by family name
+- `iucn_status` (string) — filter by IUCN category code
+- `watershed_id` (integer) — filter by Watershed FK
+- `locality_type` (string) — filter by locality type enum
+- `presence_status` (string) — filter by presence status enum
+- `coordinate_precision` (string) — filter by coordinate precision enum
+- `bbox` (string) — bounding box: `min_lng,min_lat,max_lng,max_lat`
+
+**Response (200 OK):**
+```json
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [47.52, -18.91]
+      },
+      "properties": {
+        "id": 42,
+        "species_id": 7,
+        "scientific_name": "Pachypanchax sakaramyi",
+        "family": "Aplocheilidae",
+        "iucn_status": "EN",
+        "locality_name": "Sakaramy River near Joffreville",
+        "locality_type": "type_locality",
+        "presence_status": "present",
+        "water_body": "Sakaramy River",
+        "water_body_type": "river",
+        "drainage_basin_name": "Sambirano",
+        "year_collected": 1928,
+        "coordinate_precision": "exact",
+        "source_citation": "Holly, 1928"
+      }
+    }
+  ]
+}
+```
+
+**Tier behavior at MVP:** All requests are Tier 1 (unauthenticated). The serializer serves `location_generalized` for records where `is_sensitive = True`, and `location` for non-sensitive records.
+
+**Serializer:** `SpeciesLocalityGeoSerializer` using `rest_framework_gis.serializers.GeoFeatureModelSerializer`. Custom `get_geometry` method implements the tier-aware coordinate selection.
+
+**Performance:**
+- Use `select_related('species', 'drainage_basin')` to avoid N+1 queries
+- Use `only()` to limit fields to those needed for serialization
+- Cache full unfiltered GeoJSON response in Redis (5-minute TTL); invalidate on SpeciesLocality save/delete signals
+
+**Acceptance Criteria:**
+
+**Given** a GET to `/api/v1/map/localities/` with no parameters
+**When** the database contains 50 locality records
+**Then** a GeoJSON FeatureCollection with 50 features is returned; each feature has `type: "Point"` geometry and all specified properties
+
+**Given** a GET to `/api/v1/map/localities/?species_id=7`
+**When** species 7 has 3 locality records
+**Then** the response contains exactly 3 features, all with `properties.species_id = 7`
+
+**Given** a GET to `/api/v1/map/localities/?iucn_status=CR&family=Bedotiidae`
+**When** multiple filters are applied simultaneously
+**Then** only localities for CR-status Bedotiidae species are returned (filters are AND-combined)
+
+**Given** a GET to `/api/v1/map/localities/` and a SpeciesLocality record has `is_sensitive = True`
+**When** the response is returned
+**Then** the geometry coordinates for that feature are the generalized coordinates (rounded to 0.1 degree), not the exact coordinates
+
+**Given** a GET to `/api/v1/map/localities/?bbox=46.0,-20.0,48.0,-18.0`
+**When** the bbox filter is applied
+**Then** only localities with coordinates within the bounding box are returned
+
+**Given** a GET to `/api/v1/map/localities/` and the database has zero SpeciesLocality records
+**When** the response is returned
+**Then** HTTP 200 with `{"type": "FeatureCollection", "features": []}` — not a 404
+
+---
+
+### BE-05-8: Watershed List Endpoint
+
+**As** the Next.js map page,
+**I want** `GET /api/v1/map/watersheds/` to return a list of watersheds with species counts,
+**so that** I can populate the watershed filter dropdown and watershed info panels.
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "name": "Betsiboka",
+    "pfafstetter_level": 6,
+    "area_sq_km": 48900.00,
+    "species_count": 12
+  }
+]
+```
+
+`species_count` is annotated via a subquery counting distinct species in SpeciesLocality records for that watershed.
+
+**Note:** Watershed geometries are NOT served through this endpoint. They are served as static GeoJSON files at `/static/map-layers/watersheds.geojson`. This endpoint provides metadata only.
+
+**Acceptance Criteria:**
+
+**Given** a GET to `/api/v1/map/watersheds/`
+**When** 60 Watershed records exist, 34 of which have at least one SpeciesLocality
+**Then** all 60 watersheds are returned; watersheds with localities have `species_count > 0`; watersheds without localities have `species_count = 0`
+
+**Given** a GET to `/api/v1/map/watersheds/` and no Watershed records exist
+**When** the response is returned
+**Then** HTTP 200 with an empty array `[]`
+
+---
+
+### BE-05-9: Map Summary Endpoint
+
+**As** the Next.js map page,
+**I want** `GET /api/v1/map/summary/` to return aggregate map statistics,
+**so that** I can render the statistics bar and communicate data coverage.
+
+**Response (200 OK):**
+```json
+{
+  "total_localities": 547,
+  "species_with_localities": 72,
+  "species_without_localities": 7,
+  "watersheds_represented": 34,
+  "locality_type_counts": {
+    "type_locality": 79,
+    "collection_record": 312,
+    "literature_record": 98,
+    "observation": 58
+  },
+  "presence_status_counts": {
+    "present": 420,
+    "historically_present_extirpated": 67,
+    "presence_unknown": 45,
+    "reintroduced": 15
+  }
+}
+```
+
+Cached in Redis (5-minute TTL), invalidated on SpeciesLocality changes.
+
+**Acceptance Criteria:**
+
+**Given** a GET to `/api/v1/map/summary/`
+**When** the database contains 547 SpeciesLocality records across 72 species
+**Then** `total_localities = 547`, `species_with_localities = 72`, `species_without_localities` equals total species minus 72
+
+**Given** a GET to `/api/v1/map/summary/` and the database has zero SpeciesLocality records
+**When** the response is returned
+**Then** `total_localities = 0`, `species_with_localities = 0`, all type/status counts are 0 or omitted; HTTP 200 (not an error)
+
+---
+
 ## Technical Tasks
 
 - Create `species/views.py`, `populations/views.py`, `fieldwork/views.py`, `coordination/views.py` (empty for now), `integration/views.py` (health only)
@@ -337,6 +504,11 @@ This endpoint is cache-invalidated when any `Species`, `ExSituPopulation`, or `C
 - Generate OpenAPI schema with `drf-spectacular`; serve at `/api/schema/`, Swagger UI at `/api/docs/`
 - Write integration tests: one test per tier (anonymous, Tier 2, Tier 3, Tier 5) for each endpoint; verify field presence/absence matches tier rules
 - Use `select_related` and `prefetch_related` on all list views to eliminate N+1 queries; verify with `django-assert-num-queries` in tests
+- Add `djangorestframework-gis` to `requirements.txt` and `rest_framework_gis` to `INSTALLED_APPS`
+- Create `species/serializers_map.py` with `SpeciesLocalityGeoSerializer` (using `GeoFeatureModelSerializer`), `WatershedListSerializer`, `MapSummarySerializer`
+- Create `species/views_map.py` with `SpeciesLocalityGeoViewSet`, `WatershedListView`, `MapSummaryView`
+- Register URL routes under `/api/v1/map/` namespace in `config/urls.py`
+- Write integration tests: GeoJSON response shape validation, filter combinations, sensitive coordinate redaction, empty state responses, N+1 query tests for the localities endpoint
 
 ---
 
@@ -357,6 +529,11 @@ Before marking Gate 05 complete:
 2. Tier-gating integration tests pass (field presence/absence verified for all tiers on all endpoints)
 3. N+1 query tests pass for all list endpoints
 4. OpenAPI schema generates without errors
-5. Invoke **@test-writer** to write adversarial API tests (tier escalation, malformed filter params, large page sizes)
-6. Invoke **@security-reviewer** — this gate defines all data access boundaries
-7. Invoke **@code-quality-reviewer** on serializers and views
+5. `/api/v1/map/localities/` returns valid GeoJSON FeatureCollection with correct response shape
+6. Sensitive record coordinates are redacted (generalized coordinates served for `is_sensitive = True` records)
+7. All map filter parameters work correctly (species_id, family, iucn_status, watershed_id, locality_type, presence_status, coordinate_precision, bbox)
+8. Map endpoints return HTTP 200 with empty collections (not 404) when no data exists
+9. `djangorestframework-gis` is installed and configured
+10. Invoke **@test-writer** to write adversarial API tests (tier escalation, malformed filter params, large page sizes, malformed bbox, GeoJSON shape validation)
+11. Invoke **@security-reviewer** — this gate defines all data access boundaries
+12. Invoke **@code-quality-reviewer** on serializers and views

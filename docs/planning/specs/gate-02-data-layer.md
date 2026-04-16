@@ -18,7 +18,7 @@ All BA-approved model changes from ba-assessment-v1.md are included here. Undesc
 
 | App | Models in This Gate |
 |-----|---------------------|
-| `species` | Species, Taxon, CommonName, ConservationAssessment |
+| `species` | Species, Taxon, CommonName, ConservationAssessment, SpeciesLocality, Watershed, ProtectedArea |
 | `populations` | Institution, ExSituPopulation, HoldingRecord |
 | `fieldwork` | FieldProgram |
 | `accounts` | User, AuditLog |
@@ -201,6 +201,70 @@ Append-only. No update/delete signals on this model. Use a `pre_delete` signal t
 | `records_skipped` | IntegerField, default 0 | |
 | `error_log` | TextField, blank | Accumulated errors |
 
+### `species.SpeciesLocality`
+
+Each record represents a single known locality for a species — sourced from type descriptions, museum collection records, published literature, field observations, or eDNA surveys. This is the primary point layer for the conservation map.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | AutoField | PK |
+| `species` | FK → Species | `on_delete=CASCADE`; indexed |
+| `locality_name` | CharField(300) | e.g., "Amboaboa River at Antsirabe confluence" |
+| `location` | PointField(srid=4326) | Exact coordinates (WGS 84) |
+| `location_generalized` | PointField(srid=4326), nullable | Pre-computed generalized coordinates for public display. Null if not sensitive. |
+| `water_body` | CharField(200), blank | Name of river, lake, etc. |
+| `water_body_type` | CharField, enum | `river` / `lake` / `stream` / `cave_system` / `wetland` / `estuary` |
+| `drainage_basin` | FK → Watershed, nullable | Enables efficient "all species in this watershed" queries |
+| `drainage_basin_name` | CharField(200), blank | Denormalized basin name. Auto-populated from FK on save. |
+| `locality_type` | CharField, enum | `type_locality` / `collection_record` / `literature_record` / `observation` |
+| `presence_status` | CharField, enum | `present` / `historically_present_extirpated` / `presence_unknown` / `reintroduced` |
+| `source_citation` | TextField | Required. Provenance is non-negotiable for biodiversity data. |
+| `year_collected` | IntegerField, nullable | Year of the record, not the publication year. |
+| `collector` | CharField(200), blank | Collector or observer name(s). |
+| `coordinate_precision` | CharField, enum | `exact` / `approximate` / `locality_centroid` / `water_body_centroid` |
+| `is_sensitive` | BooleanField, default False | If True, `location_generalized` is served to Tier 1-2 users instead of `location`. |
+| `notes` | TextField, blank | |
+| `created_at` | DateTimeField, auto_now_add | |
+| `updated_at` | DateTimeField, auto_now | |
+
+**Constraints:**
+- `unique_together = (species, location, locality_type)`
+- `save()` override: if `is_sensitive` and `location` is not null, compute `location_generalized` as `Point(round(lng, 1), round(lat, 1))`. If not sensitive, set `location_generalized = None`.
+- `save()` override: if `drainage_basin` FK is set and `drainage_basin_name` is empty, populate from `drainage_basin.name`.
+
+### `species.Watershed`
+
+Reference layer storing HydroSHEDS HydroBASINS polygons for Madagascar. Used as FK target for SpeciesLocality.drainage_basin and as the source for the watershed map overlay.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | AutoField | PK |
+| `hybas_id` | BigIntegerField, unique | HydroBASINS feature ID |
+| `name` | CharField(200) | Basin name; fallback "Unnamed basin [hybas_id]" for unnamed features |
+| `pfafstetter_level` | IntegerField | Pfafstetter coding level (MVP loads level 6 only) |
+| `pfafstetter_code` | BigIntegerField | Pfafstetter basin code |
+| `parent_basin` | FK → self, nullable | For hierarchical basin navigation |
+| `area_sq_km` | DecimalField(12,2), nullable | Basin area from HydroBASINS attributes |
+| `geometry` | MultiPolygonField(srid=4326) | Basin boundary polygon |
+| `created_at` | DateTimeField, auto_now_add | |
+
+### `species.ProtectedArea`
+
+Reference layer storing WDPA protected area polygons for Madagascar. Used for the protected areas map overlay.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | AutoField | PK |
+| `wdpa_id` | IntegerField, unique | WDPA feature ID |
+| `name` | CharField(300) | Protected area name |
+| `designation` | CharField(200) | e.g., "National Park", "Special Reserve" |
+| `iucn_category` | CharField(20), blank | IUCN PA category (Ia, Ib, II, III, IV, V, VI) |
+| `status` | CharField(100) | e.g., "Designated", "Proposed" |
+| `status_year` | IntegerField, nullable | Year of designation |
+| `area_km2` | DecimalField(12,2), nullable | Reported area |
+| `geometry` | MultiPolygonField(srid=4326) | PA boundary |
+| `created_at` | DateTimeField, auto_now_add | |
+
 ---
 
 ## Technical Tasks
@@ -238,6 +302,30 @@ Append-only. No update/delete signals on this model. Use a `pre_delete` signal t
 **When** the second is saved
 **Then** a database-level unique constraint violation is raised
 
+**Given** a SpeciesLocality record with valid coordinates (-18.91, 47.52)
+**When** the record is saved
+**Then** the PointField stores the coordinates correctly; querying with `ST_Contains` against a polygon that includes those coordinates returns the record
+
+**Given** two SpeciesLocality records with the same `species`, `location`, and `locality_type`
+**When** the second is saved
+**Then** a database-level unique constraint violation is raised
+
+**Given** a SpeciesLocality record with `is_sensitive = True` and `location = Point(47.5234, -18.9156)`
+**When** the record is saved
+**Then** `location_generalized` is auto-computed as `Point(47.5, -18.9)` (rounded to 0.1 degree)
+
+**Given** a SpeciesLocality record with `is_sensitive = False`
+**When** the record is saved
+**Then** `location_generalized` is null
+
+**Given** a Watershed record with a valid MultiPolygon geometry
+**When** the record is saved with `hybas_id = 1060000010`
+**Then** the record saves without error; a second record with the same `hybas_id` raises a unique constraint violation
+
+**Given** a ProtectedArea record with `wdpa_id = 303847`
+**When** the record is saved
+**Then** the record saves without error; a second record with the same `wdpa_id` raises a unique constraint violation
+
 ---
 
 ## Out of Scope
@@ -246,7 +334,6 @@ Append-only. No update/delete signals on this model. Use a `pre_delete` signal t
 - DRF endpoints or serializers (Gate 05)
 - Auth enforcement / permission classes (Gate 03)
 - Occurrence records, Survey, BreedingRecommendation, PrioritizationScore (post-MVP)
-- PostGIS geometry fields — no spatial data in MVP models
 
 ---
 
@@ -256,4 +343,7 @@ Before marking Gate 02 complete:
 1. All migrations apply cleanly on a fresh PostGIS database (`migrate --run-syncdb` passes)
 2. All model-level unit tests pass
 3. Custom User model is set before any auth migrations run
-4. Invoke **@code-quality-reviewer** on all model files
+4. SpeciesLocality, Watershed, and ProtectedArea migrations apply cleanly; spatial field tests pass (PointField and MultiPolygonField accept valid geometries)
+5. Unique constraints enforced on `hybas_id`, `wdpa_id`, and `(species, location, locality_type)`
+6. `save()` override on SpeciesLocality correctly computes `location_generalized` for sensitive records and populates `drainage_basin_name` from FK
+7. Invoke **@code-quality-reviewer** on all model files

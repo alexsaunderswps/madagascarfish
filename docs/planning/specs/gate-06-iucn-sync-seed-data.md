@@ -25,6 +25,9 @@ Both are in this gate because they share the Celery + Redis infrastructure and b
 - `celery beat` schedule: `iucn_sync` runs weekly (Sunday 02:00 UTC)
 - `SyncJob` lifecycle management: job creates a `SyncJob` record on start, updates it on completion or failure
 - Management command `seed_species` — idempotently loads species from `data/seed/species.csv`
+- Management command `load_reference_layers` — loads HydroSHEDS watershed and WDPA protected area shapefiles into PostGIS
+- Management command `seed_localities` — loads species locality records from `data/localities/madagascar_freshwater_fish_localities.csv` into `SpeciesLocality` model
+- Management command `generate_map_layers` — serializes reference layer tables to static GeoJSON files for frontend map overlays
 
 ---
 
@@ -116,6 +119,111 @@ python manage.py seed_species --csv data/seed/species.csv [--dry-run]
 - Does not delete existing records not present in the CSV
 - After loading species, attempts IUCN name lookup for any species without `iucn_taxon_id` set (uses `IUCNClient.get_species_by_name`); populates `iucn_taxon_id` where found
 
+### Task 5: `load_reference_layers` Management Command
+
+Location: `species/management/commands/load_reference_layers.py`
+
+```
+python manage.py load_reference_layers \
+    --watersheds data/reference/hydrobasins_madagascar_lev06.shp \
+    --protected-areas data/reference/wdpa_madagascar.shp \
+    [--simplify 0.001]
+```
+
+**Behavior:**
+- Loads HydroBASINS shapefile into `Watershed` table, filtering to Madagascar features only
+- Loads WDPA shapefile into `ProtectedArea` table, filtering to `ISO3 = 'MDG'`
+- Applies `ST_Simplify` at specified tolerance (default 0.001 degrees, ~100m) to reduce vertex counts
+- Idempotent: keyed on `hybas_id` (Watershed) and `wdpa_id` (ProtectedArea). Existing records are updated; new records are created; no records are deleted.
+- Implements top-down watershed naming: match ~15-20 major basin names from published hydrological maps (Betsiboka, Tsiribihina, Mangoky, Onilahy, Mangoro, Sofia, etc.); auto-generate "Sub-basin of [parent name]" for unnamed features using Pfafstetter hierarchy. Must avoid "Sub-basin of Sub-basin of..." chains by resolving to the nearest named ancestor.
+- `--dry-run` flag: reports what would be loaded without writing to database
+- Logs: N watersheds created/updated, N protected areas created/updated, total vertex count before/after simplification
+
+**Data source files (must be prepared before running):**
+- `data/reference/hydrobasins_madagascar_lev06.shp` — extracted from HydroSHEDS Africa level 6, filtered to Madagascar bounding box
+- `data/reference/wdpa_madagascar.shp` — extracted from WDPA monthly download, filtered to `ISO3 = 'MDG'`
+
+### Task 6: `seed_localities` Management Command
+
+Location: `species/management/commands/seed_localities.py`
+
+```
+python manage.py seed_localities \
+    --csv data/localities/madagascar_freshwater_fish_localities.csv \
+    [--dry-run]
+```
+
+**CSV Schema:**
+
+| Column | Maps to Field | Required | Validation |
+|--------|--------------|----------|------------|
+| `scientific_name` | FK lookup → Species | Yes | Must match `Species.scientific_name` exactly; skip row with warning if not found |
+| `locality_name` | `locality_name` | Yes | Non-empty string |
+| `latitude` | `location` (y) | Yes | Between -26.0 and -11.5 (Madagascar extent) |
+| `longitude` | `location` (x) | Yes | Between 43.0 and 51.0 (Madagascar extent) |
+| `water_body` | `water_body` | No | Free text |
+| `water_body_type` | `water_body_type` | No | Enum: `river`/`lake`/`stream`/`cave_system`/`wetland`/`estuary` |
+| `locality_type` | `locality_type` | Yes | Enum: `type_locality`/`collection_record`/`literature_record`/`observation` |
+| `presence_status` | `presence_status` | Yes | Enum: `present`/`historically_present_extirpated`/`presence_unknown`/`reintroduced` |
+| `coordinate_precision` | `coordinate_precision` | Yes | Enum: `exact`/`approximate`/`locality_centroid`/`water_body_centroid` |
+| `source_citation` | `source_citation` | Yes | Non-empty string |
+| `year_collected` | `year_collected` | No | Integer year; null if blank |
+| `collector` | `collector` | No | Free text |
+| `is_sensitive` | `is_sensitive` | No | `true`/`false`; default `false` |
+| `notes` | `notes` | No | Free text |
+
+**Columns NOT in CSV (auto-computed on import):**
+- `drainage_basin` — assigned via `ST_Contains` spatial query against loaded Watershed polygons
+- `drainage_basin_name` — populated from FK on save
+- `location_generalized` — computed from `location` + `is_sensitive` on save
+
+**Behavior:**
+- Idempotent: keyed on `(species__scientific_name, location, locality_type)`. Existing records are updated; new records are created; records not in the CSV are not deleted.
+- `--dry-run` flag: validates CSV and reports what would be created/updated/skipped without writing to database
+- Logs: N created, N updated, N skipped (validation errors), with error details per row
+- Validation warning (not rejection): if `locality_type = "type_locality"` and the matched species has `taxonomic_status = "undescribed_morphospecies"`, log a warning
+- Auto-assign `drainage_basin` FK: for each locality, query `Watershed.objects.filter(geometry__contains=point)`. If exactly one match, assign it. If zero matches, set to null and log a warning. If multiple matches, assign the smallest by `area_sq_km`.
+
+**Prerequisite:** `load_reference_layers` must have been run before `seed_localities` for drainage basin assignment to work. If no Watershed records exist, `seed_localities` logs a warning and sets all `drainage_basin` FKs to null.
+
+**Companion document:** The localities CSV must be accompanied by `docs/data-sources/locality-data-sourcing.md`, documenting provenance, geocoding methodology, precision levels, sensitivity decisions, and known gaps. See architecture proposal Section 8 for the recommended structure.
+
+### Task 7: `generate_map_layers` Management Command
+
+Location: `species/management/commands/generate_map_layers.py`
+
+```
+python manage.py generate_map_layers --output-dir staticfiles/map-layers/
+```
+
+**Behavior:**
+- Serializes all Watershed records to `staticfiles/map-layers/watersheds.geojson`
+- Serializes all ProtectedArea records to `staticfiles/map-layers/protected-areas.geojson`
+- GeoJSON includes all attribute fields needed for frontend display (name, designation, area, IUCN category, species count per watershed)
+- Overwrites existing files (this is a regeneration command, not an append)
+- Logs: file path, record count, file size for each generated layer
+
+### Full Seed Execution Order
+
+The following sequence must be followed for a complete data load:
+
+```bash
+# 1. Load reference layers (watersheds + protected areas)
+python manage.py load_reference_layers \
+    --watersheds data/reference/hydrobasins_madagascar_lev06.shp \
+    --protected-areas data/reference/wdpa_madagascar.shp
+
+# 2. Load species (existing Gate 06 command)
+python manage.py seed_species --csv data/seed/madagascar_freshwater_fish_seed.csv
+
+# 3. Load species localities (requires both reference layers and species)
+python manage.py seed_localities \
+    --csv data/localities/madagascar_freshwater_fish_localities.csv
+
+# 4. Generate static GeoJSON files for frontend (requires reference layers loaded)
+python manage.py generate_map_layers --output-dir staticfiles/map-layers/
+```
+
 ---
 
 ## User Stories
@@ -182,7 +290,11 @@ Before marking Gate 06 complete:
 3. After seeding, `GET /api/v1/species/` returns ~95–100 species
 4. After sync, at least the described species with `iucn_taxon_id` set have `ConservationAssessment` records
 5. SyncJob records are visible in Django Admin
-6. All acceptance criteria tests pass (mock the IUCN API in tests; do not call the live API in CI)
-7. Invoke **@test-writer** to write tests covering: task retry on transient failure, idempotent upsert, skip behavior for undescribed taxa, CSV validation edge cases
-8. Invoke **@security-reviewer** — IUCN API token must be stored in env vars, never committed; verify Redis caching does not leak data across requests
-9. Invoke **@code-quality-reviewer** on task and client code
+6. `load_reference_layers` loads HydroSHEDS and WDPA data correctly; ~60-100 watersheds and ~120-160 protected areas exist in the database; major basins are named
+7. `seed_localities` loads the localities CSV correctly; drainage basin FK assignment works via spatial containment; `--dry-run` validates without writing
+8. `generate_map_layers` produces valid GeoJSON files in `staticfiles/map-layers/`
+9. Full seed execution order runs without error: `load_reference_layers` → `seed_species` → `seed_localities` → `generate_map_layers`
+10. All acceptance criteria tests pass (mock the IUCN API in tests; do not call the live API in CI)
+11. Invoke **@test-writer** to write tests covering: task retry on transient failure, idempotent upsert, skip behavior for undescribed taxa, CSV validation edge cases, coordinate validation (outside Madagascar bbox), idempotent re-import of localities, spatial FK assignment, sensitive coordinate generalization, type_locality + undescribed_morphospecies warning
+12. Invoke **@security-reviewer** — IUCN API token must be stored in env vars, never committed; verify Redis caching does not leak data across requests
+13. Invoke **@code-quality-reviewer** on task and client code

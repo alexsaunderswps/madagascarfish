@@ -38,7 +38,7 @@ search_fields = [
     "commonname__name",  # search across CommonName inline
 ]
 readonly_fields = ["created_at", "updated_at"]
-inlines = [ConservationAssessmentInline, CommonNameInline]
+inlines = [ConservationAssessmentInline, CommonNameInline, SpeciesLocalityInline]
 ```
 
 `ConservationAssessmentInline` (TabularInline):
@@ -212,9 +212,91 @@ SyncJob records are created and updated by Celery tasks, not by admin users. All
 
 ---
 
+### `species.SpeciesLocality`
+
+```python
+list_display = [
+    "species", "locality_name", "locality_type", "presence_status",
+    "water_body", "drainage_basin", "year_collected", "coordinate_precision",
+]
+list_filter = [
+    "locality_type", "presence_status", "water_body_type",
+    "coordinate_precision", "is_sensitive", "drainage_basin",
+]
+search_fields = [
+    "locality_name", "water_body", "species__scientific_name",
+    "source_citation", "collector",
+]
+readonly_fields = ["location_generalized", "drainage_basin_name", "created_at", "updated_at"]
+raw_id_fields = ["species", "drainage_basin"]
+```
+
+Uses `OSMGeoAdmin` (from `django.contrib.gis.admin`) for the `location` PointField, which provides a map-based point picker widget. This allows data curators to visually verify and place coordinates. `location_generalized` is read-only because it is auto-computed from `location` + `is_sensitive` on save.
+
+Also register as an inline on the Species admin:
+
+`SpeciesLocalityInline` (TabularInline):
+```python
+model = SpeciesLocality
+extra = 0
+fields = [
+    "locality_name", "locality_type", "presence_status",
+    "water_body", "drainage_basin", "year_collected",
+    "source_citation", "coordinate_precision", "is_sensitive",
+]
+readonly_fields = ["drainage_basin"]  # FK assigned by management command, not manual entry
+show_change_link = True  # link to full admin form for map-based coordinate editing
+```
+
+This inline shows all localities for a species when editing that species record, supporting the common workflow of reviewing all known localities for a given taxon.
+
+**User stories:**
+
+**As** a Tier 5 administrator adding a new field observation locality,
+**I want** to use a map widget to place the point coordinates,
+**so that** I can visually verify the location rather than manually entering lat/lng values.
+
+**Acceptance Criteria:**
+
+**Given** a Tier 5 admin creating a new SpeciesLocality record via the full admin form
+**When** they click on the `location` field's map widget
+**Then** an OpenStreetMap-based map renders; clicking on the map places a point marker and populates the coordinate fields
+
+**Given** a Tier 5 admin editing a Species record
+**When** they view the SpeciesLocality inline section
+**Then** all existing locality records for that species are displayed; the "Add another" row allows creating a new locality; each row has a "change" link to the full SpeciesLocality admin form (for map-based coordinate editing)
+
+---
+
+### `species.Watershed`
+
+```python
+list_display = ["name", "pfafstetter_level", "pfafstetter_code", "area_sq_km"]
+list_filter = ["pfafstetter_level"]
+search_fields = ["name"]
+readonly_fields = ["hybas_id", "geometry", "created_at"]
+```
+
+Watershed records are loaded via the `load_reference_layers` management command, not created through admin. Geometry is read-only. Metadata (name) can be edited in admin to improve naming.
+
+---
+
+### `species.ProtectedArea`
+
+```python
+list_display = ["name", "designation", "iucn_category", "status", "area_km2"]
+list_filter = ["designation", "iucn_category", "status"]
+search_fields = ["name"]
+readonly_fields = ["wdpa_id", "geometry", "created_at"]
+```
+
+ProtectedArea records are loaded via the `load_reference_layers` management command. Geometry is read-only. Metadata can be edited in admin.
+
+---
+
 ## Technical Tasks
 
-- Create `species/admin.py`, `populations/admin.py`, `fieldwork/admin.py`, `accounts/admin.py`, `integration/admin.py` with registrations above
+- Create `species/admin.py` (including SpeciesLocality with `OSMGeoAdmin`, Watershed, ProtectedArea, and SpeciesLocalityInline on SpeciesAdmin), `populations/admin.py`, `fieldwork/admin.py`, `accounts/admin.py`, `integration/admin.py` with registrations above
 - Override `get_queryset()` on `ExSituPopulationAdmin` to enforce institution-scoped writes: Tier 3–4 users see all records but can only save changes to their own institution's records
 - Set `AdminSite.site_header`, `AdminSite.site_title`, `AdminSite.index_title`
 - Ensure `is_staff = True` is required for any Admin access; Tier 5 users must also have `is_superuser = True` for full access
@@ -237,5 +319,8 @@ Before marking Gate 04 complete:
 1. All models load in Django Admin without errors
 2. Institution-scoped write protection tests pass for ExSituPopulation
 3. All `list_filter` values return correct filtered querysets
-4. Invoke **@code-quality-reviewer** on admin files
-5. Invoke **@security-reviewer** — this gate controls what authenticated coordinators can edit
+4. SpeciesLocality admin loads with OSMGeoAdmin map widget for the `location` field
+5. SpeciesLocalityInline renders on the Species admin change form
+6. Watershed and ProtectedArea admin pages load with read-only geometry fields
+7. Invoke **@code-quality-reviewer** on admin files
+8. Invoke **@security-reviewer** — this gate controls what authenticated coordinators can edit
