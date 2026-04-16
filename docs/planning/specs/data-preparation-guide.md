@@ -30,20 +30,21 @@ This document provides column-by-column guidance for the two seed data CSVs requ
 | 12 | `provisional_name` | No | string | — | Informal epithet for undescribed taxa (e.g., `'manombo'`, `'nosivola'`). Leave blank for described species. |
 | 13 | `shoal_priority` | No | boolean | `true`, `false` | Whether this species appears on the SHOAL 1,000 Fishes Blueprint. Default: `false`. |
 | 14 | `fishbase_id` | No | integer | — | FishBase species ID. Find at: https://www.fishbase.se |
-| 15 | `distribution_narrative` | No | string | — | Free text description of geographic range. |
-| 16 | `habitat_type` | No | string | — | Habitat description (e.g., `streams`, `rivers and lakes`, `cave systems`). |
-| 17 | `max_length_cm` | No | decimal | — | Maximum total length in centimeters. |
-| 18 | `in_captivity` | No | enum | `Y`, `N` | Whether the species is known to be held in captivity. Imported as `BooleanField` on Species model. Useful for public display before ExSituPopulation records exist. Default: `false`. |
-| 19 | `captive_institutions` | No | string | — | Comma-separated institution names holding this species. Informational only — not imported to database. |
-| 20 | `notes` | No | string | — | Provenance notes for data curator. Not imported to database. |
+| 15 | `synonyms` | No | string | — | Semicolon-separated list of junior synonyms or former names (e.g., `Bedotia longianalis`). Not imported to database; informational for data curation. |
+| 16 | `distribution_narrative` | No | string | — | Free text description of geographic range. |
+| 17 | `habitat_type` | No | string | — | Habitat description (e.g., `streams`, `rivers and lakes`, `cave systems`). |
+| 18 | `max_length_cm` | No | decimal | — | Maximum total length in centimeters. |
+| 19 | `in_captivity` | No | enum | `Y`, `N` | Whether the species is known to be held in captivity. Imported as `BooleanField` on Species model. Useful for public display before ExSituPopulation records exist. Default: `false`. |
+| 20 | `captive_institutions` | No | string | — | Comma-separated institution names holding this species. Informational only — not imported to database. |
+| 21 | `notes` | No | string | — | Provenance notes for data curator. Not imported to database. |
 
 ### Example Rows
 
 ```csv
-scientific_name,authority,year_described,family,genus,endemic_status,iucn_status,iucn_taxon_id,population_trend,cares_status,taxonomic_status,provisional_name,shoal_priority,fishbase_id,distribution_narrative,habitat_type,max_length_cm,in_captivity,captive_institutions,notes
-Pachypanchax sakaramyi,"Holly, 1928",1928,Aplocheilidae,Pachypanchax,endemic,EN,166478,decreasing,CEN,described,,false,10914,Northern Madagascar; Sakaramy River drainage,streams,8.5,Y,"Cologne Zoo, London Zoo",ZIMS records confirm holdings
-Bedotia sp. 'manombo',,,Bedotiidae,Bedotia,endemic,,,,,undescribed_morphospecies,'manombo',false,,Manombo Special Reserve area,streams,,Y,"Private breeders (CARES)",CARES 2026 R4.1 priority
-Oreochromis niloticus,"(Linnaeus, 1758)",1758,Cichlidae,Oreochromis,introduced,LC,166775,stable,,described,,false,2,Introduced throughout Madagascar,rivers and lakes,60.0,N,,Major invasive threat to endemic fauna
+scientific_name,authority,year_described,family,genus,endemic_status,iucn_status,iucn_taxon_id,population_trend,cares_status,taxonomic_status,provisional_name,shoal_priority,fishbase_id,synonyms,distribution_narrative,habitat_type,max_length_cm,in_captivity,captive_institutions,notes
+Pachypanchax sakaramyi,"Holly, 1928",1928,Aplocheilidae,Pachypanchax,endemic,EN,166478,decreasing,CEN,described,,false,10914,,Northern Madagascar; Sakaramy River drainage,streams,8.5,Y,"Cologne Zoo, London Zoo",ZIMS records confirm holdings
+Bedotia sp. 'manombo',,,Bedotiidae,Bedotia,endemic,,,,,undescribed_morphospecies,'manombo',false,,,Manombo Special Reserve area,streams,,Y,"Private breeders (CARES)",CARES 2026 R4.1 priority
+Oreochromis niloticus,"(Linnaeus, 1758)",1758,Cichlidae,Oreochromis,introduced,LC,166775,stable,,described,,false,2,,Introduced throughout Madagascar,rivers and lakes,60.0,N,,Major invasive threat to endemic fauna
 ```
 
 ### Guidance for Undescribed Taxa
@@ -59,10 +60,19 @@ If an undescribed taxon has no locality data and no captive populations, it adds
 
 ## 2. Species Localities Seed CSV
 
-**File:** `data/localities/madagascar_freshwater_fish_localities.csv`
-**Loaded by:** `python manage.py seed_localities --csv data/localities/madagascar_freshwater_fish_localities.csv`
+**File:** `data/seed/madagascar_freshwater_fish_localities_seed.csv`
+**Loaded by:** `python manage.py seed_localities --csv data/seed/madagascar_freshwater_fish_localities_seed.csv`
 **Idempotent key:** `(scientific_name, latitude+longitude, locality_type)` — safe to re-run
 **Prerequisite:** Species must be loaded first (`seed_species`). Reference layers should be loaded first (`load_reference_layers`) for drainage basin FK assignment.
+
+### Master File and Filter Rules
+
+`data/seed/madagascar_freshwater_fish_localities_seed_master.csv` is the unfiltered source (820 rows as of 2026-04-16). The seed CSV above is derived from it by applying these filters:
+
+- **Drop genus-only identifications.** Rows whose `scientific_name` is a single word (e.g., `Bedotia`, `Rheocles`, `Glossogobius`) are excluded. They cannot populate a species profile and have no home in the species-level MVP data model. This removed 233 rows. If a future "indeterminate occurrence" bucket is added, revisit this.
+- **Drop out-of-bounds coordinates.** Any row with lat/lng outside the Madagascar extent (lat -26.0 to -11.5, lng 43.0 to 51.0) is excluded as a data-entry error. As of 2026-04-16 this removed 1 row (`Rheocles pellegrini` at lon=42.5, locality "andapa" — inconsistent with Andapa's actual position in northern Madagascar).
+
+Preserve the master file. When re-curating or re-filtering, work from the master and regenerate the seed — do not hand-edit the seed as the source of truth.
 
 ### Column Reference
 

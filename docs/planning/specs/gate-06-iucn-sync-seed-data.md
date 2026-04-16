@@ -26,7 +26,7 @@ Both are in this gate because they share the Celery + Redis infrastructure and b
 - `SyncJob` lifecycle management: job creates a `SyncJob` record on start, updates it on completion or failure
 - Management command `seed_species` — idempotently loads species from `data/seed/madagascar_freshwater_fish_seed.csv`
 - Management command `load_reference_layers` — loads HydroSHEDS watershed and WDPA protected area shapefiles into PostGIS
-- Management command `seed_localities` — loads species locality records from `data/localities/madagascar_freshwater_fish_localities.csv` into `SpeciesLocality` model
+- Management command `seed_localities` — loads species locality records from `data/seed/madagascar_freshwater_fish_localities_seed.csv` into `SpeciesLocality` model
 - Management command `generate_map_layers` — serializes reference layer tables to static GeoJSON files for frontend map overlays
 
 ---
@@ -101,7 +101,7 @@ Location: `species/management/commands/seed_species.py`
 
 The seed CSV (`data/seed/madagascar_freshwater_fish_seed.csv`) is prepared separately from this gate (data preparation is the project lead's task). The management command is code; the CSV is data. See [Data Preparation Guide](data-preparation-guide.md) for column-by-column guidance.
 
-**CSV schema (20 columns):**
+**CSV schema (21 columns):**
 
 | Column | Maps to Field | Required | Validation |
 |--------|--------------|----------|------------|
@@ -119,6 +119,7 @@ The seed CSV (`data/seed/madagascar_freshwater_fish_seed.csv`) is prepared separ
 | `provisional_name` | `provisional_name` | No | Informal epithet for undescribed taxa (e.g., `'manombo'`) |
 | `shoal_priority` | `shoal_priority` | No | `true`/`false`; default `false` |
 | `fishbase_id` | `fishbase_id` | No | Integer; FishBase species ID |
+| `synonyms` | *(not stored directly)* | No | Semicolon-separated list of junior synonyms or former names; informational for data curation |
 | `distribution_narrative` | `distribution_narrative` | No | Free text description of range |
 | `habitat_type` | `habitat_type` | No | Free text (e.g., `streams`, `rivers and lakes`) |
 | `max_length_cm` | `max_length_cm` | No | Decimal; maximum total length in centimeters |
@@ -172,7 +173,7 @@ Location: `species/management/commands/seed_localities.py`
 
 ```
 python manage.py seed_localities \
-    --csv data/localities/madagascar_freshwater_fish_localities.csv \
+    --csv data/seed/madagascar_freshwater_fish_localities_seed.csv \
     [--dry-run]
 ```
 
@@ -244,7 +245,7 @@ python manage.py seed_species --csv data/seed/madagascar_freshwater_fish_seed.cs
 
 # 3. Load species localities (requires both reference layers and species)
 python manage.py seed_localities \
-    --csv data/localities/madagascar_freshwater_fish_localities.csv
+    --csv data/seed/madagascar_freshwater_fish_localities_seed.csv
 
 # 4. Generate static GeoJSON files for frontend (requires reference layers loaded)
 python manage.py generate_map_layers --output-dir staticfiles/map-layers/
