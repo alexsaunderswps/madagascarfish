@@ -1,12 +1,17 @@
 from typing import Any
 
+from django.contrib.auth.backends import ModelBackend
 from django.http import HttpRequest
 
 from accounts.models import User
 
 
-class EmailBackend:
-    """Authenticate using email instead of username."""
+class EmailBackend(ModelBackend):
+    """Authenticate using email instead of username.
+
+    Extends ModelBackend to inherit has_perm / has_module_perms so that
+    Django Admin permission checks work for non-superuser staff.
+    """
 
     def authenticate(
         self, request: HttpRequest | None, email: str | None = None, password: str | None = None, **kwargs: Any
@@ -22,9 +27,3 @@ class EmailBackend:
         if user.check_password(password):
             return user
         return None
-
-    def get_user(self, user_id: int) -> User | None:
-        try:
-            return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
-            return None

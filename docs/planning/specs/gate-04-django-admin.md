@@ -1,6 +1,6 @@
 # Gate 04 — Django Admin Configuration
 
-**Status:** Not started
+**Status:** Complete
 **Preconditions:** Gate 03 complete
 **Unlocks:** Gate 06 (IUCN Sync & Seed Data) — coordinators can begin data entry after this gate
 
@@ -324,3 +324,9 @@ Before marking Gate 04 complete:
 6. Watershed and ProtectedArea admin pages load with read-only geometry fields
 7. Invoke **@code-quality-reviewer** on admin files
 8. Invoke **@security-reviewer** — this gate controls what authenticated coordinators can edit
+
+---
+
+## Reconciliation
+
+See [gate-04-reconciliation.md](gate-04-reconciliation.md) for the full spec-vs-implementation audit trail.
