@@ -1,6 +1,6 @@
 # Gate 05 — DRF API
 
-**Status:** Not started
+**Status:** Complete
 **Preconditions:** Gate 03 complete
 **Unlocks:** Gate 07 (Next.js Public Frontend)
 
@@ -537,3 +537,9 @@ Before marking Gate 05 complete:
 10. Invoke **@test-writer** to write adversarial API tests (tier escalation, malformed filter params, large page sizes, malformed bbox, GeoJSON shape validation)
 11. Invoke **@security-reviewer** — this gate defines all data access boundaries
 12. Invoke **@code-quality-reviewer** on serializers and views
+
+---
+
+## Reconciliation
+
+See [gate-05-reconciliation.md](gate-05-reconciliation.md) for the full spec-vs-implementation audit trail.
