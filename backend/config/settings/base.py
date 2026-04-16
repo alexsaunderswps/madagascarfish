@@ -25,7 +25,16 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_gis",
     "django_celery_beat",
+    "mptt",
+    # Project apps
+    "accounts",
+    "species",
+    "populations",
+    "fieldwork",
+    "integration",
 ]
+
+AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
