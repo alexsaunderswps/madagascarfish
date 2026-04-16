@@ -107,9 +107,7 @@ class Command(BaseCommand):
         root_ids = set(root_by_main_bas.values())
         pk_by_hybas = {
             w.hybas_id: w.id
-            for w in Watershed.objects.filter(
-                hybas_id__in=list(root_ids)
-            ).only("id", "hybas_id")
+            for w in Watershed.objects.filter(hybas_id__in=list(root_ids)).only("id", "hybas_id")
         }
         parented = 0
         for feat in layer:

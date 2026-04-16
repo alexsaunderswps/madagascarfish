@@ -3,7 +3,7 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 
 
-def TierPermission(min_tier: int = 1) -> type[BasePermission]:
+def TierPermission(min_tier: int = 1) -> type[BasePermission]:  # noqa: N802
     """Factory that returns a DRF permission class requiring a minimum access tier.
 
     Usage:
@@ -15,7 +15,7 @@ def TierPermission(min_tier: int = 1) -> type[BasePermission]:
             if not request.user or not request.user.is_authenticated:
                 # Anonymous users are treated as Tier 1
                 return min_tier <= 1
-            return request.user.access_tier >= min_tier  # type: ignore[union-attr]
+            return request.user.access_tier >= min_tier
 
         def has_object_permission(self, request: Request, view: APIView, obj: object) -> bool:
             return self.has_permission(request, view)

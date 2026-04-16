@@ -34,9 +34,7 @@ def health_check(request: Request) -> Response:
         celery_status = "error"
 
     healthy = (
-        db_status == "connected"
-        and cache_status == "connected"
-        and celery_status == "connected"
+        db_status == "connected" and cache_status == "connected" and celery_status == "connected"
     )
     status_code = 200 if healthy else 503
     return Response(

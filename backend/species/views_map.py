@@ -84,9 +84,7 @@ class WatershedListView(APIView):
 
     def get(self, request: Request) -> Response:
         qs = Watershed.objects.annotate(
-            species_count=Count(
-                "localities__species", distinct=True
-            )
+            species_count=Count("localities__species", distinct=True)
         ).order_by("name")
         serializer = WatershedListSerializer(qs, many=True)
         return Response(serializer.data)
@@ -108,9 +106,7 @@ class MapSummaryView(APIView):
 
     def _build_summary(self) -> dict:
         total_localities = SpeciesLocality.objects.count()
-        species_with = (
-            SpeciesLocality.objects.values("species").distinct().count()
-        )
+        species_with = SpeciesLocality.objects.values("species").distinct().count()
         total_species = Species.objects.count()
         watersheds_represented = (
             SpeciesLocality.objects.exclude(drainage_basin__isnull=True)
@@ -120,18 +116,12 @@ class MapSummaryView(APIView):
         )
 
         # Locality type counts
-        type_qs = (
-            SpeciesLocality.objects.values("locality_type")
-            .annotate(c=Count("id"))
-            .order_by()
-        )
+        type_qs = SpeciesLocality.objects.values("locality_type").annotate(c=Count("id")).order_by()
         locality_type_counts = {row["locality_type"]: row["c"] for row in type_qs}
 
         # Presence status counts
         status_qs = (
-            SpeciesLocality.objects.values("presence_status")
-            .annotate(c=Count("id"))
-            .order_by()
+            SpeciesLocality.objects.values("presence_status").annotate(c=Count("id")).order_by()
         )
         presence_status_counts = {row["presence_status"]: row["c"] for row in status_qs}
 

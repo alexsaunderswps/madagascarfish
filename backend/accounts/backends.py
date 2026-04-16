@@ -13,8 +13,12 @@ class EmailBackend(ModelBackend):
     Django Admin permission checks work for non-superuser staff.
     """
 
-    def authenticate(
-        self, request: HttpRequest | None, email: str | None = None, password: str | None = None, **kwargs: Any
+    def authenticate(  # type: ignore[override]
+        self,
+        request: HttpRequest | None,
+        email: str | None = None,
+        password: str | None = None,
+        **kwargs: Any,
     ) -> User | None:
         if email is None or password is None:
             return None

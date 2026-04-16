@@ -11,7 +11,6 @@ from accounts.scoping import scope_to_institution
 from populations.models import ExSituPopulation, Institution
 from species.models import ConservationAssessment, Species
 
-
 # --- Fixtures ---
 
 
@@ -38,9 +37,7 @@ def active_user(db: None) -> User:
 
 @pytest.fixture
 def tier3_user(db: None) -> User:
-    inst = Institution.objects.create(
-        name="Test Zoo", institution_type="zoo", country="Madagascar"
-    )
+    inst = Institution.objects.create(name="Test Zoo", institution_type="zoo", country="Madagascar")
     return User.objects.create_user(
         email="coordinator@example.com",
         password="securepass12345",
@@ -78,51 +75,66 @@ def species(db: None) -> Species:
 @pytest.mark.django_db
 class TestRegister:
     def test_register_success(self, api_client: APIClient) -> None:
-        resp = api_client.post("/api/v1/auth/register/", {
-            "email": "new@example.com",
-            "name": "New User",
-            "password": "securepass12345",
-        })
+        resp = api_client.post(
+            "/api/v1/auth/register/",
+            {
+                "email": "new@example.com",
+                "name": "New User",
+                "password": "securepass12345",
+            },
+        )
         assert resp.status_code == 201
         user = User.objects.get(email="new@example.com")
         assert user.is_active is False
         assert user.access_tier == 2
 
     def test_register_sends_verification_email(self, api_client: APIClient) -> None:
-        api_client.post("/api/v1/auth/register/", {
-            "email": "verify@example.com",
-            "name": "Verify User",
-            "password": "securepass12345",
-        })
+        api_client.post(
+            "/api/v1/auth/register/",
+            {
+                "email": "verify@example.com",
+                "name": "Verify User",
+                "password": "securepass12345",
+            },
+        )
         assert len(mail.outbox) == 1
         assert "verify" in mail.outbox[0].subject.lower()
 
     def test_register_duplicate_email(self, api_client: APIClient, active_user: User) -> None:
-        resp = api_client.post("/api/v1/auth/register/", {
-            "email": active_user.email,
-            "name": "Duplicate",
-            "password": "securepass12345",
-        })
+        resp = api_client.post(
+            "/api/v1/auth/register/",
+            {
+                "email": active_user.email,
+                "name": "Duplicate",
+                "password": "securepass12345",
+            },
+        )
         assert resp.status_code == 400
 
     def test_register_short_password(self, api_client: APIClient) -> None:
-        resp = api_client.post("/api/v1/auth/register/", {
-            "email": "short@example.com",
-            "name": "Short Pass",
-            "password": "short",
-        })
+        resp = api_client.post(
+            "/api/v1/auth/register/",
+            {
+                "email": "short@example.com",
+                "name": "Short Pass",
+                "password": "short",
+            },
+        )
         assert resp.status_code == 400
 
     def test_register_with_institution(self, api_client: APIClient) -> None:
         inst = Institution.objects.create(
             name="ABQ BioPark", institution_type="zoo", country="United States"
         )
-        resp = api_client.post("/api/v1/auth/register/", {
-            "email": "zoo@example.com",
-            "name": "Zoo Keeper",
-            "password": "securepass12345",
-            "institution_id": inst.pk,
-        })
+        resp = api_client.post(
+            "/api/v1/auth/register/",
+            {
+                "email": "zoo@example.com",
+                "name": "Zoo Keeper",
+                "password": "securepass12345",
+                "institution_id": inst.pk,
+            },
+        )
         assert resp.status_code == 201
         user = User.objects.get(email="zoo@example.com")
         assert user.institution_id == inst.pk
@@ -169,19 +181,25 @@ class TestVerifyEmail:
 @pytest.mark.django_db
 class TestLogin:
     def test_login_success(self, api_client: APIClient, active_user: User) -> None:
-        resp = api_client.post("/api/v1/auth/login/", {
-            "email": active_user.email,
-            "password": "securepass12345",
-        })
+        resp = api_client.post(
+            "/api/v1/auth/login/",
+            {
+                "email": active_user.email,
+                "password": "securepass12345",
+            },
+        )
         assert resp.status_code == 200
         assert "token" in resp.data
         assert resp.data["access_tier"] == 2
 
     def test_login_wrong_password(self, api_client: APIClient, active_user: User) -> None:
-        resp = api_client.post("/api/v1/auth/login/", {
-            "email": active_user.email,
-            "password": "wrongpassword12",
-        })
+        resp = api_client.post(
+            "/api/v1/auth/login/",
+            {
+                "email": active_user.email,
+                "password": "wrongpassword12",
+            },
+        )
         assert resp.status_code == 401
 
     def test_login_inactive_user_returns_401(self, api_client: APIClient) -> None:
@@ -192,43 +210,61 @@ class TestLogin:
             name="Inactive",
             is_active=False,
         )
-        resp = api_client.post("/api/v1/auth/login/", {
-            "email": "inactive@example.com",
-            "password": "securepass12345",
-        })
+        resp = api_client.post(
+            "/api/v1/auth/login/",
+            {
+                "email": "inactive@example.com",
+                "password": "securepass12345",
+            },
+        )
         assert resp.status_code == 401
 
     def test_login_nonexistent_email(self, api_client: APIClient) -> None:
-        resp = api_client.post("/api/v1/auth/login/", {
-            "email": "noone@example.com",
-            "password": "securepass12345",
-        })
+        resp = api_client.post(
+            "/api/v1/auth/login/",
+            {
+                "email": "noone@example.com",
+                "password": "securepass12345",
+            },
+        )
         assert resp.status_code == 401
 
     def test_login_rate_limited(self, api_client: APIClient, active_user: User) -> None:
         """After 5 failed attempts, further attempts are blocked."""
         for _ in range(5):
-            api_client.post("/api/v1/auth/login/", {
+            api_client.post(
+                "/api/v1/auth/login/",
+                {
+                    "email": active_user.email,
+                    "password": "wrongpassword12",
+                },
+            )
+        resp = api_client.post(
+            "/api/v1/auth/login/",
+            {
                 "email": active_user.email,
-                "password": "wrongpassword12",
-            })
-        resp = api_client.post("/api/v1/auth/login/", {
-            "email": active_user.email,
-            "password": "securepass12345",
-        })
+                "password": "securepass12345",
+            },
+        )
         assert resp.status_code == 429
 
     def test_login_no_enumeration(self, api_client: APIClient) -> None:
         """Non-existent and wrong-password both return same generic message."""
-        resp1 = api_client.post("/api/v1/auth/login/", {
-            "email": "noone@example.com",
-            "password": "securepass12345",
-        })
+        resp1 = api_client.post(
+            "/api/v1/auth/login/",
+            {
+                "email": "noone@example.com",
+                "password": "securepass12345",
+            },
+        )
         cache.clear()
-        resp2 = api_client.post("/api/v1/auth/login/", {
-            "email": "noone@example.com",
-            "password": "wrongpassword12",
-        })
+        resp2 = api_client.post(
+            "/api/v1/auth/login/",
+            {
+                "email": "noone@example.com",
+                "password": "wrongpassword12",
+            },
+        )
         assert resp1.data["detail"] == resp2.data["detail"]
 
 
@@ -340,9 +376,7 @@ class TestForTierManagers:
         for tier in range(1, 6):
             assert Species.objects.for_tier(tier).count() == 1
 
-    def test_conservation_assessment_tier_1_sees_accepted_only(
-        self, species: Species
-    ) -> None:
+    def test_conservation_assessment_tier_1_sees_accepted_only(self, species: Species) -> None:
         ConservationAssessment.objects.create(
             species=species,
             category="CR",
@@ -411,9 +445,7 @@ class TestInstitutionScoping:
         ExSituPopulation.objects.create(
             species=species, institution=other_inst, breeding_status="breeding"
         )
-        scoped = scope_to_institution(
-            ExSituPopulation.objects.all(), tier3_user, "institution"
-        )
+        scoped = scope_to_institution(ExSituPopulation.objects.all(), tier3_user, "institution")
         assert scoped.count() == 1
         assert scoped.first().institution == own_inst
 
@@ -430,30 +462,20 @@ class TestInstitutionScoping:
         ExSituPopulation.objects.create(
             species=species, institution=inst2, breeding_status="breeding"
         )
-        scoped = scope_to_institution(
-            ExSituPopulation.objects.all(), tier5_user, "institution"
-        )
+        scoped = scope_to_institution(ExSituPopulation.objects.all(), tier5_user, "institution")
         assert scoped.count() == 2
 
-    def test_user_without_institution_gets_empty(
-        self, active_user: User, species: Species
-    ) -> None:
-        inst = Institution.objects.create(
-            name="Zoo", institution_type="zoo", country="Madagascar"
-        )
+    def test_user_without_institution_gets_empty(self, active_user: User, species: Species) -> None:
+        inst = Institution.objects.create(name="Zoo", institution_type="zoo", country="Madagascar")
         ExSituPopulation.objects.create(
             species=species, institution=inst, breeding_status="unknown"
         )
-        scoped = scope_to_institution(
-            ExSituPopulation.objects.all(), active_user, "institution"
-        )
+        scoped = scope_to_institution(ExSituPopulation.objects.all(), active_user, "institution")
         assert scoped.count() == 0
 
     def test_tier2_with_institution_still_gets_empty(self, species: Species) -> None:
         """Tier 2 user with institution affiliation cannot use institution scoping."""
-        inst = Institution.objects.create(
-            name="Zoo", institution_type="zoo", country="Madagascar"
-        )
+        inst = Institution.objects.create(name="Zoo", institution_type="zoo", country="Madagascar")
         tier2_with_inst = User.objects.create_user(
             email="tier2inst@example.com",
             password="securepass12345",

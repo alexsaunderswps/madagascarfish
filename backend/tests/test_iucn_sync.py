@@ -46,7 +46,6 @@ from integration.models import SyncJob
 from integration.tasks import _normalize_category, _pick_latest_assessment, iucn_sync
 from species.models import ConservationAssessment, Species
 
-
 # ---------------------------------------------------------------------------
 # Shared payload factories — use actual v4 API payload shapes from spec
 # ---------------------------------------------------------------------------
@@ -181,9 +180,7 @@ class TestSyncJobLifecycle:
         job = SyncJob.objects.get(pk=result["job_id"])
         assert job.status == SyncJob.Status.COMPLETED
 
-    def test_syncjob_completed_at_is_set_on_success(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_syncjob_completed_at_is_set_on_success(self, species_with_iucn_id: Species) -> None:
         # Spec: completed_at is set in the finally block regardless of outcome.
         summary = make_summary()
         detail = make_detail()
@@ -288,9 +285,7 @@ class TestAssessmentCreation:
         )
         assert ca.review_status == ConservationAssessment.ReviewStatus.ACCEPTED
 
-    def test_assessment_category_matches_api_response(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_assessment_category_matches_api_response(self, species_with_iucn_id: Species) -> None:
         # Spec: category must match the value returned by the IUCN API.
         summary = make_summary(code="VU")
         detail = make_detail(category_code="VU")
@@ -304,9 +299,7 @@ class TestAssessmentCreation:
         )
         assert ca.category == "VU"
 
-    def test_assessment_category_from_dict_shape(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_assessment_category_from_dict_shape(self, species_with_iucn_id: Species) -> None:
         # Spec: the detail endpoint returns red_list_category as a dict:
         # {'CODE': 'EN', 'DESCRIPTION': {'EN': 'ENDANGERED'}}.
         # The task must parse this correctly.
@@ -340,9 +333,7 @@ class TestAssessmentCreation:
 
         assert result["created"] == 1
 
-    def test_species_api_called_with_correct_taxon_id(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_species_api_called_with_correct_taxon_id(self, species_with_iucn_id: Species) -> None:
         # Verify the client is called with the species' actual iucn_taxon_id.
         summary = make_summary(code="EN")
         detail = make_detail(category_code="EN")
@@ -377,9 +368,7 @@ class TestAssessmentCreation:
 class TestNullIucnTaxonIdSkipped:
     """Species without an IUCN taxon ID must be silently skipped."""
 
-    def test_no_api_call_for_null_taxon_id(
-        self, species_without_iucn_id: Species
-    ) -> None:
+    def test_no_api_call_for_null_taxon_id(self, species_without_iucn_id: Species) -> None:
         # Spec: no IUCN API call is made for species with iucn_taxon_id=null.
         client = _make_mock_client(None, None)
 
@@ -400,9 +389,7 @@ class TestNullIucnTaxonIdSkipped:
         count = ConservationAssessment.objects.filter(species=species_without_iucn_id).count()
         assert count == 0
 
-    def test_no_error_logged_for_null_taxon_id(
-        self, species_without_iucn_id: Species
-    ) -> None:
+    def test_no_error_logged_for_null_taxon_id(self, species_without_iucn_id: Species) -> None:
         # Spec: no error is logged when iucn_taxon_id=null — it is not an error condition.
         client = _make_mock_client(None, None)
 
@@ -445,9 +432,7 @@ class TestNullIucnTaxonIdSkipped:
 class TestPerSpeciesApiError:
     """IUCN API errors for one species must not abort the whole sync run."""
 
-    def test_error_logged_in_syncjob_error_log(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_error_logged_in_syncjob_error_log(self, species_with_iucn_id: Species) -> None:
         # Spec: error must appear in SyncJob.error_log with the species ID.
         client = MagicMock(spec=IUCNClient)
         client.get_species_assessment.side_effect = IUCNAPIError("Internal Server Error 500")
@@ -461,9 +446,7 @@ class TestPerSpeciesApiError:
         error_entry = job.error_log[0]
         assert "species_id" in error_entry or "error" in error_entry
 
-    def test_species_id_present_in_error_log_entry(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_species_id_present_in_error_log_entry(self, species_with_iucn_id: Species) -> None:
         # Spec: the error entry must identify which species failed.
         client = MagicMock(spec=IUCNClient)
         client.get_species_assessment.side_effect = IUCNAPIError("500")
@@ -551,7 +534,9 @@ class TestPerSpeciesApiError:
     def test_connection_error_raises_iucn_api_error(self) -> None:
         # Adversarial: network-level connection error (not HTTP) must be caught and
         # re-raised as IUCNAPIError, not as requests.ConnectionError.
-        client = IUCNClient(token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=1)
+        client = IUCNClient(
+            token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=1
+        )
         with patch("integration.clients.iucn.requests.get") as mock_get:
             mock_get.side_effect = requests.ConnectionError("connection refused")
             with pytest.raises(IUCNAPIError, match="IUCN API request failed"):
@@ -567,9 +552,7 @@ class TestPerSpeciesApiError:
 class TestPendingReviewPreserved:
     """A coordinator's pending_review flag must survive a sync run."""
 
-    def test_pending_review_category_not_overwritten(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_pending_review_category_not_overwritten(self, species_with_iucn_id: Species) -> None:
         # Spec: an existing assessment with review_status='pending_review' is not
         # overwritten; the coordinator's flag is preserved.
         existing = ConservationAssessment.objects.create(
@@ -693,9 +676,7 @@ class TestPendingReviewPreserved:
 class TestIdempotency:
     """Running the sync twice without data changes must not create duplicate records."""
 
-    def test_no_duplicate_assessments_on_second_run(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_no_duplicate_assessments_on_second_run(self, species_with_iucn_id: Species) -> None:
         # Spec: second run with unchanged data → no duplicate ConservationAssessment.
         summary = make_summary(code="EN")
         detail = make_detail(category_code="EN")
@@ -710,9 +691,7 @@ class TestIdempotency:
         ).count()
         assert count == 1
 
-    def test_second_run_increments_records_updated(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_second_run_increments_records_updated(self, species_with_iucn_id: Species) -> None:
         # After the first run creates the record, the second run should update it.
         summary = make_summary(code="EN")
         detail = make_detail(category_code="EN")
@@ -778,7 +757,9 @@ class TestIUCNClientCacheBehavior:
 
     def test_cache_miss_makes_http_request(self) -> None:
         # On a cache miss the client must hit the network.
-        client = IUCNClient(token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5)
+        client = IUCNClient(
+            token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5
+        )
         mock_response = MagicMock()
         mock_response.ok = True
         mock_response.status_code = 200
@@ -794,7 +775,9 @@ class TestIUCNClientCacheBehavior:
     def test_cache_hit_does_not_make_http_request(self) -> None:
         # Spec: cache key iucn:taxa:sis:{id} with 7-day TTL. After a cache population,
         # the next call must not hit the network.
-        client = IUCNClient(token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5)
+        client = IUCNClient(
+            token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5
+        )
         cached_data = make_summary()
         mock_response = MagicMock()
         mock_response.ok = True
@@ -812,7 +795,9 @@ class TestIUCNClientCacheBehavior:
 
     def test_404_returns_none(self) -> None:
         # Spec: returns None on 404.
-        client = IUCNClient(token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5)
+        client = IUCNClient(
+            token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5
+        )
         mock_response = MagicMock()
         mock_response.status_code = 404
         mock_response.ok = False
@@ -825,7 +810,9 @@ class TestIUCNClientCacheBehavior:
     def test_non_404_error_raises_iucn_api_error(self) -> None:
         # Spec: raises IUCNAPIError on non-404 HTTP errors.
         # Uses a unique taxon ID to guarantee a cache miss for this test.
-        client = IUCNClient(token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5)
+        client = IUCNClient(
+            token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5
+        )
         mock_response = MagicMock()
         mock_response.status_code = 500
         mock_response.ok = False
@@ -838,7 +825,9 @@ class TestIUCNClientCacheBehavior:
     def test_404_cached_as_sentinel_second_call_returns_none(self) -> None:
         # Adversarial: a 404 must be cached so the second call also returns None
         # without hitting the network a second time.
-        client = IUCNClient(token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5)
+        client = IUCNClient(
+            token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5
+        )
         mock_response = MagicMock()
         mock_response.status_code = 404
         mock_response.ok = False
@@ -865,7 +854,9 @@ class TestIUCNClientCacheBehavior:
         # Adversarial: malformed (non-JSON) API response must raise IUCNAPIError,
         # not ValueError or JSONDecodeError.
         # Uses a unique taxon ID to guarantee a fresh cache miss.
-        client = IUCNClient(token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5)
+        client = IUCNClient(
+            token="testtoken", base_url="https://api.iucnredlist.org/api/v4", timeout=5
+        )
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.ok = True
@@ -933,7 +924,7 @@ class TestNormalizeCategory:
     def test_string_code_normalized_to_uppercase(self) -> None:
         assert _normalize_category("en") == "EN"
 
-    def test_dict_with_CODE_key_extracts_correctly(self) -> None:
+    def test_dict_with_code_key_extracts_correctly(self) -> None:
         # Spec: detail endpoint returns red_list_category as dict with 'CODE' key.
         assert _normalize_category({"CODE": "EN", "DESCRIPTION": {"EN": "ENDANGERED"}}) == "EN"
 
@@ -1037,9 +1028,7 @@ class TestApiReturnsNoneForSummary:
 
         assert result["skipped"] >= 1
 
-    def test_no_error_logged_when_summary_is_none(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_no_error_logged_when_summary_is_none(self, species_with_iucn_id: Species) -> None:
         # A 404 (not found in IUCN) is not an error — it should not populate error_log.
         client = _make_mock_client(summary_return=None, detail_return=None)
 
@@ -1065,9 +1054,7 @@ class TestIUCNStatusMirror:
     operators can freeze statuses during review windows.
     """
 
-    def test_mirror_sets_iucn_status_on_create(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_mirror_sets_iucn_status_on_create(self, species_with_iucn_id: Species) -> None:
         species_with_iucn_id.iucn_status = None
         species_with_iucn_id.save(update_fields=["iucn_status"])
         summary = make_summary(code="CR")
@@ -1080,9 +1067,7 @@ class TestIUCNStatusMirror:
         species_with_iucn_id.refresh_from_db()
         assert species_with_iucn_id.iucn_status == "CR"
 
-    def test_mirror_overwrites_stale_status(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_mirror_overwrites_stale_status(self, species_with_iucn_id: Species) -> None:
         # Pre-existing manual status "VU" must be overwritten to match IUCN "EN".
         species_with_iucn_id.iucn_status = "VU"
         species_with_iucn_id.save(update_fields=["iucn_status"])
@@ -1117,9 +1102,7 @@ class TestIUCNStatusMirror:
             species=species_with_iucn_id, source="iucn_official"
         ).exists()
 
-    def test_mirror_skipped_species_not_touched(
-        self, species_without_iucn_id: Species
-    ) -> None:
+    def test_mirror_skipped_species_not_touched(self, species_without_iucn_id: Species) -> None:
         # Species with null iucn_taxon_id is never processed — iucn_status stays NULL.
         species_without_iucn_id.iucn_status = None
         species_without_iucn_id.save(update_fields=["iucn_status"])
@@ -1131,9 +1114,7 @@ class TestIUCNStatusMirror:
         species_without_iucn_id.refresh_from_db()
         assert species_without_iucn_id.iucn_status is None
 
-    def test_mirror_does_not_fire_for_pending_review(
-        self, species_with_iucn_id: Species
-    ) -> None:
+    def test_mirror_does_not_fire_for_pending_review(self, species_with_iucn_id: Species) -> None:
         # Existing pending_review assessment means sync returns "skipped" for this
         # species — iucn_status must NOT be rewritten.
         ConservationAssessment.objects.create(

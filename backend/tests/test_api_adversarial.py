@@ -36,7 +36,6 @@ from species.models import (
     Watershed,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures — mirror test_api.py so this file is self-contained
 # ---------------------------------------------------------------------------
@@ -72,9 +71,7 @@ def tier2_user(db: None) -> User:
 
 @pytest.fixture
 def tier3_user(db: None) -> User:
-    inst = Institution.objects.create(
-        name="Cologne Zoo", institution_type="zoo", country="Germany"
-    )
+    inst = Institution.objects.create(name="Cologne Zoo", institution_type="zoo", country="Germany")
     return User.objects.create_user(
         email="coordinator@example.com",
         password="securepass12345",
@@ -485,9 +482,7 @@ class TestFakeTokens:
         # then TierPermission(3) denies → 403. The key assertion: not 200.
         api_client.credentials(HTTP_AUTHORIZATION="Token aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         resp = api_client.get("/api/v1/populations/")
-        assert resp.status_code in (401, 403), (
-            "A fake token should yield 401 or 403, not 200"
-        )
+        assert resp.status_code in (401, 403), "A fake token should yield 401 or 403, not 200"
 
     def test_malformed_token_header_rejected(self, api_client: APIClient) -> None:
         api_client.credentials(HTTP_AUTHORIZATION="Bearer this-is-not-a-token")
@@ -603,9 +598,7 @@ class TestMalformedSpeciesFilters:
         assert resp.status_code == 200
         assert resp.json()["count"] == 0
 
-    def test_xss_payload_in_search_param(
-        self, api_client: APIClient, species_cr: Species
-    ) -> None:
+    def test_xss_payload_in_search_param(self, api_client: APIClient, species_cr: Species) -> None:
         # XSS in search query should return empty results and not appear unescaped in JSON
         payload = "<script>alert('xss')</script>"
         resp = api_client.get(f"/api/v1/species/?search={payload}")
@@ -619,9 +612,7 @@ class TestMalformedSpeciesFilters:
         resp = api_client.get(f"/api/v1/species/?search={long_string}")
         assert resp.status_code == 200
 
-    def test_unicode_in_search_param(
-        self, api_client: APIClient, species_cr: Species
-    ) -> None:
+    def test_unicode_in_search_param(self, api_client: APIClient, species_cr: Species) -> None:
         # Unicode input is valid; should be handled gracefully
         resp = api_client.get("/api/v1/species/?search=\u00e9\u00e0\u00fc")
         assert resp.status_code == 200
@@ -651,9 +642,7 @@ class TestMalformedSpeciesFilters:
 class TestLargePageSize:
     """page_size above the documented maximum (200) must be clamped, not crash."""
 
-    def test_page_size_10000_is_clamped(
-        self, api_client: APIClient, species_cr: Species
-    ) -> None:
+    def test_page_size_10000_is_clamped(self, api_client: APIClient, species_cr: Species) -> None:
         # Spec BE-05-1: max page_size is 200; requesting 10000 must not 500
         resp = api_client.get("/api/v1/species/?page_size=10000")
         assert resp.status_code == 200
@@ -702,15 +691,11 @@ class TestMalformedBbox:
         resp = api_client.get("/api/v1/map/localities/?bbox=46.0,-20.0")
         assert resp.status_code == 200
 
-    def test_bbox_with_three_parts(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_bbox_with_three_parts(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/?bbox=46.0,-20.0,48.0")
         assert resp.status_code == 200
 
-    def test_bbox_with_one_part(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_bbox_with_one_part(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/?bbox=46.0")
         assert resp.status_code == 200
 
@@ -738,18 +723,14 @@ class TestMalformedBbox:
         data = resp.json()
         assert data["type"] == "FeatureCollection"
 
-    def test_bbox_reversed_latitude(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_bbox_reversed_latitude(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         # max_lat < min_lat — reversed latitude
         resp = api_client.get("/api/v1/map/localities/?bbox=46.0,-18.0,48.0,-20.0")
         assert resp.status_code == 200
         data = resp.json()
         assert data["type"] == "FeatureCollection"
 
-    def test_bbox_empty_string(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_bbox_empty_string(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/?bbox=")
         assert resp.status_code == 200
 
@@ -779,9 +760,7 @@ class TestMalformedBbox:
 class TestMalformedLocalityFilters:
     """Non-numeric and injected values in map filter params must not 500."""
 
-    def test_species_id_non_numeric(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_species_id_non_numeric(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/?species_id=abc")
         # Must not 500; acceptable responses are 200 (empty) or 400
         assert resp.status_code in (200, 400)
@@ -893,9 +872,7 @@ class TestGeoJSONShape:
     ) -> None:
         resp = api_client.get("/api/v1/map/localities/")
         for feature in resp.json()["features"]:
-            assert feature.get("type") == "Feature", (
-                f"Feature missing type='Feature': {feature}"
-            )
+            assert feature.get("type") == "Feature", f"Feature missing type='Feature': {feature}"
 
     def test_each_feature_has_geometry_object(
         self, api_client: APIClient, locality: SpeciesLocality
@@ -905,9 +882,7 @@ class TestGeoJSONShape:
             assert "geometry" in feature
             assert feature["geometry"] is not None
 
-    def test_geometry_type_is_point(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_geometry_type_is_point(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/")
         for feature in resp.json()["features"]:
             assert feature["geometry"]["type"] == "Point"

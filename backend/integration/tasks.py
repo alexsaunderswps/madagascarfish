@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 VALID_IUCN_CATEGORIES = {choice[0] for choice in Species.IUCNStatus.choices}
 
 
-@shared_task(bind=True, max_retries=3)
-def iucn_sync(self) -> dict[str, int]:
+@shared_task(bind=True, max_retries=3)  # type: ignore[untyped-decorator]
+def iucn_sync(self: Any) -> dict[str, Any]:
     """Pull current IUCN assessments for every Species with iucn_taxon_id set.
 
     Per gate 06 spec: creates/updates ConservationAssessment with
@@ -49,17 +49,18 @@ def iucn_sync(self) -> dict[str, int]:
                     job.records_skipped += 1
             except IUCNAPIError as exc:
                 job.error_log.append(
-                    {"species_id": species.id, "scientific_name": species.scientific_name, "error": str(exc)}
+                    {
+                        "species_id": species.id,
+                        "scientific_name": species.scientific_name,
+                        "error": str(exc),
+                    }
                 )
                 logger.warning("IUCN sync error for species %s: %s", species.id, exc)
 
         # Job fails only if every processed species errored. All-skipped (e.g.,
         # no species had iucn_taxon_id, or every API lookup 404'd) is a valid
         # completed run with zero work to do.
-        all_errored = (
-            job.records_processed > 0
-            and len(job.error_log) == job.records_processed
-        )
+        all_errored = job.records_processed > 0 and len(job.error_log) == job.records_processed
         job.status = SyncJob.Status.FAILED if all_errored else SyncJob.Status.COMPLETED
     except Exception as exc:
         job.status = SyncJob.Status.FAILED
@@ -81,7 +82,12 @@ def iucn_sync(self) -> dict[str, int]:
 
 def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str:
     """Returns 'created', 'updated', or 'skipped'."""
-    summary, cache_hit = client.get_species_assessment(species.iucn_taxon_id)
+    # Caller filters with exclude(iucn_taxon_id__isnull=True), but mypy can't
+    # narrow a nullable model field through a QuerySet filter.
+    iucn_taxon_id = species.iucn_taxon_id
+    if iucn_taxon_id is None:
+        return "skipped"
+    summary, cache_hit = client.get_species_assessment(iucn_taxon_id)
     if not cache_hit:
         client.wait_between_requests()
 
@@ -117,11 +123,16 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
     }
 
     with transaction.atomic():
-        existing = ConservationAssessment.objects.select_for_update().filter(
-            species=species, source=ConservationAssessment.Source.IUCN_OFFICIAL
-        ).first()
+        existing = (
+            ConservationAssessment.objects.select_for_update()
+            .filter(species=species, source=ConservationAssessment.Source.IUCN_OFFICIAL)
+            .first()
+        )
 
-        if existing and existing.review_status == ConservationAssessment.ReviewStatus.PENDING_REVIEW:
+        if (
+            existing
+            and existing.review_status == ConservationAssessment.ReviewStatus.PENDING_REVIEW
+        ):
             return "skipped"
 
         if existing is None:
@@ -144,7 +155,10 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
         # Mirror the accepted IUCN category onto Species.iucn_status so the
         # public badge and DwC export stay aligned with the authoritative source.
         # See CLAUDE.md "Conservation status sourcing".
-        if getattr(settings, "ALLOW_IUCN_STATUS_OVERWRITE", True) and species.iucn_status != category:
+        if (
+            getattr(settings, "ALLOW_IUCN_STATUS_OVERWRITE", True)
+            and species.iucn_status != category
+        ):
             species.iucn_status = category
             species.save(update_fields=["iucn_status", "updated_at"])
 
@@ -152,7 +166,7 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
 
 
 def _pick_latest_assessment(summary: dict[str, Any]) -> dict[str, Any] | None:
-    assessments = summary.get("assessments") or []
+    assessments: list[dict[str, Any]] = summary.get("assessments") or []
     if not assessments:
         return None
     flagged = [a for a in assessments if a.get("latest")]
@@ -175,7 +189,9 @@ def _normalize_category(value: Any) -> str | None:
 def _format_assessor(payload: dict[str, Any]) -> str:
     assessors = payload.get("assessors")
     if isinstance(assessors, list):
-        names = [a.get("name") or a.get("full_name") or "" for a in assessors if isinstance(a, dict)]
+        names = [
+            a.get("name") or a.get("full_name") or "" for a in assessors if isinstance(a, dict)
+        ]
         joined = ", ".join(n for n in names if n)
         if joined:
             return joined[:200]

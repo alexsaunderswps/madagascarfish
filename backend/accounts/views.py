@@ -155,11 +155,13 @@ def login(request: Request) -> Response:
 
     token, _ = Token.objects.get_or_create(user=user)
 
-    return Response({
-        "token": token.key,
-        "access_tier": user.access_tier,  # type: ignore[union-attr]
-        "user_id": user.pk,
-    })
+    return Response(
+        {
+            "token": token.key,
+            "access_tier": user.access_tier,  # type: ignore[union-attr]
+            "user_id": user.pk,
+        }
+    )
 
 
 @api_view(["POST"])

@@ -45,7 +45,9 @@ class UserAdmin(BaseUserAdmin):
         ),
     ]
 
-    def get_readonly_fields(self, request: HttpRequest, obj: User | None = None) -> tuple[str, ...] | list[str]:  # type: ignore[override]
+    def get_readonly_fields(  # type: ignore[override]
+        self, request: HttpRequest, obj: User | None = None
+    ) -> tuple[str, ...] | list[str]:
         readonly = list(super().get_readonly_fields(request, obj))
         if not request.user.is_superuser:
             readonly.extend(f for f in _PRIVILEGE_FIELDS if f not in readonly)

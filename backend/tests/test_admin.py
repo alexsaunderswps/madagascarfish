@@ -4,7 +4,6 @@ from accounts.models import User
 from populations.models import ExSituPopulation, Institution
 from species.models import Species
 
-
 # --- Fixtures ---
 
 
@@ -22,9 +21,7 @@ def tier3_staff(db: None) -> User:
     from django.contrib.auth.models import Permission
     from django.contrib.contenttypes.models import ContentType
 
-    inst = Institution.objects.create(
-        name="Cologne Zoo", institution_type="zoo", country="Germany"
-    )
+    inst = Institution.objects.create(name="Cologne Zoo", institution_type="zoo", country="Germany")
     user = User.objects.create_user(
         email="coordinator@example.com",
         password="securepass12345",
@@ -117,9 +114,7 @@ class TestAdminBranding:
 
 @pytest.mark.django_db
 class TestExSituInstitutionScoping:
-    def test_tier3_can_edit_own_institution(
-        self, tier3_staff: User, species: Species
-    ) -> None:
+    def test_tier3_can_edit_own_institution(self, tier3_staff: User, species: Species) -> None:
         from django.test import Client
 
         pop = ExSituPopulation.objects.create(
@@ -165,16 +160,19 @@ class TestExSituInstitutionScoping:
         c = Client()
         c.force_login(tier3_staff)
         url = f"/admin/populations/exsitupopulation/{pop.pk}/change/"
-        resp = c.post(url, {
-            "species": species.pk,
-            "institution": other_institution.pk,
-            "breeding_status": "breeding",
-            "studbook_managed": False,
-            "holding_records-TOTAL_FORMS": 0,
-            "holding_records-INITIAL_FORMS": 0,
-            "holding_records-MIN_NUM_FORMS": 0,
-            "holding_records-MAX_NUM_FORMS": 1000,
-        })
+        resp = c.post(
+            url,
+            {
+                "species": species.pk,
+                "institution": other_institution.pk,
+                "breeding_status": "breeding",
+                "studbook_managed": False,
+                "holding_records-TOTAL_FORMS": 0,
+                "holding_records-INITIAL_FORMS": 0,
+                "holding_records-MIN_NUM_FORMS": 0,
+                "holding_records-MAX_NUM_FORMS": 1000,
+            },
+        )
         # save_model checks target institution matches user's — should be 403
         assert resp.status_code == 403
         pop.refresh_from_db()

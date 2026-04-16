@@ -115,7 +115,9 @@ class Command(BaseCommand):
     def _parse_row(self, row: dict[str, str]) -> dict[str, Any]:
         # Strip embedded CR/LF so operator-controlled names can't forge log lines
         # when echoed to stdout/stderr from _run_iucn_lookup.
-        scientific_name = (row.get("scientific_name") or "").replace("\r", " ").replace("\n", " ").strip()
+        scientific_name = (
+            (row.get("scientific_name") or "").replace("\r", " ").replace("\n", " ").strip()
+        )
         if not scientific_name:
             raise ValueError("scientific_name is required")
 
@@ -126,9 +128,7 @@ class Command(BaseCommand):
 
         endemic_status = (row.get("endemic_status") or "").strip()
         if endemic_status not in ENDEMIC_STATUSES:
-            raise ValueError(
-                f"endemic_status {endemic_status!r} not in {sorted(ENDEMIC_STATUSES)}"
-            )
+            raise ValueError(f"endemic_status {endemic_status!r} not in {sorted(ENDEMIC_STATUSES)}")
 
         taxonomic_status = (row.get("taxonomic_status") or "described").strip()
         if taxonomic_status not in TAXONOMIC_STATUSES:
@@ -248,9 +248,7 @@ class Command(BaseCommand):
                 )
             else:
                 unparseable += 1
-                self.stderr.write(
-                    f"iucn-lookup unparseable response: {species.scientific_name}"
-                )
+                self.stderr.write(f"iucn-lookup unparseable response: {species.scientific_name}")
 
         self.stdout.write(
             f"iucn-lookup: matched={matched} no_match={no_match} "
@@ -299,9 +297,7 @@ def _extract_strict_match(
         elif sci:
             sci_parts = sci.split()
             matched_binomial = (
-                len(sci_parts) >= 2
-                and sci_parts[0] == want_genus
-                and sci_parts[1] == want_species
+                len(sci_parts) >= 2 and sci_parts[0] == want_genus and sci_parts[1] == want_species
             )
 
         if matched_binomial and sis_id is not None:

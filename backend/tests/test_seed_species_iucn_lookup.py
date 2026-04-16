@@ -34,7 +34,6 @@ from species.management.commands.seed_species import (
 )
 from species.models import Species
 
-
 # ---------------------------------------------------------------------------
 # Unit tests for _extract_strict_match (pure function, no DB)
 # ---------------------------------------------------------------------------
@@ -140,8 +139,7 @@ class TestExtractStrictMatch:
 
 
 CSV_HEADER = (
-    "scientific_name,family,genus,endemic_status,taxonomic_status,"
-    "iucn_taxon_id,provisional_name\n"
+    "scientific_name,family,genus,endemic_status,taxonomic_status,iucn_taxon_id,provisional_name\n"
 )
 
 
@@ -177,9 +175,7 @@ class TestSeedSpeciesIUCNLookup:
         }
         client = _client_returning(payload)
 
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             call_command("seed_species", "--csv", str(tmp_csv), "--iucn-lookup")
 
         sp = Species.objects.get(scientific_name="Pachypanchax sakaramyi")
@@ -188,9 +184,7 @@ class TestSeedSpeciesIUCNLookup:
     def test_lookup_skips_provisional_species(self, tmp_csv: Any) -> None:
         # The provisional row must never produce an API call.
         client = _client_returning(None)
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             call_command("seed_species", "--csv", str(tmp_csv), "--iucn-lookup")
 
         called_names = [c.args[0] for c in client.get_species_by_name.call_args_list]
@@ -199,9 +193,7 @@ class TestSeedSpeciesIUCNLookup:
     def test_lookup_skips_already_mapped_species(self, tmp_csv: Any) -> None:
         # Bedotia geayi has iucn_taxon_id=42 from CSV — must not be re-queried.
         client = _client_returning(None)
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             call_command("seed_species", "--csv", str(tmp_csv), "--iucn-lookup")
 
         called_names = [c.args[0] for c in client.get_species_by_name.call_args_list]
@@ -220,9 +212,7 @@ class TestSeedSpeciesIUCNLookup:
         }
         client = _client_returning(payload)
 
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             call_command("seed_species", "--csv", str(tmp_csv), "--iucn-lookup")
 
         sp = Species.objects.get(scientific_name="Pachypanchax sakaramyi")
@@ -230,9 +220,7 @@ class TestSeedSpeciesIUCNLookup:
 
     def test_lookup_no_match_leaves_row_unchanged(self, tmp_csv: Any) -> None:
         client = _client_returning(None)
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             call_command("seed_species", "--csv", str(tmp_csv), "--iucn-lookup")
 
         sp = Species.objects.get(scientific_name="Pachypanchax sakaramyi")
@@ -244,9 +232,7 @@ class TestSeedSpeciesIUCNLookup:
         client.wait_between_requests = MagicMock()
         err = StringIO()
 
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             # Should not raise — per-species errors are logged, not fatal.
             call_command(
                 "seed_species",
@@ -260,9 +246,7 @@ class TestSeedSpeciesIUCNLookup:
 
     def test_no_lookup_when_flag_omitted(self, tmp_csv: Any) -> None:
         client = _client_returning(None)
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             call_command("seed_species", "--csv", str(tmp_csv))
 
         assert client.get_species_by_name.call_count == 0
@@ -276,19 +260,13 @@ class TestSeedSpeciesIUCNLookup:
             }
         }
         client = _client_returning(payload, cache_hit=True)
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             call_command("seed_species", "--csv", str(tmp_csv), "--iucn-lookup")
         assert client.wait_between_requests.call_count == 0
 
         client = _client_returning(payload, cache_hit=False)
         # Reset the species' taxon_id so the lookup runs again.
-        Species.objects.filter(scientific_name="Pachypanchax sakaramyi").update(
-            iucn_taxon_id=None
-        )
-        with patch(
-            "integration.clients.iucn.IUCNClient", return_value=client
-        ):
+        Species.objects.filter(scientific_name="Pachypanchax sakaramyi").update(iucn_taxon_id=None)
+        with patch("integration.clients.iucn.IUCNClient", return_value=client):
             call_command("seed_species", "--csv", str(tmp_csv), "--iucn-lookup")
         assert client.wait_between_requests.call_count == 1
