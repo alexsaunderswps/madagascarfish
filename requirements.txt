@@ -21,6 +21,9 @@ Pillow>=10,<11
 GDAL==3.10.3
 djangorestframework-gis>=1.0,<2
 
+# Models
+django-mptt>=0.16,<1
+
 # Dev / Test
 pytest>=8,<9
 pytest-django>=4.8,<5
