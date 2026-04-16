@@ -34,7 +34,6 @@ def iucn_sync(self) -> dict[str, int]:
     )
 
     species_qs = Species.objects.exclude(iucn_taxon_id__isnull=True).order_by("id")
-    any_success = False
 
     try:
         for species in species_qs.iterator():
@@ -43,10 +42,8 @@ def iucn_sync(self) -> dict[str, int]:
                 result = _sync_one_species(client, species, job)
                 if result == "created":
                     job.records_created += 1
-                    any_success = True
                 elif result == "updated":
                     job.records_updated += 1
-                    any_success = True
                 elif result == "skipped":
                     job.records_skipped += 1
             except IUCNAPIError as exc:
@@ -55,10 +52,14 @@ def iucn_sync(self) -> dict[str, int]:
                 )
                 logger.warning("IUCN sync error for species %s: %s", species.id, exc)
 
-        if job.error_log and not any_success:
-            job.status = SyncJob.Status.FAILED
-        else:
-            job.status = SyncJob.Status.COMPLETED
+        # Job fails only if every processed species errored. All-skipped (e.g.,
+        # no species had iucn_taxon_id, or every API lookup 404'd) is a valid
+        # completed run with zero work to do.
+        all_errored = (
+            job.records_processed > 0
+            and len(job.error_log) == job.records_processed
+        )
+        job.status = SyncJob.Status.FAILED if all_errored else SyncJob.Status.COMPLETED
     except Exception as exc:
         job.status = SyncJob.Status.FAILED
         job.error_log.append({"fatal": str(exc)})
@@ -79,8 +80,8 @@ def iucn_sync(self) -> dict[str, int]:
 
 def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str:
     """Returns 'created', 'updated', or 'skipped'."""
-    summary = client.get_species_assessment(species.iucn_taxon_id)
-    if not client.last_request_was_cache_hit:
+    summary, cache_hit = client.get_species_assessment(species.iucn_taxon_id)
+    if not cache_hit:
         client.wait_between_requests()
 
     if summary is None:
@@ -94,12 +95,16 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
     if assessment_id is None:
         return "skipped"
 
-    detail = client.get_assessment(int(assessment_id))
-    if not client.last_request_was_cache_hit:
+    detail, cache_hit = client.get_assessment(int(assessment_id))
+    if not cache_hit:
         client.wait_between_requests()
 
     payload = detail or latest
     category = _normalize_category(payload.get("code") or payload.get("red_list_category"))
+    if category is None:
+        # IUCN occasionally returns assessments without a category code (historic
+        # records, in-progress reviews). Skip rather than treat as an error.
+        return "skipped"
     if category not in VALID_IUCN_CATEGORIES:
         raise IUCNAPIError(f"invalid IUCN category {category!r} for species {species.id}")
 
