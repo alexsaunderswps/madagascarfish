@@ -1,6 +1,6 @@
 # Gate 03 — Auth & Access Control
 
-**Status:** Not started
+**Status:** Complete
 **Preconditions:** Gate 02 complete
 **Unlocks:** Gate 04 (Django Admin), Gate 05 (DRF API) — both can start after this gate
 
@@ -237,3 +237,19 @@ Before marking Gate 03 complete:
 4. Invoke **@test-writer** to write adversarial auth tests (token replay, tier escalation attempts, account enumeration via registration endpoint)
 5. Invoke **@security-reviewer** — this gate touches auth, permissions, and credential handling
 6. Invoke **@code-quality-reviewer** on all auth code
+
+---
+
+## Reconciliation
+
+Gate 03 reconciliation completed 2026-04-16. Full report: [gate-03-reconciliation.md](gate-03-reconciliation.md)
+
+Key deviations from spec (all improvements from security/code-quality reviews):
+- Email verification changed from GET to POST (security: link prefetchers can trigger GET)
+- Inactive user login returns 401 not 403 (security: prevents account enumeration)
+- TierPermission implemented as factory function returning a class (DRF compatibility)
+- Rate limiter uses atomic cache.add/cache.incr (code quality: TOCTOU fix)
+- Verification URL points to FRONTEND_BASE_URL, not API endpoint
+- scope_to_institution rejects users below Tier 3
+
+Deferred to post-MVP: token expiry, password reset flow, AuditLog write path.

@@ -1,5 +1,15 @@
+from __future__ import annotations
+
 from django.conf import settings
 from django.db import models
+
+
+class ExSituPopulationQuerySet(models.QuerySet["ExSituPopulation"]):
+    def for_tier(self, tier: int) -> ExSituPopulationQuerySet:
+        """Tier 3+ sees all records; below Tier 3 sees nothing."""
+        if tier >= 3:
+            return self.all()
+        return self.none()
 
 
 class Institution(models.Model):
@@ -35,6 +45,8 @@ class ExSituPopulation(models.Model):
         BREEDING = "breeding"
         NON_BREEDING = "non-breeding"
         UNKNOWN = "unknown"
+
+    objects = ExSituPopulationQuerySet.as_manager()
 
     species = models.ForeignKey(
         "species.Species", on_delete=models.CASCADE, related_name="ex_situ_populations"
