@@ -99,13 +99,19 @@ Trade-off acknowledged: contributors must run `pnpm install` locally. For a solo
 
 ## 8. Staging Deploy
 
-**Decision:** Vercel free tier for the Next.js staging URL through the June 2026 workshop. Plan a migration to Fly.io (co-located with the backend) as a post-MVP track, targeted at Gate 09 or earlier if handover planning accelerates.
+**Decision:** Vercel free tier, **deployed to the EU region (`fra1`)**, for the Next.js staging URL through the June 2026 workshop. Plan a migration to **an EU-domiciled host (Hetzner or Scaleway preferred; Fly.io EU region as fallback)** as a post-MVP track, targeted at Gate 09 or earlier if handover planning accelerates.
+
+Rationale for EU region at MVP: data-governance trajectory points at a European partner handover. Even though Tier 1 MVP handles no user PII, visitor IP addresses in access logs and analytics are personal data under GDPR. Pinning the edge to `fra1` at MVP is free, buys compliance optics immediately, and avoids a regional-config change layered on top of the Gate 09 migration.
+
+Rationale for EU-domiciled migration target (change from earlier Fly-only plan): if the platform is handed to a European conservation nonprofit post-workshop, running it on US-incorporated Vercel or Fly — even in EU regions — creates a Schrems II / cross-border-transfer story that the successor org has to explain. Hetzner Cloud (Germany, cheapest) or Scaleway (France) are the strongest candidates for a fully EU-domiciled deploy. Fly.io EU (`fra`) remains the fallback if self-hosting ops overhead bites during the Gate 09 window.
 
 Rationale: Vercel is first-party for Next.js App Router — ISR, image optimization, and preview deploys per PR work out of the box with zero config. Preview-per-PR is genuinely useful while iterating with the BA/PM/UX agents before the workshop. Zero-config ISR removes a whole risk category five weeks before a hard deadline.
 
-Why not Fly for MVP: ISR on Fly requires a persistent volume for the Next.js cache, a Dockerfile we'd maintain ourselves, and manual preview-deploy plumbing. Each of those is a May-timeline risk we don't need to take to demo four pages to workshop attendees.
+Why not Hetzner/Fly for MVP: both require a Dockerfile, persistent volumes for ISR cache, and manual preview-deploy plumbing. Hetzner additionally means managing our own Node runtime and TLS. Each is a May-timeline risk we don't need to demo four pages to workshop attendees.
 
-Why migrate to Fly post-MVP: the governance model (Aleksei owns/hosts at launch, long-term handover TBD) argues for minimizing vendor surface area. Fly co-located with the DRF backend means one vendor, one dashboard, one billing relationship, and a portable Dockerfile that any successor can host anywhere. Vercel's on-demand ISR hooks are Vercel-shaped — the longer we lean on them, the more the migration costs. Doing it after the workshop but before Gate 08's coordinator UI ships is the right window.
+Why migrate to EU-domiciled post-MVP: the governance model (Aleksei owns/hosts at launch, likely European partner handover) argues for minimizing vendor surface area *and* US-vendor exposure. A fully EU-domiciled host means one vendor, one jurisdiction, and a clean story for successor-portability. Vercel's on-demand ISR hooks are Vercel-shaped — the longer we lean on them, the more the migration costs. Doing it after the workshop but before Gate 08's coordinator UI ships is the right window, because Gate 08 adds real user PII (accounts, institutional data, breeding recommendations) which sharply raises the compliance stakes.
+
+**Analytics policy at MVP:** no Google Analytics, no US-based behavioral analytics. If traffic measurement is needed pre-workshop, use Plausible or self-hosted Umami on the EU region. Simplest option: ship without analytics at MVP — add at Gate 09 post-migration when the privacy posture is settled.
 
 Split deployment during MVP (Next on Vercel, DRF on Fly-or-current-host) is fine because `NEXT_PUBLIC_API_URL` is the only coupling.
 
@@ -137,7 +143,7 @@ The adversarial test pass at gate close is the Test Writer agent's job per the P
 
 ## 10. Top Three Risks (2026-04-17 → 2026-06-01)
 
-1. **Map polish eats the calendar.** The `/map/` page is the largest single surface area in the spec (Tier A alone has nine acceptance criteria plus mobile/tablet responsiveness). Leaflet + clustering + IUCN-coded markers + popup hierarchy is easy to ship ugly and hard to ship credibly. **Mitigation:** Build `/map/` Tier A first, in week 1–2, not last. Cut Tier B aggressively if week 3 arrives and Tier A isn't polished. A demoable Tier A beats a half-built Tier B.
+1. **Map polish eats the calendar.** The `/map/` page is the largest single surface area in the spec (Tier A alone has nine acceptance criteria plus mobile/tablet responsiveness). Leaflet + clustering + IUCN-coded markers + popup hierarchy is easy to ship ugly and hard to ship credibly. **Mitigation:** Build `/map/` Tier A first, in week 1–2, not last. **Tier B (advanced filter panel with server-side filter state + URL sync) is a stretch goal with an explicit cut-criterion:** if Tier A is not polished by end of week 3 (2026-05-08), Tier B is cut. **The map itself is never cut — this is the central demo artifact.** Tier A without Tier B still ships a fully usable map with markers, clustering, popups, basemap switching, and a basic legend.
 
 2. **Type drift between DRF and frontend ships a broken demo.** A serializer field rename in a Gate 06 follow-up silently breaks `/species/[id]/` in production. **Mitigation:** The CI `openapi-typescript` diff-check described in §4 must be wired up in the first frontend PR, not later. Treat generated types as a blocking check.
 
@@ -156,6 +162,16 @@ Other secondary risks worth logging: Leaflet SSR gotchas on Vercel build, and th
 
 ---
 
+## 11. UX Review Absorption (2026-04-17)
+
+Post-architecture UX review (`docs/planning/ux-review/gate-07-ux-review.md`) surfaced items that change scope. Decisions from Aleksei on 2026-04-17:
+
+- **`/` route = minimal hero page** (not a dashboard redirect). One-sentence mission, the coverage-gap headline stat, three large cards linking to Directory / Map / Dashboard. Rendering: Server Component, `revalidate: 3600`.
+- **`/dashboard/` rendering: SSR → ISR with stale-while-revalidate.** Same `revalidate: 3600` as the other pages. Rationale: a backend hiccup during a live demo must not produce a full-page error. ISR serves the last-cached render instantly while regenerating in the background. "Updated N minutes ago" timestamp remains accurate because the `last_updated` field is re-fetched with the render.
+- **Accessibility list-view toggle on `/map/`:** build. A "View as list" button that renders the same locality data as a screen-reader-friendly table. Addresses map-accessibility gap (UX 3.1/3.2). Estimated 1–2 days.
+- **Clickable dashboard stats + chart bars → directory deep-links:** in scope for Gate 07. Requires adding a `has_captive_population` filter to the directory and `iucn_status` multi-select support (if not already present). Backend dependency: confirm DRF filter backend supports these on the species list endpoint; flag for Aleksei.
+- **Data-governance trajectory:** Vercel EU region (`fra1`) at MVP; Gate 09 migration retargeted from Fly.io to EU-domiciled (Hetzner or Scaleway preferred). See §8.
+
 ## Decisions Locked vs. Decisions Deferred
 
 **Locked for Gate 07 implementation:**
@@ -167,7 +183,12 @@ Other secondary risks worth logging: Leaflet SSR gotchas on Vercel build, and th
 - Tailwind with a hand-rolled `components/ui/`; no shadcn at MVP
 - IUCN color tokens in `frontend/lib/iucn.ts` (not `tailwind.config.js`)
 - Native `pnpm dev` against dockerized API; no frontend container in compose
-- Vercel free tier for staging, aliased to a stable subdomain by mid-May
+- Vercel free tier **EU region (`fra1`)** for staging, aliased to a stable subdomain by mid-May
+- **`/` = minimal hero page** with mission + coverage-gap stat + three nav cards; `revalidate: 3600`
+- **`/dashboard/` = ISR (not SSR)** with `revalidate: 3600` and stale-while-revalidate fallback on backend failure
+- **Map list-view toggle** built for accessibility; same data as map markers, rendered as a screen-reader-friendly table
+- **Dashboard deep-links:** coverage-gap stat and IUCN chart bars link into `/species/` with pre-applied filters; requires `has_captive_population` filter in DRF (backend dep)
+- **No analytics at MVP.** Add EU-hosted Plausible/Umami post-Gate-09 if needed.
 - Vitest for unit/component, Playwright smoke suite on every PR against Vercel preview + nightly against staging
 - **Revalidate = 3600s baseline** on `/species/` and `/species/[id]/` (overrides the PM spec's 24h default); overridable via `NEXT_REVALIDATE_SECONDS` env var for workshop-week 60s
 - `/map/` Tier A built first; Tier B is a stretch goal
@@ -184,8 +205,10 @@ Other secondary risks worth logging: Leaflet SSR gotchas on Vercel build, and th
   - **Implementation note for scoping later:** `next-intl` is the current best fit for App Router (server-component-first, type-safe messages). Avoid `next-i18next` (Pages-Router-era).
   - **Concrete trigger (so it doesn't drift to September):** add "Gate 09 i18n scoping" as a required agenda item on the Gate 08 kickoff, scheduled within two weeks of return from Albuquerque (target 2026-06-19). Owner: Aleksei. If Gate 08 kickoff slips, this trigger slips with it but stays tethered to a real meeting rather than a vibe.
 
-**Backend dependencies flagged (no new Gate 07 backend work) — all owned by Aleksei, all due by 2026-04-30:**
-- **CORS on DRF allows the Vercel preview-URL domain (`*.vercel.app`) and the stable staging alias.** This is the classic thing that looks trivial in April and eats a day in late May. Land it in the same PR that sets up Vercel. Owner: Aleksei. Due: 2026-04-30.
-- **`/api/revalidate` shared-secret plumbing** (see Risk 3 mitigation): Django setting + Vercel env var + the Next.js route handler. Due: 2026-05-08 (so the manual cache-bust exists well before workshop week).
+**Backend dependencies flagged (no new Gate 07 backend work) — all owned by Aleksei, all due by 2026-04-30 unless noted:**
+- **CORS on DRF allows the Vercel preview-URL domain (`*.vercel.app`) and the stable staging alias.** Owner: Aleksei. Due: 2026-04-30.
+- **`/api/revalidate` shared-secret plumbing** (Risk 3 mitigation): Django setting + Vercel env var + the Next.js route handler. Due: 2026-05-08.
 - Confirm `/api/v1/dashboard/` returns `last_updated` in ISO-8601 (Dashboard story FE-07-3 depends on it). Owner: Aleksei. Due: first `/dashboard/` PR.
+- **Confirm DRF species list filter supports `has_captive_population` (boolean) and multi-select `iucn_status`** for the dashboard deep-links (§11). Owner: Aleksei. Due: first `/species/` directory PR. If unsupported, add as a small backend story.
+- **Confirm `Species` serializer exposes `has_localities` (or a locality count field)** for the "View on Map" button visibility (spec FE-07-5). Owner: Aleksei. Due: first `/species/[id]/` PR.
 - Confirm `/api/v1/schema/` is reachable in dev for `openapi-typescript` (already verified in `config/api_urls.py`).
