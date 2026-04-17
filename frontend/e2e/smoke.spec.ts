@@ -87,6 +87,11 @@ test("coverage-gap deep link reflects filters in URL and page state", async ({ p
   }
 });
 
+// Profile-page E2E coverage is deferred until staging DRF is wired up (W3 decision).
+// The Vercel preview's NEXT_PUBLIC_API_URL currently points nowhere reachable, so
+// /species/{id}/ renders the backend-unreachable branch rather than real content or
+// a proper 404. Unit tests in lib/speciesDetail.test.ts cover the URL helpers.
+
 test("site footer is present on every page", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("contentinfo")).toBeVisible();
