@@ -238,7 +238,11 @@ class ConservationStatusConflict(models.Model):
         ConservationAssessment, on_delete=models.PROTECT, related_name="manual_conflicts"
     )
     iucn_assessment = models.ForeignKey(
-        ConservationAssessment, on_delete=models.PROTECT, related_name="iucn_conflicts"
+        ConservationAssessment,
+        on_delete=models.PROTECT,
+        related_name="iucn_conflicts",
+        null=True,
+        blank=True,
     )
     detected_at = models.DateTimeField(auto_now_add=True)
     detected_by_sync_job = models.ForeignKey(
@@ -268,7 +272,7 @@ class ConservationStatusConflict(models.Model):
                 name="unique_conflict_per_assessment_pair",
             ),
         ]
-        indexes = [models.Index(fields=["status", "-detected_at"])]
+        indexes = [models.Index(fields=["status", "detected_at"])]
 
     def __str__(self) -> str:
         return f"Conflict: {self.species} [{self.status}]"

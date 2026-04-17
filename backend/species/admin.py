@@ -216,19 +216,20 @@ class ConservationAssessmentAdmin(admin.ModelAdmin):
         "conflict_acknowledged_assessment_ids",
     ]
 
-    def _user_tier(self, request: HttpRequest) -> int:
-        user = request.user
-        if user.is_authenticated and hasattr(user, "access_tier"):
-            return int(user.access_tier)  # type: ignore[union-attr]
-        return 0
-
     def has_add_permission(self, request: HttpRequest) -> bool:
         if not super().has_add_permission(request):
             return False
         # Manual_expert authorship requires Tier 3+. Other sources are admin-only
         # in practice (created by iucn_sync); we allow Tier 3+ to add any source
         # and rely on the source dropdown + form validation for governance.
-        return self._user_tier(request) >= 3
+        return _user_tier(request) >= 3
+
+    def has_change_permission(
+        self, request: HttpRequest, obj: ConservationAssessment | None = None
+    ) -> bool:
+        if not super().has_change_permission(request, obj):
+            return False
+        return _user_tier(request) >= 3
 
     def save_model(
         self,
@@ -238,7 +239,7 @@ class ConservationAssessmentAdmin(admin.ModelAdmin):
         change: bool,
     ) -> None:
         if obj.source == ConservationAssessment.Source.MANUAL_EXPERT:
-            if self._user_tier(request) < 3:
+            if _user_tier(request) < 3:
                 raise PermissionDenied(
                     "Tier 3 (Conservation Coordinator) or higher is required to "
                     "author a manual_expert assessment."
@@ -388,6 +389,13 @@ class ConservationStatusConflictAdmin(admin.ModelAdmin):
             return False
         return _user_tier(request) >= 3
 
+    def has_change_permission(
+        self, request: HttpRequest, obj: ConservationStatusConflict | None = None
+    ) -> bool:
+        if not super().has_change_permission(request, obj):
+            return False
+        return _user_tier(request) >= 3
+
     def save_model(
         self,
         request: HttpRequest,
@@ -471,4 +479,8 @@ def _apply_conflict_resolution(
         species.iucn_status = new_row.category
         species.save(update_fields=["iucn_status", "updated_at"])
     elif res == ConservationStatusConflict.Resolution.DISMISSED:
+        # Conflict.iucn_assessment is on_delete=PROTECT, so null the FK and
+        # persist the conflict first, then delete the IUCN row.
+        conflict.iucn_assessment = None  # type: ignore[assignment]
+        conflict.save(update_fields=["iucn_assessment"])
         iucn.delete()
