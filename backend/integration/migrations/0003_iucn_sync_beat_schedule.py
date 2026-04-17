@@ -38,7 +38,10 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("integration", "0002_syncjob_records_created"),
-        ("django_celery_beat", "0001_initial"),
+        # Depend on the migration that adds CrontabSchedule.timezone (0016) so
+        # create_schedule can pass timezone="UTC" when run on a fresh DB. Earlier
+        # celery-beat migrations leave the field absent.
+        ("django_celery_beat", "0016_alter_crontabschedule_timezone"),
     ]
 
     operations = [

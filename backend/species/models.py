@@ -145,6 +145,7 @@ class ConservationAssessment(models.Model):
     class Source(models.TextChoices):
         IUCN_OFFICIAL = "iucn_official"
         RECOMMENDED_REVISION = "recommended_revision"
+        MANUAL_EXPERT = "manual_expert"
 
     class ReviewStatus(models.TextChoices):
         ACCEPTED = "accepted"
@@ -175,6 +176,17 @@ class ConservationAssessment(models.Model):
         related_name="flagged_assessments",
     )
     flagged_date = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="authored_assessments",
+    )
+    # IUCN assessment_ids that a manual_expert row has been deliberately reviewed
+    # against and retained. Written only by the conflict-resolution side effect;
+    # admin renders this read-only.
+    conflict_acknowledged_assessment_ids = models.JSONField(default=list, blank=True)
     last_sync_job = models.ForeignKey(
         "integration.SyncJob",
         on_delete=models.SET_NULL,
@@ -182,13 +194,88 @@ class ConservationAssessment(models.Model):
         blank=True,
         related_name="assessments",
     )
+    # Stable IUCN identity for iucn_official rows; NULL on manual_expert. Lets
+    # the sync detect "same assessment re-seen" vs "new upstream publication"
+    # without relying on mutable fields like category or criteria.
+    iucn_assessment_id = models.BigIntegerField(null=True, blank=True, db_index=True)
+    iucn_year_published = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "species_conservationassessment"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["iucn_assessment_id"],
+                condition=models.Q(iucn_assessment_id__isnull=False),
+                name="unique_iucn_assessment_id_when_set",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"{self.species} — {self.category}"
+
+
+class ConservationStatusConflict(models.Model):
+    """Raised when an incoming IUCN assessment disagrees with an accepted
+    manual_expert override. Created by iucn_sync; resolved in admin.
+
+    See docs/planning/business-analysis/conservation-status-governance.md §3
+    Req 4 for the resolution-outcome table.
+    """
+
+    class Status(models.TextChoices):
+        OPEN = "open"
+        RESOLVED = "resolved"
+
+    class Resolution(models.TextChoices):
+        ACCEPTED_IUCN = "accepted_iucn"
+        RETAINED_MANUAL = "retained_manual"
+        RECONCILED = "reconciled"
+        DISMISSED = "dismissed"
+
+    species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="conflicts")
+    manual_assessment = models.ForeignKey(
+        ConservationAssessment, on_delete=models.PROTECT, related_name="manual_conflicts"
+    )
+    iucn_assessment = models.ForeignKey(
+        ConservationAssessment,
+        on_delete=models.PROTECT,
+        related_name="iucn_conflicts",
+        null=True,
+        blank=True,
+    )
+    detected_at = models.DateTimeField(auto_now_add=True)
+    detected_by_sync_job = models.ForeignKey(
+        "integration.SyncJob",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="conflicts_detected",
+    )
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.OPEN)
+    resolution = models.CharField(max_length=20, choices=Resolution.choices, null=True, blank=True)
+    resolution_reason = models.TextField(blank=True)
+    resolved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="resolved_conflicts",
+    )
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "species_conservationstatusconflict"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["species", "manual_assessment", "iucn_assessment"],
+                name="unique_conflict_per_assessment_pair",
+            ),
+        ]
+        indexes = [models.Index(fields=["status", "detected_at"])]
+
+    def __str__(self) -> str:
+        return f"Conflict: {self.species} [{self.status}]"
 
 
 class Watershed(models.Model):

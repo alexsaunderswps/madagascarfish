@@ -1069,8 +1069,8 @@ class TestIUCNStatusMirror:
 
     def test_mirror_overwrites_stale_status(self, species_with_iucn_id: Species) -> None:
         # Pre-existing manual status "VU" must be overwritten to match IUCN "EN".
-        species_with_iucn_id.iucn_status = "VU"
-        species_with_iucn_id.save(update_fields=["iucn_status"])
+        # Use QuerySet.update() to bypass the audit signals for test setup.
+        Species.objects.filter(pk=species_with_iucn_id.pk).update(iucn_status="VU")
         summary = make_summary(code="EN")
         detail = make_detail(category_code="EN")
         client = _make_mock_client(summary, detail)
@@ -1086,8 +1086,7 @@ class TestIUCNStatusMirror:
     ) -> None:
         # With the toggle off, sync creates the assessment but leaves iucn_status alone.
         settings.ALLOW_IUCN_STATUS_OVERWRITE = False
-        species_with_iucn_id.iucn_status = "VU"
-        species_with_iucn_id.save(update_fields=["iucn_status"])
+        Species.objects.filter(pk=species_with_iucn_id.pk).update(iucn_status="VU")
         summary = make_summary(code="EN")
         detail = make_detail(category_code="EN")
         client = _make_mock_client(summary, detail)
@@ -1123,8 +1122,7 @@ class TestIUCNStatusMirror:
             source=ConservationAssessment.Source.IUCN_OFFICIAL,
             review_status=ConservationAssessment.ReviewStatus.PENDING_REVIEW,
         )
-        species_with_iucn_id.iucn_status = "VU"
-        species_with_iucn_id.save(update_fields=["iucn_status"])
+        Species.objects.filter(pk=species_with_iucn_id.pk).update(iucn_status="VU")
         summary = make_summary(code="EN")
         detail = make_detail(category_code="EN")
         client = _make_mock_client(summary, detail)

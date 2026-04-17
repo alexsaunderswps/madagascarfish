@@ -9,9 +9,11 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.timezone import now
 
+from audit.context import audit_actor
+from audit.models import AuditEntry
 from integration.clients.iucn import IUCNAPIError, IUCNClient
 from integration.models import SyncJob
-from species.models import ConservationAssessment, Species
+from species.models import ConservationAssessment, ConservationStatusConflict, Species
 
 logger = logging.getLogger(__name__)
 
@@ -37,25 +39,26 @@ def iucn_sync(self: Any) -> dict[str, Any]:
     species_qs = Species.objects.exclude(iucn_taxon_id__isnull=True).order_by("id")
 
     try:
-        for species in species_qs.iterator():
-            job.records_processed += 1
-            try:
-                result = _sync_one_species(client, species, job)
-                if result == "created":
-                    job.records_created += 1
-                elif result == "updated":
-                    job.records_updated += 1
-                elif result == "skipped":
-                    job.records_skipped += 1
-            except IUCNAPIError as exc:
-                job.error_log.append(
-                    {
-                        "species_id": species.id,
-                        "scientific_name": species.scientific_name,
-                        "error": str(exc),
-                    }
-                )
-                logger.warning("IUCN sync error for species %s: %s", species.id, exc)
+        with audit_actor(system="iucn_sync", sync_job=job):
+            for species in species_qs.iterator():
+                job.records_processed += 1
+                try:
+                    result = _sync_one_species(client, species, job)
+                    if result == "created":
+                        job.records_created += 1
+                    elif result == "updated":
+                        job.records_updated += 1
+                    elif result == "skipped":
+                        job.records_skipped += 1
+                except IUCNAPIError as exc:
+                    job.error_log.append(
+                        {
+                            "species_id": species.id,
+                            "scientific_name": species.scientific_name,
+                            "error": str(exc),
+                        }
+                    )
+                    logger.warning("IUCN sync error for species %s: %s", species.id, exc)
 
         # Job fails only if every processed species errored. All-skipped (e.g.,
         # no species had iucn_taxon_id, or every API lookup 404'd) is a valid
@@ -115,11 +118,19 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
     if category not in VALID_IUCN_CATEGORIES:
         raise IUCNAPIError(f"invalid IUCN category {category!r} for species {species.id}")
 
+    year_published_raw = payload.get("year_published") or latest.get("year_published")
+    try:
+        year_published: int | None = int(year_published_raw) if year_published_raw else None
+    except (TypeError, ValueError):
+        year_published = None
+
     parsed = {
         "category": category,
         "criteria": str(payload.get("criteria") or "")[:100],
         "assessor": _format_assessor(payload),
         "assessment_date": _parse_assessment_date(payload),
+        "iucn_assessment_id": int(assessment_id),
+        "iucn_year_published": year_published,
     }
 
     with transaction.atomic():
@@ -133,6 +144,69 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
             existing
             and existing.review_status == ConservationAssessment.ReviewStatus.PENDING_REVIEW
         ):
+            return "skipped"
+
+        # Req 4: if a manual_expert row exists and disagrees with the incoming
+        # IUCN category (and the incoming assessment has not been acknowledged),
+        # raise a conflict instead of mirroring. The IUCN row still lands, but
+        # as pending_review so a coordinator can adjudicate.
+        manual = (
+            ConservationAssessment.objects.filter(
+                species=species,
+                source=ConservationAssessment.Source.MANUAL_EXPERT,
+                review_status__in=[
+                    ConservationAssessment.ReviewStatus.ACCEPTED,
+                    ConservationAssessment.ReviewStatus.UNDER_REVISION,
+                ],
+            )
+            .order_by("-assessment_date")
+            .first()
+        )
+        incoming_assessment_id = int(assessment_id)
+        if (
+            manual
+            and manual.category != category
+            and incoming_assessment_id not in (manual.conflict_acknowledged_assessment_ids or [])
+        ):
+            if existing is None:
+                iucn_row = ConservationAssessment.objects.create(
+                    species=species,
+                    source=ConservationAssessment.Source.IUCN_OFFICIAL,
+                    review_status=ConservationAssessment.ReviewStatus.PENDING_REVIEW,
+                    last_sync_job=job,
+                    **parsed,
+                )
+            else:
+                for field, value in parsed.items():
+                    setattr(existing, field, value)
+                existing.review_status = ConservationAssessment.ReviewStatus.PENDING_REVIEW
+                existing.last_sync_job = job
+                existing.save()
+                iucn_row = existing
+            ConservationStatusConflict.objects.get_or_create(
+                species=species,
+                manual_assessment=manual,
+                iucn_assessment=iucn_row,
+                defaults={"detected_by_sync_job": job},
+            )
+            AuditEntry.objects.create(
+                target_type="Species",
+                target_id=species.pk,
+                field="iucn_status",
+                action=AuditEntry.Action.CONFLICT_DETECTED,
+                before={"iucn_status": species.iucn_status},
+                after={
+                    "conflict": {
+                        "iucn_assessment_id": iucn_row.pk,
+                        "manual_assessment_id": manual.pk,
+                        "incoming_category": category,
+                        "manual_category": manual.category,
+                    }
+                },
+                actor_type=AuditEntry.ActorType.SYSTEM,
+                actor_system="iucn_sync",
+                sync_job=job,
+            )
             return "skipped"
 
         if existing is None:
