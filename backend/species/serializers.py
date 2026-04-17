@@ -78,6 +78,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
     conservation_assessments = serializers.SerializerMethodField()
     field_programs = serializers.SerializerMethodField()
     ex_situ_summary = serializers.SerializerMethodField()
+    has_localities = serializers.SerializerMethodField()
 
     class Meta:
         model = Species
@@ -105,7 +106,11 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
             "conservation_assessments",
             "field_programs",
             "ex_situ_summary",
+            "has_localities",
         ]
+
+    def get_has_localities(self, obj: Species) -> bool:
+        return obj.localities.exists()
 
     def get_conservation_assessments(self, obj: Species) -> list[dict]:
         tier = self._get_tier()
