@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
 import SpeciesCard from "@/components/SpeciesCard";
 import SpeciesFilters from "@/components/SpeciesFilters";
@@ -78,24 +77,22 @@ export default async function SpeciesDirectoryPage({
 
         <section>
           {list.results.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-              <h2 className="font-serif text-xl text-slate-900">
-                {backendUnavailable ? "Species data temporarily unavailable" : "No species match those filters"}
-              </h2>
-              <p className="mt-2 text-sm text-slate-600">
-                {backendUnavailable
-                  ? "Our directory is briefly offline. Please try again shortly."
-                  : "Try loosening a constraint, or browse the full directory."}
-              </p>
-              <div className="mt-4 flex justify-center gap-2">
-                <Link
-                  href="/species/"
-                  className="rounded bg-sky-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-sky-700"
-                >
-                  Browse all species
-                </Link>
-              </div>
-            </div>
+            backendUnavailable ? (
+              <EmptyState
+                title="Species data temporarily unavailable"
+                body="Our directory is briefly offline. Please try again shortly."
+                primaryAction={{ href: "/species/", label: "Try again" }}
+              />
+            ) : (
+              <EmptyState
+                title="No species match those filters"
+                body="Try loosening a constraint, or browse the full directory."
+                primaryAction={
+                  filtered ? { href: "/species/", label: "Clear filters" } : undefined
+                }
+                secondaryAction={{ href: "/species/", label: "Browse all species" }}
+              />
+            )
           ) : (
             <>
               <ul className="grid gap-3 sm:grid-cols-2">

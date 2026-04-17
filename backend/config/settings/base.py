@@ -165,6 +165,16 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@madagascarfish.o
 AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", default="http://localhost:3000")
 
+# FE-07-11: manual cache-bust admin action. Posts to the Next.js
+# /api/revalidate route with a shared secret. Secret is required in prod;
+# blank in dev/test disables the admin action with a visible notice.
+NEXT_REVALIDATE_URL = env(
+    "NEXT_REVALIDATE_URL",
+    default="http://localhost:3000/api/revalidate",
+)
+NEXT_REVALIDATE_SECRET = env("NEXT_REVALIDATE_SECRET", default="")
+NEXT_REVALIDATE_TIMEOUT_SECONDS = env.int("NEXT_REVALIDATE_TIMEOUT_SECONDS", default=10)
+
 # CORS — frontend is Next.js on Vercel (Gate 07). Only the /api/* surface needs
 # cross-origin; admin/static remain same-origin.
 CORS_URLS_REGEX = r"^/api/.*$"
