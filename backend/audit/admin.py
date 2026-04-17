@@ -47,20 +47,14 @@ class AuditEntryAdmin(admin.ModelAdmin):
     def has_add_permission(self, request: HttpRequest) -> bool:
         return False
 
-    def has_change_permission(
-        self, request: HttpRequest, obj: AuditEntry | None = None
-    ) -> bool:
+    def has_change_permission(self, request: HttpRequest, obj: AuditEntry | None = None) -> bool:
         # Allow viewing the detail page; block actual edits via readonly_fields.
         return super().has_view_permission(request, obj)
 
-    def has_delete_permission(
-        self, request: HttpRequest, obj: AuditEntry | None = None
-    ) -> bool:
+    def has_delete_permission(self, request: HttpRequest, obj: AuditEntry | None = None) -> bool:
         return False
 
-    def has_view_permission(
-        self, request: HttpRequest, obj: AuditEntry | None = None
-    ) -> bool:
+    def has_view_permission(self, request: HttpRequest, obj: AuditEntry | None = None) -> bool:
         # Tier 5 (superuser / admin) only for the global list. Tier 3 scoped
         # inline access lives on the Species change form (gate 06b commit 6).
         user = request.user

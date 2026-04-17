@@ -15,11 +15,11 @@ import datetime as dt
 from unittest.mock import patch
 
 import pytest
-from audit.context import audit_actor
-from audit.models import AuditEntry
 from django.test import Client, override_settings
 
 from accounts.models import User
+from audit.context import audit_actor
+from audit.models import AuditEntry
 from species.admin import _apply_conflict_resolution
 from species.models import ConservationAssessment, ConservationStatusConflict, Species
 from tests.test_iucn_sync import _make_mock_client, make_detail, make_summary
@@ -264,9 +264,7 @@ class TestAckIdempotency:
             iucn_sync()
         assert ConservationStatusConflict.objects.count() == conflict_count_before
         assert (
-            AuditEntry.objects.filter(
-                target_type="Species", target_id=species.pk
-            ).count()
+            AuditEntry.objects.filter(target_type="Species", target_id=species.pk).count()
             == audit_count_before
         )
 

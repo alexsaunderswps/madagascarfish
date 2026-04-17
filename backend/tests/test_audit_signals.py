@@ -5,11 +5,11 @@ from __future__ import annotations
 import datetime as dt
 
 import pytest
-from audit.context import audit_actor
-from audit.models import AuditEntry
 from django.test import override_settings
 
 from accounts.models import User
+from audit.context import audit_actor
+from audit.models import AuditEntry
 from integration.models import SyncJob
 from species.models import ConservationAssessment, Species
 

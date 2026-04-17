@@ -9,8 +9,8 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
-from audit.models import AuditEntry
 
+from audit.models import AuditEntry
 from integration.models import SyncJob
 from integration.tasks import iucn_sync
 from species.models import Species
