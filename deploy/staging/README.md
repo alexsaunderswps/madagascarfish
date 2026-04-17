@@ -118,13 +118,27 @@ curl -sI https://api.malagasyfishes.org/api/v1/schema/ | head -1
 
 ## 6. Seed data
 
+The repo's `data/` directory (reference shapefiles + seed CSVs) is bind-mounted read-only into the `web` container at `/data`. Run the consolidated seed command:
+
 ```bash
-docker compose exec web python manage.py createsuperuser
-# optional: re-run the dev seed to populate species/localities for the workshop
-docker compose exec web python manage.py seed_dev_data   # if/when the command exists
+docker compose exec web python manage.py seed_all
 ```
 
-For now (Gate 06 artifacts), use whichever management commands seed species + localities. If no `seed_dev_data` command exists yet, copy the local dev DB's public-tier data with `pg_dump`/`psql` over the SSH tunnel. (Out of scope for this PR — tracked as a follow-up.)
+This loads watersheds + protected areas, species, then localities in order. Idempotent — safe to re-run after a `git pull`.
+
+Then create an admin user for `/admin/` access:
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+To seed only part of the data (e.g. after bumping just the species CSV):
+
+```bash
+docker compose exec web python manage.py seed_all --skip-reference --skip-localities
+```
+
+Or call the underlying commands directly with explicit paths — see `backend/species/management/commands/{load_reference_layers,seed_species,seed_localities}.py`.
 
 ## 7. Point the frontend at staging
 
