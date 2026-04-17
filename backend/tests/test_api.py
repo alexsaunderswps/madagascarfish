@@ -594,6 +594,11 @@ class TestDashboard:
         assert data["ex_situ_coverage"]["threatened_species_without_captive_population"] == 1
         assert data["field_programs"]["active"] == 1
         assert "last_updated" in data
+        # BE-07-B: last_updated must be ISO-8601 parseable by datetime.fromisoformat.
+        from datetime import datetime
+
+        parsed = datetime.fromisoformat(data["last_updated"])
+        assert parsed.tzinfo is not None, "last_updated must include timezone offset"
 
     def test_empty_state(self, api_client: APIClient) -> None:
         resp = api_client.get("/api/v1/dashboard/")
