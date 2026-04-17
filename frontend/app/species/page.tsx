@@ -5,8 +5,9 @@ import SpeciesCard from "@/components/SpeciesCard";
 import SpeciesFilters from "@/components/SpeciesFilters";
 import { fetchDashboard } from "@/lib/dashboard";
 import {
+  EMPTY_PAGE,
   PAGE_SIZE,
-  fetchSpeciesList,
+  fetchSpeciesListSafe,
   parseSpeciesFilterState,
 } from "@/lib/species";
 
@@ -41,10 +42,12 @@ export default async function SpeciesDirectoryPage({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   const state = parseSpeciesFilterState(searchParams);
-  const [list, dashboard] = await Promise.all([
-    fetchSpeciesList(state),
+  const [listResult, dashboard] = await Promise.all([
+    fetchSpeciesListSafe(state),
     fetchDashboard(),
   ]);
+  const list = listResult ?? EMPTY_PAGE;
+  const backendUnavailable = listResult === null;
 
   const counts = dashboard?.species_counts;
   const filtered = hasAnyFilter(searchParams);
@@ -76,9 +79,13 @@ export default async function SpeciesDirectoryPage({
         <section>
           {list.results.length === 0 ? (
             <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-              <h2 className="font-serif text-xl text-slate-900">No species match those filters</h2>
+              <h2 className="font-serif text-xl text-slate-900">
+                {backendUnavailable ? "Species data temporarily unavailable" : "No species match those filters"}
+              </h2>
               <p className="mt-2 text-sm text-slate-600">
-                Try loosening a constraint, or browse the full directory.
+                {backendUnavailable
+                  ? "Our directory is briefly offline. Please try again shortly."
+                  : "Try loosening a constraint, or browse the full directory."}
               </p>
               <div className="mt-4 flex justify-center gap-2">
                 <Link

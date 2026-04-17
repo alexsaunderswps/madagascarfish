@@ -122,3 +122,22 @@ export async function fetchSpeciesList(
   const query = buildSpeciesQuery(state);
   return apiFetch<Paginated<SpeciesListItem>>(`/api/v1/species/?${query}`);
 }
+
+const EMPTY_PAGE: Paginated<SpeciesListItem> = {
+  count: 0,
+  next: null,
+  previous: null,
+  results: [],
+};
+
+export async function fetchSpeciesListSafe(
+  state: SpeciesFilterState,
+): Promise<Paginated<SpeciesListItem> | null> {
+  try {
+    return await fetchSpeciesList(state);
+  } catch {
+    return null;
+  }
+}
+
+export { EMPTY_PAGE };
