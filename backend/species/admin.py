@@ -1,14 +1,18 @@
-from audit.models import AuditEntry
 from django import forms
 from django.contrib import admin
 from django.contrib.gis.admin import GISModelAdmin
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpRequest
+from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
+from audit.context import audit_actor
+from audit.models import AuditEntry
 from species.models import (
     CommonName,
     ConservationAssessment,
+    ConservationStatusConflict,
     ProtectedArea,
     Species,
     SpeciesLocality,
@@ -312,3 +316,159 @@ class ProtectedAreaAdmin(admin.ModelAdmin):
     list_filter = ["designation", "iucn_category", "status"]
     search_fields = ["name"]
     readonly_fields = ["wdpa_id", "geometry", "created_at"]
+
+
+class ConservationStatusConflictAdminForm(forms.ModelForm):
+    reconciled_category = forms.ChoiceField(
+        choices=[("", "—")] + list(Species.IUCNStatus.choices),
+        required=False,
+        help_text="Required only when resolution='reconciled'.",
+    )
+
+    class Meta:
+        model = ConservationStatusConflict
+        fields = "__all__"
+
+    def clean(self) -> dict[str, object]:
+        cleaned = super().clean() or {}
+        if cleaned.get("status") == ConservationStatusConflict.Status.RESOLVED:
+            if not cleaned.get("resolution"):
+                self.add_error("resolution", "Required when marking resolved.")
+            if not cleaned.get("resolution_reason"):
+                self.add_error("resolution_reason", "Required when marking resolved.")
+            if cleaned.get(
+                "resolution"
+            ) == ConservationStatusConflict.Resolution.RECONCILED and not cleaned.get(
+                "reconciled_category"
+            ):
+                self.add_error(
+                    "reconciled_category",
+                    "Required when resolution='reconciled'.",
+                )
+        return cleaned
+
+
+@admin.register(ConservationStatusConflict)
+class ConservationStatusConflictAdmin(admin.ModelAdmin):
+    form = ConservationStatusConflictAdminForm
+    list_display = [
+        "species",
+        "status",
+        "resolution",
+        "detected_at",
+        "resolved_by",
+        "resolved_at",
+    ]
+    list_filter = ["status", "resolution"]
+    search_fields = ["species__scientific_name"]
+    list_select_related = ["species", "resolved_by"]
+    readonly_fields = [
+        "species",
+        "manual_assessment",
+        "iucn_assessment",
+        "detected_at",
+        "detected_by_sync_job",
+        "resolved_by",
+        "resolved_at",
+    ]
+
+    def has_add_permission(self, request: HttpRequest) -> bool:
+        # Conflicts are raised by iucn_sync, not added by hand.
+        return False
+
+    def has_delete_permission(
+        self, request: HttpRequest, obj: ConservationStatusConflict | None = None
+    ) -> bool:
+        return False
+
+    def has_view_permission(
+        self, request: HttpRequest, obj: ConservationStatusConflict | None = None
+    ) -> bool:
+        if not super().has_view_permission(request, obj):
+            return False
+        return _user_tier(request) >= 3
+
+    def save_model(
+        self,
+        request: HttpRequest,
+        obj: ConservationStatusConflict,
+        form: forms.ModelForm,
+        change: bool,
+    ) -> None:
+        # Only act on the open → resolved transition.
+        if not change or obj.status != ConservationStatusConflict.Status.RESOLVED:
+            super().save_model(request, obj, form, change)
+            return
+        reconciled_category = form.cleaned_data.get("reconciled_category") or None
+        reason = form.cleaned_data.get("resolution_reason") or ""
+        with audit_actor(user=request.user, reason=reason):
+            with transaction.atomic():
+                obj.resolved_by = request.user  # type: ignore[assignment]
+                obj.resolved_at = timezone.now()
+                _apply_conflict_resolution(obj, reconciled_category, request.user)
+                super().save_model(request, obj, form, change)
+                AuditEntry.objects.create(
+                    target_type="ConservationStatusConflict",
+                    target_id=obj.pk,
+                    action=AuditEntry.Action.CONFLICT_RESOLVED,
+                    before={"status": "open"},
+                    after={"status": "resolved", "resolution": obj.resolution},
+                    actor_type=AuditEntry.ActorType.USER,
+                    actor_user=request.user,
+                    reason=reason,
+                )
+
+
+def _apply_conflict_resolution(
+    conflict: ConservationStatusConflict,
+    reconciled_category: str | None,
+    user: object,
+) -> None:
+    """Side-effect chain per BA §3 Req 4 resolution-outcome table."""
+    manual = conflict.manual_assessment
+    iucn = conflict.iucn_assessment
+    species = conflict.species
+    res = conflict.resolution
+    note = (
+        f"[conflict {conflict.pk} resolved {timezone.now():%Y-%m-%d} "
+        f"by {getattr(user, 'email', user)}: {conflict.resolution_reason}]"
+    )
+
+    if res == ConservationStatusConflict.Resolution.ACCEPTED_IUCN:
+        manual.review_status = ConservationAssessment.ReviewStatus.SUPERSEDED
+        manual.review_notes = (manual.review_notes or "") + "\n" + note
+        manual.save()
+        iucn.review_status = ConservationAssessment.ReviewStatus.ACCEPTED
+        iucn.review_notes = (iucn.review_notes or "") + "\n" + note
+        iucn.save()
+        species.iucn_status = iucn.category
+        species.save(update_fields=["iucn_status", "updated_at"])
+    elif res == ConservationStatusConflict.Resolution.RETAINED_MANUAL:
+        iucn.review_notes = (iucn.review_notes or "") + "\n" + note
+        iucn.save()
+        ack = list(manual.conflict_acknowledged_assessment_ids or [])
+        if iucn.iucn_assessment_id and iucn.iucn_assessment_id not in ack:
+            ack.append(iucn.iucn_assessment_id)
+            manual.conflict_acknowledged_assessment_ids = ack
+            manual.save()
+    elif res == ConservationStatusConflict.Resolution.RECONCILED:
+        manual.review_status = ConservationAssessment.ReviewStatus.SUPERSEDED
+        manual.review_notes = (manual.review_notes or "") + "\n" + note
+        manual.save()
+        iucn.review_status = ConservationAssessment.ReviewStatus.SUPERSEDED
+        iucn.review_notes = (iucn.review_notes or "") + "\n" + note
+        iucn.save()
+        new_row = ConservationAssessment.objects.create(
+            species=species,
+            category=reconciled_category or manual.category,
+            source=ConservationAssessment.Source.MANUAL_EXPERT,
+            review_status=ConservationAssessment.ReviewStatus.ACCEPTED,
+            assessor=getattr(user, "name", "") or getattr(user, "email", ""),
+            assessment_date=timezone.now().date(),
+            notes=f"Reconciled from conflict {conflict.pk}. {conflict.resolution_reason}",
+            created_by=user if hasattr(user, "pk") else None,
+        )
+        species.iucn_status = new_row.category
+        species.save(update_fields=["iucn_status", "updated_at"])
+    elif res == ConservationStatusConflict.Resolution.DISMISSED:
+        iucn.delete()
