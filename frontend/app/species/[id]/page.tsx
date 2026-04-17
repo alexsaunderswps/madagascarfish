@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import EmptyState from "@/components/EmptyState";
 import IucnBadge from "@/components/IucnBadge";
 import {
   displayScientificName,
@@ -274,9 +275,13 @@ export default async function SpeciesProfilePage({
           Field Programs
         </h2>
         {sp.field_programs.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-600">
-            No active field programs are linked to this species.
-          </p>
+          <div className="mt-2">
+            <EmptyState
+              variant="inline"
+              title="No linked field programs"
+              body="No active field programs are linked to this species yet."
+            />
+          </div>
         ) : (
           <ul className="mt-2 space-y-1 text-sm text-slate-700">
             {sp.field_programs.map((fp) => (

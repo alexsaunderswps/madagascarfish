@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 
+import EmptyState from "@/components/EmptyState";
 import { fetchLocalities } from "@/lib/mapLocalities";
 
 export const revalidate = 3600;
@@ -35,15 +36,28 @@ export default async function MapPage({
   if (!data) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-16">
-        <h1 className="text-2xl font-semibold text-slate-900">Distribution Map</h1>
-        <p className="mt-4 text-slate-600">
-          The map is temporarily unavailable because the data service is unreachable.
-          Please try again shortly, or browse the{" "}
-          <a href="/species/" className="text-sky-700 underline">
-            species directory
-          </a>{" "}
-          for a text-based view.
-        </p>
+        <EmptyState
+          title="Map temporarily unavailable"
+          body="The locality data service is unreachable. Please try again shortly, or use the species directory for a text-based view."
+          primaryAction={{ href: "/map/", label: "Try again" }}
+          secondaryAction={{ href: "/species/", label: "Browse all species" }}
+        />
+      </main>
+    );
+  }
+
+  if (data.features.length === 0) {
+    return (
+      <main className="mx-auto max-w-3xl px-6 py-16">
+        <EmptyState
+          title="No locality records to map"
+          body={
+            speciesId
+              ? "This species has no public locality records. Try the directory for profile and conservation details."
+              : "No locality records are currently published. The directory lists every species regardless of mapped localities."
+          }
+          primaryAction={{ href: "/species/", label: "Browse all species" }}
+        />
       </main>
     );
   }
