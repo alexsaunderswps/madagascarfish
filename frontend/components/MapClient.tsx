@@ -5,7 +5,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 import L from "leaflet";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CircleMarker,
   LayersControl,
@@ -14,6 +14,15 @@ import {
   TileLayer,
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
+
+const ESRI_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+const ESRI_ATTRIBUTION =
+  'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+const LOCAL_TILES_URL = "/tiles/{z}/{x}/{y}.png";
+const LOCAL_TILES_ATTRIBUTION =
+  "Offline basemap &mdash; cached Esri World Imagery (Madagascar z5–9)";
+const LOCAL_TILES_MAX_ZOOM = 9;
 
 import {
   IUCN_COLORS,
@@ -34,6 +43,57 @@ const IUCN_LEGEND: Array<{ code: string; label: string }> = [
   { code: "DD", label: "Data Deficient" },
   { code: "NE", label: "Not Evaluated" },
 ];
+
+/**
+ * Satellite base layer with automatic fallback to locally-baked tiles.
+ *
+ * Swap triggers:
+ *   - Any `tileerror` event from the ESRI layer (covers 4xx/5xx + timeout)
+ *   - `!navigator.onLine` at mount time
+ *
+ * Once swapped, we stay on the fallback for the session (no auto-recover).
+ * Max-zoom clamps to LOCAL_TILES_MAX_ZOOM under fallback.
+ */
+function SatelliteLayer({ onFallback }: { onFallback: (v: boolean) => void }) {
+  const [fallback, setFallback] = useState<boolean>(() => {
+    if (typeof navigator === "undefined") return false;
+    return !navigator.onLine;
+  });
+  const layerRef = useRef<L.TileLayer | null>(null);
+
+  useEffect(() => {
+    onFallback(fallback);
+  }, [fallback, onFallback]);
+
+  useEffect(() => {
+    if (fallback || !layerRef.current) return;
+    const layer = layerRef.current;
+    const onErr = () => setFallback(true);
+    layer.on("tileerror", onErr);
+    return () => {
+      layer.off("tileerror", onErr);
+    };
+  }, [fallback]);
+
+  if (fallback) {
+    return (
+      <TileLayer
+        attribution={LOCAL_TILES_ATTRIBUTION}
+        url={LOCAL_TILES_URL}
+        maxZoom={LOCAL_TILES_MAX_ZOOM}
+      />
+    );
+  }
+
+  return (
+    <TileLayer
+      ref={layerRef as unknown as React.RefObject<L.TileLayer>}
+      attribution={ESRI_ATTRIBUTION}
+      url={ESRI_URL}
+      maxZoom={18}
+    />
+  );
+}
 
 function clusterIcon(cluster: L.MarkerCluster) {
   const count = cluster.getChildCount();
@@ -143,6 +203,7 @@ export default function MapClient({
   const features = initialData?.features ?? [];
   const totalFeatures = features.length;
   const speciesCount = new Set(features.map((f) => f.properties.species_id)).size;
+  const [usingFallbackTiles, setUsingFallbackTiles] = useState(false);
 
   return (
     <div className="relative h-[calc(100vh-8rem)] min-h-[500px] w-full">
@@ -161,11 +222,7 @@ export default function MapClient({
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Satellite (ESRI)">
-            <TileLayer
-              attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              maxZoom={18}
-            />
+            <SatelliteLayer onFallback={setUsingFallbackTiles} />
           </LayersControl.BaseLayer>
         </LayersControl>
 
@@ -199,6 +256,15 @@ export default function MapClient({
         </MarkerClusterGroup>
       </MapContainer>
       <Legend />
+      {usingFallbackTiles ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="absolute left-1/2 top-4 z-[1000] -translate-x-1/2 rounded border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 shadow"
+        >
+          Using offline basemap — satellite imagery limited to zoom {LOCAL_TILES_MAX_ZOOM}.
+        </div>
+      ) : null}
       <span className="sr-only" data-testid="map-summary">
         {totalFeatures} locality records across {speciesCount} species.
       </span>
