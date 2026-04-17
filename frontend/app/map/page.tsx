@@ -1,5 +1,7 @@
 import dynamic from "next/dynamic";
 
+import MapListView from "@/components/MapListView";
+import MapViewToggle, { type MapView } from "@/components/MapViewToggle";
 import EmptyState from "@/components/EmptyState";
 import { fetchLocalities } from "@/lib/mapLocalities";
 
@@ -30,6 +32,10 @@ export default async function MapPage({
 }) {
   const speciesIdRaw = searchParams.species_id;
   const speciesId = Array.isArray(speciesIdRaw) ? speciesIdRaw[0] : speciesIdRaw;
+
+  const viewRaw = searchParams.view;
+  const viewParam = Array.isArray(viewRaw) ? viewRaw[0] : viewRaw;
+  const view: MapView = viewParam === "list" ? "list" : "map";
 
   const data = await fetchLocalities(speciesId ? { species_id: speciesId } : {});
 
@@ -65,7 +71,27 @@ export default async function MapPage({
   return (
     <main>
       <h1 className="sr-only">Distribution Map</h1>
-      <MapClient initialData={data} />
+      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
+        <p className="text-sm text-slate-600">
+          {data.features.length} locality record{data.features.length === 1 ? "" : "s"}
+        </p>
+        <MapViewToggle current={view} searchParams={searchParams} />
+      </div>
+      {data.features.length === 0 ? (
+        <div className="mx-auto max-w-3xl px-6 py-16">
+          <p className="text-slate-600">
+            No locality records match the current filters.{" "}
+            <a href="/species/" className="text-sky-700 underline">
+              Browse the species directory
+            </a>
+            .
+          </p>
+        </div>
+      ) : view === "list" ? (
+        <MapListView data={data} />
+      ) : (
+        <MapClient initialData={data} />
+      )}
     </main>
   );
 }
