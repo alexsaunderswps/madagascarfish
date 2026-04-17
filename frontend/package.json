@@ -1,0 +1,40 @@
+{
+  "name": "madagascarfish-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.11.0 <21"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "gen:types": "openapi-typescript ${NEXT_PUBLIC_API_URL:-http://localhost:8000}/api/v1/schema/ -o lib/api-types.ts",
+    "gen:types:check": "openapi-typescript ${NEXT_PUBLIC_API_URL:-http://localhost:8000}/api/v1/schema/ -o /tmp/api-types.generated.ts && diff -u lib/api-types.ts /tmp/api-types.generated.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "next": "14.2.15",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.47.2",
+    "@types/node": "20.16.10",
+    "@types/react": "18.3.11",
+    "@types/react-dom": "18.3.0",
+    "autoprefixer": "10.4.20",
+    "eslint": "8.57.1",
+    "eslint-config-next": "14.2.15",
+    "openapi-typescript": "7.4.1",
+    "postcss": "8.4.47",
+    "tailwindcss": "3.4.13",
+    "typescript": "5.6.2",
+    "vitest": "2.1.2"
+  }
+}
