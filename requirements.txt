@@ -20,6 +20,9 @@ Pillow>=10,<11
 # Filtering
 django-filter>=24,<25
 
+# CORS (frontend on Vercel; previews at *.vercel.app)
+django-cors-headers>=4,<5
+
 # GIS
 # NOTE: GDAL Python bindings must match the libgdal version available on the
 # host (via apt/brew). Install after system packages with:
