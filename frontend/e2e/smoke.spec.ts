@@ -57,18 +57,22 @@ test("About page renders owner and GitHub link", async ({ page }) => {
 });
 
 test("species directory renders count header and filter form", async ({ page }) => {
-  await page.goto("/species/", { waitUntil: "networkidle" });
+  // Hit /species (no trailing slash) to avoid Next's 308 redirect cycle on cold start.
+  const resp = await page.goto("/species", { timeout: 60000, waitUntil: "domcontentloaded" });
+  expect(resp?.status(), "preview should not 401 /species").toBeLessThan(400);
 
   await expect(
     page.getByRole("heading", { level: 1, name: /^Species Directory$/ }),
-  ).toBeVisible({ timeout: 15000 });
+  ).toBeVisible({ timeout: 30000 });
   await expect(page.getByRole("form", { name: /species filters/i })).toBeVisible();
 });
 
 test("coverage-gap deep link reflects filters in URL and page state", async ({ page }) => {
-  await page.goto("/species/?iucn_status=CR,EN,VU&has_captive_population=false", {
-    waitUntil: "networkidle",
-  });
+  const resp = await page.goto(
+    "/species?iucn_status=CR,EN,VU&has_captive_population=false",
+    { timeout: 60000, waitUntil: "domcontentloaded" },
+  );
+  expect(resp?.status(), "preview should not 401 /species").toBeLessThan(400);
 
   // URL preserves the filter params (browsers may %2C-encode the comma).
   const decoded = decodeURIComponent(page.url());
@@ -79,7 +83,7 @@ test("coverage-gap deep link reflects filters in URL and page state", async ({ p
   for (const code of ["CR", "EN", "VU"]) {
     await expect(
       page.getByRole("button", { name: code, exact: true }),
-    ).toHaveAttribute("aria-pressed", "true", { timeout: 15000 });
+    ).toHaveAttribute("aria-pressed", "true", { timeout: 30000 });
   }
 });
 
