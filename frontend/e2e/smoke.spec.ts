@@ -36,7 +36,10 @@ test("site header nav renders links in Dashboard → Map → Directory → About
 }) => {
   await page.goto("/");
 
-  const primaryNav = page.getByRole("navigation", { name: "Primary" });
+  const primaryNav = page.getByRole("navigation", {
+    name: "Primary",
+    exact: true,
+  });
   const labels = await primaryNav.getByRole("link").allInnerTexts();
   expect(labels).toEqual(["Dashboard", "Map", "Species Directory", "About"]);
 });
