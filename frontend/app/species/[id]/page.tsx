@@ -62,7 +62,22 @@ export default async function SpeciesProfilePage({
   const result = await fetchSpeciesDetail(params.id);
   if (result.kind === "not_found") notFound();
   if (result.kind === "error") {
-    throw new Error("species detail fetch failed");
+    return (
+      <main className="mx-auto max-w-2xl px-6 py-24 text-center">
+        <h1 className="font-serif text-2xl text-slate-900">
+          Species data temporarily unavailable
+        </h1>
+        <p className="mt-4 text-slate-600">
+          We couldn&apos;t load this profile just now. Please try again shortly.
+        </p>
+        <Link
+          href="/species"
+          className="mt-6 inline-block rounded border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:border-slate-400"
+        >
+          ← All species
+        </Link>
+      </main>
+    );
   }
   const sp = result.data;
   const displayName = displayScientificName(sp);
