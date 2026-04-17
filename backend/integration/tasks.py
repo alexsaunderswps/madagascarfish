@@ -117,11 +117,19 @@ def _sync_one_species(client: IUCNClient, species: Species, job: SyncJob) -> str
     if category not in VALID_IUCN_CATEGORIES:
         raise IUCNAPIError(f"invalid IUCN category {category!r} for species {species.id}")
 
+    year_published_raw = payload.get("year_published") or latest.get("year_published")
+    try:
+        year_published: int | None = int(year_published_raw) if year_published_raw else None
+    except (TypeError, ValueError):
+        year_published = None
+
     parsed = {
         "category": category,
         "criteria": str(payload.get("criteria") or "")[:100],
         "assessor": _format_assessor(payload),
         "assessment_date": _parse_assessment_date(payload),
+        "iucn_assessment_id": int(assessment_id),
+        "iucn_year_published": year_published,
     }
 
     with transaction.atomic():

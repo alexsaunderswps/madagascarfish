@@ -194,10 +194,22 @@ class ConservationAssessment(models.Model):
         blank=True,
         related_name="assessments",
     )
+    # Stable IUCN identity for iucn_official rows; NULL on manual_expert. Lets
+    # the sync detect "same assessment re-seen" vs "new upstream publication"
+    # without relying on mutable fields like category or criteria.
+    iucn_assessment_id = models.BigIntegerField(null=True, blank=True, db_index=True)
+    iucn_year_published = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "species_conservationassessment"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["iucn_assessment_id"],
+                condition=models.Q(iucn_assessment_id__isnull=False),
+                name="unique_iucn_assessment_id_when_set",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"{self.species} — {self.category}"

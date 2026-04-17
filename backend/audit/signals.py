@@ -36,6 +36,8 @@ _CA_TRACKED_FIELDS = [
     "created_by_id",
     "conflict_acknowledged_assessment_ids",
     "last_sync_job_id",
+    "iucn_assessment_id",
+    "iucn_year_published",
 ]
 
 
