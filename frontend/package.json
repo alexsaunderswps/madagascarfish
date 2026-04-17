@@ -16,7 +16,8 @@
     "gen:types:check": "openapi-typescript ${NEXT_PUBLIC_API_URL:-http://localhost:8000}/api/v1/schema/ -o /tmp/api-types.generated.ts && diff -u lib/api-types.ts /tmp/api-types.generated.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "bake-tiles": "node scripts/bake-esri-tiles.mjs"
   },
   "dependencies": {
     "leaflet": "1.9.4",
