@@ -46,48 +46,48 @@ retrofit if we pick the wrong approach.
 
 ## Reconcile canonical watershed basin names
 
-**Status:** 6 of ~25 candidate major basins are named in
-`backend/species/basins.py::CANONICAL_BASIN_NAMES`. The remaining 44
-HydroBASINS polygons are labeled with a coordinate-tagged fallback
-(e.g., `"Basin near 22.57°S 43.93°E"`).
+**Status:** ✅ MVP target met — 21 of 50 root basins named in
+`backend/species/basins.py::CANONICAL_BASIN_NAMES` (53 of 82 polygons
+covered once sub-basins inherit). All five biogeographic regions have
+at least one named anchor.
 
-**Goal:** name enough basins that the watersheds GeoJSON is legible on
-the public frontend map (target: 20–25 named basins covering all five
-biogeographic regions — eastern escarpment, central highlands, western
-lowlands, southern arid zone, northern volcanic massifs).
+**Remaining work** (optional polish before gate 07 ships the frontend map):
+7 candidates from the original list still need matching to HYBAS_IDs.
+None of them are blockers; their polygons currently render with the
+coordinate-tagged fallback (e.g., `"Basin near 22.57°S 43.93°E"`).
 
-### Candidate name list (from research, not yet matched to HYBAS_ID)
+### Candidate name list
 
-| Basin | Region | Approx area | Reference area | Status |
-|-------|--------|------------:|---------------:|--------|
-| Betsiboka | NW | 56,180 | 49,000 | ✅ named |
-| Mangoky | SW | 54,938 | 55,750 | ✅ named |
-| Tsiribihina | W | 48,012 | 49,800 | ✅ named |
-| Onilahy | SW | 32,382 | 32,000 | ✅ named |
-| Sofia | NW | 28,534 | 27,315 | ✅ named |
-| Mangoro | E | 21,979 | 17,175 | ✅ named |
-| Mahajamba | NW | — | 14,600 | 🔍 unmatched |
-| Maningory (incl. Lake Alaotra) | NE | — | 12,645 | 🔍 unmatched |
-| Manambolo | W | — | 13,970 | 🔍 unmatched |
-| Mandrare | S | — | 12,435 | 🔍 unmatched |
-| Mahavavy (Sud) | W | — | 14,000 | 🔍 unmatched |
-| Mananara (Sud) | SE | — | 10,500 | 🔍 unmatched |
-| Fiherenana | SW (Toliara) | — | 7,900 | 🔍 unmatched |
-| Menarandra | Deep S | — | 8,350 | 🔍 unmatched |
-| Linta | Deep S | — | 6,500 | 🔍 unmatched |
-| Manambovo | Deep S | — | 5,700 | 🔍 unmatched |
-| Mananjary | E | — | 6,100 | 🔍 unmatched |
-| Faraony | E | — | 3,800 | 🔍 unmatched |
-| Namorona (Ranomafana NP) | E | — | 2,300 | 🔍 unmatched |
-| Matitanana | SE | — | 4,395 | 🔍 unmatched |
-| Rianila | E (Toamasina) | — | 7,820 | 🔍 unmatched |
-| Ivondro | E (Toamasina) | — | 2,600 | 🔍 unmatched |
-| Mahavavy-Nord | N | — | 5,800 | 🔍 unmatched |
-| Sambirano (Nosy Be hinterland) | NW | — | 2,980 | 🔍 unmatched |
-| Bemarivo (Nord, Sava) | NE | — | 5,400 | 🔍 unmatched |
-| Lokoho (Masoala) | NE | — | 3,200 | 🔍 unmatched |
-| Mananjeba | Far N | — | 2,500 | 🔍 unmatched |
-| Ankofia | NW | — | 4,500 | 🔍 unmatched |
+| Basin | Region | Reference area | Status |
+|-------|--------|---------------:|--------|
+| Betsiboka | NW | 49,000 | ✅ named (1060036860) |
+| Mangoky | SW | 55,750 | ✅ named (1060035590) |
+| Tsiribihina | W | 49,800 | ✅ named (1060036020) |
+| Onilahy | SW | 32,000 | ✅ named (1060035400) |
+| Sofia | NW | 27,315 | ✅ named (1060037100) |
+| Mangoro | E | 17,175 | ✅ named (1060038860) |
+| Mahajamba | NW | 14,600 | ✅ named (1060037110) |
+| Maningory (incl. Lake Alaotra) | NE | 12,645 | ✅ named (1060038850) |
+| Manambolo | W | 13,970 | ✅ named (1060036120) |
+| Mandrare | S | 12,435 | ✅ named (1060040000) |
+| Mahavavy (Sud) | W | 14,000 | ✅ named (1060036750) |
+| Mananara (Sud) | SE | 10,500 | ✅ named (1060039740) |
+| Fiherenana | SW (Toliara) | 7,900 | ✅ named (1060035410) |
+| Menarandra | Deep S | 8,350 | ✅ named (1060035180) |
+| Manambovo | Deep S | 5,700 | ✅ named (1060040020) |
+| Mananjary | E | 6,100 | ✅ named (1060039260) |
+| Faraony | E | 3,800 | ✅ named (1060039470) |
+| Namorona (Ranomafana NP) | E | 2,300 | ✅ named (1060039460) |
+| Matitanana | SE | 4,395 | ✅ named (1060039620) |
+| Mahavavy-Nord | N | 5,800 | ✅ named (1060037310) |
+| Bemarivo (Nord, Sava) | NE | 5,400 | ✅ named (1060038200) |
+| Linta | Deep S | 6,500 | 🔍 unmatched |
+| Rianila | E (Toamasina) | 7,820 | 🔍 unmatched |
+| Ivondro | E (Toamasina) | 2,600 | 🔍 unmatched |
+| Sambirano (Nosy Be hinterland) | NW | 2,980 | 🔍 unmatched |
+| Lokoho (Masoala) | NE | 3,200 | 🔍 unmatched |
+| Mananjeba | Far N | 2,500 | 🔍 unmatched |
+| Ankofia | NW | 4,500 | 🔍 unmatched |
 
 **Name-variant caveats to preserve when labelling:**
 - Onilahy, not Onihaly (colonial spelling)
