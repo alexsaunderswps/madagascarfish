@@ -9,6 +9,7 @@ from django.utils.html import format_html, format_html_join
 
 from audit.context import audit_actor
 from audit.models import AuditEntry
+from species.admin_revalidate import revalidate_public_pages
 from species.models import (
     CommonName,
     ConservationAssessment,
@@ -130,6 +131,7 @@ class SpeciesAdmin(admin.ModelAdmin):
     # assessment row instead.
     readonly_fields = ["iucn_status", "created_at", "updated_at"]
     inlines = [ConservationAssessmentInline, CommonNameInline, SpeciesLocalityInline]
+    actions = [revalidate_public_pages]
 
     def get_readonly_fields(
         self, request: HttpRequest, obj: object = None
@@ -215,6 +217,7 @@ class ConservationAssessmentAdmin(admin.ModelAdmin):
         "created_at",
         "conflict_acknowledged_assessment_ids",
     ]
+    actions = [revalidate_public_pages]
 
     def has_add_permission(self, request: HttpRequest) -> bool:
         if not super().has_add_permission(request):
@@ -291,6 +294,7 @@ class SpeciesLocalityAdmin(GISModelAdmin):
         "updated_at",
     ]
     raw_id_fields = ["species", "drainage_basin"]
+    actions = [revalidate_public_pages]
 
     def get_readonly_fields(
         self, request: HttpRequest, obj: object = None
