@@ -4,6 +4,7 @@ import logging
 from datetime import date, datetime
 from typing import Any
 
+from audit.context import audit_actor
 from celery import shared_task
 from django.conf import settings
 from django.db import transaction
@@ -37,25 +38,26 @@ def iucn_sync(self: Any) -> dict[str, Any]:
     species_qs = Species.objects.exclude(iucn_taxon_id__isnull=True).order_by("id")
 
     try:
-        for species in species_qs.iterator():
-            job.records_processed += 1
-            try:
-                result = _sync_one_species(client, species, job)
-                if result == "created":
-                    job.records_created += 1
-                elif result == "updated":
-                    job.records_updated += 1
-                elif result == "skipped":
-                    job.records_skipped += 1
-            except IUCNAPIError as exc:
-                job.error_log.append(
-                    {
-                        "species_id": species.id,
-                        "scientific_name": species.scientific_name,
-                        "error": str(exc),
-                    }
-                )
-                logger.warning("IUCN sync error for species %s: %s", species.id, exc)
+        with audit_actor(system="iucn_sync", sync_job=job):
+            for species in species_qs.iterator():
+                job.records_processed += 1
+                try:
+                    result = _sync_one_species(client, species, job)
+                    if result == "created":
+                        job.records_created += 1
+                    elif result == "updated":
+                        job.records_updated += 1
+                    elif result == "skipped":
+                        job.records_skipped += 1
+                except IUCNAPIError as exc:
+                    job.error_log.append(
+                        {
+                            "species_id": species.id,
+                            "scientific_name": species.scientific_name,
+                            "error": str(exc),
+                        }
+                    )
+                    logger.warning("IUCN sync error for species %s: %s", species.id, exc)
 
         # Job fails only if every processed species errored. All-skipped (e.g.,
         # no species had iucn_taxon_id, or every API lookup 404'd) is a valid
