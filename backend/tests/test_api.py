@@ -292,6 +292,62 @@ class TestSpeciesList:
         # Max is 200, should not error
         assert resp.status_code == 200
 
+    # --- BE-07-A: directory filters ---
+
+    def test_filter_iucn_status_multi(
+        self, api_client: APIClient, species_cr: Species, species_en: Species
+    ) -> None:
+        resp = api_client.get("/api/v1/species/?iucn_status=CR,EN")
+        data = resp.json()
+        statuses = sorted(r["iucn_status"] for r in data["results"])
+        assert statuses == ["CR", "EN"]
+        assert data["count"] == 2
+
+    def test_filter_iucn_status_multi_subset(
+        self, api_client: APIClient, species_cr: Species, species_en: Species
+    ) -> None:
+        resp = api_client.get("/api/v1/species/?iucn_status=EN,VU")
+        data = resp.json()
+        assert data["count"] == 1
+        assert data["results"][0]["iucn_status"] == "EN"
+
+    def test_filter_has_captive_population_true(
+        self,
+        api_client: APIClient,
+        species_cr: Species,
+        species_en: Species,
+        population: ExSituPopulation,
+    ) -> None:
+        resp = api_client.get("/api/v1/species/?has_captive_population=true")
+        data = resp.json()
+        ids = [r["id"] for r in data["results"]]
+        assert ids == [species_cr.pk]
+
+    def test_filter_has_captive_population_false(
+        self,
+        api_client: APIClient,
+        species_cr: Species,
+        species_en: Species,
+        population: ExSituPopulation,
+    ) -> None:
+        resp = api_client.get("/api/v1/species/?has_captive_population=false")
+        data = resp.json()
+        ids = [r["id"] for r in data["results"]]
+        assert ids == [species_en.pk]
+
+    def test_filter_combined_iucn_multi_and_has_captive_false(
+        self,
+        api_client: APIClient,
+        species_cr: Species,
+        species_en: Species,
+        population: ExSituPopulation,
+    ) -> None:
+        """The coverage-gap URL from the hero landing page."""
+        resp = api_client.get("/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false")
+        data = resp.json()
+        ids = [r["id"] for r in data["results"]]
+        assert ids == [species_en.pk]
+
 
 # ============================================================
 # Species Detail — BE-05-2
@@ -361,6 +417,18 @@ class TestSpeciesDetail:
         assert summary["institutions_holding"] == 1
         assert summary["total_individuals"] == 18
         assert summary["breeding_programs"] == 1
+
+    def test_has_localities_true(
+        self, api_client: APIClient, species_cr: Species, locality: SpeciesLocality
+    ) -> None:
+        resp = api_client.get(f"/api/v1/species/{species_cr.pk}/")
+        data = resp.json()
+        assert data["has_localities"] is True
+
+    def test_has_localities_false(self, api_client: APIClient, species_en: Species) -> None:
+        resp = api_client.get(f"/api/v1/species/{species_en.pk}/")
+        data = resp.json()
+        assert data["has_localities"] is False
 
     def test_field_programs_in_detail(
         self, api_client: APIClient, species_cr: Species, field_program: FieldProgram
