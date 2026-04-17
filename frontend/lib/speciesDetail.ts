@@ -72,6 +72,5 @@ export function fishbaseGenusSpeciesUrl(sp: SpeciesDetail): string | null {
   if (!sp.genus || !sp.scientific_name) return null;
   const species = sp.scientific_name.split(" ")[1] ?? "";
   if (!species || species.startsWith("sp.") || species.startsWith("'")) return null;
-  const params = new URLSearchParams({ Genus: sp.genus, Species: species });
-  return `https://www.fishbase.se/summary/SpeciesSummary.php?${params.toString()}`;
+  return `https://www.fishbase.se/summary/${encodeURIComponent(sp.genus)}_${encodeURIComponent(species)}.html`;
 }
