@@ -1,0 +1,54 @@
+id,scientific_name,locality_name,longitude,latitude,coordinate_precision,source_citation,distance_to_land_km
+591,Ancharius fuscus,MAINSTREAM OF RIVER MANANJARY ca. 1 KILOMETER FROM MANANJARY TOWN,48.450000,-21.083333,exact,GBIF: FishBase AMNH 88070,3.702
+609,Awaous aeneofuscus,"Pangalanes north of River Mangoro. Mahanoro Town, behind Hotel de la Pangalane.",48.830000,-19.920000,exact,GBIF: USNM USNM 301503,0.783
+610,Awaous aeneofuscus,"PANGALANES, NORTH OF RIVER MANGORO, MAHANORO TOWN BEHIND HOTEL DE LA PANGALANE",48.833333,-19.916667,exact,GBIF: FishBase AMNH 88093,0.957
+626,Bathygobius fuscus,"Tulear, Dead fringing reef near mouth of Firehana River",43.656207,-23.420605,exact,GBIF: UMMZ 186062,4.623
+628,Bathygobius fuscus,"Small stream entering Baie D'Ampasidava, Madagascar. (near Marokibahi).",48.174200,-13.689400,exact,GBIF: USNM USNM 340374,0.786
+629,Bathygobius fuscus,"Nossi-Be, Madagascar",48.230000,-13.477200,exact,GBIF: USNM USNM 340370,0.457
+630,Bathygobius fuscus,Nossi Be Madagascar Ambario Telo,48.359700,-13.430600,exact,GBIF: USNM USNM 339986,0.815
+631,Bathygobius fuscus,"Ambatomboka or Crater Point, rocky tide pools at entrance to crater Nossi-Be, Madagascar",48.225000,-13.405000,exact,GBIF: USNM USNM 340000,0.892
+653,Bedotia longianalis,"Menantany Stream, bridge of RN-5 (yellow-finned form)",49.580800,-16.959400,exact,Loiselle pers. comm. to Saunders,0.196
+663,Bedotia longianalis,"AMBAHITSINONY CREEK, NEAR AMBAHITSINONY VILLAGE",49.916667,-15.933333,exact,GBIF: FishBase AMNH 229543,12.165
+666,Bedotia madagascariensis,Andriana,49.910000,-19.130000,exact,GBIF:  RDR0093,85.212
+707,Bedotia tricolor,"Trib. of Faraony River, Manakara Province (approx)",48.033000,-22.133000,approximate,Pellegrin 1932,0.584
+712,Eleotris mauritiana,"MANANJARY, ESTUARY OF RIVER MANANJARY, SIDE LAGOON BEHIND HOTEL JARDIN DE LA MER, ca. 100 METERS FROM SEA",48.450000,-21.083333,exact,GBIF: FishBase AMNH 88031,3.702
+716,Giuris margaritacea,"GBIF record at -16.920, 49.860",49.860000,-16.920000,exact,GBIF:  RDR0013,0.071
+717,Giuris margaritacea,"Small stream entering Baie D'ampasindava, Madagascar (near Marokibani).",48.173100,-13.690000,exact,GBIF: USNM USNM 337793,0.669
+724,Glossogobius ankaranensis,"Subterranean river, Ankarana reserve, ca. 12°50""S, 49°10'E, n. Madagascar.",49.166670,-12.013890,exact,GBIF: FishBase FB 2744041,1.298
+748,Kuhlia sauvagii,"GBIF record at -16.920, 49.860",49.860000,-16.920000,exact,GBIF:  RDR0001,0.071
+803,Pachypanchax omalonotus,"Nosy Be [Nossi-Be], off northern Madagascar",48.266666,-12.700000,exact,GBIF: MNHN MNHN 2935,35.720
+834,Pachypanchax sakaramyi,Sakaramy River at Joffreville,48.215280,-12.501389,exact,GBIF: AMNH AMNH 215524,46.686
+835,Pachypanchax sakaramyi,Sakaramy River at Ambohitra [Joffreville],48.200000,-12.483300,exact,Loiselle 2006 (AMNH 215524),47.996
+861,Paratilapia polleni,fort-dauphin,47.000000,-25.183000,exact,GBIF: MNHN 1999-0118,12.156
+864,Paratilapia polleni,tulear,43.517000,-23.333000,exact,GBIF: MNHN 1999-0127,10.476
+878,Paratilapia polleni,"MANANJARY, ESTUARY OF RIVER MANANJARY BEHIND MARKETPLACE, ca. 1 KILOMETER FROM SEA",48.450000,-21.083333,exact,GBIF: FishBase AMNH 88017,3.702
+881,Paratilapia polleni,"Large bay lake behind dunes, about 100 meters from sea, 1 kilometer south of turnoff from Maralambo-Mananjary Road, east of road",48.830000,-19.920000,exact,GBIF: USNM USNM 301515,0.783
+882,Paratilapia polleni,"LARGE BAYLAKE, BEHIND DUNES 1 KILOMETER SOUTH OF TURNOFF FROM MAROLAMBO-MANANJARY ROAD, EAST OF ROAD ca. 100 METERS FROM SEA",48.833333,-19.916667,exact,GBIF: FishBase AMNH 215549,0.957
+889,Paratilapia polleni,"NOSY BE, LAKE AMPARIHIBE, SMALL STREAM MOUTH FROM LAKE ANTSIDIHY",50.983333,-14.800000,exact,GBIF: FishBase AMNH 58492,70.376
+894,Paratilapia polleni,"GBIF record at -13.500, 48.000",48.000000,-13.500000,exact,GBIF: MNHN 0000-4724,2.220
+942,Paretroplus polyactis,"Mananjary, Mananjary river estuary behind marketplace, ca. 1 kilometer from sea.",48.460000,-21.090000,exact,GBIF: MCZ 165679,4.968
+943,Paretroplus polyactis,"MANANJARY, ESTUARY OF RIVER MANANJARY BEHIND MARKETPLACE, ca. 1 KILOMETER FROM SEA",48.450000,-21.083333,exact,GBIF: FishBase AMNH 88016,3.702
+944,Paretroplus polyactis,"Madagascar, Mananjary, purchased behind market, estuary of River Mananjary",48.450000,-21.080000,exact,GBIF: USNM USNM 301497,3.523
+945,Paretroplus polyactis,Mahanoro Market behind Hotel de la Pangalane.,48.840000,-19.930000,exact,GBIF: MCZ 165680,2.215
+946,Paretroplus polyactis,"Pangalanes north of River Mangoro. Mahanoro Town, behind Hotel de la Pangalane.",48.830000,-19.920000,exact,GBIF: USNM USNM 301501,0.783
+947,Paretroplus polyactis,"TAMATAVE PROVINCE, BAY LAKE BEHIND FIRST DUNE ca. 100 m FROM SEA, EAST OF ROAD BY SALEHY VILLAGE, 1 km SOUTH OF TURNOFF FROM MAROLAMBO-MANANJARY ROAD",48.833333,-19.916667,exact,GBIF: FishBase AMNH 97122,0.957
+961,Plicofollis dussumieri,"Mananjary, estuary of River Mananjary, side lagoon behind Hotel Jardin de la Mer.",48.450000,-21.080000,exact,GBIF: USNM USNM 301523,3.523
+963,Plicofollis dussumieri,"GBIF record at -13.500, 48.000",48.000000,-13.500000,exact,GBIF: MNHN 1966-0879,2.220
+964,Plicofollis dussumieri,"Indian Ocean, northwestern coast of Madagascar, Baie D'Amboro;",48.700000,-13.400000,exact,GBIF: USNM USNM 297118,3.233
+979,Ptychochromis oligacanthus,tulear,43.517000,-23.333000,exact,GBIF: MNHN 1999-0225,10.476
+984,Ptychochromis oligacanthus,"MANANJARY, ESTUARY OF RIVER MANANJARY BEHIND MARKETPLACE, ca. 1 KILOMETER FROM SEA",48.450000,-21.083333,exact,GBIF: FishBase AMNH 88018,3.702
+985,Ptychochromis oligacanthus,"Madagascar, Mananjary, purchased behind market, estuary of River Mananjary",48.450000,-21.080000,exact,GBIF: USNM USNM 301496,3.523
+986,Ptychochromis oligacanthus,"7 KILOMETERS NORTH OF MANANJARY IN THE PANGA- LANES, 100 METERS UPSTREAM FROM 88-25, ca. 0.25 KILO- METER FROM SEA (FIRST FRESHWATER CHANNEL)",49.450000,-21.066667,exact,GBIF: FishBase AMNH 88032,104.034
+987,Ptychochromis oligacanthus,"Large bay lake behind dunes, about 100 meters from sea, 1 kilometer south of turnoff from Maralambo-Mananjary Road, east of road",48.830000,-19.920000,exact,GBIF: USNM USNM 301516,0.783
+988,Ptychochromis oligacanthus,"TAMATAVE PROVINCE, BAY LAKE BEHIND FIRST DUNE ca. 100 m FROM SEA, EAST OF ROAD BY SALEHY VILLAGE, 1 km SOUTH OF TURNOFF FROM MAROLAMBO-MANANJARY ROAD",48.833333,-19.916667,exact,GBIF: FishBase AMNH 97117,0.957
+990,Ptychochromis oligacanthus,"VATOMANDRY, ON WAY TO MARALAMBO",49.000000,-19.333333,exact,GBIF: FishBase AMNH 88076,1.390
+997,Ptychochromis oligacanthus,"NOSY BE, LAKE AMPARIHIBE, SMALL STREAM MOUTH FROM LAKE ANTSIDIHY",50.983333,-14.800000,exact,GBIF: FishBase AMNH 58491,70.376
+1024,Ptychochromis onilahy,Onilahy River area (approx),43.520000,-23.330000,approximate,Stiassny & Sparks 2006,10.098
+1092,Sauvagella madagascariensis,"Large bay lake behind dunes, about 100 meters from sea, 1 kilometer south of turnoff from Maralambo-Mananjary Road, east of road",48.830000,-19.920000,exact,GBIF: USNM USNM 301518,0.783
+1093,Sauvagella madagascariensis,"TAMATAVE PROVINCE, MOUTH OF RIVER MANGORO NEAR SALEHY VILLAGE",48.833333,-19.916667,exact,GBIF: FishBase AMNH 96993,0.957
+1106,Teramulus kieneri,"Madagascar Republic, 7 km north of Mananjary in the Pangalanes, 100m upstream from 88-25 freshwater channel",48.450000,-21.066667,exact,GBIF: NHMUK 1989.11.16.1-4,3.093
+1107,Teramulus kieneri,"TAMATAVE PROVINCE, ESTUARY OF RIVER MANGORO, NEAR MOUTH",48.833333,-19.916667,exact,GBIF: FishBase AMNH 97001,0.957
+1127,Typhleotris madagascariensis,"GBIF record at -24.150, 43.658",43.657673,-24.150245,exact,GBIF: iNaturalist 20268658,0.951
+1129,Typhleotris madagascariensis,"GBIF record at -24.137, 43.618",43.617849,-24.136971,exact,GBIF: iNaturalist 320077630,5.057
+1133,Typhleotris madagascariensis,"GBIF record at -24.121, 43.616",43.615713,-24.120908,exact,GBIF: iNaturalist 64105290,5.358
+1141,Typhleotris madagascariensis,"GBIF record at -24.057, 43.638",43.638114,-24.056913,exact,GBIF: iNaturalist 248400547,3.275
