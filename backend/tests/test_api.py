@@ -49,9 +49,7 @@ def tier2_user(db: None) -> User:
 
 @pytest.fixture
 def tier3_user(db: None) -> User:
-    inst = Institution.objects.create(
-        name="Cologne Zoo", institution_type="zoo", country="Germany"
-    )
+    inst = Institution.objects.create(name="Cologne Zoo", institution_type="zoo", country="Germany")
     return User.objects.create_user(
         email="coordinator@example.com",
         password="securepass12345",
@@ -261,9 +259,7 @@ class TestSpeciesList:
     def test_filter_taxonomic_status(
         self, api_client: APIClient, species_cr: Species, species_en: Species
     ) -> None:
-        resp = api_client.get(
-            "/api/v1/species/?taxonomic_status=undescribed_morphospecies"
-        )
+        resp = api_client.get("/api/v1/species/?taxonomic_status=undescribed_morphospecies")
         data = resp.json()
         assert data["count"] == 1
         assert data["results"][0]["taxonomic_status"] == "undescribed_morphospecies"
@@ -276,9 +272,7 @@ class TestSpeciesList:
         assert data["count"] == 1
         assert data["results"][0]["iucn_status"] == "CR"
 
-    def test_search_provisional_name(
-        self, api_client: APIClient, species_cr: Species
-    ) -> None:
+    def test_search_provisional_name(self, api_client: APIClient, species_cr: Species) -> None:
         resp = api_client.get("/api/v1/species/?search=manombo")
         data = resp.json()
         assert data["count"] >= 1
@@ -293,9 +287,7 @@ class TestSpeciesList:
         families = [r["family"] for r in data["results"]]
         assert families == sorted(families)
 
-    def test_pagination_max_page_size(
-        self, api_client: APIClient, species_cr: Species
-    ) -> None:
+    def test_pagination_max_page_size(self, api_client: APIClient, species_cr: Species) -> None:
         resp = api_client.get("/api/v1/species/?page_size=300")
         # Max is 200, should not error
         assert resp.status_code == 200
@@ -351,9 +343,7 @@ class TestSpeciesList:
         population: ExSituPopulation,
     ) -> None:
         """The coverage-gap URL from the hero landing page."""
-        resp = api_client.get(
-            "/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false"
-        )
+        resp = api_client.get("/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false")
         data = resp.json()
         ids = [r["id"] for r in data["results"]]
         assert ids == [species_en.pk]
@@ -379,9 +369,7 @@ class TestSpeciesDetail:
         assert data["authority"] == "Holly, 1928"
         assert data["year_described"] == 1928
 
-    def test_undescribed_null_fields(
-        self, api_client: APIClient, species_cr: Species
-    ) -> None:
+    def test_undescribed_null_fields(self, api_client: APIClient, species_cr: Species) -> None:
         resp = api_client.get(f"/api/v1/species/{species_cr.pk}/")
         data = resp.json()
         assert data["authority"] is None
@@ -437,9 +425,7 @@ class TestSpeciesDetail:
         data = resp.json()
         assert data["has_localities"] is True
 
-    def test_has_localities_false(
-        self, api_client: APIClient, species_en: Species
-    ) -> None:
+    def test_has_localities_false(self, api_client: APIClient, species_en: Species) -> None:
         resp = api_client.get(f"/api/v1/species/{species_en.pk}/")
         data = resp.json()
         assert data["has_localities"] is False
@@ -464,9 +450,7 @@ class TestSpeciesDetail:
 
 @pytest.mark.django_db
 class TestInstitution:
-    def test_anonymous_list(
-        self, api_client: APIClient, institution: Institution
-    ) -> None:
+    def test_anonymous_list(self, api_client: APIClient, institution: Institution) -> None:
         resp = api_client.get("/api/v1/institutions/")
         assert resp.status_code == 200
         data = resp.json()
@@ -492,9 +476,7 @@ class TestInstitution:
         assert data["contact_email"] == "fish@cabq.gov"
         assert data["species360_id"] == "ABQ123"
 
-    def test_filter_by_type(
-        self, api_client: APIClient, institution: Institution
-    ) -> None:
+    def test_filter_by_type(self, api_client: APIClient, institution: Institution) -> None:
         resp = api_client.get("/api/v1/institutions/?institution_type=aquarium")
         data = resp.json()
         assert data["count"] == 1
@@ -566,9 +548,7 @@ class TestPopulations:
 
 @pytest.mark.django_db
 class TestFieldPrograms:
-    def test_anonymous_list(
-        self, api_client: APIClient, field_program: FieldProgram
-    ) -> None:
+    def test_anonymous_list(self, api_client: APIClient, field_program: FieldProgram) -> None:
         resp = api_client.get("/api/v1/field-programs/")
         assert resp.status_code == 200
         data = resp.json()
@@ -610,13 +590,8 @@ class TestDashboard:
         assert data["species_counts"]["by_iucn_status"]["EN"] == 1
         # Both CR and EN are threatened; species_cr has a population
         assert data["ex_situ_coverage"]["threatened_species_total"] == 2
-        assert (
-            data["ex_situ_coverage"]["threatened_species_with_captive_population"] == 1
-        )
-        assert (
-            data["ex_situ_coverage"]["threatened_species_without_captive_population"]
-            == 1
-        )
+        assert data["ex_situ_coverage"]["threatened_species_with_captive_population"] == 1
+        assert data["ex_situ_coverage"]["threatened_species_without_captive_population"] == 1
         assert data["field_programs"]["active"] == 1
         assert "last_updated" in data
 
@@ -634,9 +609,7 @@ class TestDashboard:
 
 @pytest.mark.django_db
 class TestMapLocalities:
-    def test_geojson_shape(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_geojson_shape(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/")
         assert resp.status_code == 200
         data = resp.json()
@@ -668,42 +641,30 @@ class TestMapLocalities:
         data = resp.json()
         assert len(data["features"]) == 1
 
-    def test_filter_iucn_status(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_filter_iucn_status(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/?iucn_status=CR")
         data = resp.json()
         assert len(data["features"]) == 1
 
-    def test_filter_family(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_filter_family(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/?family=Bedotiidae")
         data = resp.json()
         assert len(data["features"]) == 1
 
-    def test_filter_bbox(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_filter_bbox(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         # Locality is at 47.52, -18.91 — bbox should include it
         resp = api_client.get("/api/v1/map/localities/?bbox=46.0,-20.0,48.0,-18.0")
         data = resp.json()
         assert len(data["features"]) == 1
 
-    def test_filter_bbox_excludes(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_filter_bbox_excludes(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         # Bbox that doesn't include the locality
         resp = api_client.get("/api/v1/map/localities/?bbox=10.0,10.0,11.0,11.0")
         data = resp.json()
         assert len(data["features"]) == 0
 
-    def test_combined_filters(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
-        resp = api_client.get(
-            "/api/v1/map/localities/?iucn_status=CR&family=Bedotiidae"
-        )
+    def test_combined_filters(self, api_client: APIClient, locality: SpeciesLocality) -> None:
+        resp = api_client.get("/api/v1/map/localities/?iucn_status=CR&family=Bedotiidae")
         data = resp.json()
         assert len(data["features"]) == 1
 
@@ -714,9 +675,7 @@ class TestMapLocalities:
         assert data["type"] == "FeatureCollection"
         assert data["features"] == []
 
-    def test_malformed_bbox_ignored(
-        self, api_client: APIClient, locality: SpeciesLocality
-    ) -> None:
+    def test_malformed_bbox_ignored(self, api_client: APIClient, locality: SpeciesLocality) -> None:
         resp = api_client.get("/api/v1/map/localities/?bbox=invalid")
         assert resp.status_code == 200
 

@@ -17,9 +17,7 @@ class SpeciesFilter(filters.FilterSet):
     family = filters.CharFilter(field_name="family")
     cares_status = filters.CharFilter(field_name="cares_status")
     endemic_status = filters.CharFilter(field_name="endemic_status")
-    has_captive_population = filters.BooleanFilter(
-        method="filter_has_captive_population"
-    )
+    has_captive_population = filters.BooleanFilter(method="filter_has_captive_population")
 
     class Meta:
         model = Species
