@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_celery_beat",
     "mptt",
+    "corsheaders",
     # Project apps
     "accounts",
     "species",
@@ -42,6 +43,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -162,3 +164,14 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@madagascarfish.o
 # Auth
 AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", default="http://localhost:3000")
+
+# CORS — frontend is Next.js on Vercel (Gate 07). Only the /api/* surface needs
+# cross-origin; admin/static remain same-origin.
+CORS_URLS_REGEX = r"^/api/.*$"
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+# Vercel previews land at https://<random>-<project>.vercel.app. The regex is
+# tight to https:// and .vercel.app to avoid matching user-controlled subdomains.
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/[a-z0-9-]+\.vercel\.app$",
+]
+CORS_ALLOW_CREDENTIALS = False

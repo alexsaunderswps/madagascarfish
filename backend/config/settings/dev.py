@@ -6,6 +6,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# Local Next.js dev server
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 # Refuse Species.iucn_status writes made outside an audit_actor context
 # (see audit.signals.species_capture_pre_save). Off in prod.
 AUDIT_STRICT_CONTEXT = True
