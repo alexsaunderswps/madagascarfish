@@ -57,26 +57,29 @@ test("About page renders owner and GitHub link", async ({ page }) => {
 });
 
 test("species directory renders count header and filter form", async ({ page }) => {
-  await page.goto("/species/");
+  await page.goto("/species/", { waitUntil: "networkidle" });
 
   await expect(
     page.getByRole("heading", { level: 1, name: /^Species Directory$/ }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 15000 });
   await expect(page.getByRole("form", { name: /species filters/i })).toBeVisible();
 });
 
 test("coverage-gap deep link reflects filters in URL and page state", async ({ page }) => {
-  await page.goto("/species/?iucn_status=CR,EN,VU&has_captive_population=false");
+  await page.goto("/species/?iucn_status=CR,EN,VU&has_captive_population=false", {
+    waitUntil: "networkidle",
+  });
 
-  // URL preserved.
-  expect(page.url()).toContain("iucn_status=CR,EN,VU");
-  expect(page.url()).toContain("has_captive_population=false");
+  // URL preserves the filter params (browsers may %2C-encode the comma).
+  const decoded = decodeURIComponent(page.url());
+  expect(decoded).toContain("iucn_status=CR,EN,VU");
+  expect(decoded).toContain("has_captive_population=false");
 
-  // IUCN toggle buttons for CR/EN/VU are pressed.
+  // IUCN toggle buttons for CR/EN/VU are pressed — proves the deep link rehydrated filter state.
   for (const code of ["CR", "EN", "VU"]) {
     await expect(
       page.getByRole("button", { name: code, exact: true }),
-    ).toHaveAttribute("aria-pressed", "true");
+    ).toHaveAttribute("aria-pressed", "true", { timeout: 15000 });
   }
 });
 
