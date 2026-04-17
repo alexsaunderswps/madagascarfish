@@ -311,7 +311,7 @@ export default async function SpeciesProfilePage({
                 <a
                   href={fishbaseUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener"
                   className="text-sky-700 hover:underline"
                 >
                   FishBase species summary →
