@@ -1,12 +1,113 @@
-export default function HomePage() {
+import Link from "next/link";
+import { fetchDashboard } from "@/lib/dashboard";
+
+const COVERAGE_GAP_HREF =
+  "/species/?iucn_status=CR,EN,VU&has_captive_population=false";
+
+interface NavCard {
+  href: string;
+  title: string;
+  description: string;
+}
+
+const NAV_CARDS: NavCard[] = [
+  {
+    href: "/species/",
+    title: "Species Directory",
+    description:
+      "Browse all endemic species, filter by IUCN status, family, or captive-population coverage.",
+  },
+  {
+    href: "/map/",
+    title: "Distribution Map",
+    description:
+      "Explore occurrence records across Madagascar's freshwater systems.",
+  },
+  {
+    href: "/dashboard/",
+    title: "Conservation Dashboard",
+    description:
+      "Live counts for species assessments, captive coverage, and field programs.",
+  },
+];
+
+export default async function HomePage() {
+  const dashboard = await fetchDashboard();
+  const gap = dashboard?.ex_situ_coverage;
+  const hasStat =
+    gap && typeof gap.threatened_species_without_captive_population === "number";
+
   return (
-    <main className="mx-auto max-w-2xl px-6 py-24">
-      <h1 className="text-3xl font-semibold tracking-tight">
-        Madagascar Freshwater Fish Conservation Platform
-      </h1>
-      <p className="mt-4 text-slate-600">
-        Scaffold in place. Pages arrive in subsequent Gate 07 stories.
-      </p>
+    <main className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
+      <section className="flex flex-col gap-10">
+        <header className="flex flex-col gap-4">
+          <p className="text-sm font-semibold uppercase tracking-widest text-sky-700">
+            Madagascar Freshwater Fish Conservation Platform
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+            Coordinating conservation for Madagascar&apos;s most imperiled
+            vertebrates.
+          </h1>
+          <p className="max-w-3xl text-base text-slate-600 sm:text-lg">
+            An open platform unifying species profiles, ex-situ breeding
+            coordination, and field program tracking for the ~79 endemic
+            freshwater fish of Madagascar.
+          </p>
+        </header>
+
+        <Link
+          href={COVERAGE_GAP_HREF}
+          className="group block rounded-lg border border-amber-200 bg-amber-50 p-6 transition hover:border-amber-300 hover:bg-amber-100"
+          data-testid="coverage-gap-stat"
+        >
+          {hasStat ? (
+            <p className="text-lg font-medium text-amber-900 sm:text-xl">
+              <span className="text-2xl font-semibold sm:text-3xl">
+                {gap.threatened_species_without_captive_population}
+              </span>{" "}
+              of{" "}
+              <span className="text-2xl font-semibold sm:text-3xl">
+                {gap.threatened_species_total}
+              </span>{" "}
+              threatened species have no known captive population.
+              <span className="mt-2 block text-sm font-normal text-amber-800 underline-offset-2 group-hover:underline">
+                See which species &rarr;
+              </span>
+            </p>
+          ) : (
+            <p className="text-base text-amber-900" data-testid="coverage-gap-fallback">
+              Loading current statistics…
+            </p>
+          )}
+        </Link>
+
+        <nav aria-label="Primary sections">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {NAV_CARDS.map((card) => (
+              <li key={card.href}>
+                <Link
+                  href={card.href}
+                  className="block h-full rounded-lg border border-slate-200 p-5 transition hover:border-sky-400 hover:bg-sky-50"
+                >
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    {card.title}
+                  </h2>
+                  <p className="mt-2 text-sm text-slate-600">
+                    {card.description}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </section>
+
+      <footer className="mt-24 border-t border-slate-200 pt-6 text-sm text-slate-500">
+        <p>
+          Open-source platform. Data sources include IUCN Red List, FishBase,
+          GBIF, and ZIMS/Species360.
+        </p>
+      </footer>
     </main>
   );
 }
