@@ -145,6 +145,7 @@ class ConservationAssessment(models.Model):
     class Source(models.TextChoices):
         IUCN_OFFICIAL = "iucn_official"
         RECOMMENDED_REVISION = "recommended_revision"
+        MANUAL_EXPERT = "manual_expert"
 
     class ReviewStatus(models.TextChoices):
         ACCEPTED = "accepted"
@@ -175,6 +176,17 @@ class ConservationAssessment(models.Model):
         related_name="flagged_assessments",
     )
     flagged_date = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="authored_assessments",
+    )
+    # IUCN assessment_ids that a manual_expert row has been deliberately reviewed
+    # against and retained. Written only by the conflict-resolution side effect;
+    # admin renders this read-only.
+    conflict_acknowledged_assessment_ids = models.JSONField(default=list, blank=True)
     last_sync_job = models.ForeignKey(
         "integration.SyncJob",
         on_delete=models.SET_NULL,
