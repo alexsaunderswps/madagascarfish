@@ -9,6 +9,8 @@ Copy work (glossary, About, microcopy, empty-state text, IUCN/CARES plain-Englis
 
 Architecture risks (map calendar pressure, type drift, ISR cache ghost, ESRI tile failure) are owned in architecture §10; this spec references them, does not re-litigate.
 
+**On FE-07-0 kickoff: snapshot this file as `gate-07-v2-locked-<YYYY-MM-DD>.md` in the same directory and treat all subsequent changes as amendments appended to the bottom of *this* file rather than in-place edits.** The snapshot preserves the contract as of implementation start; the amendment log tells the story of what reality forced us to adjust in W3+.
+
 ---
 
 ## 1. Stories
@@ -152,7 +154,13 @@ UI: "View as list" toggle button (persistent, top-right of map shell). When togg
 
 ### FE-07-6 — Map Tier B (STRETCH)
 
-**STRETCH GOAL.** Cut-criterion: **if `/map/` Tier A is not polished (reviewer-approved) by end of day 2026-05-08, Tier B is cut.** Architecture Risk 1. The map itself is never cut.
+**STRETCH GOAL.** Cut-criterion: Tier A passes the cut-line on 2026-05-08 EOD only if **all three** of the following hold. Any fail = Tier B is cut.
+
+1. All FE-07-4 acceptance criteria demonstrably pass on staging.
+2. `@ux-reviewer` pass on Tier A returns no outstanding severity-(a) items. (Invoke the agent against the live staging URL; log the memo alongside this spec.)
+3. Keyboard + screen-reader walkthrough from the pre-departure checklist passes on Tier A.
+
+Architecture Risk 1. The map itself is never cut — only the Tier B filter panel / overlays / stats bar.
 
 **As** a power user, **I want** watershed/PA overlays, a filter panel, and a statistics bar, **so that** I can answer geographic/taxonomic questions directly on the map.
 
@@ -267,8 +275,18 @@ Work: global error boundary, route-level `not-found.tsx` (themed 404), reusable 
 - **Given** the handler receives a malformed body, **when** it runs, **then** 400 returned.
 - **Given** revalidate completes, **when** a fresh request hits the revalidated path, **then** the render reflects latest backend state.
 - **Given** the body supports an arbitrary `paths` list, **when** Gate 08's automatic webhook reuses the same endpoint, **then** no code change is required in the route handler (forward-compat check).
+- **Given** `/api/revalidate` returns non-2xx or the request times out, **when** the Django admin action fires, **then** the admin sees a clear error message (status code for non-2xx, "timeout after Ns" for timeouts) — not a silent success — and the action can be re-triggered from the same admin page without a reload.
 
-**Cache-warm companion:** a small script (Node or bash, in `frontend/scripts/`) that hits each path post-revalidate. Invoked from the admin runbook. Estimate: XS (rolls into this story).
+**Cache-warm companion script** (FE half of this story, not a separate ticket):
+
+- Deliverable: `frontend/scripts/warm-cache.sh` (bash; keep dependency-free).
+- Invocation: `BASE_URL=https://staging.<domain> ./scripts/warm-cache.sh`.
+- Rehearsed against staging per pre-departure checklist.
+
+Additional ACs:
+
+- **Given** `frontend/scripts/warm-cache.sh` exists, **when** run with `BASE_URL` set, **then** it fetches `/`, `/dashboard/`, `/species/`, and N (≥5) representative `/species/[id]/` URLs and logs HTTP status + response time per URL.
+- **Given** any warmed URL returns non-2xx, **when** the script completes, **then** it exits non-zero so the runbook's "warm → verify" step fails loud.
 
 ---
 
@@ -301,24 +319,25 @@ Week numbers relative to 2026-04-17 (Fri).
 
 | Week | Dates | Work |
 |---|---|---|
-| W1 | 04-17 → 04-24 | FE-07-0 scaffold + CI type-gen + Playwright + Vercel EU setup. BE-07-A + BE-07-B. Kick off FE-07-4 Tier A. BE dep: CORS for `*.vercel.app` due 04-30. |
+| W1 | 04-17 → 04-24 | FE-07-0 scaffold + CI type-gen + Playwright + Vercel EU setup. BE-07-A + BE-07-B. Kick off FE-07-4 Tier A. BE dep: CORS for `*.vercel.app` due 04-30. *Note: FE-07-4 Tier A meaningful start realistically slips to W2 Monday — FE-07-0 scaffold and Playwright-against-preview plumbing must land first. Calendar absorbs the slip; Risk 1's week-1–2 window still holds.* |
 | W2 | 04-25 → 05-01 | FE-07-4 Tier A finish. FE-07-9 ESRI fallback pyramid. FE-07-8 nav/footer/About stub. Begin FE-07-2 directory. |
 | W3 | 05-02 → 05-08 | FE-07-2 directory finish (incl. new filters). FE-07-3 species profile. FE-07-1 hero. FE-07-11 (cache-bust, both halves). **05-08 EOD: Tier A review + Tier B cut/go decision.** Shared-secret plumbing due. |
 | W4 | 05-09 → 05-15 | FE-07-7 dashboard (ISR + deep-links). FE-07-5 map list-view. FE-07-10 empty states / error boundaries pass across all pages. If Tier B go: start FE-07-6. |
-| W5 | 05-16 → 05-22 | Stretch window: FE-07-6 Tier B (if go). Copy pass by `@conservation-writer` across glossary, About, empty states, microcopy. Staging alias `staging.<domain>` live. Polish + accessibility audit. |
+| W5 | 05-16 → 05-22 | Stretch window: FE-07-6 Tier B (if go). Copy pass by `@conservation-writer` across glossary, About, empty states, microcopy. Staging alias `staging.<domain>` live. Polish + accessibility audit. **Dry-run the pre-departure checklist end-to-end (target 2026-05-22) — so 2026-05-29 is the second rehearsal, not the first.** |
 | W6 | 05-23 → 05-29 | Freeze for polish. **Workshop-week cache-warm script tested.** Test-writer + reviewers. Pre-departure checklist (see §3). Revert `NEXT_REVALIDATE_SECONDS` default; set 60s only at workshop start. |
 | Workshop | 06-01 → 06-05 | `NEXT_REVALIDATE_SECONDS=60` applied. Runbook: revalidate → warm → verify. |
 
 **Pre-departure checklist (Fri 2026-05-29 or earlier):**
 - Throttled-network test: DevTools "Slow 3G" + offline toggle; ESRI fallback swap verified.
-- Three canonical demo URLs loaded on clean Chrome profile: `/`, `/dashboard/`, `/species/?iucn_status=CR,EN&family=Bedotiidae`, `/map/?species_id={sakaramyi_id}`.
+- Four canonical demo URLs loaded on clean Chrome profile: `/`, `/dashboard/`, `/species/?iucn_status=CR,EN&family=Bedotiidae`, `/map/?species_id={sakaramyi_id}`.
+- Verify `NEXT_REVALIDATE_SECONDS` is set correctly in Vercel env: `curl -sI https://staging.<domain>/ | grep -i cache-control` (or equivalent page-age probe) and assert the effective revalidate window is < 120s during workshop week. Document the expected header string in the runbook.
 - Cache-warm script rehearsed against staging.
 - Manual revalidate admin action rehearsed by Aleksei + one backup (per BA comms action #3).
 - Keyboard-only navigation walkthrough of `/map/` and `/species/`.
 - Print preview for `/species/[id]/` and `/dashboard/`.
 
 **Workshop-week cache procedure:**
-1. Set `NEXT_REVALIDATE_SECONDS=60` in Vercel env Monday morning.
+1. Set `NEXT_REVALIDATE_SECONDS=60` in Vercel env (Project → Settings → Environment Variables → Production; value entered as the string `60`, not `"60"`, not `60s`). Redeploy is required for the env change to take effect — trigger a deploy by pushing a noop commit or clicking "Redeploy" on the latest deployment. Verify via the pre-departure curl probe.
 2. On each data push: run Django admin "Revalidate public pages" → run `frontend/scripts/warm-cache.*` → spot-check a profile.
 3. Post-workshop: unset env var; revert to 3600s baseline.
 
@@ -337,7 +356,7 @@ Gate 07 is shipped when all the following can be demonstrated on the staging URL
 7. Manual cache-bust: Aleksei (or a second trained admin) clicks the Django admin action and within ~10 seconds the public pages reflect the change. Cache-warm script run afterward; conference-wifi storm avoided.
 8. Nav order Dashboard → Map → Directory → About; About page present with owner + repo + citations.
 9. CI: typecheck + openapi-typescript diff-check + Vitest + Playwright-against-preview all green on the main branch.
-10. Throttled-network pre-departure test passed; three canonical demo URLs bookmarked; runbook printed.
+10. Throttled-network pre-departure test passed; four canonical demo URLs bookmarked; runbook printed.
 11. Staging alias `staging.<domain>` (or a final agreed alias) live and shared with SHOAL/ECA organizers per BA comms action #1.
 12. **If Tier B shipped:** filter panel, watershed/PA overlays, statistics bar, URL sync, AbortController cancel — all demoable.
 
@@ -383,6 +402,7 @@ Other Gate 08 boundary notes carried from BA memo (not implementation items, jus
 Explicit, do-not-build:
 
 - Analytics (GA, Plausible, Umami — none at MVP).
+- Error tracking (Sentry, LogRocket, Highlight, etc.). At MVP, frontend errors are visible only in Vercel logs and the client's browser console; backend errors in Django logs. Error tracking lands at Gate 08 alongside auth.
 - Auth UI (login, logout, registration, session mgmt, token refresh).
 - shadcn/ui adoption (`pnpm add` or Radix primitives).
 - MapLibre GL, vector tiles.
