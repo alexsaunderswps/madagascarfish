@@ -31,6 +31,11 @@ information architecture, and usability.
    errors, permission denials, network failures, partial data. Every flow has failure modes.
 4. **Evaluate feedback.** Does the system tell the user what happened, what's happening now,
    and what they should do next? Loading states, success confirmations, error messages.
+5. **Cross-check planning artifacts.** Before reviewing any flow, read the relevant docs in
+   `docs/planning/architecture/` (for locked tech constraints that shape what's buildable,
+   e.g. revalidate windows, map library capabilities, fallback behaviors) and
+   `docs/planning/specs/` (for the PM's acceptance criteria). Your review should evaluate
+   whether the flow is usable *given* those constraints, not re-litigate them.
 
 ## Application Type
 
