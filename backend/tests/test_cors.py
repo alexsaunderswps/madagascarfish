@@ -10,6 +10,10 @@ def client() -> Client:
 
 
 @pytest.mark.django_db
+@override_settings(
+    CORS_ALLOWED_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000"],
+    CORS_ALLOWED_ORIGIN_REGEXES=[],
+)
 def test_cors_preflight_allowed_for_localhost_dev(client: Client) -> None:
     response = client.options(
         "/api/v1/health/",
