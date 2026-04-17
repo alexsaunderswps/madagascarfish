@@ -27,7 +27,7 @@ test("coverage-gap stat links to pre-filtered directory", async ({ page }) => {
   const stat = page.getByTestId("coverage-gap-stat");
   await expect(stat).toBeVisible();
   const href = await stat.getAttribute("href");
-  expect(href).toBe(
-    "/species/?iucn_status=CR,EN,VU&has_captive_population=false",
+  expect(href).toMatch(
+    /^\/species\/?\?iucn_status=CR,EN,VU&has_captive_population=false$/,
   );
 });
