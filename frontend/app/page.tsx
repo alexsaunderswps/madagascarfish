@@ -101,13 +101,6 @@ export default async function HomePage() {
           </ul>
         </nav>
       </section>
-
-      <footer className="mt-24 border-t border-slate-200 pt-6 text-sm text-slate-500">
-        <p>
-          Open-source platform. Data sources include IUCN Red List, FishBase,
-          GBIF, and ZIMS/Species360.
-        </p>
-      </footer>
     </main>
   );
 }
