@@ -453,6 +453,30 @@ Open items tracked elsewhere, flagged here for visibility:
 
 ## 9. Amendments
 
+Per the kickoff rule at the top of this file, changes after 2026-04-17 are appended here rather than edited in place. The 2026-04-17 snapshot lives alongside as `gate-07-v2-locked-2026-04-17.md`.
+
+### 2026-04-17 — openapi-typescript CI diff-check deferred
+
+**Affects:** FE-07-0 acceptance criterion *"Given a serializer field is renamed on the backend, when CI runs on the frontend PR, then the openapi-typescript diff-check fails with 'run pnpm gen:types'."*
+
+**Reality:** the diff-check needs `/api/v1/schema/` reachable from CI. The Django backend is not yet deployed anywhere CI can hit — local-only via Docker. Per the W1 plan, staging DRF deployment is a W3 decision (options (a) standalone Fly/Render/Railway staging, (b) tunnel, (c) defer).
+
+**Resolution for now:** CI runs typecheck + lint + unit tests + build. The `pnpm gen:types` and `pnpm gen:types:check` scripts exist and work locally; drift is caught manually until staging DRF lands. On merge of the staging-DRF decision in W3, add a `frontend-schema-check` job that runs `pnpm gen:types:check` against the reachable staging URL and fails on diff.
+
+**Not a scope reduction:** the acceptance criterion stays on FE-07-0 and is re-opened the moment staging DRF is reachable. If W3 resolves to option (c) defer, the AC explicitly slips to Gate 08 alongside the staging deploy work.
+
+### 2026-04-17 — Vercel project live on stopgap alias
+
+- Project imported as `madagascarfish` on Vercel Hobby (alexsaunderswps personal).
+- Framework preset: Next.js. Root directory: `frontend`. Function region: `fra1` (Frankfurt).
+- Production alias: <https://madagascarfish.vercel.app/> — stopgap per architecture §8 and todo.md URL decision (due 2026-05-01). Acceptable for SHOAL/ECA pre-workshop email; funder-facing final domain still TBD.
+- Node version auto-downgraded by Vercel from repo-default Node 25 to Node 20.x via `engines` field in `frontend/package.json`. Matches `.nvmrc` and CI pin.
+
+### 2026-04-17 — CI wired: typecheck + lint + vitest + build + Playwright-against-preview
+
+- `.github/workflows/frontend-ci.yml` — runs on PRs and main pushes that touch `frontend/**`. Steps: pnpm install, typecheck, lint, vitest, build.
+- `.github/workflows/frontend-e2e.yml` — runs on PRs touching `frontend/**`. Waits for Vercel preview via `patrickedqvist/wait-for-vercel-preview@v1.3.2`, installs Chromium, runs Playwright against `PLAYWRIGHT_BASE_URL`, uploads report as artifact.
+- One Vitest smoke test on `lib/api.ts` (4 cases), one Playwright smoke test on `/` (verified locally against the live Vercel URL).
 Changes forced by reality after 2026-04-17 lock. Append-only; do not rewrite history.
 
 ### 2026-04-17 — Public URL resolved: `malagasyfishes.org`
