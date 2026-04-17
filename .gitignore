@@ -47,3 +47,4 @@ docs/ideation
 
 # Reference data source downloads (full-continent/global files; clipped outputs are committed)
 data/reference/source/
+.claude/scheduled_tasks.lock

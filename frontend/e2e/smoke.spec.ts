@@ -56,6 +56,30 @@ test("About page renders owner and GitHub link", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("species directory renders count header and filter form", async ({ page }) => {
+  await page.goto("/species/");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: /^Species Directory$/ }),
+  ).toBeVisible();
+  await expect(page.getByRole("form", { name: /species filters/i })).toBeVisible();
+});
+
+test("coverage-gap deep link reflects filters in URL and page state", async ({ page }) => {
+  await page.goto("/species/?iucn_status=CR,EN,VU&has_captive_population=false");
+
+  // URL preserved.
+  expect(page.url()).toContain("iucn_status=CR,EN,VU");
+  expect(page.url()).toContain("has_captive_population=false");
+
+  // IUCN toggle buttons for CR/EN/VU are pressed.
+  for (const code of ["CR", "EN", "VU"]) {
+    await expect(
+      page.getByRole("button", { name: code, exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+  }
+});
+
 test("site footer is present on every page", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("contentinfo")).toBeVisible();
