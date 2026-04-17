@@ -66,8 +66,7 @@ describe("iucnRedListUrl", () => {
 describe("fishbaseGenusSpeciesUrl", () => {
   it("builds URL for described species with binomial name", () => {
     const url = fishbaseGenusSpeciesUrl(makeSp());
-    expect(url).toContain("Genus=Pachypanchax");
-    expect(url).toContain("Species=sakaramyi");
+    expect(url).toBe("https://www.fishbase.se/summary/Pachypanchax_sakaramyi.html");
   });
 
   it("returns null for undescribed morphospecies (sp. prefix)", () => {
