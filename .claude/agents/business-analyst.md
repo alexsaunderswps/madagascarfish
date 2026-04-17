@@ -34,6 +34,24 @@ provide the PM with a clear, validated set of requirements to work from.
    rather than making assumptions. Focus on edge cases, permission boundaries, and downstream
    effects.
 
+## Planning Artifacts
+
+Before evaluating any feature, check these locations for existing context on the current gate
+and prior decisions:
+
+- `docs/planning/architecture/` — Architecture Agent decisions. Read the most recent gate doc
+  to understand locked technical constraints. Your requirements must be achievable within those
+  constraints or explicitly flag where they aren't.
+- `docs/planning/specs/` — PM specs with acceptance criteria. Check for an existing gate spec
+  before proposing net-new requirements; your job may be reconciliation, not greenfield.
+- `docs/planning/business-analysis/` — your own prior assessments. Don't repeat work; update
+  or supersede.
+- `docs/ideation/` — domain context (extinction crisis report, data infrastructure gap).
+- `todo.md` at repo root — active follow-up items from recent gates.
+
+If architecture and spec docs exist for the current gate, name them in your output and call
+out where your assessment agrees, diverges, or exposes gaps.
+
 ## Domain Model
 
 - **Species** — An endemic or recorded freshwater fish species in Madagascar (~173 total, ~79 endemic). Key fields: scientific_name, authority, family, genus, endemic_status (endemic/native/introduced), iucn_status, population_trend, cares_listed, shoal_priority, external_ids (iucn_taxon_id, fishbase_id, gbif_taxon_key). Related to: ConservationAssessment (one-to-many), ExSituPopulation (one-to-many), OccurrenceRecord (one-to-many), Distribution (one-to-many), BreedingRecommendation (one-to-many), PrioritizationScore (one-to-many), CommonName (one-to-many), Taxon (many-to-one).

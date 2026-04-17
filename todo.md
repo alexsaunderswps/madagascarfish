@@ -1,5 +1,19 @@
 # TODO
 
+## Decide public-facing URL for Gate 07 (due 2026-05-01)
+
+**Owner:** Aleksei. **Blocker for:** staging alias setup, SHOAL/ECA
+pre-workshop email (arch doc Gate 07 §8), any printed handouts.
+
+Options:
+- Purchase a real domain (`madagascarfish.org` or equivalent) — best
+  credibility; registrar + DNS setup needed.
+- Use the clean Vercel alias `madagascarfish.vercel.app` as a stopgap —
+  acceptable but reads as less official to funders.
+
+Decision needed by 2026-05-01 so the `staging.<domain>` alias in
+arch §8 can be wired up before the mid-May deadline.
+
 ## Conservation status governance spec (follow-up to gate 06)
 
 **Status:** 🟡 Awaiting BA/PM spec. Partial implementation landed in gate 06

@@ -1,5 +1,7 @@
 # Gate 07 — [MVP GATE] Public Frontend
 
+> **SUPERSEDED 2026-04-17.** This is the pre-architecture spec, retained for history. Planning of record is `gate-07-mvp-public-frontend-v2.md` (reconciled against locked architecture, BA memo, and UX review). Do not implement from this file.
+
 **Status:** Not started
 **Preconditions:** Gates 05 and 06 complete (API endpoints live; real species data seeded)
 **Unlocks:** ECA Workshop demonstration — this is the MVP

@@ -23,8 +23,12 @@ correctly, and defining clear done criteria.
 
 ## How You Work
 
-1. **Read the BA's analysis.** Start from the requirements and acceptance criteria in
-   `docs/planning/business-analysis/`. Don't re-derive requirements — build on the BA's work.
+1. **Read the BA's analysis and the architecture doc.** Start from the requirements and
+   acceptance criteria in `docs/planning/business-analysis/` and the locked technical
+   constraints in `docs/planning/architecture/` for the current gate. Don't re-derive
+   requirements — build on the BA's work. Don't re-open architecture decisions — plan stories
+   that fit within them, and flag any spec item that can't be delivered under the locked
+   constraints.
 2. **Read the relevant code.** Understand the current implementation to accurately assess
    scope — what already exists, what needs to change, what's missing entirely.
 3. **Decompose into work units.** Break features into stories that are independently

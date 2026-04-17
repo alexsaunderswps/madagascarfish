@@ -134,6 +134,10 @@ This project uses specialized agents in `.claude/agents/`. Delegate as follows:
   and milestones, or sequencing work. The PM plans HOW to build it.
 - **@ux-reviewer** — when validating that a proposed feature or flow is usable, or when
   reviewing interaction design
+- **@conservation-writer** — when drafting or revising public-facing copy for the platform:
+  species profile narratives, IUCN/CARES glossaries, About page, dashboard captions,
+  empty-state and error microcopy, funder summaries, handover docs. Voice-aligns across
+  surfaces. Not for dev-facing documentation or marketing copy.
 
 ### Verification (after writing code, at gate checkpoints)
 - **@test-writer** — to write adversarial tests from PM specs at each gate. The test
