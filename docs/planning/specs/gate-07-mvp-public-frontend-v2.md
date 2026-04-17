@@ -489,3 +489,33 @@ Changes forced by reality after 2026-04-17 lock. Append-only; do not rewrite his
 - Follow-ups:
   - Update `NEXT_PUBLIC_API_URL` consumer docs and workshop handout copy to use `https://malagasyfishes.org`.
   - Revisit whether to enable Cloudflare proxying (orange cloud) post-workshop; keep DNS-only through 2026-06-05 to avoid CDN-in-front-of-CDN surprises with Next.js ISR.
+
+### 2026-04-17 — W3 staging DRF decision: Hetzner Cloud (supersedes options in openapi-typescript amendment)
+
+**Affects:** the 2026-04-17 openapi-typescript amendment above, which listed W3 staging-DRF options as *"(a) standalone Fly/Render/Railway staging, (b) tunnel, (c) defer."* That option set was written before the EU-sovereignty pivot in architecture §8 was fully absorbed.
+
+**Decision:** stand up the staging DRF backend on **Hetzner Cloud (Germany)**, not Fly/Render/Railway.
+
+**Rationale:**
+- Architecture §8 (locked) retargeted the post-workshop migration from Fly.io to *"EU-domiciled: Hetzner or Scaleway preferred; Fly.io EU as fallback"* for Schrems II / cross-border-transfer reasons. A European successor org shouldn't inherit a US-incorporated-vendor story.
+- Standing up May staging on Fly.io means building deploy muscle we throw away at Gate 09. Standing up on Hetzner now means the Gate 09 migration is mostly a frontend move, not a full-stack re-platform.
+- Django + PostGIS on a CX22 (€4.50/mo) is straightforward: docker-compose with a persistent volume for Postgres, Caddy or Traefik fronting for automatic TLS. No Vercel-shaped primitives to unwind later.
+- Frontend (Vercel `fra1`) is unchanged by this decision — Vercel stays for the workshop window; only the staging DRF backend moves to Hetzner.
+
+**Tradeoff accepted:** ~2 hours more setup than Fly.io (manual TLS via Caddy, PostGIS in a container vs. managed). In exchange, the staging URL survives Gate 09 without a re-host.
+
+**Scope of staging deploy:**
+- Target host: Hetzner Cloud CX22 in Nuremberg or Falkenstein (Germany).
+- Services: Django + DRF, Postgres 16 + PostGIS 3, Redis (for Celery later), Caddy (TLS + reverse proxy).
+- Subdomain: `api.malagasyfishes.org` (Cloudflare DNS → Hetzner IP, DNS-only through workshop per the 2026-04-17 Cloudflare amendment above).
+- CORS: allow `malagasyfishes.org`, `*.vercel.app`, and `localhost:3000` (extend the existing BE-07 CORS rule; see backend-dep #1).
+- Seed data: re-run `python manage.py seed_dev_data` (or equivalent) against the staging DB so directory / profile / dashboard render real species, not empty states.
+
+**Unblocks:**
+- The FE-07-0 openapi-typescript CI diff-check AC re-opens: once `https://api.malagasyfishes.org/api/v1/schema/` is reachable from GitHub Actions, add the `frontend-schema-check` job.
+- FE-07-3 profile E2E tests that were deferred in PR #17 with a "W3 staging DRF pending" comment can be restored.
+- The "empty hero stat / zero species in directory" visitor experience on the live Vercel preview goes away — SHOAL/ECA stakeholders clicking the pre-workshop email link see real data.
+
+**Risk / rollback:** if Hetzner setup overruns (target ≤ 1 day of work), fall back to option (b) Cloudflare Tunnel from the dev laptop for the pre-workshop stakeholder-email window; Hetzner proper still lands before 2026-05-15 so FE-07-7 dashboard ISR can land against a stable staging backend.
+
+**Owner:** Aleksei. **Target live:** 2026-04-24 (end of W1) so W2 map work and W3 directory/profile finish against real data.
