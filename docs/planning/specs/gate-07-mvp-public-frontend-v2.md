@@ -446,7 +446,7 @@ Reference architecture §10 for the canonical risk register (map calendar, type 
 Open items tracked elsewhere, flagged here for visibility:
 - Stakeholder comms (6 items) — BA memo §3, owner Aleksei.
 - Second-admin trained on cache-bust runbook — BA memo §3 item 3.
-- Public-facing domain decision — UX 4.5, target 2026-05-01.
+- Public-facing domain decision — UX 4.5, target 2026-05-01. **Resolved 2026-04-17** — see §9 Amendments.
 - Copy ownership (IUCN/CARES glossary, About, empty states, microcopy) — delegated to `@conservation-writer` from inside each ticket.
 
 ---
@@ -477,3 +477,15 @@ Per the kickoff rule at the top of this file, changes after 2026-04-17 are appen
 - `.github/workflows/frontend-ci.yml` — runs on PRs and main pushes that touch `frontend/**`. Steps: pnpm install, typecheck, lint, vitest, build.
 - `.github/workflows/frontend-e2e.yml` — runs on PRs touching `frontend/**`. Waits for Vercel preview via `patrickedqvist/wait-for-vercel-preview@v1.3.2`, installs Chromium, runs Playwright against `PLAYWRIGHT_BASE_URL`, uploads report as artifact.
 - One Vitest smoke test on `lib/api.ts` (4 cases), one Playwright smoke test on `/` (verified locally against the live Vercel URL).
+Changes forced by reality after 2026-04-17 lock. Append-only; do not rewrite history.
+
+### 2026-04-17 — Public URL resolved: `malagasyfishes.org`
+
+- Domain `malagasyfishes.org` registered via Cloudflare and attached to the Vercel project (Production) as the canonical public URL for the MVP and the ECA workshop demo.
+- DNS: Cloudflare DNS-only (grey cloud) for both apex and `www`; TLS auto-issued by Vercel.
+- `www.malagasyfishes.org` redirects to apex (308).
+- **Supersedes** the `madagascarfish.vercel.app` stopgap — the `.vercel.app` URL remains functional but is no longer the URL printed on the workshop handout or shared with stakeholders.
+- Open Question "Public-facing domain decision — target 2026-05-01" is closed ~2 weeks ahead of schedule.
+- Follow-ups:
+  - Update `NEXT_PUBLIC_API_URL` consumer docs and workshop handout copy to use `https://malagasyfishes.org`.
+  - Revisit whether to enable Cloudflare proxying (orange cloud) post-workshop; keep DNS-only through 2026-06-05 to avoid CDN-in-front-of-CDN surprises with Next.js ISR.
