@@ -56,6 +56,37 @@ test("About page renders owner and GitHub link", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("species directory renders count header and filter form", async ({ page }) => {
+  // Hit /species (no trailing slash) to avoid Next's 308 redirect cycle on cold start.
+  const resp = await page.goto("/species", { timeout: 60000, waitUntil: "domcontentloaded" });
+  expect(resp?.status(), "preview should not 401 /species").toBeLessThan(400);
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: /^Species Directory$/ }),
+  ).toBeVisible({ timeout: 30000 });
+  await expect(page.getByRole("form", { name: /species filters/i })).toBeVisible();
+});
+
+test("coverage-gap deep link reflects filters in URL and page state", async ({ page }) => {
+  const resp = await page.goto(
+    "/species?iucn_status=CR,EN,VU&has_captive_population=false",
+    { timeout: 60000, waitUntil: "domcontentloaded" },
+  );
+  expect(resp?.status(), "preview should not 401 /species").toBeLessThan(400);
+
+  // URL preserves the filter params (browsers may %2C-encode the comma).
+  const decoded = decodeURIComponent(page.url());
+  expect(decoded).toContain("iucn_status=CR,EN,VU");
+  expect(decoded).toContain("has_captive_population=false");
+
+  // IUCN toggle buttons for CR/EN/VU are pressed — proves the deep link rehydrated filter state.
+  for (const code of ["CR", "EN", "VU"]) {
+    await expect(
+      page.getByRole("button", { name: code, exact: true }),
+    ).toHaveAttribute("aria-pressed", "true", { timeout: 30000 });
+  }
+});
+
 test("site footer is present on every page", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("contentinfo")).toBeVisible();
