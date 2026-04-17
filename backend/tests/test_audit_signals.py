@@ -7,6 +7,7 @@ import datetime as dt
 import pytest
 from audit.context import audit_actor
 from audit.models import AuditEntry
+from django.test import override_settings
 
 from accounts.models import User
 from integration.models import SyncJob
@@ -56,6 +57,7 @@ class TestSpeciesIucnStatusAudit:
         assert e.actor_type == AuditEntry.ActorType.USER
         assert e.actor_user_id == user.pk
 
+    @override_settings(AUDIT_STRICT_CONTEXT=False)
     def test_out_of_context_write_records_unknown_actor(self, species: Species) -> None:
         AuditEntry.objects.all().delete()
         species.iucn_status = "CR"
@@ -128,6 +130,29 @@ class TestConservationAssessmentAudit:
 
 
 @pytest.mark.django_db
+class TestStrictContextGuard:
+    @override_settings(AUDIT_STRICT_CONTEXT=True)
+    def test_strict_mode_rejects_iucn_status_write_without_context(self, species: Species) -> None:
+        species.iucn_status = "CR"
+        with pytest.raises(AssertionError, match="audit_actor"):
+            species.save()
+
+    @override_settings(AUDIT_STRICT_CONTEXT=True)
+    def test_strict_mode_allows_iucn_status_write_with_context(
+        self, species: Species, user: User
+    ) -> None:
+        with audit_actor(user=user):
+            species.iucn_status = "CR"
+            species.save()
+        assert species.iucn_status == "CR"
+
+    @override_settings(AUDIT_STRICT_CONTEXT=True)
+    def test_strict_mode_allows_non_status_writes_without_context(self, species: Species) -> None:
+        species.description = "new narrative"
+        species.save()  # no exception — strict guard only fires on iucn_status
+
+
+@pytest.mark.django_db
 class TestAuditActorContext:
     def test_requires_user_or_system(self) -> None:
         with pytest.raises(ValueError):
@@ -144,6 +169,7 @@ class TestAuditActorContext:
         assert e.actor_user_id == user.pk
         assert e.reason == "inner"
 
+    @override_settings(AUDIT_STRICT_CONTEXT=False)
     def test_exception_inside_context_does_not_leak_state(
         self, species: Species, user: User
     ) -> None:

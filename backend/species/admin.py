@@ -1,8 +1,10 @@
+from audit.models import AuditEntry
 from django import forms
 from django.contrib import admin
 from django.contrib.gis.admin import GISModelAdmin
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
+from django.utils.html import format_html, format_html_join
 
 from species.models import (
     CommonName,
@@ -118,8 +120,72 @@ class SpeciesAdmin(admin.ModelAdmin):
         "common_names__name",
     ]
     list_select_related = ["taxon"]
-    readonly_fields = ["created_at", "updated_at"]
+    # iucn_status is a denormalized mirror (see CLAUDE.md "Conservation status
+    # sourcing"). Editing it here would bypass the audit trail and the
+    # ConservationAssessment review workflow. Change status by creating an
+    # assessment row instead.
+    readonly_fields = ["iucn_status", "created_at", "updated_at"]
     inlines = [ConservationAssessmentInline, CommonNameInline, SpeciesLocalityInline]
+
+    def get_readonly_fields(
+        self, request: HttpRequest, obj: object = None
+    ) -> tuple[str, ...] | list[str]:
+        fields = list(super().get_readonly_fields(request, obj))
+        if obj is not None and _user_tier(request) >= 3:
+            if "recent_iucn_status_audit" not in fields:
+                fields.append("recent_iucn_status_audit")
+        return fields
+
+    def get_fieldsets(
+        self, request: HttpRequest, obj: object = None
+    ) -> list[tuple[str | None, dict]]:
+        fieldsets = list(super().get_fieldsets(request, obj))
+        if obj is not None and _user_tier(request) >= 3:
+            fieldsets.append(
+                (
+                    "Conservation status audit (last 10 changes)",
+                    {"fields": ("recent_iucn_status_audit",)},
+                )
+            )
+        return fieldsets
+
+    @admin.display(description="Recent iucn_status changes")
+    def recent_iucn_status_audit(self, obj: Species) -> str:
+        entries = AuditEntry.objects.filter(
+            target_type="Species",
+            target_id=obj.pk,
+            field="iucn_status",
+        ).order_by("-timestamp")[:10]
+        if not entries:
+            return "No audit entries recorded."
+        rows = format_html_join(
+            "",
+            "<tr><td>{}</td><td>{}</td><td>{}→{}</td><td>{}</td><td>{}</td></tr>",
+            (
+                (
+                    e.timestamp.strftime("%Y-%m-%d %H:%M"),
+                    e.get_action_display(),
+                    (e.before or {}).get("iucn_status") or "—",
+                    (e.after or {}).get("iucn_status") or "—",
+                    e.actor_user.email if e.actor_user_id else (e.actor_system or "—"),
+                    e.reason or "",
+                )
+                for e in entries
+            ),
+        )
+        return format_html(
+            "<table style='border-collapse:collapse' border='1' cellpadding='4'>"
+            "<thead><tr><th>When</th><th>Action</th><th>Change</th>"
+            "<th>Actor</th><th>Reason</th></tr></thead><tbody>{}</tbody></table>",
+            rows,
+        )
+
+
+def _user_tier(request: HttpRequest) -> int:
+    user = request.user
+    if user.is_authenticated and hasattr(user, "access_tier"):
+        return int(user.access_tier)  # type: ignore[union-attr]
+    return 0
 
 
 @admin.register(ConservationAssessment)

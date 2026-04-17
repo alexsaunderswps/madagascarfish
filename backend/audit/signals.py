@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.conf import settings
 from django.db.models import Model
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
@@ -95,6 +96,20 @@ def species_capture_pre_save(sender: type[Model], instance: Any, **kwargs: Any) 
         instance._audit_iucn_status_before = None
         return
     instance._audit_iucn_status_before = existing.iucn_status
+    # Foot-gun guard: when AUDIT_STRICT_CONTEXT is on (dev default), refuse to
+    # save an iucn_status change without an active audit_actor context.
+    # Production keeps it off and falls back to actor_system='unknown' so
+    # writes still complete and remain searchable.
+    if (
+        getattr(settings, "AUDIT_STRICT_CONTEXT", False)
+        and existing.iucn_status != instance.iucn_status
+        and current_actor() is None
+    ):
+        raise AssertionError(
+            "Species.iucn_status changed outside an audit_actor context. "
+            "Wrap the write in `with audit_actor(...):` or route through "
+            "ConservationAssessment. See CLAUDE.md 'Conservation status sourcing'."
+        )
 
 
 @receiver(post_save, sender="species.Species")
@@ -108,8 +123,10 @@ def species_audit_post_save(
         return
     attr = _attribution()
     ctx = current_actor()
-    action = AuditEntry.Action.MIRROR_WRITE if ctx and ctx.system == "iucn_sync" else (
-        AuditEntry.Action.CREATE if created else AuditEntry.Action.UPDATE
+    action = (
+        AuditEntry.Action.MIRROR_WRITE
+        if ctx and ctx.system == "iucn_sync"
+        else (AuditEntry.Action.CREATE if created else AuditEntry.Action.UPDATE)
     )
     AuditEntry.objects.create(
         target_type="Species",
@@ -136,9 +153,7 @@ def ca_capture_pre_save(sender: type[Model], instance: Any, **kwargs: Any) -> No
 
 
 @receiver(post_save, sender="species.ConservationAssessment")
-def ca_audit_post_save(
-    sender: type[Model], instance: Any, created: bool, **kwargs: Any
-) -> None:
+def ca_audit_post_save(sender: type[Model], instance: Any, created: bool, **kwargs: Any) -> None:
     after = _snapshot(instance, _CA_TRACKED_FIELDS)
     if created:
         before: dict[str, Any] = {}
