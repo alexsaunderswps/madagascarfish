@@ -61,7 +61,7 @@ export const IUCN_LABELS: Record<IucnStatus, string> = {
   NT: "Near Threatened",
   LC: "Least Concern",
   DD: "Data Deficient",
-  NE: "Not Evaluated",
+  NE: "Not yet assessed",
 };
 
 export const KNOWN_FAMILIES: string[] = [

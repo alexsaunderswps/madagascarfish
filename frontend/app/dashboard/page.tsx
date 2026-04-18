@@ -18,7 +18,7 @@ const COVERAGE_GAP_HREF =
   "/species/?iucn_status=CR,EN,VU&has_captive_population=false";
 
 const CHART_CAPTION =
-  "Counts mirror the most recent accepted IUCN Red List assessment for each endemic species in the registry. Species with no assessment appear under Not Evaluated.";
+  "Counts mirror the most recent accepted IUCN Red List assessment for each endemic species in the registry. Species with no assessment appear as Not yet assessed.";
 
 function StalenessBanner({ reason }: { reason: "failure" | "stale" }) {
   const message =

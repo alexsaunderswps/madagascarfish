@@ -41,7 +41,7 @@ const IUCN_LEGEND: Array<{ code: string; label: string }> = [
   { code: "NT", label: "Near Threatened" },
   { code: "LC", label: "Least Concern" },
   { code: "DD", label: "Data Deficient" },
-  { code: "NE", label: "Not Evaluated" },
+  { code: "NE", label: "Not yet assessed" },
 ];
 
 /**
