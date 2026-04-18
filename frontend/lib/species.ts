@@ -39,6 +39,10 @@ export interface SpeciesFilterState {
   cares_status?: CaresStatus;
   endemic_status?: EndemicStatus | "";
   has_captive_population?: "true" | "false" | "";
+  // Introduced (exotic) species are hidden from the directory by default.
+  // Flip to true to surface Oreochromis spp. and other invasives alongside the
+  // native fauna. Absent / empty = default exclusion.
+  include_introduced?: "true" | "";
   page?: number;
 }
 
@@ -86,6 +90,9 @@ export function buildSpeciesQuery(state: SpeciesFilterState): string {
   if (state.has_captive_population) {
     params.set("has_captive_population", state.has_captive_population);
   }
+  if (state.include_introduced === "true") {
+    params.set("include_introduced", "true");
+  }
   if (state.page && state.page > 1) params.set("page", String(state.page));
   params.set("page_size", String(PAGE_SIZE));
   return params.toString();
@@ -112,6 +119,7 @@ export function parseSpeciesFilterState(
     endemic_status: (get("endemic_status") as EndemicStatus | "" | undefined) ?? "",
     has_captive_population:
       (get("has_captive_population") as "true" | "false" | "" | undefined) ?? "",
+    include_introduced: get("include_introduced") === "true" ? "true" : "",
     page,
   };
 }
