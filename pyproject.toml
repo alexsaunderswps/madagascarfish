@@ -61,6 +61,7 @@ module = [
 disable_error_code = [
     "type-arg",
     "no-untyped-def",
+    "no-untyped-call",
     "misc",
     "union-attr",
     "unused-ignore",
