@@ -95,6 +95,12 @@ export default async function SpeciesProfilePage({
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
+      {fishbaseUrl ? (
+        <>
+          <link rel="dns-prefetch" href="https://www.fishbase.se" />
+          <link rel="preconnect" href="https://www.fishbase.se" crossOrigin="anonymous" />
+        </>
+      ) : null}
       <Link href={backHref} className="text-sm text-sky-700 hover:underline">
         ← All species
       </Link>
@@ -308,7 +314,7 @@ export default async function SpeciesProfilePage({
                 <a
                   href={iucnUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="text-sky-700 hover:underline"
                 >
                   IUCN Red List assessment →
@@ -320,7 +326,7 @@ export default async function SpeciesProfilePage({
                 <a
                   href={fishbaseUrl}
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   className="text-sky-700 hover:underline"
                 >
                   FishBase species summary →
