@@ -117,4 +117,18 @@ This is demonstrable to SHOAL as "here is the shape — we have the frame, we ar
 
 ---
 
-**Next steps for orchestrator:** After Aleksei answers Q1–Q5, route to `@product-manager` for gate breakdown. Consider routing to `@conservation-writer` in parallel for voice guidance on the disclaimer, sourcing-ethics block, and difficulty-rating language.
+## Decisions Locked — 2026-04-18
+
+Answers to the five open questions above, captured in the working session of 2026-04-18. These supersede the corresponding "Open Questions" items; Q1 (authoring capacity) remains open and is tracked via the `data/husbandry/` exemplar template.
+
+- **Q2 — Difficulty rating.** Do **not** ship a single qualitative label (beginner/intermediate/advanced/expert-only). Instead, surface the underlying **factors** (water-chemistry sensitivity, diet specialization, breeding complexity, space/system requirements, temperament) so the reader draws their own conclusion. Rationale: a single label is the most opinionated, most liability-adjacent field and varies by keeper experience; factors are descriptive, not prescriptive. Data model: structured fields per factor; no aggregate `difficulty` column at MVP.
+- **Q3 — Sourcing-ethics boilerplate.** Conservation-writer drafts platform language. The block must **acknowledge permitted wild-collection** (some Malagasy endemics are legally collected under permit by partner programs) rather than issuing a blanket "do not collect from the wild." Voice: factual, non-judgmental, directs readers to CARES / Citizen Conservation / partner institutions as the default source. Draft lives in `frontend/components/HusbandrySourcingEthics.tsx`.
+- **Q4 — Contribute CTA destination.** **Django-backed contact form**, not mailto and not Google Form. Rationale: keeps submissions inside the platform audit trail, avoids Google dependency, and the form is the MVP precursor to the eventual Tier 3+ submission pipeline — designed so it does not paint us into a corner.
+- **Q5 — Review-by identity.** **Structured `User` FK** (`last_reviewed_by`), not free-text. Aligns with the `ConservationAssessment` governance pattern and keeps attribution consistent across the platform. Display ORCID when present on the user record.
+
+**Still open:**
+- **Q1 — Authoring capacity before June 1.** Tracked via the exemplar template at `data/husbandry/TEMPLATE.md`; Aleksei to fill 3–5 species ahead of the ECA Workshop demo.
+
+---
+
+**Next steps for orchestrator:** Route to `@product-manager` for gate breakdown using the locked decisions above. Q1 resolves as Aleksei fills exemplar templates; PM should scope the MVP to whatever count lands before the workshop cut.
