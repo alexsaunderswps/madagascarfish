@@ -175,9 +175,7 @@ class SpeciesHusbandry(models.Model):
         if self.published:
             errors: dict[str, str] = {}
             if self.last_reviewed_by_id is None:
-                errors["last_reviewed_by"] = (
-                    "A reviewer is required to publish a husbandry record."
-                )
+                errors["last_reviewed_by"] = "A reviewer is required to publish a husbandry record."
             if self.last_reviewed_at is None:
                 errors["last_reviewed_at"] = (
                     "A review date is required to publish a husbandry record."

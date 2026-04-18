@@ -29,9 +29,11 @@ class SpeciesHusbandryDetailView(RetrieveAPIView):
     def get_queryset(self):
         # Crucially, filter on published=True so unpublished drafts produce
         # 404, not 200-with-flag. Adversarial test AC-08.5 depends on this.
-        return SpeciesHusbandry.objects.filter(published=True).select_related(
-            "last_reviewed_by"
-        ).prefetch_related("sources")
+        return (
+            SpeciesHusbandry.objects.filter(published=True)
+            .select_related("last_reviewed_by")
+            .prefetch_related("sources")
+        )
 
     def get_object(self):
         try:
