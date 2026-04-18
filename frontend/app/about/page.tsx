@@ -79,6 +79,14 @@ export default async function AboutPage() {
           categories.
         </p>
         <p>
+          For a fuller account of provenance, the mirror policy for IUCN
+          status, coordinate generalization, and known limitations, see{" "}
+          <Link href="/about/data/" className="text-sky-700 underline underline-offset-2 hover:text-sky-900">
+            how we handle the data
+          </Link>
+          .
+        </p>
+        <p>
           Definitions of IUCN categories, CARES, Darwin Core, and other
           terminology used across the site are collected in the{" "}
           <Link href="/about/glossary/" className="text-sky-700 underline underline-offset-2 hover:text-sky-900">
