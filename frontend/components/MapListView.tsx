@@ -74,7 +74,7 @@ function SortHeader({
       <button
         type="button"
         onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1 font-semibold uppercase tracking-wide hover:text-sky-700"
+        className="inline-flex items-center gap-1 rounded font-semibold uppercase tracking-wide hover:text-sky-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
       >
         <span>{label}</span>
         <span aria-hidden className={active ? "text-sky-700" : "text-slate-400"}>
@@ -120,14 +120,14 @@ export default function MapListView({
       <p className="mb-4 text-sm text-slate-600">
         Showing <strong>{totalFeatures}</strong> locality records across{" "}
         <strong>{speciesCount}</strong> species. Click a column header to sort;
-        click a row to view that locality on the map.
+        use the Locality link in each row to view it on the map.
       </p>
       <div className="overflow-x-auto rounded border border-slate-200">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <caption className="sr-only">
             Locality records for Madagascar freshwater fish, one row per marker
-            visible on the map. Columns are sortable; clicking a row opens that
-            locality on the map.
+            visible on the map. Columns are sortable; use each row's Locality
+            link to open that locality on the map.
           </caption>
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
             <tr>
@@ -152,7 +152,7 @@ export default function MapListView({
               return (
                 <tr
                   key={localityId}
-                  className="cursor-pointer hover:bg-sky-50 focus-within:bg-sky-50"
+                  className="hover:bg-sky-50 focus-within:bg-sky-50"
                 >
                   <td className="px-3 py-2 italic">
                     <Link
