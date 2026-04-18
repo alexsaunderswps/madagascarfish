@@ -51,6 +51,22 @@ else
   echo "warm-cache: could not fetch species list from ${API_BASE_URL}; skipping profile URLs" >&2
 fi
 
+# Husbandry pages (Gate 09) — warm the /species/{id}/husbandry/ URL for every
+# species whose detail endpoint reports has_husbandry: true. The species list
+# endpoint does NOT include has_husbandry (it's on the detail serializer only),
+# so we fetch each detail we already warmed above and grep for the flag. The
+# extra requests are bounded by ${profile_limit} and only run when the listing
+# fetch succeeded.
+if [[ -n "${species_json}" ]]; then
+  while read -r id; do
+    [[ -z "${id}" ]] && continue
+    detail="$(curl -sS "${API_BASE_URL}/api/v1/species/${id}/" || echo '')"
+    if echo "${detail}" | grep -q '"has_husbandry":[[:space:]]*true'; then
+      PATHS+=("/species/${id}/husbandry/")
+    fi
+  done < <(echo "${species_json}" | grep -oE '"id":[0-9]+' | cut -d: -f2 | head -n "${profile_limit}")
+fi
+
 fail=0
 for path in "${PATHS[@]}"; do
   url="${BASE_URL}${path}"

@@ -36,6 +36,7 @@ export interface SpeciesDetail extends SpeciesListItem {
   field_programs: FieldProgramBrief[];
   ex_situ_summary: ExSituSummary;
   has_localities: boolean;
+  has_husbandry: boolean;
   iucn_status: IucnStatus | null;
 }
 

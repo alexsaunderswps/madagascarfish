@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import EmptyState from "@/components/EmptyState";
+import HusbandryTeaser from "@/components/HusbandryTeaser";
 import IucnBadge from "@/components/IucnBadge";
 import {
   displayScientificName,
@@ -279,6 +280,17 @@ export default async function SpeciesProfilePage({
           </dl>
         )}
       </section>
+
+      {sp.has_husbandry ? (
+        <HusbandryTeaser
+          speciesId={sp.id}
+          ctx={{
+            has_husbandry: sp.has_husbandry,
+            cares_status: sp.cares_status,
+            shoal_priority: sp.shoal_priority,
+          }}
+        />
+      ) : null}
 
       <section aria-labelledby="field-heading" className="mt-8">
         <h2 id="field-heading" className="font-serif text-xl text-slate-900">
