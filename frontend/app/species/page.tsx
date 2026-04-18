@@ -62,7 +62,7 @@ export default async function SpeciesDirectoryPage({
             {" "}({counts.described} described, {counts.undescribed} undescribed)
           </p>
         ) : (
-          <p className="mt-1 text-sm text-slate-500">Counts refreshing…</p>
+          <p className="mt-1 text-sm text-slate-500">Species count is loading…</p>
         )}
         {filtered ? (
           <p className="mt-1 text-sm text-slate-700">

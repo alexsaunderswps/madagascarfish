@@ -25,7 +25,7 @@ export default function SpeciesCard({ species }: { species: SpeciesListItem }) {
   return (
     <Link
       href={`/species/${species.id}/`}
-      className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-sky-400 hover:shadow-md"
+      className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-400 hover:shadow-md focus-visible:border-sky-500 focus-visible:shadow-md"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">

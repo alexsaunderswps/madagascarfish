@@ -191,20 +191,23 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
         </label>
       </fieldset>
 
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          className="rounded bg-sky-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-sky-700"
-        >
-          Apply
-        </button>
-        <button
-          type="button"
-          onClick={onClear}
-          className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:border-slate-400"
-        >
-          Clear filters
-        </button>
+      <div className="space-y-1">
+        <p className="text-xs text-slate-500">Apply to update results.</p>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            className="rounded bg-sky-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-sky-700"
+          >
+            Apply
+          </button>
+          <button
+            type="button"
+            onClick={onClear}
+            className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:border-slate-400"
+          >
+            Clear filters
+          </button>
+        </div>
       </div>
 
       <details className="text-xs text-slate-600">

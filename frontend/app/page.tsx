@@ -38,8 +38,8 @@ export default async function HomePage() {
     gap && typeof gap.threatened_species_without_captive_population === "number";
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
-      <section className="flex flex-col gap-10">
+    <main className="mx-auto max-w-5xl px-6 py-12 sm:py-16">
+      <section className="flex flex-col gap-8">
         <header className="flex flex-col gap-4">
           <p className="text-sm font-semibold uppercase tracking-widest text-sky-700">
             Madagascar Freshwater Fish Conservation Platform
@@ -63,11 +63,11 @@ export default async function HomePage() {
           {hasStat ? (
             <p className="text-lg font-medium text-amber-900 sm:text-xl">
               <span className="text-2xl font-semibold sm:text-3xl">
-                {gap.threatened_species_without_captive_population}
+                {gap.threatened_species_without_captive_population.toLocaleString()}
               </span>{" "}
               of{" "}
               <span className="text-2xl font-semibold sm:text-3xl">
-                {gap.threatened_species_total}
+                {gap.threatened_species_total.toLocaleString()}
               </span>{" "}
               threatened species have no known captive population.
               <span className="mt-2 block text-sm font-normal text-amber-800 underline-offset-2 group-hover:underline">
@@ -87,7 +87,7 @@ export default async function HomePage() {
               <li key={card.href}>
                 <Link
                   href={card.href}
-                  className="block h-full rounded-lg border border-slate-200 p-5 transition hover:border-sky-400 hover:bg-sky-50"
+                  className="block h-full rounded-lg border border-slate-200 p-6 transition hover:border-sky-400 hover:bg-sky-50"
                 >
                   <h2 className="text-lg font-semibold text-slate-900">
                     {card.title}

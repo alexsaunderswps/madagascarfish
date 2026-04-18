@@ -51,7 +51,9 @@ function StatTile({
       <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
         {label}
       </span>
-      <span className="text-3xl font-semibold tabular-nums text-slate-900">{value}</span>
+      <span className="text-3xl font-semibold tabular-nums text-slate-900">
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </span>
       {sublabel ? <span className="text-xs text-slate-500">{sublabel}</span> : null}
     </div>
   );
@@ -111,11 +113,11 @@ export default async function DashboardPage() {
       >
         <p className="text-lg font-medium text-amber-900 sm:text-xl">
           <span className="text-2xl font-semibold sm:text-3xl">
-            {ex_situ_coverage.threatened_species_without_captive_population}
+            {ex_situ_coverage.threatened_species_without_captive_population.toLocaleString()}
           </span>{" "}
           of{" "}
           <span className="text-2xl font-semibold sm:text-3xl">
-            {ex_situ_coverage.threatened_species_total}
+            {ex_situ_coverage.threatened_species_total.toLocaleString()}
           </span>{" "}
           threatened species have no known captive population.
           <span className="mt-2 block text-sm font-normal text-amber-800 underline-offset-2 group-hover:underline">
@@ -132,7 +134,7 @@ export default async function DashboardPage() {
         <StatTile
           label="Total species"
           value={species_counts.total}
-          sublabel={`${species_counts.described} described, ${species_counts.undescribed} undescribed`}
+          sublabel={`${species_counts.described.toLocaleString()} described, ${species_counts.undescribed.toLocaleString()} undescribed`}
           href="/species/"
         />
         <StatTile

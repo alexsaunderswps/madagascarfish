@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import EmptyState from "@/components/EmptyState";
 
 export const metadata = {
@@ -13,6 +15,12 @@ export default function NotFound() {
         primaryAction={{ href: "/", label: "Return home" }}
         secondaryAction={{ href: "/species/", label: "Browse all species" }}
       />
+      <p className="mt-6 text-center text-sm text-slate-500">
+        Looking for a specific species?{" "}
+        <Link href="/species/" className="text-sky-700 underline underline-offset-2 hover:text-sky-900">
+          Try the directory search.
+        </Link>
+      </p>
     </main>
   );
 }

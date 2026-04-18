@@ -17,8 +17,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col bg-white text-slate-900 antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2 focus:shadow focus:ring-2 focus:ring-sky-500"
+        >
+          Skip to content
+        </a>
         <SiteHeader />
-        <div className="flex-1">{children}</div>
+        <div id="main-content" className="flex-1">
+          {children}
+        </div>
         <SiteFooter />
       </body>
     </html>
