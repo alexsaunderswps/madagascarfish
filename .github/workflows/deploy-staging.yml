@@ -1,0 +1,73 @@
+name: Deploy staging
+
+# Auto-deploys main to the Hetzner staging VPS (api.malagasyfishes.org) after
+# CI passes. Closes the "merged to main ≠ running in prod" gap.
+#
+# Required repo secrets:
+#   STAGING_SSH_HOST          — IPv4 or hostname of the Hetzner VPS
+#   STAGING_SSH_USER          — deploy user (typically "deploy")
+#   STAGING_SSH_PRIVATE_KEY   — private key whose pubkey is in ~deploy/.ssh/authorized_keys
+#   STAGING_SSH_HOST_KEY      — output of `ssh-keyscan -t ed25519 <host>` (locks host identity)
+#
+# Trigger: on push to main (after CI green), or manually via workflow_dispatch.
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Only run if the triggering CI run succeeded (workflow_dispatch has no conclusion).
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STAGING_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.STAGING_SSH_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Pull, rebuild, and restart staging stack
+        env:
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "${SSH_USER}@${SSH_HOST}" bash -s <<'REMOTE'
+          set -euo pipefail
+          cd ~/madagascarfish
+          git fetch --prune origin
+          git checkout main
+          git reset --hard origin/main
+          cd deploy/staging
+          docker compose pull || true
+          docker compose up -d --build web worker
+          # Migrations run in the web container's entrypoint (manage.py migrate
+          # --noinput); no separate step needed.
+          docker compose ps
+          REMOTE
+
+      - name: Smoke test API
+        run: |
+          for i in 1 2 3 4 5 6; do
+            code="$(curl -sS -o /dev/null -w '%{http_code}' https://api.malagasyfishes.org/api/v1/schema/ || echo 000)"
+            if [[ "${code}" == "200" ]]; then
+              echo "API healthy (HTTP ${code})"
+              exit 0
+            fi
+            echo "API not ready (HTTP ${code}); retry ${i}/6 in 10s"
+            sleep 10
+          done
+          echo "API did not become healthy after deploy" >&2
+          exit 1

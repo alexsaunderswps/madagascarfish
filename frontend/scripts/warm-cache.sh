@@ -30,6 +30,27 @@ PATHS=(
   "/about/"
 )
 
+# Pull a representative sample of species profile URLs from the API so cold-ISR
+# on a profile page can't ambush the first visitor post-revalidate. Uses the
+# public API origin (API_BASE_URL) if set; otherwise derives it from BASE_URL by
+# swapping the leading host segment (staging.* -> api.*). Falls back to skipping
+# profile warming if the species list can't be fetched — the base paths still
+# warm and the script exits non-zero only on HTTP failures below.
+API_BASE_URL="${API_BASE_URL:-}"
+if [[ -z "${API_BASE_URL}" ]]; then
+  API_BASE_URL="$(echo "${BASE_URL}" | sed -E 's#//(staging|www)\.#//api.#')"
+fi
+profile_limit="${PROFILE_WARM_COUNT:-8}"
+species_json="$(curl -sS "${API_BASE_URL}/api/v1/species/?page_size=${profile_limit}" || echo '')"
+if [[ -n "${species_json}" ]]; then
+  # Extract "id":N fields with grep+cut — no jq dependency.
+  while read -r id; do
+    [[ -n "${id}" ]] && PATHS+=("/species/${id}/")
+  done < <(echo "${species_json}" | grep -oE '"id":[0-9]+' | cut -d: -f2 | head -n "${profile_limit}")
+else
+  echo "warm-cache: could not fetch species list from ${API_BASE_URL}; skipping profile URLs" >&2
+fi
+
 fail=0
 for path in "${PATHS[@]}"; do
   url="${BASE_URL}${path}"
