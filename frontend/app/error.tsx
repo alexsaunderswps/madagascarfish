@@ -17,15 +17,15 @@ export default function Error({
     <main className="mx-auto max-w-2xl px-6 py-24">
       <div
         role="status"
-        aria-label="Data temporarily unavailable"
+        aria-label="Page temporarily unavailable"
         className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center"
       >
         <h2 className="font-serif text-xl text-slate-900">
-          Data temporarily unavailable
+          This page could not be loaded
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          Something went wrong rendering this page. You can try again, or return
-          to the home page.
+          An unexpected error interrupted rendering. Try again in a moment, or
+          return to the home page.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <button
