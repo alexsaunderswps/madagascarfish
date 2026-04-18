@@ -17,9 +17,8 @@ from __future__ import annotations
 from datetime import datetime
 
 import pytest
-from rest_framework.test import APIClient
-
 from populations.models import ExSituPopulation, Institution
+from rest_framework.test import APIClient
 from species.models import Species, SpeciesLocality
 
 
@@ -175,7 +174,8 @@ class TestNECountParity:
             "iucn_status=NE filter omitted species with explicit NE status"
         )
         assert sp_ne_null.pk in returned_ids, (
-            "iucn_status=NE filter omitted species with NULL status (mirror policy: NULL = not yet assessed = NE)"
+            "iucn_status=NE filter omitted species with NULL status "
+            "(mirror policy: NULL = not yet assessed = NE)"
         )
 
     def test_null_status_excluded_from_non_ne_filter(
