@@ -16,14 +16,19 @@ class EmailBackend(ModelBackend):
     def authenticate(  # type: ignore[override]
         self,
         request: HttpRequest | None,
-        email: str | None = None,
+        username: str | None = None,
         password: str | None = None,
         **kwargs: Any,
     ) -> User | None:
-        if email is None or password is None:
+        # Django admin's AuthenticationForm always calls
+        # authenticate(username=...) regardless of USERNAME_FIELD. Accept
+        # `email` as a kwarg alias so direct callers (tests, shell) keep
+        # working; prefer it when both are present.
+        identifier = kwargs.get("email") or username
+        if identifier is None or password is None:
             return None
         try:
-            user = User.objects.get(email=email.lower().strip())
+            user = User.objects.get(email=identifier.lower().strip())
         except User.DoesNotExist:
             return None
         if not user.is_active:
