@@ -101,6 +101,31 @@ def species_en(db: None) -> Species:
 
 
 @pytest.fixture
+def species_ne_explicit(db: None) -> Species:
+    return Species.objects.create(
+        scientific_name="Ptychochromis onilahy",
+        taxonomic_status="described",
+        family="Cichlidae",
+        genus="Ptychochromis",
+        endemic_status="endemic",
+        iucn_status="NE",
+    )
+
+
+@pytest.fixture
+def species_ne_null(db: None) -> Species:
+    return Species.objects.create(
+        scientific_name="Bedotia sp. 'undescribed'",
+        taxonomic_status="undescribed_morphospecies",
+        provisional_name="'undescribed'",
+        family="Bedotiidae",
+        genus="Bedotia",
+        endemic_status="endemic",
+        iucn_status=None,
+    )
+
+
+@pytest.fixture
 def assessment_accepted(species_en: Species) -> ConservationAssessment:
     return ConservationAssessment.objects.create(
         species=species_en,
@@ -302,6 +327,48 @@ class TestSpeciesList:
         statuses = sorted(r["iucn_status"] for r in data["results"])
         assert statuses == ["CR", "EN"]
         assert data["count"] == 2
+
+    def test_filter_iucn_status_ne_includes_null(
+        self,
+        api_client: APIClient,
+        species_cr: Species,
+        species_ne_explicit: Species,
+        species_ne_null: Species,
+    ) -> None:
+        """iucn_status=NE matches both explicit NE and NULL rows, matching the
+        dashboard chart's coalesce so visitors clicking the NE bar see every
+        row the bar counted."""
+        resp = api_client.get("/api/v1/species/?iucn_status=NE")
+        data = resp.json()
+        ids = sorted(r["id"] for r in data["results"])
+        assert ids == sorted([species_ne_explicit.pk, species_ne_null.pk])
+
+    def test_filter_iucn_status_ne_with_undescribed(
+        self,
+        api_client: APIClient,
+        species_cr: Species,
+        species_ne_null: Species,
+    ) -> None:
+        """Combining taxonomic_status=undescribed_morphospecies with
+        iucn_status=NE returns the morphospecies with NULL status."""
+        resp = api_client.get(
+            "/api/v1/species/?iucn_status=NE&taxonomic_status=undescribed_morphospecies"
+        )
+        data = resp.json()
+        ids = [r["id"] for r in data["results"]]
+        assert ids == [species_ne_null.pk]
+
+    def test_filter_iucn_status_non_ne_excludes_null(
+        self,
+        api_client: APIClient,
+        species_en: Species,
+        species_ne_null: Species,
+    ) -> None:
+        """Selecting a non-NE category (e.g. EN) must not sweep in NULL rows."""
+        resp = api_client.get("/api/v1/species/?iucn_status=EN")
+        data = resp.json()
+        ids = [r["id"] for r in data["results"]]
+        assert ids == [species_en.pk]
 
     def test_filter_iucn_status_multi_subset(
         self, api_client: APIClient, species_cr: Species, species_en: Species

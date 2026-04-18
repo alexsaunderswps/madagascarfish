@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.db.models import Exists, OuterRef, QuerySet
+from django.db.models import Exists, OuterRef, Q, QuerySet
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
@@ -13,7 +13,11 @@ from species.serializers import SpeciesDetailSerializer, SpeciesListSerializer
 
 class SpeciesFilter(filters.FilterSet):
     taxonomic_status = filters.CharFilter(field_name="taxonomic_status")
-    iucn_status = filters.BaseInFilter(field_name="iucn_status", lookup_expr="in")
+    # "NE" in the filter value is treated as "not yet assessed" per the mirror
+    # policy (CLAUDE.md) and matches both iucn_status='NE' and iucn_status IS
+    # NULL. This mirrors the dashboard chart's coalesce in views_dashboard.py
+    # so a click from the NE bar returns the same row set the bar counted.
+    iucn_status = filters.BaseCSVFilter(method="filter_iucn_status")
     family = filters.CharFilter(field_name="family")
     cares_status = filters.CharFilter(field_name="cares_status")
     endemic_status = filters.CharFilter(field_name="endemic_status")
@@ -29,6 +33,22 @@ class SpeciesFilter(filters.FilterSet):
             "endemic_status",
             "has_captive_population",
         ]
+
+    def filter_iucn_status(
+        self,
+        queryset: QuerySet[Species],
+        name: str,
+        value: list[str] | None,
+    ) -> QuerySet[Species]:
+        if not value:
+            return queryset
+        codes = [v for v in value if v]
+        if not codes:
+            return queryset
+        q = Q(iucn_status__in=codes)
+        if Species.IUCNStatus.NE in codes:
+            q |= Q(iucn_status__isnull=True)
+        return queryset.filter(q)
 
     def filter_has_captive_population(
         self,
