@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 const REPO_URL = "https://github.com/alexsaunderswps/madagascarfish";
+const ADMIN_URL = "https://api.malagasyfishes.org/admin/";
 
 export default async function AboutPage() {
   const dashboard = await fetchDashboard();
@@ -147,6 +148,17 @@ export default async function AboutPage() {
           </li>
         </ul>
       </section>
+
+      <p className="mt-16 text-right text-xs text-slate-400">
+        <a
+          href={ADMIN_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-slate-600"
+        >
+          Staff sign-in
+        </a>
+      </p>
     </main>
   );
 }
