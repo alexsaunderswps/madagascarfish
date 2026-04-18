@@ -126,7 +126,7 @@ export default function MapListView({
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <caption className="sr-only">
             Locality records for Madagascar freshwater fish, one row per marker
-            visible on the map. Columns are sortable; use each row's Locality
+            visible on the map. Columns are sortable; use each row&rsquo;s Locality
             link to open that locality on the map.
           </caption>
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">

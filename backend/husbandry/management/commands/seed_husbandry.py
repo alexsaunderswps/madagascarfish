@@ -40,13 +40,10 @@ HUSBANDRY_FIELDS: dict[str, object] = {
     ),
     "tank_min_volume_liters": 400,
     "tank_min_footprint_cm": "150x60",
-    "tank_aquascape": (
-        "Open water with driftwood and rockwork forming loose territory breaks."
-    ),
+    "tank_aquascape": ("Open water with driftwood and rockwork forming loose territory breaks."),
     "tank_substrate": "Fine sand — adults sift substrate during spawning.",
     "tank_cover": (
-        "Overhangs and driftwood for subdominants; plants optional but valuable "
-        "for fry."
+        "Overhangs and driftwood for subdominants; plants optional but valuable for fry."
     ),
     "tank_notes": (
         "Provide a territory break roughly every 30cm for subdominants; "
@@ -99,8 +96,7 @@ HUSBANDRY_FIELDS: dict[str, object] = {
     "difficulty_water_parameter_demand": "moderate — stable soft-to-medium water required",
     "difficulty_dietary_specialization": "generalist, but requires plant matter",
     "difficulty_breeding_complexity": (
-        "requires conditioning + cool water change trigger; fry first-feeding "
-        "is the real challenge"
+        "requires conditioning + cool water change trigger; fry first-feeding is the real challenge"
     ),
     "difficulty_other": (
         "Slow growth; long-term commitment. CARES priority species — sourcing "

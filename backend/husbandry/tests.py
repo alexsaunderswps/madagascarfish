@@ -277,9 +277,7 @@ def test_ac_5_no_record_returns_404_and_has_husbandry_false(api_client, species)
 # ---- AC-08.6 Published record readable by Tier 1 ------------------------
 
 
-def test_ac_6_published_record_returns_200_with_full_payload(
-    api_client, species, reviewer
-):
+def test_ac_6_published_record_returns_200_with_full_payload(api_client, species, reviewer):
     _make_published(species, reviewer)
 
     resp = api_client.get(f"/api/v1/species/{species.pk}/husbandry/")

@@ -27,8 +27,8 @@ test("IUCN chart bars are clickable deep-links to filtered directory", async ({ 
   // Expanded labels — "Endangered (EN)" etc.
   const enBar = page.getByRole("link", { name: /species with status Endangered/i });
   await expect(enBar).toBeVisible({ timeout: 30000 });
-  expect(await enBar.getAttribute("href")).toBe("/species/?iucn_status=EN");
+  await expect(enBar).toHaveAttribute("href", /^\/species\/?\?iucn_status=EN$/);
 
   const crBar = page.getByRole("link", { name: /species with status Critically Endangered/i });
-  expect(await crBar.getAttribute("href")).toBe("/species/?iucn_status=CR");
+  await expect(crBar).toHaveAttribute("href", /^\/species\/?\?iucn_status=CR$/);
 });

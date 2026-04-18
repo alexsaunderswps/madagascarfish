@@ -54,10 +54,7 @@ def _post_revalidate() -> tuple[bool, str]:
         return False, f"Revalidate request failed: {exc}"
 
     if response.status_code >= 400:
-        return False, (
-            f"Revalidate returned HTTP {response.status_code}: "
-            f"{response.text[:200]}"
-        )
+        return False, (f"Revalidate returned HTTP {response.status_code}: {response.text[:200]}")
 
     try:
         data = response.json()

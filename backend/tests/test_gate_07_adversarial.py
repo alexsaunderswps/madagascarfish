@@ -22,7 +22,6 @@ from rest_framework.test import APIClient
 from populations.models import ExSituPopulation, Institution
 from species.models import Species, SpeciesLocality
 
-
 # ============================================================
 # Fixtures
 # ============================================================
@@ -175,7 +174,8 @@ class TestNECountParity:
             "iucn_status=NE filter omitted species with explicit NE status"
         )
         assert sp_ne_null.pk in returned_ids, (
-            "iucn_status=NE filter omitted species with NULL status (mirror policy: NULL = not yet assessed = NE)"
+            "iucn_status=NE filter omitted species with NULL status "
+            "(mirror policy: NULL = not yet assessed = NE)"
         )
 
     def test_null_status_excluded_from_non_ne_filter(
@@ -225,9 +225,7 @@ class TestCoverageGapFilter:
         captive_population_for_cr: ExSituPopulation,
     ) -> None:
         """CR species has captive pop → excluded. EN species has none → included."""
-        resp = api_client.get(
-            "/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false"
-        )
+        resp = api_client.get("/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false")
         data = resp.json()
         returned_ids = {r["id"] for r in data["results"]}
         assert sp_en.pk in returned_ids, "EN species without captive pop should be in result"
@@ -242,9 +240,7 @@ class TestCoverageGapFilter:
     ) -> None:
         """NE species must not appear in the CR+EN+VU filter — the gap is
         specifically about *threatened* species with no captive population."""
-        resp = api_client.get(
-            "/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false"
-        )
+        resp = api_client.get("/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false")
         data = resp.json()
         returned_ids = {r["id"] for r in data["results"]}
         assert sp_ne_explicit.pk not in returned_ids, (
@@ -260,18 +256,14 @@ class TestCoverageGapFilter:
     ) -> None:
         """All three threatened categories (CR, EN, VU) with no captive population
         must appear in the combined filter result."""
-        resp = api_client.get(
-            "/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false"
-        )
+        resp = api_client.get("/api/v1/species/?iucn_status=CR,EN,VU&has_captive_population=false")
         data = resp.json()
         returned_ids = {r["id"] for r in data["results"]}
         statuses = {r["iucn_status"] for r in data["results"]}
         assert sp_cr.pk in returned_ids
         assert sp_en.pk in returned_ids
         assert sp_vu.pk in returned_ids
-        assert statuses == {"CR", "EN", "VU"}, (
-            f"Expected CR, EN, VU in results; got {statuses}"
-        )
+        assert statuses == {"CR", "EN", "VU"}, f"Expected CR, EN, VU in results; got {statuses}"
 
 
 # ============================================================
