@@ -87,7 +87,7 @@ The silhouette approach is the single highest-leverage move: it gives every prof
 ## 7. MVP vs post-MVP
 
 **MVP (ship before June 1):**
-- Aleksei shoots the 3–5 SHOAL exemplar species at ABQ BioPark June 1–5. **Note the conflict with the June 1 deadline:** either the "polished for SHOAL" demo uses pre-workshop sourced images for 2–3 species and more are shot on-site as a live update, or the polish target slips to day 2 of the workshop. Flag this to BA/PM.
+- **Primary sourcing: CARES / Citizen Conservation hobbyist sprint.** Aleksei requests loans of 3–5 hero images from keepers of the SHOAL exemplar species, with written-permission logged under `docs/image-permissions/`. Permissions requested by 2026-04-25; heroes installed by 2026-05-22. See `docs/planning/business-analysis/abq-biopark-imagery-timing-2026-04-18.md` for full rationale. ABQ BioPark shooting (June 1–5) produces *upgrades*, not the initial set — a content-upgrade narrative the SHOAL partner watches happen. Fallback if keeper correspondence slips: iNaturalist CC-BY + on-site shooting per Option 1 of the BA doc.
 - Build the silhouette SVG component and apply to all other species profiles.
 - Build `credits.json` + a typed loader, `next/image` integration, caption component with license rendering.
 - Write alt text for each exemplar.
