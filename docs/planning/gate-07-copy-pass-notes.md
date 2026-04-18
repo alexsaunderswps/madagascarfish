@@ -73,6 +73,20 @@ ABQ BioPark (2026-06-01 → 06-05).
   threatened, ZIMS. Two sentences per entry, conservation-professional
   register. Linked from the About page Data Sources section.
 
+## Resolutions (2026-04-17, from Aleksei)
+
+- **"Morphospecies"** — keep as-is. Acceptable for current audience.
+- **NE label** — fixed in PR #32; all three public surfaces (`IUCN_LABELS`,
+  MapClient legend, dashboard chart caption) now read "Not yet assessed".
+- **"~79" vs. live count** — About page now reads the live count from
+  `/api/v1/dashboard/` (falls back to "~79" if backend is unreachable).
+- **Tile-fallback notice** — keep the live code's "limited to zoom N"
+  wording; it's more precise than the spec text.
+- **Footer data sources** — SHOAL + CARES added to `SiteFooter`.
+- **Leiss citation** — replaced with the full bibliographic entry
+  (Leiss L, Rauhaus A, Rakotoarison A, Fusari C, Vences M, Ziegler T.
+  Zoo Biol. 2022 May;41(3):244–262. doi:10.1002/zoo.21661).
+
 ## Inconsistencies flagged (not fixed — require product decision)
 
 - **"Undescribed taxon" vs. "Undescribed morphospecies."** The profile
