@@ -29,6 +29,10 @@ REQUIRED_COLUMNS = {
 
 LAT_MIN, LAT_MAX = -26.0, -11.5
 LNG_MIN, LNG_MAX = 43.0, 51.0
+# Longitudes beyond ~50.6°E are east of Madagascar's coast (open Indian Ocean).
+# Records in this band are loaded but flagged needs_review so they do not render
+# on the public map until a human has verified the coordinates.
+LNG_OFFSHORE_THRESHOLD = 50.6
 
 
 class Command(BaseCommand):
@@ -99,6 +103,15 @@ class Command(BaseCommand):
                         )
 
                     location_key = f"{point.x:.5f},{point.y:.5f}"
+                    needs_review = point.x > LNG_OFFSHORE_THRESHOLD
+                    review_notes = ""
+                    if needs_review:
+                        review_notes = (
+                            f"Auto-flagged: longitude {point.x:.3f}°E is east of "
+                            f"Madagascar's coast (threshold {LNG_OFFSHORE_THRESHOLD}°E). "
+                            f"Source: {parsed['source_citation']}. Verify coordinates "
+                            f"against the original record before surfacing publicly."
+                        )
                     defaults = {
                         "locality_name": parsed["locality_name"],
                         "location": point,
@@ -112,6 +125,8 @@ class Command(BaseCommand):
                         "coordinate_precision": parsed["coordinate_precision"],
                         "is_sensitive": parsed["is_sensitive"],
                         "notes": parsed["notes"],
+                        "needs_review": needs_review,
+                        "review_notes": review_notes,
                     }
                     _, was_created = SpeciesLocality.objects.update_or_create(
                         species=species,

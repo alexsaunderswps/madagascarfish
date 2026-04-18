@@ -271,8 +271,10 @@ class SpeciesLocalityAdmin(GISModelAdmin):
         "drainage_basin",
         "year_collected",
         "coordinate_precision",
+        "needs_review",
     ]
     list_filter = [
+        "needs_review",
         "locality_type",
         "presence_status",
         "water_body_type",

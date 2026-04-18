@@ -369,6 +369,22 @@ class SpeciesLocality(models.Model):
         max_length=25, choices=CoordinatePrecision.choices, default=CoordinatePrecision.EXACT
     )
     is_sensitive = models.BooleanField(default=False)
+    # needs_review quarantines a record from the public map without deleting it.
+    # Flip when a source-data error is suspected (e.g. coordinates place the
+    # point in open ocean, species misidentified, date wildly out of range).
+    # The public map API excludes needs_review=True; admin surfaces a
+    # "Needs review" queue for manual re-verification against the upstream
+    # source institution. See docs/planning/business-analysis/
+    # map-ux-decisions-2026-04-18.md §6.
+    needs_review = models.BooleanField(default=False, db_index=True)
+    review_notes = models.TextField(
+        blank=True,
+        help_text=(
+            "Why this record is flagged (e.g. 'coordinates place point in open "
+            "ocean; source GBIF record pending re-verification'). Shown only "
+            "in admin."
+        ),
+    )
     # Deterministic key for uniqueness — geometry equality is unreliable in PostgreSQL
     location_key = models.CharField(max_length=50, editable=False)
     notes = models.TextField(blank=True)

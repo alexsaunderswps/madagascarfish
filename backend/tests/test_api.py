@@ -751,6 +751,27 @@ class TestMapLocalities:
         resp = api_client.get("/api/v1/map/localities/?bbox=invalid")
         assert resp.status_code == 200
 
+    def test_needs_review_excluded(
+        self, api_client: APIClient, locality: SpeciesLocality, species_cr: Species
+    ) -> None:
+        # A record flagged needs_review must not appear on the public map.
+        SpeciesLocality.objects.create(
+            species=species_cr,
+            locality_name="Offshore artifact",
+            location=Point(50.983, -14.8, srid=4326),
+            locality_type="observation",
+            presence_status="present",
+            coordinate_precision="exact",
+            source_citation="Bad import",
+            needs_review=True,
+            review_notes="Auto-flagged: longitude east of coast",
+        )
+        resp = api_client.get("/api/v1/map/localities/")
+        data = resp.json()
+        # Only the original (non-flagged) locality is returned.
+        assert len(data["features"]) == 1
+        assert data["features"][0]["properties"]["locality_name"] == "Manombo Forest"
+
 
 # ============================================================
 # Watershed List — BE-05-8
