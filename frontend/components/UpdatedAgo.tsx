@@ -16,15 +16,16 @@ function formatAgo(ms: number): string {
 
 export default function UpdatedAgo({ iso }: { iso: string }) {
   const ts = Date.parse(iso);
-  const [now, setNow] = useState<number>(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(id);
   }, []);
   if (Number.isNaN(ts)) return null;
   return (
     <time dateTime={iso} className="text-xs text-slate-500" title={new Date(ts).toISOString()}>
-      Updated {formatAgo(now - ts)}
+      {now === null ? "Updated recently" : `Updated ${formatAgo(now - ts)}`}
     </time>
   );
 }
