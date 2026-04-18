@@ -9,7 +9,7 @@ export const revalidate = 3600;
 export const metadata = {
   title: "Conservation Dashboard — Madagascar Freshwater Fish",
   description:
-    "Live counts of endemic freshwater fish species, IUCN status breakdown, ex-situ coverage, and field programs in Madagascar.",
+    "Counts of endemic freshwater fish species, IUCN Red List breakdown, ex-situ coverage, and field programs in Madagascar. Refreshed hourly.",
 };
 
 const STALE_THRESHOLD_MS = 2 * 60 * 60 * 1000;
@@ -18,13 +18,13 @@ const COVERAGE_GAP_HREF =
   "/species/?iucn_status=CR,EN,VU&has_captive_population=false";
 
 const CHART_CAPTION =
-  "Counts reflect the current IUCN Red List assessment for each endemic species in the platform.";
+  "Counts mirror the most recent accepted IUCN Red List assessment for each endemic species in the registry. Species with no assessment appear under Not Evaluated.";
 
 function StalenessBanner({ reason }: { reason: "failure" | "stale" }) {
   const message =
     reason === "failure"
-      ? "Live statistics temporarily unavailable — last known values shown."
-      : "Live statistics are older than usual — a refresh is in progress.";
+      ? "Current statistics are temporarily unavailable. The last successfully retrieved values are shown below."
+      : "The counts shown are older than the usual refresh window. A refresh is in progress.";
   return (
     <div
       role="status"
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
           <StalenessBanner reason="failure" />
         </div>
         <p className="mt-6 text-slate-600">
-          Please try again shortly, or browse the{" "}
+          Try again in a moment, or browse the{" "}
           <Link href="/species/" className="text-sky-700 underline">
             species directory
           </Link>
@@ -97,7 +97,7 @@ export default async function DashboardPage() {
           Conservation Dashboard
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-          Madagascar freshwater fish, at a glance
+          Madagascar freshwater fish at a glance
         </h1>
         <UpdatedAgo iso={last_updated} />
       </header>
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
           href="/species/"
         />
         <StatTile
-          label="Institutions with captive populations"
+          label="Institutions holding captive populations"
           value={ex_situ_coverage.institutions_active}
         />
         <StatTile
