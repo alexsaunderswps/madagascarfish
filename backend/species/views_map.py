@@ -24,7 +24,7 @@ class SpeciesLocalityGeoView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request: Request) -> Response:
-        qs = SpeciesLocality.objects.select_related("species")
+        qs = SpeciesLocality.objects.select_related("species").exclude(needs_review=True)
 
         # Apply filters — validate numeric params to prevent 500 on bad input
         species_id = request.query_params.get("species_id")
