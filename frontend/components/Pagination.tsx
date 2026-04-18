@@ -40,7 +40,14 @@ export default function Pagination({
           >
             ← Previous
           </Link>
-        ) : null}
+        ) : (
+          <span
+            aria-disabled="true"
+            className="rounded border border-slate-200 px-3 py-1 text-slate-400"
+          >
+            ← Previous
+          </span>
+        )}
         {page < totalPages ? (
           <Link
             href={buildHref(page + 1)}
@@ -48,7 +55,14 @@ export default function Pagination({
           >
             Next →
           </Link>
-        ) : null}
+        ) : (
+          <span
+            aria-disabled="true"
+            className="rounded border border-slate-200 px-3 py-1 text-slate-400"
+          >
+            Next →
+          </span>
+        )}
       </div>
     </nav>
   );
