@@ -117,7 +117,8 @@ Order top-to-bottom:
 9. Behavior & Social Structure.
 10. Breeding (spawning mode / triggers / egg count / fry care / bottlenecks /
     notes).
-11. Narrative (rendered Markdown).
+11. Narrative (plain text, rendered with `whitespace-pre-line` — paragraphs
+    split on blank lines; no Markdown at MVP per 2026-04-18 decision).
 12. Sourcing Ethics (`HusbandrySourcingEthics`) + species-specific sourcing
     notes from `sourcing_notes`.
 13. References (list of `sources`, each a `label` plus optional outbound link).
@@ -228,7 +229,7 @@ to a non-existent husbandry page is a legitimate 404.
 **When** a crawler or social share card requests the URL
 **Then** `generateMetadata` returns a title of the form "Keeping *{Species
 name}* — Madagascar Freshwater Fish" and a description derived from the
-narrative (first ~160 chars, stripped of Markdown).
+narrative (first ~160 chars, collapsed whitespace).
 
 ### AC-09.11 — Sourcing-ethics component is wired unchanged
 
@@ -302,11 +303,69 @@ At this gate, the test writer should verify:
 - **Authoring capacity (Q1, still open).** Demo quality depends on 3–5 rich
   exemplars. If only 1 lands, the demo still works for one species; the
   "coming soon" framing for the rest is a feature (per BA §6).
-- **Visual design of emphasized teaser.** CARES/SHOAL emphasis styling is
-  unspecified; recommend coordinating with conservation-writer + ux-reviewer
-  on voice + treatment before implementation. Low implementation risk, high
-  credibility risk if the emphasis reads as clickbait rather than editorial.
-- **Markdown rendering in narrative.** Frontend currently has no Markdown
-  renderer. Either add one (react-markdown) or constrain narrative to
-  plain-text + line breaks. Recommend plain-text at MVP (paragraphs split on
-  blank lines), Markdown post-MVP. Confirm before implementation.
+- **Visual design of emphasized teaser.** **Resolved 2026-04-18** by
+  ux-reviewer — see "Visual treatment — teaser block" section below.
+- **Markdown rendering in narrative.** **Resolved 2026-04-18:** plain text at
+  MVP. Matches existing long-text convention (`Species.description`,
+  `ConservationAssessment.rationale` — all plain `TextField` rendered as
+  `<p>{text}</p>`). No `dangerouslySetInnerHTML`, no sanitizer dependency,
+  zero XSS surface at Tier 1. Render with Tailwind `whitespace-pre-line` so
+  `\n\n` paragraph breaks survive. Re-evaluate when Tier 3+ contributor
+  submissions land post-MVP (likely a restricted-subset `react-markdown` +
+  `rehype-sanitize` at that point).
+
+## Visual treatment — teaser block
+
+Locked 2026-04-18 by ux-reviewer. Resolves the "Visual design of emphasized
+teaser" item above.
+
+**Emphasized variant (CARES-listed OR `shoal_priority`):** left accent
+border, 3–4px, in a cool editorial tone (recommend `border-l-sky-600` or
+`border-l-emerald-600` — stay out of the red/orange/amber band owned by the
+IUCN badge), plus a small uppercase chip label reading `CARES breeder
+priority` or `SHOAL priority` rendered inline above the "Keeping this
+species" h2. The rest of the block — heading, 1–2 line teaser sentence, "See
+husbandry guidance →" link — keeps default profile typography. No background
+fill, no shadow, no icon. Reads as editorial pull-quote, not promotion.
+
+**Justification:** the profile header already carries a saturated IUCN
+status pill. A tinted background or second colored badge near it would
+create badge-on-badge noise and muddy the conservation-first hierarchy the
+BA locked. A left accent border is a long-established content convention
+(callouts, pull-quotes) that signals "this is relevant to you" without
+competing chroma. The chip is text-first so it survives grayscale, print,
+and RSS.
+
+**Placement:** between Captive Population Summary and Field Programs (as
+already specified in Components and Files). Matches the hobbyist JTBD ("can
+I keep this fish?") arriving after the reader has seen conservation status,
+ecology, and whether any institutions already hold it — which is the
+context they need to evaluate "should I take this on?" Above ex-situ would
+front-run the conservation framing; below field programs would bury it.
+
+**Normal (non-emphasized) variant:** same block, same copy, **no** accent
+border, **no** chip. Plain heading + teaser sentence + link. Emphasized
+variant is strictly additive — one border, one chip — so the two variants
+share a component and the CARES/SHOAL case is a prop-driven overlay, not a
+parallel design.
+
+**Accessibility:**
+- Do not rely on color alone. Chip carries the text label `CARES breeder
+  priority` / `SHOAL priority`; accent border is decorative and must be
+  paired with that chip so color-blind and grayscale users get the signal.
+- Chip contrast: text on chip must meet WCAG AA (4.5:1) at small-text size.
+- Accent border is `aria-hidden` decoration; no role change.
+- Teaser block wraps heading and link in
+  `<section aria-labelledby="husbandry-teaser-heading">` so screen-reader
+  users land on "Keeping this species" as a landmark.
+- When emphasized, chip text must appear in reading order before the
+  heading so a screen-reader user hears "CARES breeder priority. Keeping
+  this species. See husbandry guidance." in that order.
+- Link text "See husbandry guidance →" is self-describing; the arrow is
+  `aria-hidden`.
+- If both CARES and SHOAL flags are set, show a single chip reading `CARES
+  + SHOAL priority` rather than stacking two chips.
+
+**Deliberately avoided:** background tints (compete with sparse-data amber
+warning), icons (read as marketing), size/weight changes on the heading
+(break h2 rhythm shared with Captive Population Summary and Field Programs).
