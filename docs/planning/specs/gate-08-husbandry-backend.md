@@ -344,10 +344,11 @@ At this gate, the test writer should verify:
   `TEMPLATE.md` (fully populated, marked `published=False`) as part of this
   gate's test fixtures so the frontend has at least one readable shape to
   develop against.
-- **Reviewer ORCID surfacing** requires `User.orcid` to exist on the auth
-  model. If it does not, add a nullable `orcid` CharField to the User profile
-  as part of this gate or degrade gracefully to username-only and track ORCID
-  as a follow-up. Confirm before implementation starts.
+- **Reviewer ORCID surfacing.** **Resolved 2026-04-18:** the field exists —
+  `accounts.User.orcid_id` (CharField, blank=True) at
+  `backend/accounts/models.py:55`. Gate 08 serializer exposes it as
+  `reviewer.orcid` (or `orcid_id` — pick one and match Gate 09's governance
+  footer). No schema change needed; no follow-up required.
 - **App location (`husbandry` vs folded into `species`).** **Resolved
   2026-04-18:** new `husbandry` app. Architecture + BA both recommended new
   app (unanimous). Key reasons: consistent with existing per-bounded-context
