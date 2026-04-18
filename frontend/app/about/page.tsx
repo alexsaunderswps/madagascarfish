@@ -1,15 +1,22 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { fetchDashboard } from "@/lib/dashboard";
+
 export const metadata: Metadata = {
   title: "About — Madagascar Freshwater Fish Conservation Platform",
   description:
     "About the Madagascar Freshwater Fish Conservation Platform: mission, data sources, ownership, and citations.",
 };
 
+export const revalidate = 3600;
+
 const REPO_URL = "https://github.com/alexsaunderswps/madagascarfish";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const dashboard = await fetchDashboard();
+  const speciesTotal = dashboard?.species_counts.total ?? null;
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
@@ -20,10 +27,12 @@ export default function AboutPage() {
         <h2 className="text-lg font-semibold text-slate-900">Why this platform exists</h2>
         <p>
           Madagascar&apos;s freshwater fish are the most imperiled vertebrate
-          group on the island. Of the roughly 79 described and undescribed
-          endemic species, the majority are assessed as threatened on the IUCN
-          Red List, and a significant share have no known captive population to
-          serve as a demographic safety net. Coordination across the
+          group on the island. Of the{" "}
+          {speciesTotal !== null ? speciesTotal : "~79"} described and
+          undescribed endemic species in the registry, the majority are
+          assessed as threatened on the IUCN Red List, and a significant share
+          have no known captive population to serve as a demographic safety
+          net. Coordination across the
           institutions working on these species — zoos, aquariums, academic
           researchers, hobbyist breeders, and in-country field programs — has
           historically relied on email threads, personal networks, and
@@ -101,8 +110,19 @@ export default function AboutPage() {
         <h2 className="text-lg font-semibold text-slate-900">Citations</h2>
         <ul className="list-inside list-disc space-y-1">
           <li>
-            Leiss, A., et al. (2022). The extinction crisis of Madagascar&apos;s
-            freshwater fishes.
+            Leiss L, Rauhaus A, Rakotoarison A, Fusari C, Vences M, Ziegler T.
+            Review of threatened Malagasy freshwater fishes in zoos and
+            aquaria: The necessity of an ex situ conservation network — A call
+            for action. <em>Zoo Biol.</em> 2022 May;41(3):244–262.{" "}
+            <a
+              href="https://doi.org/10.1002/zoo.21661"
+              className="text-sky-700 underline underline-offset-2 hover:text-sky-900"
+              target="_blank"
+              rel="noreferrer"
+            >
+              doi:10.1002/zoo.21661
+            </a>
+            . PMID: 34870879; PMCID: PMC9299897.
           </li>
           <li>
             IUCN. Red List of Threatened Species. Version consulted at build

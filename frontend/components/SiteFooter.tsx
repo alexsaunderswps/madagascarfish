@@ -17,7 +17,7 @@ export default function SiteFooter() {
             </a>
           </li>
           <li>Apache-2.0</li>
-          <li>Data: IUCN Red List, FishBase, GBIF, ZIMS</li>
+          <li>Data: IUCN Red List, FishBase, GBIF, ZIMS, SHOAL, CARES</li>
         </ul>
       </div>
     </footer>
