@@ -99,6 +99,12 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
             );
           })}
         </div>
+        {iucn.includes("NE") ? (
+          <p className="pt-1 text-xs text-slate-500">
+            NE (&ldquo;Not yet assessed&rdquo;) includes undescribed
+            morphospecies that have not been assessed by the IUCN Red List.
+          </p>
+        ) : null}
       </fieldset>
 
       <label className="block text-sm">
