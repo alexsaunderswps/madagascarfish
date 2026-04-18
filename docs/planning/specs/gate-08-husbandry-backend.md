@@ -76,8 +76,11 @@ Total: backend-only gate. No frontend changes.
 
 ## Data Model
 
-New Django app `husbandry` (or co-locate under `species` — recommend new app
-for clean migration boundary and future extension to photos/version history).
+New Django app `husbandry`. **Confirmed 2026-04-18** by architecture + BA review
+(see "App location" under Risks and Open Questions). Rationale: matches the
+project's one-bounded-context-per-app pattern (`populations`, `fieldwork`,
+`conservation`); keeps husbandry migrations off the hot `species` table;
+gives Tier 3+ submissions / photos / version history a clean home.
 
 ### `SpeciesHusbandry`
 
@@ -345,5 +348,12 @@ At this gate, the test writer should verify:
   model. If it does not, add a nullable `orcid` CharField to the User profile
   as part of this gate or degrade gracefully to username-only and track ORCID
   as a follow-up. Confirm before implementation starts.
-- **App location (`husbandry` vs folded into `species`).** Recommending new
-  app; confirm with tech lead before migration 0001 is generated.
+- **App location (`husbandry` vs folded into `species`).** **Resolved
+  2026-04-18:** new `husbandry` app. Architecture + BA both recommended new
+  app (unanimous). Key reasons: consistent with existing per-bounded-context
+  pattern; isolates migrations from the hot `species` table; natural home for
+  upcoming contribute/moderation pipeline, photos, and version history; cost
+  to move later (RunPython table renames) materially exceeds the half-day of
+  scaffolding now. Constraint carried forward: **do not denormalize taxonomy
+  or `iucn_status` onto `SpeciesHusbandry`** — one-to-one FK and read-through
+  only.
