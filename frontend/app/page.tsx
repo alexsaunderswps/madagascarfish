@@ -15,19 +15,19 @@ const NAV_CARDS: NavCard[] = [
     href: "/species/",
     title: "Species Directory",
     description:
-      "Browse all endemic species, filter by IUCN status, family, or captive-population coverage.",
+      "Browse endemic species. Filter by IUCN Red List category, family, or captive-population coverage.",
   },
   {
     href: "/map/",
     title: "Distribution Map",
     description:
-      "Explore occurrence records across Madagascar's freshwater systems.",
+      "Locality records across Madagascar's freshwater systems, color-coded by IUCN category.",
   },
   {
     href: "/dashboard/",
     title: "Conservation Dashboard",
     description:
-      "Live counts for species assessments, captive coverage, and field programs.",
+      "Counts of species assessments, ex-situ coverage, and field programs, refreshed hourly.",
   },
 ];
 
@@ -45,13 +45,13 @@ export default async function HomePage() {
             Madagascar Freshwater Fish Conservation Platform
           </p>
           <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-            Coordinating conservation for Madagascar&apos;s most imperiled
-            vertebrates.
+            A shared record for Madagascar&apos;s endemic freshwater fish.
           </h1>
           <p className="max-w-3xl text-base text-slate-600 sm:text-lg">
-            An open platform unifying species profiles, ex-situ breeding
-            coordination, and field program tracking for the ~79 endemic
-            freshwater fish of Madagascar.
+            An open platform that brings together species profiles, ex-situ
+            breeding coordination, and field program tracking for the roughly
+            79 freshwater fish species found only in Madagascar. Built to
+            complement IUCN, GBIF, FishBase, and ZIMS — not replace them.
           </p>
         </header>
 
@@ -76,7 +76,7 @@ export default async function HomePage() {
             </p>
           ) : (
             <p className="text-base text-amber-900" data-testid="coverage-gap-fallback">
-              Loading current statistics…
+              Coverage statistics are refreshing. Counts will appear shortly.
             </p>
           )}
         </Link>
