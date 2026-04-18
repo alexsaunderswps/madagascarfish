@@ -10,7 +10,7 @@ export const revalidate = 3600;
 export const metadata = {
   title: "Distribution Map — Madagascar Freshwater Fish",
   description:
-    "Interactive map of endemic freshwater fish locality records across Madagascar. Color-coded by IUCN status.",
+    "Locality records for endemic freshwater fish across Madagascar, color-coded by IUCN Red List category. Exact coordinates for threatened species are generalized per GBIF sensitive-species guidance.",
 };
 
 const MapClient = dynamic(() => import("@/components/MapClient"), {
@@ -43,8 +43,8 @@ export default async function MapPage({
     return (
       <main className="mx-auto max-w-3xl px-6 py-16">
         <EmptyState
-          title="Map temporarily unavailable"
-          body="The locality data service is unreachable. Please try again shortly, or use the species directory for a text-based view."
+          title="Map data temporarily unavailable"
+          body="The locality data service is unreachable. Try again in a moment, or browse the species directory for profile and conservation details."
           primaryAction={{ href: "/map/", label: "Try again" }}
           secondaryAction={{ href: "/species/", label: "Browse all species" }}
         />
@@ -59,8 +59,8 @@ export default async function MapPage({
           title="No locality records to map"
           body={
             speciesId
-              ? "This species has no public locality records. Try the directory for profile and conservation details."
-              : "No locality records are currently published. The directory lists every species regardless of mapped localities."
+              ? "No public locality records are available for this species. Exact coordinates for threatened species are restricted to coordinator-tier accounts; the species profile still lists conservation status and other details."
+              : "No locality records are currently published. The species directory lists every species in the registry, whether or not their localities are mapped."
           }
           primaryAction={{ href: "/species/", label: "Browse all species" }}
         />
@@ -77,17 +77,7 @@ export default async function MapPage({
         </p>
         <MapViewToggle current={view} searchParams={searchParams} />
       </div>
-      {data.features.length === 0 ? (
-        <div className="mx-auto max-w-3xl px-6 py-16">
-          <p className="text-slate-600">
-            No locality records match the current filters.{" "}
-            <a href="/species/" className="text-sky-700 underline">
-              Browse the species directory
-            </a>
-            .
-          </p>
-        </div>
-      ) : view === "list" ? (
+      {view === "list" ? (
         <MapListView data={data} />
       ) : (
         <MapClient initialData={data} />
