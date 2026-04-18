@@ -12,6 +12,7 @@ import {
   MapContainer,
   Popup,
   TileLayer,
+  useMap,
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
@@ -195,15 +196,47 @@ function Legend() {
   );
 }
 
+/** When ?focus_locality=ID is present, pan/zoom to that point and open its popup.
+ *
+ * Fires once on mount (and again if the focus id changes). We look up the
+ * feature in the already-loaded collection rather than refetching — the list
+ * view and the map share the same dataset.
+ */
+function FocusLocality({
+  features,
+  focusLocalityId,
+}: {
+  features: LocalityFeature[];
+  focusLocalityId: number | null;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    if (focusLocalityId == null) return;
+    const target = features.find(
+      (f) => (f.id ?? f.properties.id) === focusLocalityId,
+    );
+    if (!target || !target.geometry) return;
+    const [lng, lat] = target.geometry.coordinates;
+    map.flyTo([lat, lng], Math.max(map.getZoom(), 11), { duration: 0.8 });
+  }, [map, features, focusLocalityId]);
+  return null;
+}
+
 export default function MapClient({
   initialData,
+  focusLocalityId = null,
 }: {
   initialData: LocalityFeatureCollection | null;
+  focusLocalityId?: number | string | null;
 }) {
   const features = initialData?.features ?? [];
   const totalFeatures = features.length;
   const speciesCount = new Set(features.map((f) => f.properties.species_id)).size;
   const [usingFallbackTiles, setUsingFallbackTiles] = useState(false);
+  const focusId =
+    focusLocalityId == null || focusLocalityId === ""
+      ? null
+      : Number(focusLocalityId);
 
   return (
     <div className="relative h-[calc(100vh-8rem)] min-h-[500px] w-full">
@@ -225,6 +258,10 @@ export default function MapClient({
             <SatelliteLayer onFallback={setUsingFallbackTiles} />
           </LayersControl.BaseLayer>
         </LayersControl>
+
+        {focusId != null && Number.isFinite(focusId) ? (
+          <FocusLocality features={features} focusLocalityId={focusId} />
+        ) : null}
 
         <MarkerClusterGroup
           chunkedLoading

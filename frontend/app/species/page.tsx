@@ -27,6 +27,7 @@ function hasAnyFilter(searchParams: Record<string, string | string[] | undefined
     "cares_status",
     "endemic_status",
     "has_captive_population",
+    "include_introduced",
   ];
   return keys.some((k) => {
     const v = searchParams[k];

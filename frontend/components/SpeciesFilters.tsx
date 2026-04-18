@@ -27,6 +27,9 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
   const [captive, setCaptive] = useState<
     NonNullable<SpeciesFilterState["has_captive_population"]>
   >(initial.has_captive_population ?? "");
+  const [includeIntroduced, setIncludeIntroduced] = useState<boolean>(
+    initial.include_introduced === "true",
+  );
 
   function pushParams(next: URLSearchParams) {
     next.delete("page");
@@ -47,6 +50,8 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
     if (taxStatus) params.set("taxonomic_status", taxStatus);
     params.delete("has_captive_population");
     if (captive) params.set("has_captive_population", captive);
+    params.delete("include_introduced");
+    if (includeIntroduced) params.set("include_introduced", "true");
     pushParams(params);
   }
 
@@ -56,6 +61,7 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
     setFamily("");
     setTaxStatus("");
     setCaptive("");
+    setIncludeIntroduced(false);
     router.push("/species/");
   }
 
@@ -167,6 +173,22 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
             </button>
           ))}
         </div>
+      </fieldset>
+
+      <fieldset className="space-y-1">
+        <legend className="text-sm font-medium text-slate-700">Introduced species</legend>
+        <label className="flex items-start gap-2 text-xs text-slate-700">
+          <input
+            type="checkbox"
+            checked={includeIntroduced}
+            onChange={(e) => setIncludeIntroduced(e.target.checked)}
+            className="mt-0.5"
+          />
+          <span>
+            Show introduced (exotic) species — e.g. <em>Oreochromis</em> spp.
+            Hidden by default so the directory reads as Madagascar&rsquo;s native fauna.
+          </span>
+        </label>
       </fieldset>
 
       <div className="flex gap-2">

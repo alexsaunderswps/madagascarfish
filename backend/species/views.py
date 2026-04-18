@@ -22,6 +22,12 @@ class SpeciesFilter(filters.FilterSet):
     cares_status = filters.CharFilter(field_name="cares_status")
     endemic_status = filters.CharFilter(field_name="endemic_status")
     has_captive_population = filters.BooleanFilter(method="filter_has_captive_population")
+    # Introduced (exotic) species are hidden from the default public directory
+    # so the list reads as "Madagascar's native fish fauna" rather than mixing
+    # invasives like Oreochromis spp. alongside endemics. Set
+    # include_introduced=true to surface them, or filter endemic_status
+    # explicitly — either path opts out of the default exclusion.
+    include_introduced = filters.BooleanFilter(method="filter_include_introduced")
 
     class Meta:
         model = Species
@@ -32,6 +38,7 @@ class SpeciesFilter(filters.FilterSet):
             "cares_status",
             "endemic_status",
             "has_captive_population",
+            "include_introduced",
         ]
 
     def filter_iucn_status(
@@ -62,6 +69,20 @@ class SpeciesFilter(filters.FilterSet):
         annotated = queryset.annotate(_has_captive_population=has_pop)
         return annotated.filter(_has_captive_population=value)
 
+    def filter_include_introduced(
+        self,
+        queryset: QuerySet[Species],
+        name: str,
+        value: bool | None,
+    ) -> QuerySet[Species]:
+        # value=True: no-op, show everything (caller opted in).
+        # value=False or missing: exclude introduced. The FilterSet's default
+        # flow only calls this method when the param is present, so the
+        # actual default-exclusion is applied in get_queryset via the same path.
+        if value is True:
+            return queryset
+        return queryset.exclude(endemic_status=Species.EndemicStatus.INTRODUCED)
+
 
 class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
@@ -73,6 +94,21 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         qs = Species.objects.order_by("scientific_name")
+        # Default to hiding introduced species from list/retrieve unless the
+        # caller passes include_introduced=true or explicitly filters
+        # endemic_status. Retrieve-by-id is still allowed for any species —
+        # skip the exclusion there so direct profile links keep working.
+        if self.action == "list":
+            request = getattr(self, "request", None)
+            params = request.GET if request is not None else {}
+            include_introduced = str(params.get("include_introduced", "")).lower() in (
+                "true",
+                "1",
+                "yes",
+            )
+            endemic_status_filter = params.get("endemic_status")
+            if not include_introduced and not endemic_status_filter:
+                qs = qs.exclude(endemic_status=Species.EndemicStatus.INTRODUCED)
         if self.action == "retrieve":
             # Detail view uses conservation_assessments, field_programs via SerializerMethodField;
             # ex_situ_summary fires a separate aggregate query (unavoidable).

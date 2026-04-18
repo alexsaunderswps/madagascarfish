@@ -68,19 +68,49 @@ export default async function MapPage({
     );
   }
 
+  const focusLocalityRaw = searchParams.focus_locality;
+  const focusLocalityId = Array.isArray(focusLocalityRaw) ? focusLocalityRaw[0] : focusLocalityRaw;
+
+  // When filtering to one species, surface the species name + a Clear button so
+  // users don't have to hand-edit the URL to get back to the full distribution.
+  const filterSpeciesName = speciesId
+    ? data.features[0]?.properties.scientific_name ?? null
+    : null;
+
+  const clearHref = view === "list" ? "/map/?view=list" : "/map/";
+
   return (
     <main>
       <h1 className="sr-only">Distribution Map</h1>
-      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
-        <p className="text-sm text-slate-600">
-          {data.features.length} locality record{data.features.length === 1 ? "" : "s"}
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-white px-6 py-3">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
+          <span>
+            {data.features.length} locality record{data.features.length === 1 ? "" : "s"}
+          </span>
+          {speciesId ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs text-sky-900 ring-1 ring-sky-200">
+              <span>
+                Filtered to{" "}
+                <em className="font-semibold not-italic">
+                  {filterSpeciesName ?? `species #${speciesId}`}
+                </em>
+              </span>
+              <a
+                href={clearHref}
+                className="font-semibold text-sky-700 underline-offset-2 hover:underline"
+                aria-label="Clear species filter and show all locality records"
+              >
+                Clear
+              </a>
+            </span>
+          ) : null}
+        </div>
         <MapViewToggle current={view} searchParams={searchParams} />
       </div>
       {view === "list" ? (
         <MapListView data={data} />
       ) : (
-        <MapClient initialData={data} />
+        <MapClient initialData={data} focusLocalityId={focusLocalityId ?? null} />
       )}
     </main>
   );

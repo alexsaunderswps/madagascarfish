@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Leaflet marker clusters — default plugin CSS only draws the number. Give the
+ * cluster a visible disc so it reads as an interactive target against both the
+ * OSM and satellite basemaps. Sizes match clusterIcon() in MapClient.tsx. */
+.mffcp-cluster-wrapper {
+  background: transparent;
+  border: none;
+}
+
+.mffcp-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: rgba(14, 116, 144, 0.9); /* sky-700 @ 90% */
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.mffcp-cluster:hover {
+  background: rgba(3, 105, 161, 0.95); /* sky-800 */
+}
