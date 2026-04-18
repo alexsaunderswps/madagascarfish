@@ -79,6 +79,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
     field_programs = serializers.SerializerMethodField()
     ex_situ_summary = serializers.SerializerMethodField()
     has_localities = serializers.SerializerMethodField()
+    has_husbandry = serializers.SerializerMethodField()
 
     class Meta:
         model = Species
@@ -107,10 +108,20 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
             "field_programs",
             "ex_situ_summary",
             "has_localities",
+            "has_husbandry",
         ]
 
     def get_has_localities(self, obj: Species) -> bool:
         return obj.localities.exists()
+
+    def get_has_husbandry(self, obj: Species) -> bool:
+        # Tier 1 shape: boolean only, derived from presence of a PUBLISHED
+        # SpeciesHusbandry row. Drafts must not flip this true (AC-08.5).
+        # Local import keeps the species app independent of husbandry at
+        # module-load time.
+        from husbandry.models import SpeciesHusbandry
+
+        return SpeciesHusbandry.objects.filter(species_id=obj.pk, published=True).exists()
 
     def get_conservation_assessments(self, obj: Species) -> list[dict]:
         tier = self._get_tier()

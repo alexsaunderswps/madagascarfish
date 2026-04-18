@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "fieldwork",
     "integration",
     "audit",
+    "husbandry",
 ]
 
 AUTH_USER_MODEL = "accounts.User"

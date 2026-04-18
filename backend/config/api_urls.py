@@ -20,6 +20,8 @@ urlpatterns = [
     path("auth/", include("accounts.urls")),
     # Core CRUD endpoints
     path("", include(router.urls)),
+    # Husbandry (Gate 08) — nested under /species/{id}/husbandry/
+    path("", include("husbandry.urls")),
     # Dashboard
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     # Map endpoints
