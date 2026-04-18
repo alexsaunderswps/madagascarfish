@@ -66,10 +66,11 @@ export default async function SpeciesProfilePage({
     return (
       <main className="mx-auto max-w-2xl px-6 py-24 text-center">
         <h1 className="font-serif text-2xl text-slate-900">
-          Species data temporarily unavailable
+          Species profile temporarily unavailable
         </h1>
         <p className="mt-4 text-slate-600">
-          We couldn&apos;t load this profile just now. Please try again shortly.
+          The species data service is unreachable. Try again in a moment, or
+          return to the directory.
         </p>
         <Link
           href="/species"
@@ -107,7 +108,7 @@ export default async function SpeciesProfilePage({
                 <span className="mr-2 rounded bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-900 ring-1 ring-sky-200">
                   Provisional Name
                 </span>
-                <span className="text-slate-600">Undescribed taxon — formal description pending.</span>
+                <span className="text-slate-600">Undescribed morphospecies — formal description pending.</span>
               </p>
             ) : sp.authority || sp.year_described ? (
               <p className="mt-1 text-sm text-slate-600">
@@ -140,7 +141,8 @@ export default async function SpeciesProfilePage({
 
       {sparse ? (
         <p className="mt-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          Limited public data available for this species. Check back as our directory grows.
+          Limited public data is available for this species. Additional
+          information will be added as it is published.
         </p>
       ) : null}
 
@@ -175,7 +177,9 @@ export default async function SpeciesProfilePage({
               ) : null}
             </dl>
           ) : (
-            <p className="mt-2 text-sm text-slate-600">Not yet assessed.</p>
+            <p className="mt-2 text-sm text-slate-600">
+              Not yet assessed on the IUCN Red List.
+            </p>
           )}
           {sp.cares_status ? (
             <p className="mt-2 text-sm text-slate-700">
@@ -184,7 +188,7 @@ export default async function SpeciesProfilePage({
             </p>
           ) : null}
           {sp.shoal_priority ? (
-            <p className="mt-1 text-sm text-sky-700">SHOAL 1,000 Fishes priority species</p>
+            <p className="mt-1 text-sm text-sky-700">SHOAL 1,000 Fishes priority species.</p>
           ) : null}
         </section>
 
@@ -244,7 +248,7 @@ export default async function SpeciesProfilePage({
         </h2>
         {sp.ex_situ_summary.institutions_holding === 0 ? (
           <p className="mt-2 text-sm text-slate-600">
-            No captive population is currently tracked.
+            No captive population is currently tracked for this species.
           </p>
         ) : (
           <dl className="mt-2 grid grid-cols-3 gap-4 text-sm">
@@ -279,7 +283,7 @@ export default async function SpeciesProfilePage({
             <EmptyState
               variant="inline"
               title="No linked field programs"
-              body="No active field programs are linked to this species yet."
+              body="No field programs are currently linked to this species."
             />
           </div>
         ) : (
@@ -296,7 +300,7 @@ export default async function SpeciesProfilePage({
       {iucnUrl || fishbaseUrl ? (
         <section aria-labelledby="links-heading" className="mt-8">
           <h2 id="links-heading" className="font-serif text-xl text-slate-900">
-            External Links
+            External References
           </h2>
           <ul className="mt-2 space-y-1 text-sm">
             {iucnUrl ? (

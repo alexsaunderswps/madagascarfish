@@ -15,7 +15,7 @@ export const revalidate = 3600;
 export const metadata = {
   title: "Species Directory — Madagascar Freshwater Fish",
   description:
-    "Browse endemic freshwater fish species of Madagascar. Filter by IUCN status, family, and captive-population coverage.",
+    "Browse endemic freshwater fish species of Madagascar. Filter by IUCN Red List category, family, and captive-population coverage.",
 };
 
 function hasAnyFilter(searchParams: Record<string, string | string[] | undefined>): boolean {
@@ -57,15 +57,15 @@ export default async function SpeciesDirectoryPage({
         <h1 className="font-serif text-3xl text-slate-900">Species Directory</h1>
         {counts ? (
           <p className="mt-1 text-sm text-slate-600">
-            {counts.total} endemic freshwater fish species (
-            {counts.described} described, {counts.undescribed} undescribed)
+            {counts.total} endemic freshwater fish species
+            {" "}({counts.described} described, {counts.undescribed} undescribed)
           </p>
         ) : (
-          <p className="mt-1 text-sm text-slate-500">Loading counts…</p>
+          <p className="mt-1 text-sm text-slate-500">Counts refreshing…</p>
         )}
         {filtered ? (
           <p className="mt-1 text-sm text-slate-700">
-            Showing <strong>{list.count}</strong> species matching your filters.
+            <strong>{list.count}</strong> species match the current filters.
           </p>
         ) : null}
       </header>
@@ -79,18 +79,24 @@ export default async function SpeciesDirectoryPage({
           {list.results.length === 0 ? (
             backendUnavailable ? (
               <EmptyState
-                title="Species data temporarily unavailable"
-                body="Our directory is briefly offline. Please try again shortly."
+                title="Species directory temporarily unavailable"
+                body="The species data service is unreachable. Try again in a moment."
                 primaryAction={{ href: "/species/", label: "Try again" }}
               />
             ) : (
               <EmptyState
-                title="No species match those filters"
-                body="Try loosening a constraint, or browse the full directory."
+                title="No species match the current filters"
+                body={
+                  filtered
+                    ? "Clear one or more filters to widen the search, or browse the full directory."
+                    : "No species are currently listed."
+                }
                 primaryAction={
                   filtered ? { href: "/species/", label: "Clear filters" } : undefined
                 }
-                secondaryAction={{ href: "/species/", label: "Browse all species" }}
+                secondaryAction={
+                  filtered ? { href: "/species/", label: "Browse all species" } : undefined
+                }
               />
             )
           ) : (
