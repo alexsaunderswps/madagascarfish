@@ -41,6 +41,7 @@ module = [
     "husbandry.admin",
     "husbandry.serializers",
     "husbandry.views",
+    "husbandry.tests",
     "husbandry.management.*",
     "integration.admin",
     "populations.admin",
