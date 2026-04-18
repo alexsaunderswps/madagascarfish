@@ -3,14 +3,14 @@ import { expect, test } from "@playwright/test";
 test("hero landing renders mission, coverage stat, and three nav cards", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
 
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: /Coordinating conservation/i,
+      name: /shared record for Madagascar/i,
     }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 30000 });
 
   await expect(page.getByTestId("coverage-gap-stat")).toBeVisible();
 

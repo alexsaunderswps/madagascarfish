@@ -17,10 +17,10 @@ from __future__ import annotations
 from datetime import datetime
 
 import pytest
-from populations.models import ExSituPopulation, Institution
 from rest_framework.test import APIClient
-from species.models import Species, SpeciesLocality
 
+from populations.models import ExSituPopulation, Institution
+from species.models import Species, SpeciesLocality
 
 # ============================================================
 # Fixtures
