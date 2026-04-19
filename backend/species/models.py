@@ -1,10 +1,27 @@
 from __future__ import annotations
 
+import re
+
 from django.conf import settings
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import Point
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
+
+_SVG_ROOT_TAG_RE = re.compile(r"(<svg\b)([^>]*)(>)", re.IGNORECASE)
+_SVG_SIZE_ATTR_RE = re.compile(r'\s+(?:width|height)\s*=\s*"[^"]*"', re.IGNORECASE)
+
+
+def strip_svg_root_size_attrs(svg: str) -> str:
+    """Remove width/height attributes from the root <svg> tag so the frontend
+    can size it via CSS. Preserves viewBox and everything else verbatim."""
+    if not svg:
+        return svg
+
+    def _scrub(match: re.Match[str]) -> str:
+        return match.group(1) + _SVG_SIZE_ATTR_RE.sub("", match.group(2)) + match.group(3)
+
+    return _SVG_ROOT_TAG_RE.sub(_scrub, svg, count=1)
 
 
 class SpeciesQuerySet(models.QuerySet["Species"]):
@@ -117,8 +134,12 @@ class Species(models.Model):
         help_text=(
             "Optional inline SVG markup for a species-specific silhouette shown "
             "on the public profile when no photograph is available. Paste the "
-            "full <svg>…</svg> element; use a transparent fill and currentColor "
-            "strokes/fills so the figure inherits theme color. Tier-5 only."
+            "full <svg>…</svg> element. Authoring conventions: include a "
+            "<code>viewBox</code> attribute (e.g. <code>viewBox=\"0 0 200 80\"</code>), "
+            "use <code>fill=\"currentColor\"</code> on paths so the figure inherits "
+            "theme color, and omit <code>width</code>/<code>height</code> on the "
+            "root &lt;svg&gt; — they are stripped on save so CSS can size the "
+            "figure (renders ~300px wide on the public profile). Tier-5 only."
         ),
     )
     habitat_type = models.CharField(max_length=100, blank=True)
@@ -132,6 +153,11 @@ class Species(models.Model):
     class Meta:
         db_table = "species_species"
         verbose_name_plural = "species"
+
+    def save(self, *args: object, **kwargs: object) -> None:
+        if self.silhouette_svg:
+            self.silhouette_svg = strip_svg_root_size_attrs(self.silhouette_svg)
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.scientific_name
