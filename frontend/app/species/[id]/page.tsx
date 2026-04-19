@@ -128,6 +128,20 @@ export default async function SpeciesProfilePage({
             <p className="mt-1 text-sm text-slate-600">
               {sp.family} · {sp.genus} · <span className="capitalize">{sp.endemic_status}</span>
             </p>
+            {sp.cares_status || sp.shoal_priority ? (
+              <p className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                {sp.cares_status ? (
+                  <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-900 ring-1 ring-amber-200">
+                    CARES {sp.cares_status}
+                  </span>
+                ) : null}
+                {sp.shoal_priority ? (
+                  <span className="inline-flex items-center rounded-full bg-sky-50 px-2 py-0.5 font-semibold text-sky-900 ring-1 ring-sky-200">
+                    SHOAL 1,000 Fishes priority
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-col items-end gap-2">
             <IucnBadge
@@ -157,6 +171,7 @@ export default async function SpeciesProfilePage({
       <SpeciesSilhouette
         maxLengthCm={sp.max_length_cm}
         scientificName={displayName}
+        customSvg={sp.silhouette_svg}
       />
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
@@ -259,43 +274,73 @@ export default async function SpeciesProfilePage({
         <h2 id="captive-heading" className="font-serif text-xl text-slate-900">
           Captive Population Summary
         </h2>
-        {sp.ex_situ_summary.institutions_holding === 0 ? (
-          <p className="mt-2 text-sm text-slate-600">
-            No captive population is currently tracked for this species.
-          </p>
-        ) : (
-          <dl className="mt-2 grid grid-cols-3 gap-4 text-sm">
-            <div>
-              <dt className="text-slate-500">Institutions holding</dt>
-              <dd className="font-semibold text-slate-900">
-                {sp.ex_situ_summary.institutions_holding}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-slate-500">Total individuals</dt>
-              <dd className="font-semibold text-slate-900">
-                {sp.ex_situ_summary.total_individuals}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-slate-500">Active breeding programs</dt>
-              <dd className="font-semibold text-slate-900">
-                {sp.ex_situ_summary.breeding_programs}
-              </dd>
-            </div>
-          </dl>
-        )}
+        {(() => {
+          const { institutions_holding, total_individuals, breeding_programs } =
+            sp.ex_situ_summary;
+          const allZero =
+            institutions_holding === 0 &&
+            total_individuals === 0 &&
+            breeding_programs === 0;
+          if (allZero) {
+            return (
+              <p className="mt-2 text-sm text-slate-600">
+                No captive population is currently tracked for this species.
+              </p>
+            );
+          }
+          // Individuals can be known even when institutions are not (CARES
+          // rolls, anecdotal records, unattributed private breeders). Show
+          // the stats and dash any count that is still zero so the absence
+          // reads as data-gap, not as zero-truth.
+          const dash = (n: number) => (n > 0 ? n : "—");
+          return (
+            <dl className="mt-2 grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <dt className="text-slate-500">Institutions holding</dt>
+                <dd className="font-semibold text-slate-900">
+                  {dash(institutions_holding)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Total individuals</dt>
+                <dd className="font-semibold text-slate-900">
+                  {dash(total_individuals)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Active breeding programs</dt>
+                <dd className="font-semibold text-slate-900">
+                  {dash(breeding_programs)}
+                </dd>
+              </div>
+            </dl>
+          );
+        })()}
       </section>
 
       {sp.has_husbandry ? (
-        <HusbandryTeaser
-          speciesId={sp.id}
-          ctx={{
-            has_husbandry: sp.has_husbandry,
-            cares_status: sp.cares_status,
-            shoal_priority: sp.shoal_priority,
-          }}
-        />
+        <>
+          {sp.difficulty_factor_count >= 3 ? (
+            <p className="mt-8 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+              Husbandry has {sp.difficulty_factor_count} specialized
+              considerations for this species.{" "}
+              <Link
+                href={`/species/${sp.id}/husbandry/#difficulty-heading`}
+                className="font-medium underline underline-offset-2 hover:text-sky-700"
+              >
+                See details →
+              </Link>
+            </p>
+          ) : null}
+          <HusbandryTeaser
+            speciesId={sp.id}
+            ctx={{
+              has_husbandry: sp.has_husbandry,
+              cares_status: sp.cares_status,
+              shoal_priority: sp.shoal_priority,
+            }}
+          />
+        </>
       ) : null}
 
       {(() => {
