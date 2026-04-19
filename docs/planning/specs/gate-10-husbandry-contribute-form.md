@@ -1,20 +1,32 @@
 ---
 gate: 10
 title: Husbandry Contribute — Django-backed Contact Form
-status: Not started
+status: Deferred to post-MVP (2026-04-19)
+deferral_rationale: docs/planning/business-analysis/gate-10-contribute-form-assessment-2026-04-19.md
 preconditions:
   - Gate 08 merged (species API contract; same Django app infrastructure).
   - Gate 09 merged OR in-flight (the "Contribute updates" CTA on the husbandry page links here).
 unlocks:
   - Post-MVP Tier 3+ submission pipeline (this form is the deliberate MVP precursor — locked Q4, 2026-04-18).
 branch: gate/10-husbandry-contribute-form
-deadline: 2026-06-01 (ECA Workshop — nice-to-have, descope-able)
+deadline: Post-ECA-Workshop (descoped 2026-04-19; reopen as first post-workshop backlog item)
 input:
   - docs/planning/business-analysis/species-profile-husbandry.md (locked Q4)
   - Gate 09 spec (calling surface — the CTA links here with species context)
 ---
 
 # Gate 10 — Husbandry Contribute: Django-backed Contact Form
+
+> **Status: Deferred to post-MVP (2026-04-19).**
+> BA recommended descoping Gate 10 from the ABQ BioPark ECA Workshop
+> (June 1–5, 2026) MVP. The Gate 09 mailto stub at
+> `frontend/app/contribute/husbandry/page.tsx` remains the workshop-visible
+> contribute surface. Reopen this gate as the first post-workshop backlog
+> item, ideally paired with a small moderation-UI sub-gate (admin list
+> filters, one-click accept/reject) so Aleksei isn't hand-copying
+> contributions into `SpeciesHusbandry` forever. Full reasoning, scope
+> reductions if plans change, and open questions: see
+> `docs/planning/business-analysis/gate-10-contribute-form-assessment-2026-04-19.md`.
 
 ## Goal
 
