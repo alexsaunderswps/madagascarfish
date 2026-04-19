@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import EmptyState from "@/components/EmptyState";
 import HusbandryTeaser from "@/components/HusbandryTeaser";
 import IucnBadge from "@/components/IucnBadge";
+import SpeciesSilhouette from "@/components/SpeciesSilhouette";
 import {
   displayScientificName,
   fetchSpeciesDetail,
@@ -153,6 +154,11 @@ export default async function SpeciesProfilePage({
         </p>
       ) : null}
 
+      <SpeciesSilhouette
+        maxLengthCm={sp.max_length_cm}
+        scientificName={displayName}
+      />
+
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <section aria-labelledby="conservation-heading">
           <h2 id="conservation-heading" className="font-serif text-xl text-slate-900">
@@ -292,62 +298,81 @@ export default async function SpeciesProfilePage({
         />
       ) : null}
 
-      <section aria-labelledby="field-heading" className="mt-8">
-        <h2 id="field-heading" className="font-serif text-xl text-slate-900">
-          Field Programs
-        </h2>
-        {sp.field_programs.length === 0 ? (
-          <div className="mt-2">
-            <EmptyState
-              variant="inline"
-              title="No linked field programs"
-              body="No field programs are currently linked to this species."
-            />
-          </div>
+      {(() => {
+        const fpEmpty = sp.field_programs.length === 0;
+        const fieldPrograms = (
+          <section aria-labelledby="field-heading" className="mt-8">
+            <h2 id="field-heading" className="font-serif text-xl text-slate-900">
+              Field Programs
+            </h2>
+            {fpEmpty ? (
+              <div className="mt-2">
+                <EmptyState
+                  variant="inline"
+                  title="No linked field programs"
+                  body="No field programs are currently linked to this species."
+                />
+              </div>
+            ) : (
+              <ul className="mt-2 space-y-1 text-sm text-slate-700">
+                {sp.field_programs.map((fp) => (
+                  <li key={fp.id}>
+                    {fp.name} <span className="text-slate-500">({fp.status})</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        );
+        const externalRefs =
+          iucnUrl || fishbaseUrl ? (
+            <section aria-labelledby="links-heading" className="mt-8">
+              <h2 id="links-heading" className="font-serif text-xl text-slate-900">
+                External References
+              </h2>
+              <ul className="mt-2 space-y-1 text-sm">
+                {iucnUrl ? (
+                  <li>
+                    <a
+                      href={iucnUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sky-700 hover:underline"
+                    >
+                      IUCN Red List assessment →
+                    </a>
+                  </li>
+                ) : null}
+                {fishbaseUrl ? (
+                  <li>
+                    <a
+                      href={fishbaseUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sky-700 hover:underline"
+                    >
+                      FishBase species summary →
+                    </a>
+                  </li>
+                ) : null}
+              </ul>
+            </section>
+          ) : null;
+        // When Field Programs is empty, close the page on an outbound
+        // signal (IUCN / FishBase) rather than an absence. Per UX review
+        // 2026-04-19, Profile finding #4.
+        return fpEmpty ? (
+          <>
+            {externalRefs}
+            {fieldPrograms}
+          </>
         ) : (
-          <ul className="mt-2 space-y-1 text-sm text-slate-700">
-            {sp.field_programs.map((fp) => (
-              <li key={fp.id}>
-                {fp.name} <span className="text-slate-500">({fp.status})</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {iucnUrl || fishbaseUrl ? (
-        <section aria-labelledby="links-heading" className="mt-8">
-          <h2 id="links-heading" className="font-serif text-xl text-slate-900">
-            External References
-          </h2>
-          <ul className="mt-2 space-y-1 text-sm">
-            {iucnUrl ? (
-              <li>
-                <a
-                  href={iucnUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sky-700 hover:underline"
-                >
-                  IUCN Red List assessment →
-                </a>
-              </li>
-            ) : null}
-            {fishbaseUrl ? (
-              <li>
-                <a
-                  href={fishbaseUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sky-700 hover:underline"
-                >
-                  FishBase species summary →
-                </a>
-              </li>
-            ) : null}
-          </ul>
-        </section>
-      ) : null}
+          <>
+            {fieldPrograms}
+            {externalRefs}
+          </>
+        );
+      })()}
     </main>
   );
 }
