@@ -157,6 +157,7 @@ export default async function SpeciesProfilePage({
       <SpeciesSilhouette
         maxLengthCm={sp.max_length_cm}
         scientificName={displayName}
+        customSvg={sp.silhouette_svg}
       />
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
@@ -288,14 +289,28 @@ export default async function SpeciesProfilePage({
       </section>
 
       {sp.has_husbandry ? (
-        <HusbandryTeaser
-          speciesId={sp.id}
-          ctx={{
-            has_husbandry: sp.has_husbandry,
-            cares_status: sp.cares_status,
-            shoal_priority: sp.shoal_priority,
-          }}
-        />
+        <>
+          {sp.difficulty_factor_count >= 3 ? (
+            <p className="mt-8 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+              Husbandry has {sp.difficulty_factor_count} specialized
+              considerations for this species.{" "}
+              <Link
+                href={`/species/${sp.id}/husbandry/#difficulty-heading`}
+                className="font-medium underline underline-offset-2 hover:text-sky-700"
+              >
+                See details →
+              </Link>
+            </p>
+          ) : null}
+          <HusbandryTeaser
+            speciesId={sp.id}
+            ctx={{
+              has_husbandry: sp.has_husbandry,
+              cares_status: sp.cares_status,
+              shoal_priority: sp.shoal_priority,
+            }}
+          />
+        </>
       ) : null}
 
       {(() => {

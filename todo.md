@@ -1,18 +1,43 @@
 # TODO
 
-## Decide public-facing URL for Gate 07 (due 2026-05-01)
+## Ship-before-workshop (ECA Workshop, 2026-06-01)
 
-**Owner:** Aleksei. **Blocker for:** staging alias setup, SHOAL/ECA
-pre-workshop email (arch doc Gate 07 §8), any printed handouts.
+From the *Paretroplus menarambo* UX review (2026-04-19).
 
-Options:
-- Purchase a real domain (`madagascarfish.org` or equivalent) — best
-  credibility; registrar + DNS setup needed.
-- Use the clean Vercel alias `madagascarfish.vercel.app` as a stopgap —
-  acceptable but reads as less official to funders.
+- ✅ Silhouette SVG empty-state on profile — custom per-species slot now on
+  `Species.silhouette_svg`, generic cichlid fallback otherwise.
+- ✅ External References promoted above Field Programs when Field Programs is
+  empty (close on outbound signal).
+- ✅ Difficulty Factors Option A — profile callout at ≥3 factors + husbandry
+  page `<details>` progressive disclosure.
+- ✅ Husbandry breadcrumb reads "← Back to *{binomial}*".
+- ⏳ **Mobile pass on husbandry at 375px** — verify at-a-glance labels
+  ("CARES registered breeders" is the likely wrap offender) and governance
+  footer don't wrap ugly. Fix what breaks.
+- ⏳ **Author custom silhouette SVGs for priority species** (Alex).
+  Form lives in Species admin now; paste inline `<svg>…</svg>` with
+  `currentColor` fills. Start with *P. menarambo*, then other CARES/SHOAL.
 
-Decision needed by 2026-05-01 so the `staging.<domain>` alias in
-arch §8 can be wired up before the mid-May deadline.
+## Post-workshop backlog
+
+From the UX review:
+
+- Sticky in-page TOC on husbandry wide-screens (twelve h2s, reader can't
+  jump to Breeding without scrolling past six sections).
+- Right-rail Difficulty Factors sidebar (Option B) — revisit if the inline
+  list still feels heavy after real users test the page.
+- Iconography Difficulty Factors (Option C) — only with a designer.
+- Prioritization score + CARES/SHOAL chips surfaced in the profile header
+  (currently only on the husbandry teaser).
+- Narrative first-paragraph lede treatment when narrative > ~400 words.
+- Double-check the sparse-data amber bar + emphasized-teaser accent border
+  don't both render on the same profile.
+- "View on Map" button competes with the IUCN badge in the header — consider
+  moving below the taxonomic line.
+- Disclaimer slab — line-break after "conditions vary between systems,
+  regions, and individual fish" for scannability.
+- Silhouette **scale bar** — reintroduce alongside calibrated per-species
+  SVG story when ready (removed 2026-04-19).
 
 ## Conservation status governance spec (follow-up to gate 06)
 
@@ -44,64 +69,39 @@ conflict-resolution path when manual assessments disagree with IUCN.
   disagrees with an existing `manual_expert` assessment on the same species,
   flag *that row* as `pending_review` and create an alert for a coordinator,
   rather than silently accepting the IUCN one alongside it.
-- **Add `manual_expert` source to `ConservationAssessment.Source`** — currently
-  only `iucn_official` and `recommended_revision` exist. Needed so that
-  operator edits have a canonical source tag instead of being untracked
+- **Add `manual_expert` source to `ConservationAssessment.Source`** —
+  currently only `iucn_official` and `recommended_revision` exist. Needed so
+  that operator edits have a canonical source tag instead of being untracked
   `Species.iucn_status` writes.
 
 ### Next action
 
 Invoke `@business-analyst` with this scope → then `@product-manager` for
-gate-level breakdown and acceptance criteria. Do **not** implement before spec
-is reviewed — audit infrastructure touches every model and is expensive to
-retrofit if we pick the wrong approach.
+gate-level breakdown and acceptance criteria. Do **not** implement before
+spec is reviewed — audit infrastructure touches every model and is expensive
+to retrofit if we pick the wrong approach.
 
 ---
 
-## Reconcile canonical watershed basin names
+## Reconcile canonical watershed basin names (polish, not a blocker)
 
 **Status:** ✅ MVP target met — 21 of 50 root basins named in
-`backend/species/basins.py::CANONICAL_BASIN_NAMES` (53 of 82 polygons
-covered once sub-basins inherit). All five biogeographic regions have
-at least one named anchor.
+`backend/species/basins.py::CANONICAL_BASIN_NAMES`. All five biogeographic
+regions have at least one named anchor. Remaining 7 candidates currently
+render with a coordinate-tagged fallback (e.g., `"Basin near 22.57°S
+43.93°E"`). None are blockers.
 
-**Remaining work** (optional polish before gate 07 ships the frontend map):
-7 candidates from the original list still need matching to HYBAS_IDs.
-None of them are blockers; their polygons currently render with the
-coordinate-tagged fallback (e.g., `"Basin near 22.57°S 43.93°E"`).
+### Unmatched candidates
 
-### Candidate name list
-
-| Basin | Region | Reference area | Status |
-|-------|--------|---------------:|--------|
-| Betsiboka | NW | 49,000 | ✅ named (1060036860) |
-| Mangoky | SW | 55,750 | ✅ named (1060035590) |
-| Tsiribihina | W | 49,800 | ✅ named (1060036020) |
-| Onilahy | SW | 32,000 | ✅ named (1060035400) |
-| Sofia | NW | 27,315 | ✅ named (1060037100) |
-| Mangoro | E | 17,175 | ✅ named (1060038860) |
-| Mahajamba | NW | 14,600 | ✅ named (1060037110) |
-| Maningory (incl. Lake Alaotra) | NE | 12,645 | ✅ named (1060038850) |
-| Manambolo | W | 13,970 | ✅ named (1060036120) |
-| Mandrare | S | 12,435 | ✅ named (1060040000) |
-| Mahavavy (Sud) | W | 14,000 | ✅ named (1060036750) |
-| Mananara (Sud) | SE | 10,500 | ✅ named (1060039740) |
-| Fiherenana | SW (Toliara) | 7,900 | ✅ named (1060035410) |
-| Menarandra | Deep S | 8,350 | ✅ named (1060035180) |
-| Manambovo | Deep S | 5,700 | ✅ named (1060040020) |
-| Mananjary | E | 6,100 | ✅ named (1060039260) |
-| Faraony | E | 3,800 | ✅ named (1060039470) |
-| Namorona (Ranomafana NP) | E | 2,300 | ✅ named (1060039460) |
-| Matitanana | SE | 4,395 | ✅ named (1060039620) |
-| Mahavavy-Nord | N | 5,800 | ✅ named (1060037310) |
-| Bemarivo (Nord, Sava) | NE | 5,400 | ✅ named (1060038200) |
-| Linta | Deep S | 6,500 | 🔍 unmatched |
-| Rianila | E (Toamasina) | 7,820 | 🔍 unmatched |
-| Ivondro | E (Toamasina) | 2,600 | 🔍 unmatched |
-| Sambirano (Nosy Be hinterland) | NW | 2,980 | 🔍 unmatched |
-| Lokoho (Masoala) | NE | 3,200 | 🔍 unmatched |
-| Mananjeba | Far N | 2,500 | 🔍 unmatched |
-| Ankofia | NW | 4,500 | 🔍 unmatched |
+| Basin | Region | Reference area |
+|-------|--------|---------------:|
+| Linta | Deep S | 6,500 |
+| Rianila | E (Toamasina) | 7,820 |
+| Ivondro | E (Toamasina) | 2,600 |
+| Sambirano (Nosy Be hinterland) | NW | 2,980 |
+| Lokoho (Masoala) | NE | 3,200 |
+| Mananjeba | Far N | 2,500 |
+| Ankofia | NW | 4,500 |
 
 **Name-variant caveats to preserve when labelling:**
 - Onilahy, not Onihaly (colonial spelling)
@@ -110,9 +110,9 @@ coordinate-tagged fallback (e.g., `"Basin near 22.57°S 43.93°E"`).
 - Prefer `Betsiboka` for the outlet polygon, not `Ikopa` (Ikopa is a
   tributary)
 
-### Reconciliation steps
+### Reconciliation recipe
 
-1. **Dump the unnamed basins with their outlet centroids.** Run:
+1. Dump unnamed basins with centroids:
    ```bash
    docker compose exec -T web python manage.py shell -c "
    from species.models import Watershed
@@ -121,38 +121,13 @@ coordinate-tagged fallback (e.g., `"Basin near 22.57°S 43.93°E"`).
        print(f'{w.hybas_id},{w.area_sq_km},{c.y:.4f},{c.x:.4f}')
    " > unnamed_basins.csv
    ```
-   Columns: `hybas_id, area_sq_km, centroid_lat, centroid_lng`.
 
-2. **Visually match each row to a named river basin.** Easiest path is
-   dropping `backend/staticfiles/map-layers/watersheds.geojson` into
-   [geojson.io](https://geojson.io) alongside a reference map:
-   - [FAO hydrological basins of Africa](https://data.apps.fao.org/catalog/iso/e54e2014-d23b-402b-8e73-c827628d17f4)
-     (authoritative polygon + name layer)
-   - [OpenStreetMap waterways overlay](https://www.openstreetmap.org/)
-     — rivers are labelled, follow them upstream from the coast.
-   - [Freshwater Ecoregions of the World — Madagascar](https://feow.org/ecoregions/details/581)
-     — fish-biogeography-aligned, matches this project's priorities.
+2. Visually match each row to a named river basin via geojson.io + FAO /
+   OSM / FEOW references below.
 
-   For each unnamed polygon: click the polygon in geojson.io, note the
-   `HYBAS_ID` from properties, trace its outlet to the coast on the
-   reference map, record the river name.
+3. Add entries to `backend/species/basins.py::CANONICAL_BASIN_NAMES`.
 
-3. **Cross-check against the candidate list above.** If the area
-   roughly matches (within ~2×) one of the 🔍 unmatched rows, use that
-   name. If no match, the polygon may be an unnamed coastal stretch —
-   leave it on the fallback label.
-
-4. **Add entries to `backend/species/basins.py`**:
-   ```python
-   CANONICAL_BASIN_NAMES: dict[int, str] = {
-       1060036860: "Betsiboka",
-       # ...existing...
-       106xxxxxxx: "Mandrare",
-       106xxxxxxx: "Mahavavy-Nord",
-   }
-   ```
-
-5. **Re-run the pipeline** (no code change, no migration):
+4. Re-run pipeline (no code change, no migration):
    ```bash
    docker compose exec -T web python manage.py load_reference_layers \
        --watersheds /data/reference/hydrobasins_madagascar_lev06.shp
@@ -160,28 +135,12 @@ coordinate-tagged fallback (e.g., `"Basin near 22.57°S 43.93°E"`).
        --output-dir /app/staticfiles/map-layers/
    ```
 
-6. **Spot-check in Django admin** that sub-basins correctly pick up
-   "Sub-basin of <NewName>" and `parent_basin` FKs point at the right
-   root row.
-
-### Authoritative sources (from the research agent)
+### Authoritative sources
 
 - Rakotoarisoa, M. et al. (2022). *Water* 14(3):449.
-  https://www.mdpi.com/2073-4441/14/3/449 — the citable "12 major
-  basins" reference.
+  https://www.mdpi.com/2073-4441/14/3/449
 - Aldegheri (ORSTOM/IRD). *Rivers and Streams on Madagascar.*
   https://horizon.documentation.ird.fr/exl-doc/pleins_textes/pleins_textes_5/b_fdi_30-30/32882.pdf
-  — foundational French-era gazetteer with basin areas.
-- FAO AQUASTAT — Madagascar country profile.
-  https://www.fao.org/aquastat/en/countries-and-basins/country-profiles/country/MDG/
-- FAO *Hydrological basins in Africa* (polygon layer with names).
-  https://data.apps.fao.org/catalog/iso/e54e2014-d23b-402b-8e73-c827628d17f4
-- FEOW Madagascar 581.
-  https://feow.org/ecoregions/details/581
-
-### Cutoff recommendation
-
-Research agent suggested **25 basins** as the right public-map cutoff —
-covers all five biogeographic regions without overloading labels at
-national zoom. Beyond 30 is diminishing returns (basins <2,000 km²,
-unfamiliar names).
+- FAO AQUASTAT — Madagascar: https://www.fao.org/aquastat/en/countries-and-basins/country-profiles/country/MDG/
+- FAO hydrological basins of Africa: https://data.apps.fao.org/catalog/iso/e54e2014-d23b-402b-8e73-c827628d17f4
+- FEOW Madagascar 581: https://feow.org/ecoregions/details/581

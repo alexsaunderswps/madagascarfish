@@ -208,7 +208,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
         href={`/species/${sp.id}/`}
         className="text-sm text-sky-700 hover:underline"
       >
-        ← <span className="italic">{displayName}</span>
+        ← Back to <span className="italic">{displayName}</span>
       </Link>
 
       {/* 2. Page title */}

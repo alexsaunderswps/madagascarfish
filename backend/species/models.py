@@ -112,6 +112,15 @@ class Species(models.Model):
     distribution_narrative = models.TextField(blank=True)
     morphology = models.TextField(blank=True)
     max_length_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    silhouette_svg = models.TextField(
+        blank=True,
+        help_text=(
+            "Optional inline SVG markup for a species-specific silhouette shown "
+            "on the public profile when no photograph is available. Paste the "
+            "full <svg>…</svg> element; use a transparent fill and currentColor "
+            "strokes/fills so the figure inherits theme color. Tier-5 only."
+        ),
+    )
     habitat_type = models.CharField(max_length=100, blank=True)
     iucn_taxon_id = models.IntegerField(null=True, blank=True, unique=True)
     fishbase_id = models.IntegerField(null=True, blank=True)

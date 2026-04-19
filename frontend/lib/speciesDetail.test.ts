@@ -26,6 +26,7 @@ function makeSp(overrides: Partial<SpeciesDetail> = {}): SpeciesDetail {
     distribution_narrative: "",
     morphology: "",
     max_length_cm: null,
+    silhouette_svg: "",
     habitat_type: "",
     iucn_taxon_id: 166478,
     common_names: [],
@@ -34,6 +35,7 @@ function makeSp(overrides: Partial<SpeciesDetail> = {}): SpeciesDetail {
     ex_situ_summary: { institutions_holding: 0, total_individuals: 0, breeding_programs: 0 },
     has_localities: false,
     has_husbandry: false,
+    difficulty_factor_count: 0,
     ...overrides,
   };
 }
