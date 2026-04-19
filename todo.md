@@ -1,18 +1,26 @@
 # TODO
 
-## Decide public-facing URL for Gate 07 (due 2026-05-01)
+## Wire up `malagasyfishes.org` (public URL — decided 2026-04-19)
 
-**Owner:** Aleksei. **Blocker for:** staging alias setup, SHOAL/ECA
-pre-workshop email (arch doc Gate 07 §8), any printed handouts.
+**Decision:** Public URL is `malagasyfishes.org`. Staging remains
+`api.malagasyfishes.org` (already live). Frontend production alias
+needs to be `malagasyfishes.org` → Vercel, with `www` as an alias.
 
-Options:
-- Purchase a real domain (`madagascarfish.org` or equivalent) — best
-  credibility; registrar + DNS setup needed.
-- Use the clean Vercel alias `madagascarfish.vercel.app` as a stopgap —
-  acceptable but reads as less official to funders.
+**Remaining work (owner: Aleksei):**
+- [ ] Register `malagasyfishes.org` at a registrar (Namecheap / Cloudflare)
+- [ ] Point DNS: apex `A`/`ALIAS` + `www` `CNAME` → Vercel; keep
+      `api.malagasyfishes.org` `A` → Hetzner VPS
+- [ ] Add the domain in Vercel project settings, verify ownership
+- [ ] Update `CSRF_TRUSTED_ORIGINS` / `ALLOWED_HOSTS` in backend prod
+      settings to include `malagasyfishes.org` + `www.malagasyfishes.org`
+      if the frontend will ever POST to the backend from either origin
+- [ ] Update About page's GitHub/admin links if we want a custom
+      apex for admin (optional — `api.malagasyfishes.org/admin/` works)
+- [ ] Update any references in arch docs + conservation-writer copy
+      that assumed `madagascarfish.vercel.app`
 
-Decision needed by 2026-05-01 so the `staging.<domain>` alias in
-arch §8 can be wired up before the mid-May deadline.
+Blocker for: SHOAL/ECA pre-workshop email, printed handouts at ABQ
+BioPark June 1–5. Needs to land well before 2026-05-15.
 
 ## Conservation status governance spec (follow-up to gate 06)
 
