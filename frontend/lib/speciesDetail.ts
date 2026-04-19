@@ -29,6 +29,7 @@ export interface SpeciesDetail extends SpeciesListItem {
   distribution_narrative: string;
   morphology: string;
   max_length_cm: number | null;
+  silhouette_svg: string;
   habitat_type: string;
   iucn_taxon_id: number | null;
   common_names: CommonName[];
@@ -37,6 +38,7 @@ export interface SpeciesDetail extends SpeciesListItem {
   ex_situ_summary: ExSituSummary;
   has_localities: boolean;
   has_husbandry: boolean;
+  difficulty_factor_count: number;
   iucn_status: IucnStatus | null;
 }
 

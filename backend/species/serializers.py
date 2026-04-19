@@ -80,6 +80,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
     ex_situ_summary = serializers.SerializerMethodField()
     has_localities = serializers.SerializerMethodField()
     has_husbandry = serializers.SerializerMethodField()
+    difficulty_factor_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Species
@@ -101,6 +102,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
             "distribution_narrative",
             "morphology",
             "max_length_cm",
+            "silhouette_svg",
             "habitat_type",
             "iucn_taxon_id",
             "common_names",
@@ -109,6 +111,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
             "ex_situ_summary",
             "has_localities",
             "has_husbandry",
+            "difficulty_factor_count",
         ]
 
     def get_has_localities(self, obj: Species) -> bool:
@@ -122,6 +125,39 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
         from husbandry.models import SpeciesHusbandry
 
         return SpeciesHusbandry.objects.filter(species_id=obj.pk, published=True).exists()
+
+    def get_difficulty_factor_count(self, obj: Species) -> int:
+        # Count of populated Difficulty Factor fields on the published husbandry
+        # record — surfaces "this species has N specialized considerations"
+        # without shipping the full record. Profile-page callout threshold
+        # lives on the FE (UX review 2026-04-19, Option A).
+        from husbandry.models import SpeciesHusbandry
+
+        h = (
+            SpeciesHusbandry.objects.filter(species_id=obj.pk, published=True)
+            .only(
+                "difficulty_adult_size",
+                "difficulty_space_demand",
+                "difficulty_temperament_challenge",
+                "difficulty_water_parameter_demand",
+                "difficulty_dietary_specialization",
+                "difficulty_breeding_complexity",
+                "difficulty_other",
+            )
+            .first()
+        )
+        if h is None:
+            return 0
+        fields = (
+            h.difficulty_adult_size,
+            h.difficulty_space_demand,
+            h.difficulty_temperament_challenge,
+            h.difficulty_water_parameter_demand,
+            h.difficulty_dietary_specialization,
+            h.difficulty_breeding_complexity,
+            h.difficulty_other,
+        )
+        return sum(1 for v in fields if v and v.strip())
 
     def get_conservation_assessments(self, obj: Species) -> list[dict]:
         tier = self._get_tier()
