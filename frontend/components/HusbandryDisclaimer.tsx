@@ -18,9 +18,11 @@ export default function HusbandryDisclaimer() {
       <p>
         This guidance reflects practices reported by keepers and drawn from
         published sources. It is not a protocol, and conditions vary between
-        systems, regions, and individual fish. Use it as a starting point,
-        compare it against other references, and consult a qualified aquatic
-        veterinarian for health concerns.
+        systems, regions, and individual fish.
+      </p>
+      <p className="mt-2">
+        Use it as a starting point, compare it against other references, and
+        consult a qualified aquatic veterinarian for health concerns.
       </p>
     </section>
   );

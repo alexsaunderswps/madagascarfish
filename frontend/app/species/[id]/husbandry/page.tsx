@@ -41,9 +41,9 @@ function formatRange(
 function Glance({ label, value }: { label: string; value: string | null }) {
   if (value == null || value === "") return null;
   return (
-    <div>
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-900">{value}</dd>
+    <div className="min-w-0">
+      <dt className="break-words text-slate-500">{label}</dt>
+      <dd className="break-words font-medium text-slate-900">{value}</dd>
     </div>
   );
 }
@@ -473,9 +473,34 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
           <h2 id="narrative-heading" className="font-serif text-xl text-slate-900">
             Narrative
           </h2>
-          <p className="mt-2 whitespace-pre-line text-sm text-slate-700">
-            {narrativeParagraphs}
-          </p>
+          {(() => {
+            // For long narratives (> ~400 words), treat the first paragraph
+            // as a lede: slightly larger type and a rule beneath, so readers
+            // get a "wall of text" signal break (UX review 2026-04-19).
+            const text = narrativeParagraphs;
+            const wordCount = text.trim().split(/\s+/).length;
+            const splitIdx = text.indexOf("\n\n");
+            const hasParagraphBreak = splitIdx !== -1;
+            if (wordCount > 400 && hasParagraphBreak) {
+              const lede = text.slice(0, splitIdx);
+              const rest = text.slice(splitIdx + 2);
+              return (
+                <>
+                  <p className="mt-2 whitespace-pre-line border-b border-slate-200 pb-4 text-base leading-relaxed text-slate-800">
+                    {lede}
+                  </p>
+                  <p className="mt-4 whitespace-pre-line text-sm text-slate-700">
+                    {rest}
+                  </p>
+                </>
+              );
+            }
+            return (
+              <p className="mt-2 whitespace-pre-line text-sm text-slate-700">
+                {text}
+              </p>
+            );
+          })()}
         </section>
       ) : null}
 
@@ -527,7 +552,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
 
       {/* 14. Governance footer: reviewed-by stamp + stale note */}
       {h.last_reviewed_by || h.last_reviewed_at ? (
-        <p className="mt-10 text-xs text-slate-500">
+        <p className="mt-10 break-words text-xs text-slate-500">
           Reviewed by{" "}
           <span className="font-medium text-slate-700">
             {h.last_reviewed_by?.name ?? "unknown"}
