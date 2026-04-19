@@ -13,10 +13,12 @@
  * calibrated per-species SVG story when ready.
  */
 
-const PX_PER_CM = 4;
-const MIN_FISH_WIDTH_PX = 96;
-const MAX_FISH_WIDTH_PX = 360;
-const FIGURE_HEIGHT_PX = 140;
+// Custom SVGs render at a fixed, prominent display size regardless of
+// `max_length_cm`. The cm value still appears in the caption for scale context.
+// The root <svg> has its width/height attributes stripped server-side so this
+// CSS-driven sizing actually takes effect.
+const CUSTOM_SVG_WIDTH_PX = 300;
+const FIGURE_HEIGHT_PX = 180;
 
 export type SpeciesSilhouetteProps = {
   maxLengthCm: number | null | undefined;
@@ -38,8 +40,6 @@ export default function SpeciesSilhouette({
   if (!hasCustom) return null;
 
   const hasLength = maxLengthCm != null && maxLengthCm > 0;
-  const rawWidth = hasLength ? (maxLengthCm as number) * PX_PER_CM : MAX_FISH_WIDTH_PX;
-  const fishWidth = Math.min(Math.max(rawWidth, MIN_FISH_WIDTH_PX), MAX_FISH_WIDTH_PX);
 
   const altText = hasLength
     ? `Illustrative silhouette of ${scientificName}, approximately ${maxLengthCm} cm in length.`
@@ -54,7 +54,7 @@ export default function SpeciesSilhouette({
         className="flex items-center justify-center"
         style={{ minHeight: FIGURE_HEIGHT_PX }}
       >
-        <CustomSilhouette svg={customSvg as string} widthPx={fishWidth} />
+        <CustomSilhouette svg={customSvg as string} widthPx={CUSTOM_SVG_WIDTH_PX} />
       </div>
       <figcaption className="mt-3 text-center text-xs text-slate-500">
         Illustrative silhouette

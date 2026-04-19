@@ -12,6 +12,7 @@ from species.models import (
     SpeciesLocality,
     Taxon,
     Watershed,
+    strip_svg_root_size_attrs,
 )
 
 # --- Fixtures ---
@@ -347,3 +348,43 @@ class TestProtectedArea:
                 status="Proposed",
                 geometry=simple_polygon,
             )
+
+
+class TestSilhouetteSvgNormalization:
+    def test_strips_width_and_height_from_root_svg(self) -> None:
+        raw = '<svg width="200" height="80" viewBox="0 0 200 80"><path d="M0 0"/></svg>'
+        assert strip_svg_root_size_attrs(raw) == (
+            '<svg viewBox="0 0 200 80"><path d="M0 0"/></svg>'
+        )
+
+    def test_preserves_viewbox_and_other_attrs(self) -> None:
+        raw = (
+            '<svg xmlns="http://www.w3.org/2000/svg" width="300" viewBox="0 0 100 40" '
+            'height="120" fill="currentColor"><circle r="1"/></svg>'
+        )
+        out = strip_svg_root_size_attrs(raw)
+        assert 'width=' not in out.split(">", 1)[0]
+        assert 'height=' not in out.split(">", 1)[0]
+        assert 'viewBox="0 0 100 40"' in out
+        assert 'fill="currentColor"' in out
+        assert '<circle r="1"/>' in out
+
+    def test_does_not_touch_nested_elements(self) -> None:
+        raw = '<svg viewBox="0 0 10 10"><rect width="5" height="5"/></svg>'
+        assert strip_svg_root_size_attrs(raw) == raw
+
+    def test_handles_empty_string(self) -> None:
+        assert strip_svg_root_size_attrs("") == ""
+
+    def test_save_normalizes_silhouette_svg(self, db: None) -> None:
+        sp = Species.objects.create(
+            scientific_name="Paretroplus test",
+            family="Cichlidae",
+            genus="Paretroplus",
+            endemic_status="endemic",
+            silhouette_svg='<svg width="500" height="200" viewBox="0 0 500 200"/>',
+        )
+        sp.refresh_from_db()
+        assert 'width=' not in sp.silhouette_svg.split(">", 1)[0]
+        assert 'height=' not in sp.silhouette_svg.split(">", 1)[0]
+        assert 'viewBox="0 0 500 200"' in sp.silhouette_svg
