@@ -116,9 +116,7 @@ export default function SpeciesCard({
             color: "var(--ink)",
             lineHeight: 1.2,
             margin: 0,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            overflowWrap: "anywhere",
           }}
         >
           {displayName}
@@ -129,9 +127,7 @@ export default function SpeciesCard({
               fontSize: 13,
               color: "var(--ink-3)",
               margin: "2px 0 0",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
+              overflowWrap: "anywhere",
             }}
           >
             {primaryCommon}
