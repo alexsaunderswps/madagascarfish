@@ -15,6 +15,7 @@ function makeSp(overrides: Partial<SpeciesDetail> = {}): SpeciesDetail {
     provisional_name: null,
     family: "Aplocheilidae",
     genus: "Pachypanchax",
+    genus_fk: null,
     endemic_status: "endemic",
     iucn_status: "EN",
     cares_status: null,

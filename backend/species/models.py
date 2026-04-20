@@ -63,6 +63,46 @@ class Taxon(MPTTModel):
         return f"{self.rank}: {self.name}"
 
 
+class Genus(models.Model):
+    """Author-editable genus record carrying a silhouette fallback used when a
+    species has no SVG of its own (docs/design.md §15 silhouette cascade). The
+    string column ``Species.genus`` is retained alongside the FK for this gate;
+    it will be dropped in Gate 2.
+    """
+
+    name = models.CharField(max_length=100, unique=True)
+    family = models.CharField(max_length=100)
+    silhouette_svg = models.TextField(
+        blank=True,
+        help_text=(
+            "Optional inline SVG markup for a genus-level silhouette shown on "
+            "species profiles that lack their own SVG. Paste the full "
+            "<svg>…</svg> element. Same authoring conventions as "
+            "<code>Species.silhouette_svg</code>: include a "
+            "<code>viewBox</code>, use <code>fill=\"currentColor\"</code>, and "
+            "omit <code>width</code>/<code>height</code> on the root &lt;svg&gt; "
+            "— they are stripped on save so CSS can size the figure."
+        ),
+    )
+    silhouette_credit = models.CharField(max_length=200, blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "species_genus"
+        verbose_name_plural = "genera"
+        ordering = ["name"]
+
+    def save(self, *args: object, **kwargs: object) -> None:
+        if self.silhouette_svg:
+            self.silhouette_svg = strip_svg_root_size_attrs(self.silhouette_svg)
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Species(models.Model):
     class TaxonomicStatus(models.TextChoices):
         DESCRIBED = "described"
@@ -110,6 +150,15 @@ class Species(models.Model):
     # Authoritative classification fields. Taxon FK is supplemental for hierarchy navigation.
     family = models.CharField(max_length=100)
     genus = models.CharField(max_length=100)
+    genus_fk = models.ForeignKey(
+        Genus,
+        on_delete=models.PROTECT,
+        related_name="species",
+        help_text=(
+            "Authoritative link to the genus record. The string column "
+            "``genus`` is retained for this gate; drop is deferred to Gate 2."
+        ),
+    )
     taxon = models.ForeignKey(
         Taxon, on_delete=models.SET_NULL, null=True, blank=True, related_name="species"
     )
@@ -157,6 +206,16 @@ class Species(models.Model):
     def save(self, *args: object, **kwargs: object) -> None:
         if self.silhouette_svg:
             self.silhouette_svg = strip_svg_root_size_attrs(self.silhouette_svg)
+        # Auto-link to a Genus row when the string column is populated but the
+        # FK isn't. Keeps legacy callers (including older test fixtures) and
+        # any admin forms that predate the FK working without manual wiring.
+        # One-family-per-genus is still the invariant: if the string genus is
+        # already backed by a Genus, we reuse it regardless of whatever family
+        # happens to be on this row.
+        if self.genus and self.genus_fk_id is None:
+            self.genus_fk, _ = Genus.objects.get_or_create(
+                name=self.genus, defaults={"family": self.family or ""}
+            )
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
