@@ -56,6 +56,7 @@ export interface SpeciesFilterState {
   cares_status?: CaresStatus;
   endemic_status?: EndemicStatus | "";
   shoal_priority?: "true" | "";
+  has_cares?: "true" | "";
   has_captive_population?: "true" | "false" | "";
   // Introduced (exotic) species are hidden from the directory by default.
   // Flip to true to surface Oreochromis spp. and other invasives alongside the
@@ -117,6 +118,7 @@ export function buildSpeciesQuery(state: SpeciesFilterState): string {
   if (state.cares_status) params.set("cares_status", state.cares_status);
   if (state.endemic_status) params.set("endemic_status", state.endemic_status);
   if (state.shoal_priority === "true") params.set("shoal_priority", "true");
+  if (state.has_cares === "true") params.set("has_cares", "true");
   if (state.has_captive_population) {
     params.set("has_captive_population", state.has_captive_population);
   }
@@ -148,6 +150,7 @@ export function parseSpeciesFilterState(
     cares_status: (get("cares_status") as CaresStatus | undefined) ?? "",
     endemic_status: (get("endemic_status") as EndemicStatus | "" | undefined) ?? "",
     shoal_priority: get("shoal_priority") === "true" ? "true" : "",
+    has_cares: get("has_cares") === "true" ? "true" : "",
     has_captive_population:
       (get("has_captive_population") as "true" | "false" | "" | undefined) ?? "",
     include_introduced: get("include_introduced") === "true" ? "true" : "",

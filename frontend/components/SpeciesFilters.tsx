@@ -1,48 +1,28 @@
 "use client";
 
 /**
- * SpeciesFilters — S19 filter rail (§15.3 / gate-1 Directory redesign).
+ * SpeciesFilters — S19 filter rail.
  *
- * Left-rail composition using FilterChip primitives. Every control toggles
- * URL state immediately; there is no Apply button — URL is the canonical
- * state and preserves back/forward navigation.
+ * Layout matches the pre-S19 rail: Search, IUCN chips, Family select,
+ * Taxonomic status select, CARES-any + SHOAL toggles, Captive population,
+ * Introduced species, Clear button, and a collapsible IUCN legend at the
+ * bottom. The only structural change from the pre-S19 rail is that chip
+ * clicks push URL state immediately — no Apply button.
  *
- * Controls (top → bottom):
- *   Search (text)
- *   Family       — single-select chips
- *   Endemism     — single-select chips (endemic / native / introduced)
- *   CARES        — single-select four-tier chips (CCR / CEN / CVU / CLC)
- *   SHOAL        — single toggle chip
- *   IUCN         — multi-select chips
- *   Captive pop. — single-select chips (Any / Has / None)
- *   Clear
+ * Search still requires Enter/submit so the user can type freely without
+ * thrashing the route on every keystroke.
  */
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
-import FilterChip from "./FilterChip";
 import {
   IUCN_LABELS,
   IUCN_STATUSES,
   KNOWN_FAMILIES,
-  type CaresStatus,
-  type EndemicStatus,
   type IucnStatus,
   type SpeciesFilterState,
 } from "@/lib/species";
-
-const CARES_CODES: Exclude<CaresStatus, "" | "priority" | "monitored">[] = [
-  "CCR",
-  "CEN",
-  "CVU",
-  "CLC",
-];
-const ENDEMIC_OPTIONS: { value: EndemicStatus; label: string }[] = [
-  { value: "endemic", label: "Endemic" },
-  { value: "native", label: "Native" },
-  { value: "introduced", label: "Introduced" },
-];
 
 function toggle<T>(arr: T[], value: T): T[] {
   return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
@@ -69,35 +49,35 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
     });
   };
 
+  const toggleIucn = (s: IucnStatus) =>
+    push((p) => {
+      const next = toggle(initial.iucn_status ?? [], s);
+      p.delete("iucn_status");
+      if (next.length > 0) p.set("iucn_status", next.join(","));
+    });
+
   const setFamily = (f: string) =>
     push((p) => {
-      if (initial.family === f) p.delete("family");
-      else p.set("family", f);
+      p.delete("family");
+      if (f) p.set("family", f);
     });
 
-  const setEndemism = (v: EndemicStatus) =>
+  const setTaxStatus = (v: string) =>
     push((p) => {
-      if (initial.endemic_status === v) p.delete("endemic_status");
-      else p.set("endemic_status", v);
+      p.delete("taxonomic_status");
+      if (v) p.set("taxonomic_status", v);
     });
 
-  const setCares = (v: CaresStatus) =>
+  const toggleCares = () =>
     push((p) => {
-      if (initial.cares_status === v) p.delete("cares_status");
-      else p.set("cares_status", v);
+      if (initial.has_cares === "true") p.delete("has_cares");
+      else p.set("has_cares", "true");
     });
 
   const toggleShoal = () =>
     push((p) => {
       if (initial.shoal_priority === "true") p.delete("shoal_priority");
       else p.set("shoal_priority", "true");
-    });
-
-  const toggleIucn = (s: IucnStatus) =>
-    push((p) => {
-      const next = toggle(initial.iucn_status ?? [], s);
-      p.delete("iucn_status");
-      if (next.length > 0) p.set("iucn_status", next.join(","));
     });
 
   const setCaptive = (v: "" | "true" | "false") =>
@@ -120,204 +100,176 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
   const iucnSet = new Set(initial.iucn_status ?? []);
 
   return (
-    <aside
+    <form
+      onSubmit={onSearchSubmit}
       aria-label="Species filters"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 20,
-        padding: 16,
-        borderRadius: "var(--radius-lg)",
-        border: "1px solid var(--rule)",
-        backgroundColor: "var(--bg-raised)",
-      }}
+      className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
     >
-      <form onSubmit={onSearchSubmit}>
-        <label style={{ display: "block", fontSize: 12, color: "var(--ink-2)" }}>
-          <span
-            style={{
-              display: "block",
-              marginBottom: 6,
-              fontWeight: 600,
-              color: "var(--ink)",
-              fontSize: 13,
-            }}
-          >
-            Search
-          </span>
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="scientific or common name…"
-            style={{
-              width: "100%",
-              padding: "8px 10px",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--rule-strong)",
-              backgroundColor: "var(--bg)",
-              color: "var(--ink)",
-              fontSize: 13,
-            }}
-          />
-        </label>
-      </form>
+      <label className="block text-sm">
+        <span className="mb-1 block font-medium text-slate-700">Search</span>
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="scientific or common name…"
+          className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+        />
+        <span className="mt-1 block text-xs text-slate-500">Press Enter to search.</span>
+      </label>
 
-      <section>
-        <h4 style={sectionTitleStyle}>Family</h4>
-        <div style={chipRowStyle}>
-          {KNOWN_FAMILIES.map((f) => (
-            <FilterChip
-              key={f}
-              selected={initial.family === f}
-              onClick={() => setFamily(f)}
-            >
-              {f}
-            </FilterChip>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h4 style={sectionTitleStyle}>Endemism</h4>
-        <div style={chipRowStyle}>
-          {ENDEMIC_OPTIONS.map((o) => (
-            <FilterChip
-              key={o.value}
-              selected={initial.endemic_status === o.value}
-              onClick={() => setEndemism(o.value)}
-            >
-              {o.label}
-            </FilterChip>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h4 style={sectionTitleStyle}>CARES</h4>
-        <div style={chipRowStyle}>
-          {CARES_CODES.map((c) => (
-            <FilterChip
-              key={c}
-              selected={initial.cares_status === c}
-              onClick={() => setCares(c)}
-              ariaLabel={`CARES ${c}`}
-            >
-              {c}
-            </FilterChip>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h4 style={sectionTitleStyle}>SHOAL priority</h4>
-        <div style={chipRowStyle}>
-          <FilterChip
-            selected={initial.shoal_priority === "true"}
-            onClick={toggleShoal}
-          >
-            SHOAL 1,000
-          </FilterChip>
-        </div>
-      </section>
-
-      <section>
-        <h4 style={sectionTitleStyle}>IUCN status</h4>
-        <div style={chipRowStyle}>
-          {IUCN_STATUSES.map((s) => (
-            <FilterChip
-              key={s}
-              selected={iucnSet.has(s)}
-              onClick={() => toggleIucn(s)}
-              ariaLabel={IUCN_LABELS[s]}
-            >
-              {s}
-            </FilterChip>
-          ))}
+      <fieldset className="space-y-1">
+        <legend className="text-sm font-medium text-slate-700">IUCN status</legend>
+        <div className="flex flex-wrap gap-2 text-xs">
+          {IUCN_STATUSES.map((s) => {
+            const active = iucnSet.has(s);
+            return (
+              <button
+                key={s}
+                type="button"
+                onClick={() => toggleIucn(s)}
+                aria-pressed={active}
+                title={IUCN_LABELS[s]}
+                className={`rounded border px-2 py-0.5 font-semibold ${
+                  active
+                    ? "border-sky-600 bg-sky-600 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
+                }`}
+              >
+                {s}
+              </button>
+            );
+          })}
         </div>
         {iucnSet.has("NE") ? (
-          <p style={{ marginTop: 6, fontSize: 11, color: "var(--ink-3)" }}>
-            NE includes species not yet assessed by the IUCN Red List.
+          <p className="pt-1 text-xs text-slate-500">
+            NE (&ldquo;Not yet assessed&rdquo;) includes undescribed
+            morphospecies that have not been assessed by the IUCN Red List.
           </p>
         ) : null}
-      </section>
+      </fieldset>
 
-      <section>
-        <h4 style={sectionTitleStyle}>Captive population</h4>
-        <div style={chipRowStyle}>
+      <label className="block text-sm">
+        <span className="mb-1 block font-medium text-slate-700">Family</span>
+        <select
+          value={initial.family ?? ""}
+          onChange={(e) => setFamily(e.target.value)}
+          className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        >
+          <option value="">Any family</option>
+          {KNOWN_FAMILIES.map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block text-sm">
+        <span className="mb-1 block font-medium text-slate-700">Taxonomic status</span>
+        <select
+          value={initial.taxonomic_status ?? ""}
+          onChange={(e) => setTaxStatus(e.target.value)}
+          className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+        >
+          <option value="">Any</option>
+          <option value="described">Described</option>
+          <option value="undescribed_morphospecies">Undescribed morphospecies</option>
+        </select>
+      </label>
+
+      <fieldset className="space-y-1">
+        <legend className="text-sm font-medium text-slate-700">Priority listings</legend>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <button
+            type="button"
+            onClick={toggleCares}
+            aria-pressed={initial.has_cares === "true"}
+            className={`rounded border px-2 py-0.5 font-semibold ${
+              initial.has_cares === "true"
+                ? "border-sky-600 bg-sky-600 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
+            }`}
+          >
+            CARES
+          </button>
+          <button
+            type="button"
+            onClick={toggleShoal}
+            aria-pressed={initial.shoal_priority === "true"}
+            className={`rounded border px-2 py-0.5 font-semibold ${
+              initial.shoal_priority === "true"
+                ? "border-sky-600 bg-sky-600 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
+            }`}
+          >
+            SHOAL 1,000
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset className="space-y-1">
+        <legend className="text-sm font-medium text-slate-700">Captive population</legend>
+        <div className="flex gap-2 text-xs">
           {(
             [
               { v: "", label: "Any" },
               { v: "true", label: "Has captive pop." },
               { v: "false", label: "None tracked" },
             ] as const
-          ).map((o) => (
-            <FilterChip
-              key={o.label}
-              selected={(initial.has_captive_population ?? "") === o.v}
-              onClick={() => setCaptive(o.v)}
+          ).map((opt) => (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => setCaptive(opt.v)}
+              aria-pressed={(initial.has_captive_population ?? "") === opt.v}
+              className={`rounded border px-2 py-0.5 ${
+                (initial.has_captive_population ?? "") === opt.v
+                  ? "border-sky-600 bg-sky-600 text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
+              }`}
             >
-              {o.label}
-            </FilterChip>
+              {opt.label}
+            </button>
           ))}
         </div>
-      </section>
+      </fieldset>
 
-      <section>
-        <h4 style={sectionTitleStyle}>Introduced species</h4>
-        <label
-          style={{
-            display: "flex",
-            gap: 8,
-            fontSize: 12,
-            color: "var(--ink-2)",
-            alignItems: "flex-start",
-          }}
-        >
+      <fieldset className="space-y-1">
+        <legend className="text-sm font-medium text-slate-700">Introduced species</legend>
+        <label className="flex items-start gap-2 text-xs text-slate-700">
           <input
             type="checkbox"
             checked={initial.include_introduced === "true"}
             onChange={toggleIncludeIntroduced}
-            style={{ marginTop: 2 }}
+            className="mt-0.5"
           />
           <span>
             Show introduced (exotic) species — e.g. <em>Oreochromis</em> spp.
             Hidden by default so the directory reads as Madagascar&rsquo;s native fauna.
           </span>
         </label>
-      </section>
+      </fieldset>
 
-      <button
-        type="button"
-        onClick={onClear}
-        style={{
-          alignSelf: "flex-start",
-          padding: "6px 12px",
-          fontSize: 12,
-          borderRadius: 999,
-          border: "1px solid var(--rule-strong)",
-          backgroundColor: "transparent",
-          color: "var(--ink-2)",
-          cursor: "pointer",
-        }}
-      >
-        Clear filters
-      </button>
-    </aside>
+      <div>
+        <button
+          type="button"
+          onClick={onClear}
+          className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:border-slate-400"
+        >
+          Clear filters
+        </button>
+      </div>
+
+      <details className="text-xs text-slate-600">
+        <summary className="cursor-pointer font-medium">IUCN legend</summary>
+        <ul className="mt-2 space-y-1">
+          {IUCN_STATUSES.map((s) => (
+            <li key={s}>
+              <span className="font-semibold">{s}</span> — {IUCN_LABELS[s]}
+            </li>
+          ))}
+        </ul>
+      </details>
+    </form>
   );
 }
-
-const sectionTitleStyle = {
-  margin: "0 0 8px",
-  fontSize: 11,
-  fontWeight: 700,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase" as const,
-  color: "var(--ink-3)",
-};
-
-const chipRowStyle = {
-  display: "flex",
-  flexWrap: "wrap" as const,
-  gap: 6,
-};
