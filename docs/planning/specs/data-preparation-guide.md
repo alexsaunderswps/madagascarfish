@@ -67,7 +67,7 @@ If an undescribed taxon has no locality data and no captive populations, it adds
 
 ### Master File and Filter Rules
 
-`data/seed/madagascar_freshwater_fish_localities_seed_master.csv` is the unfiltered source (820 rows as of 2026-04-16). The seed CSV above is derived from it by applying these filters:
+`data/seed/madagascar_freshwater_fish_localities_seed_master.csv` is the unfiltered source (942 rows as of 2026-04-20). The seed CSV above is derived from it by applying these filters:
 
 - **Drop genus-only identifications.** Rows whose `scientific_name` is a single word (e.g., `Bedotia`, `Rheocles`, `Glossogobius`) are excluded. They cannot populate a species profile and have no home in the species-level MVP data model. This removed 233 rows. If a future "indeterminate occurrence" bucket is added, revisit this.
 - **Drop out-of-bounds coordinates.** Any row with lat/lng outside the Madagascar extent (lat -26.0 to -11.5, lng 43.0 to 51.0) is excluded as a data-entry error. As of 2026-04-16 this removed 1 row (`Rheocles pellegrini` at lon=42.5, locality "andapa" — inconsistent with Andapa's actual position in northern Madagascar).

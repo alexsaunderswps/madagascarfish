@@ -142,3 +142,16 @@ Osphronemus goramy,,,Osphronemidae,Osphronemus,introduced,LC,,,,described,,false
 Heterotis niloticus,,,Arapaimidae,Heterotis,introduced,LC,,,,described,,false,,,Madagascar (introduced),,100,N,,
 Microctenopoma ansorgii,,,Anabantidae,Microctenopoma,introduced,LC,,,,described,,false,,,Madagascar (introduced),,8,N,,
 Pachypanchax sp. 'antsahalalina',,,Aplocheilidae,Pachypanchax,endemic,,,,,undescribed_morphospecies,antsahalalina,false,,,"Antsahalalina, northern Madagascar, near Montagne d Ambre",stream,,N,,Vences et al. 2022 (RDR0853). Genetically distinct from P. sakaramyi. Killi-Data Wassup #14 confirms new sp. designation.
+Ambassis cf. ambassis,,,Ambassidae,Ambassis,native,,,,,uncertain,,false,,,,,,N,,Uncertain ID from barcode library — record indicates Ambassis present at the locality.
+Ancharius sp.,,,Anchariidae,Ancharius,endemic,,,,,undescribed_morphospecies,indet,false,,,,,,N,,Indeterminate Ancharius catfish; awaiting taxonomic resolution.
+Bedotia sp.,,,Bedotiidae,Bedotia,endemic,,,,,undescribed_morphospecies,indet,false,,,,,,N,,Indeterminate Bedotia; catch-all for unassigned barcode/field records.
+Giuris cf. margaritacea,,,Eleotridae,Giuris,native,,,,,uncertain,,false,,,,,,N,,Uncertain ID; record indicates Giuris present at the locality.
+Glossogobius cf. ankaranensis,,,Gobiidae,Glossogobius,endemic,,,,,uncertain,,false,,,,,,N,,Uncertain ID; Ankarana cave-goby affinity.
+Glossogobius sp. 1,,,Gobiidae,Glossogobius,endemic,,,,,undescribed_morphospecies,1,false,,,,,,N,,Undescribed Glossogobius morphospecies 1 (barcode library).
+Glossogobius sp. 2,,,Gobiidae,Glossogobius,endemic,,,,,undescribed_morphospecies,2,false,,,,,,N,,Undescribed Glossogobius morphospecies 2 (barcode library).
+Glossogobius sp. 3,,,Gobiidae,Glossogobius,endemic,,,,,undescribed_morphospecies,3,false,,,,,,N,,Undescribed Glossogobius morphospecies 3 (barcode library).
+Hypseleotris cf. tohizonae,,,Eleotridae,Hypseleotris,endemic,,,,,uncertain,,false,,,,,,N,,Uncertain ID; H. tohizonae affinity.
+Pachypanchax sp.,,,Aplocheilidae,Pachypanchax,endemic,,,,,undescribed_morphospecies,indet,false,,,,,,N,,Indeterminate Pachypanchax.
+Pachypanchax sp. 1,,,Aplocheilidae,Pachypanchax,endemic,,,,,undescribed_morphospecies,1,false,,,,,,N,,Undescribed Pachypanchax morphospecies 1.
+Ptychochromis sp.,,,Cichlidae,Ptychochromis,endemic,,,,,undescribed_morphospecies,indet,false,,,,,,N,,Indeterminate Ptychochromis.
+Rheocles cf. derhami,,,Bedotiidae,Rheocles,endemic,,,,,uncertain,,false,,,,,,N,,Uncertain ID; R. derhami affinity.
