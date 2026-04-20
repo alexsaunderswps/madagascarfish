@@ -237,3 +237,18 @@ h2, h3 {
 .mffcp-cluster:hover {
   background: var(--accent-2);
 }
+
+/* S20 Profile — reusable stripe fallback for the hero band and distribution
+ * panel when no asset has been uploaded. Subtle diagonal gradient over
+ * --bg-sunken, never a blank color block. Also used on section hero slots
+ * that need a textured background anchor. */
+.bg-stripe-fallback {
+  background-color: var(--bg-sunken);
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--rule) 40%, transparent) 0,
+    color-mix(in oklab, var(--rule) 40%, transparent) 1px,
+    transparent 1px,
+    transparent 12px
+  );
+}

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import EmptyState from "@/components/EmptyState";
 import HusbandryTeaser from "@/components/HusbandryTeaser";
 import IucnBadge from "@/components/IucnBadge";
+import ProfileDistribution from "@/components/ProfileDistribution";
 import SpeciesSilhouette from "@/components/SpeciesSilhouette";
 import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
 import {
@@ -67,17 +68,25 @@ export default async function SpeciesProfilePage({
   if (result.kind === "not_found") notFound();
   if (result.kind === "error") {
     return (
-      <main className="mx-auto max-w-2xl px-6 py-24 text-center">
-        <h1 className="font-serif text-2xl text-slate-900">
+      <main style={{ maxWidth: 720, margin: "0 auto", padding: "96px 24px", textAlign: "center" }}>
+        <h1 style={{ fontFamily: "var(--serif)", fontSize: 24, color: "var(--ink)" }}>
           Species profile temporarily unavailable
         </h1>
-        <p className="mt-4 text-slate-600">
+        <p style={{ marginTop: 16, color: "var(--ink-2)" }}>
           The species data service is unreachable. Try again in a moment, or
           return to the directory.
         </p>
         <Link
           href="/species"
-          className="mt-6 inline-block rounded border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:border-slate-400"
+          style={{
+            display: "inline-block",
+            marginTop: 24,
+            padding: "8px 16px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--rule-strong)",
+            color: "var(--ink-2)",
+            fontSize: 13,
+          }}
         >
           ← All species
         </Link>
@@ -90,7 +99,6 @@ export default async function SpeciesProfilePage({
   const undescribed = sp.taxonomic_status === "undescribed_morphospecies";
   const sparse = countPopulatedFields(sp) < 3;
 
-  // Silhouette cascade (S13): prefer species SVG, fall back to genus SVG, then nothing.
   const needsGenusCascade =
     !sp.silhouette_svg && sp.genus_fk?.has_silhouette === true;
   const genusSilhouette = needsGenusCascade
@@ -107,65 +115,129 @@ export default async function SpeciesProfilePage({
   const iucnUrl = iucnRedListUrl(sp.iucn_taxon_id);
   const fishbaseUrl = fishbaseGenusSpeciesUrl(sp);
 
+  const endemicLabel =
+    sp.endemic_status.charAt(0).toUpperCase() + sp.endemic_status.slice(1);
+  const primaryCommon = sp.common_names[0]?.name;
+
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main style={{ maxWidth: 960, margin: "0 auto", padding: "16px 24px 48px" }}>
       {fishbaseUrl ? (
         <>
           <link rel="dns-prefetch" href="https://www.fishbase.se" />
           <link rel="preconnect" href="https://www.fishbase.se" crossOrigin="anonymous" />
         </>
       ) : null}
-      <Link href={backHref} className="text-sm text-sky-700 hover:underline">
+
+      <Link
+        href={backHref}
+        style={{
+          display: "inline-block",
+          fontSize: 13,
+          color: "var(--accent-2)",
+          textDecoration: "none",
+        }}
+      >
         ← All species
       </Link>
 
-      <header className="mt-3 border-b border-slate-200 pb-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="font-serif text-3xl italic text-slate-900">{displayName}</h1>
+      {/* Hero strip — stripe fallback band with name + IUCN badge overlay */}
+      <header
+        className="bg-stripe-fallback"
+        style={{
+          marginTop: 12,
+          padding: "28px 28px 24px",
+          borderRadius: "var(--radius-lg)",
+          border: "1px solid var(--rule)",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 16,
+          }}
+        >
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h1
+              style={{
+                fontFamily: "var(--serif)",
+                fontStyle: "italic",
+                fontSize: 34,
+                color: "var(--ink)",
+                lineHeight: 1.15,
+                margin: 0,
+              }}
+            >
+              {displayName}
+            </h1>
+            {primaryCommon ? (
+              <p style={{ marginTop: 4, fontSize: 15, color: "var(--ink-2)" }}>
+                {primaryCommon}
+              </p>
+            ) : null}
             {undescribed ? (
-              <p className="mt-1 text-sm">
-                <span className="mr-2 rounded bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-900 ring-1 ring-sky-200">
+              <p style={{ marginTop: 8, fontSize: 12 }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    backgroundColor: "var(--accent-soft)",
+                    color: "var(--accent-2)",
+                    fontWeight: 600,
+                    fontSize: 11,
+                    marginRight: 8,
+                  }}
+                >
                   Provisional Name
                 </span>
-                <span className="text-slate-600">Undescribed morphospecies — formal description pending.</span>
+                <span style={{ color: "var(--ink-2)" }}>
+                  Undescribed morphospecies — formal description pending.
+                </span>
               </p>
             ) : sp.authority || sp.year_described ? (
-              <p className="mt-1 text-sm text-slate-600">
+              <p style={{ marginTop: 8, fontSize: 13, color: "var(--ink-2)" }}>
                 {sp.authority}
                 {sp.authority && sp.year_described ? ", " : ""}
                 {sp.year_described}
               </p>
             ) : null}
-            <p className="mt-1 text-sm text-slate-600">
-              {sp.family} · {sp.genus} · <span className="capitalize">{sp.endemic_status}</span>
-            </p>
-            {sp.cares_status || sp.shoal_priority ? (
-              <p className="mt-2 flex flex-wrap gap-1.5 text-xs">
-                {sp.cares_status ? (
-                  <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-900 ring-1 ring-amber-200">
-                    CARES {sp.cares_status}
-                  </span>
-                ) : null}
-                {sp.shoal_priority ? (
-                  <span className="inline-flex items-center rounded-full bg-sky-50 px-2 py-0.5 font-semibold text-sky-900 ring-1 ring-sky-200">
-                    SHOAL 1,000 Fishes priority
-                  </span>
-                ) : null}
-              </p>
-            ) : null}
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
             <IucnBadge
               status={sp.iucn_status}
               showLabel
               criteria={acceptedIucn?.criteria}
             />
-            {sp.has_localities ? (
-              <Link
-                href={`/map?species_id=${sp.id}`}
-                className="rounded border border-slate-300 px-3 py-1 text-xs text-slate-700 hover:border-slate-400"
+            {sp.cares_status ? (
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "var(--highlight)",
+                  letterSpacing: "0.04em",
+                }}
               >
+                CARES {sp.cares_status}
+              </span>
+            ) : null}
+            {sp.shoal_priority ? (
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "var(--accent)",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                SHOAL 1,000 priority
+              </span>
+            ) : null}
+            {sp.has_localities ? (
+              <Link href={`/map?species_id=${sp.id}`} style={viewOnMapStyle}>
                 View on Map →
               </Link>
             ) : null}
@@ -173,8 +245,39 @@ export default async function SpeciesProfilePage({
         </div>
       </header>
 
+      {/* Three-up meta strip */}
+      <dl
+        style={{
+          marginTop: 16,
+          display: "grid",
+          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          gap: 16,
+          padding: "14px 20px",
+          backgroundColor: "var(--bg-raised)",
+          border: "1px solid var(--rule)",
+          borderRadius: "var(--radius-lg)",
+        }}
+      >
+        <MetaCell label="Family" value={sp.family || "—"} />
+        <MetaCell label="Endemism" value={endemicLabel} />
+        <MetaCell
+          label="Max length"
+          value={sp.max_length_cm ? `${sp.max_length_cm} cm` : "—"}
+        />
+      </dl>
+
       {sparse ? (
-        <p className="mt-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+        <p
+          style={{
+            marginTop: 16,
+            padding: "8px 14px",
+            fontSize: 13,
+            color: "var(--highlight)",
+            backgroundColor: "color-mix(in oklab, var(--highlight) 10%, var(--bg-raised))",
+            border: "1px solid color-mix(in oklab, var(--highlight) 40%, var(--rule))",
+            borderRadius: "var(--radius-md)",
+          }}
+        >
           Limited public data is available for this species. Additional
           information will be added as it is published.
         </p>
@@ -187,105 +290,82 @@ export default async function SpeciesProfilePage({
         svgCredit={silhouetteCredit}
       />
 
-      <div className="mt-6 grid gap-8 md:grid-cols-2">
-        <section aria-labelledby="conservation-heading">
-          <h2 id="conservation-heading" className="font-serif text-xl text-slate-900">
-            Conservation Status
-          </h2>
-          {acceptedIucn ? (
-            <dl className="mt-2 text-sm text-slate-700">
-              <div>
-                <dt className="inline font-medium text-slate-500">Category: </dt>
-                <dd className="inline">{acceptedIucn.category}</dd>
-              </div>
-              {acceptedIucn.criteria ? (
-                <div>
-                  <dt className="inline font-medium text-slate-500">Criteria: </dt>
-                  <dd className="inline">{acceptedIucn.criteria}</dd>
-                </div>
-              ) : null}
-              {acceptedIucn.assessor ? (
-                <div>
-                  <dt className="inline font-medium text-slate-500">Assessor: </dt>
-                  <dd className="inline">{acceptedIucn.assessor}</dd>
-                </div>
-              ) : null}
-              {acceptedIucn.assessment_date ? (
-                <div>
-                  <dt className="inline font-medium text-slate-500">Date: </dt>
-                  <dd className="inline">{acceptedIucn.assessment_date}</dd>
-                </div>
-              ) : null}
-            </dl>
-          ) : (
-            <p className="mt-2 text-sm text-slate-600">
-              Not yet assessed on the IUCN Red List.
-            </p>
-          )}
-          {sp.cares_status ? (
-            <p className="mt-2 text-sm text-slate-700">
-              <span className="font-medium text-slate-500">CARES: </span>
-              {sp.cares_status}
-            </p>
-          ) : null}
-          {sp.shoal_priority ? (
-            <p className="mt-1 text-sm text-sky-700">SHOAL 1,000 Fishes priority species.</p>
-          ) : null}
-        </section>
-
-        <section aria-labelledby="common-names-heading">
-          <h2 id="common-names-heading" className="font-serif text-xl text-slate-900">
-            Common Names
-          </h2>
-          {sp.common_names.length === 0 ? (
-            <p className="mt-2 text-sm text-slate-600">No common names recorded.</p>
-          ) : (
-            <ul className="mt-2 space-y-0.5 text-sm text-slate-700">
-              {sp.common_names.map((cn) => (
-                <li key={`${cn.language}-${cn.name}`}>
-                  {cn.name} <span className="text-slate-500">({cn.language})</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </div>
-
-      {sp.description || sp.ecology_notes || sp.morphology ? (
-        <section aria-labelledby="ecology-heading" className="mt-8">
-          <h2 id="ecology-heading" className="font-serif text-xl text-slate-900">
+      {/* Description & Ecology */}
+      {sp.description || sp.ecology_notes || sp.morphology || sp.habitat_type ? (
+        <section aria-labelledby="ecology-heading" style={{ marginTop: 32 }}>
+          <h2 id="ecology-heading" style={sectionHeadingStyle}>
             Description &amp; Ecology
           </h2>
           {sp.description ? (
-            <p className="mt-2 text-sm text-slate-700">{sp.description}</p>
+            <p style={paragraphStyle}>{sp.description}</p>
           ) : null}
           {sp.ecology_notes ? (
-            <p className="mt-2 text-sm text-slate-700">{sp.ecology_notes}</p>
+            <p style={paragraphStyle}>{sp.ecology_notes}</p>
           ) : null}
           {sp.morphology ? (
-            <p className="mt-2 text-sm text-slate-700">
-              <span className="font-medium text-slate-500">Morphology: </span>
+            <p style={paragraphStyle}>
+              <span style={labelInlineStyle}>Morphology: </span>
               {sp.morphology}
             </p>
           ) : null}
-          {sp.max_length_cm ? (
-            <p className="mt-1 text-sm text-slate-700">
-              <span className="font-medium text-slate-500">Max length: </span>
-              {sp.max_length_cm} cm
-            </p>
-          ) : null}
           {sp.habitat_type ? (
-            <p className="mt-1 text-sm text-slate-700">
-              <span className="font-medium text-slate-500">Habitat: </span>
+            <p style={paragraphStyle}>
+              <span style={labelInlineStyle}>Habitat: </span>
               {sp.habitat_type}
             </p>
           ) : null}
         </section>
       ) : null}
 
-      <section aria-labelledby="captive-heading" className="mt-8">
-        <h2 id="captive-heading" className="font-serif text-xl text-slate-900">
-          Captive Population Summary
+      {/* Distribution */}
+      <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
+
+      {/* Conservation Status */}
+      <section aria-labelledby="conservation-heading" style={{ marginTop: 32 }}>
+        <h2 id="conservation-heading" style={sectionHeadingStyle}>
+          Conservation Status
+        </h2>
+        {acceptedIucn ? (
+          <dl style={{ marginTop: 8, fontSize: 14, color: "var(--ink-2)" }}>
+            <DlRow label="Category" value={acceptedIucn.category} />
+            {acceptedIucn.criteria ? (
+              <DlRow label="Criteria" value={acceptedIucn.criteria} />
+            ) : null}
+            {acceptedIucn.assessor ? (
+              <DlRow label="Assessor" value={acceptedIucn.assessor} />
+            ) : null}
+            {acceptedIucn.assessment_date ? (
+              <DlRow label="Date" value={acceptedIucn.assessment_date} />
+            ) : null}
+          </dl>
+        ) : (
+          <p style={paragraphStyle}>
+            Not yet assessed on the IUCN Red List.
+          </p>
+        )}
+      </section>
+
+      {/* Common Names */}
+      {sp.common_names.length > 0 ? (
+        <section aria-labelledby="common-names-heading" style={{ marginTop: 32 }}>
+          <h2 id="common-names-heading" style={sectionHeadingStyle}>
+            Common Names
+          </h2>
+          <ul style={{ marginTop: 8, padding: 0, listStyle: "none", fontSize: 14 }}>
+            {sp.common_names.map((cn) => (
+              <li key={`${cn.language}-${cn.name}`} style={{ color: "var(--ink-2)" }}>
+                {cn.name}{" "}
+                <span style={{ color: "var(--ink-3)" }}>({cn.language})</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* Ex-situ Population */}
+      <section aria-labelledby="captive-heading" style={{ marginTop: 32 }}>
+        <h2 id="captive-heading" style={sectionHeadingStyle}>
+          Ex-situ Population
         </h2>
         {(() => {
           const { institutions_holding, total_individuals, breeding_programs } =
@@ -296,36 +376,24 @@ export default async function SpeciesProfilePage({
             breeding_programs === 0;
           if (allZero) {
             return (
-              <p className="mt-2 text-sm text-slate-600">
+              <p style={paragraphStyle}>
                 No captive population is currently tracked for this species.
               </p>
             );
           }
-          // Individuals can be known even when institutions are not (CARES
-          // rolls, anecdotal records, unattributed private breeders). Show
-          // the stats and dash any count that is still zero so the absence
-          // reads as data-gap, not as zero-truth.
           const dash = (n: number) => (n > 0 ? n : "—");
           return (
-            <dl className="mt-2 grid grid-cols-3 gap-4 text-sm">
-              <div>
-                <dt className="text-slate-500">Institutions holding</dt>
-                <dd className="font-semibold text-slate-900">
-                  {dash(institutions_holding)}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-slate-500">Total individuals</dt>
-                <dd className="font-semibold text-slate-900">
-                  {dash(total_individuals)}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-slate-500">Active breeding programs</dt>
-                <dd className="font-semibold text-slate-900">
-                  {dash(breeding_programs)}
-                </dd>
-              </div>
+            <dl
+              style={{
+                marginTop: 12,
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 16,
+              }}
+            >
+              <StatCell label="Institutions holding" value={dash(institutions_holding)} />
+              <StatCell label="Total individuals" value={dash(total_individuals)} />
+              <StatCell label="Active breeding programs" value={dash(breeding_programs)} />
             </dl>
           );
         })()}
@@ -334,12 +402,26 @@ export default async function SpeciesProfilePage({
       {sp.has_husbandry ? (
         <>
           {sp.difficulty_factor_count >= 3 ? (
-            <p className="mt-8 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+            <p
+              style={{
+                marginTop: 24,
+                padding: "8px 14px",
+                fontSize: 13,
+                color: "var(--accent-2)",
+                backgroundColor: "var(--accent-soft)",
+                border: "1px solid color-mix(in oklab, var(--accent) 30%, var(--rule))",
+                borderRadius: "var(--radius-md)",
+              }}
+            >
               Husbandry has {sp.difficulty_factor_count} specialized
               considerations for this species.{" "}
               <Link
                 href={`/species/${sp.id}/husbandry/#difficulty-heading`}
-                className="font-medium underline underline-offset-2 hover:text-sky-700"
+                style={{
+                  color: "var(--accent-2)",
+                  fontWeight: 600,
+                  textDecoration: "underline",
+                }}
               >
                 See details →
               </Link>
@@ -359,12 +441,12 @@ export default async function SpeciesProfilePage({
       {(() => {
         const fpEmpty = sp.field_programs.length === 0;
         const fieldPrograms = (
-          <section aria-labelledby="field-heading" className="mt-8">
-            <h2 id="field-heading" className="font-serif text-xl text-slate-900">
+          <section aria-labelledby="field-heading" style={{ marginTop: 32 }}>
+            <h2 id="field-heading" style={sectionHeadingStyle}>
               Field Programs
             </h2>
             {fpEmpty ? (
-              <div className="mt-2">
+              <div style={{ marginTop: 8 }}>
                 <EmptyState
                   variant="inline"
                   title="No linked field programs"
@@ -372,10 +454,11 @@ export default async function SpeciesProfilePage({
                 />
               </div>
             ) : (
-              <ul className="mt-2 space-y-1 text-sm text-slate-700">
+              <ul style={{ marginTop: 8, padding: 0, listStyle: "none", fontSize: 14 }}>
                 {sp.field_programs.map((fp) => (
-                  <li key={fp.id}>
-                    {fp.name} <span className="text-slate-500">({fp.status})</span>
+                  <li key={fp.id} style={{ color: "var(--ink-2)" }}>
+                    {fp.name}{" "}
+                    <span style={{ color: "var(--ink-3)" }}>({fp.status})</span>
                   </li>
                 ))}
               </ul>
@@ -384,18 +467,18 @@ export default async function SpeciesProfilePage({
         );
         const externalRefs =
           iucnUrl || fishbaseUrl ? (
-            <section aria-labelledby="links-heading" className="mt-8">
-              <h2 id="links-heading" className="font-serif text-xl text-slate-900">
+            <section aria-labelledby="links-heading" style={{ marginTop: 32 }}>
+              <h2 id="links-heading" style={sectionHeadingStyle}>
                 External References
               </h2>
-              <ul className="mt-2 space-y-1 text-sm">
+              <ul style={{ marginTop: 8, padding: 0, listStyle: "none", fontSize: 14 }}>
                 {iucnUrl ? (
                   <li>
                     <a
                       href={iucnUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sky-700 hover:underline"
+                      style={{ color: "var(--accent-2)", textDecoration: "underline" }}
                     >
                       IUCN Red List assessment →
                     </a>
@@ -407,7 +490,7 @@ export default async function SpeciesProfilePage({
                       href={fishbaseUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sky-700 hover:underline"
+                      style={{ color: "var(--accent-2)", textDecoration: "underline" }}
                     >
                       FishBase species summary →
                     </a>
@@ -416,9 +499,6 @@ export default async function SpeciesProfilePage({
               </ul>
             </section>
           ) : null;
-        // When Field Programs is empty, close the page on an outbound
-        // signal (IUCN / FishBase) rather than an absence. Per UX review
-        // 2026-04-19, Profile finding #4.
         return fpEmpty ? (
           <>
             {externalRefs}
@@ -432,5 +512,92 @@ export default async function SpeciesProfilePage({
         );
       })()}
     </main>
+  );
+}
+
+const viewOnMapStyle = {
+  marginTop: 4,
+  padding: "4px 10px",
+  fontSize: 12,
+  borderRadius: 999,
+  border: "1px solid var(--rule-strong)",
+  backgroundColor: "var(--bg-raised)",
+  color: "var(--ink-2)",
+  textDecoration: "none",
+};
+
+const sectionHeadingStyle = {
+  fontFamily: "var(--serif)",
+  fontSize: 22,
+  color: "var(--ink)",
+  margin: 0,
+};
+
+const paragraphStyle = {
+  marginTop: 8,
+  fontSize: 14,
+  color: "var(--ink-2)",
+  lineHeight: 1.55,
+};
+
+const labelInlineStyle = {
+  fontWeight: 600,
+  color: "var(--ink-3)",
+};
+
+function MetaCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--ink-3)",
+        }}
+      >
+        {label}
+      </dt>
+      <dd
+        style={{
+          marginTop: 4,
+          fontSize: 15,
+          color: "var(--ink)",
+          fontWeight: 500,
+        }}
+      >
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+function DlRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ marginTop: 4 }}>
+      <dt style={{ display: "inline", fontWeight: 600, color: "var(--ink-3)" }}>
+        {label}:{" "}
+      </dt>
+      <dd style={{ display: "inline", margin: 0 }}>{value}</dd>
+    </div>
+  );
+}
+
+function StatCell({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div>
+      <dt style={{ fontSize: 12, color: "var(--ink-3)" }}>{label}</dt>
+      <dd
+        style={{
+          marginTop: 2,
+          fontSize: 22,
+          fontWeight: 600,
+          color: "var(--ink)",
+        }}
+      >
+        {value}
+      </dd>
+    </div>
   );
 }
