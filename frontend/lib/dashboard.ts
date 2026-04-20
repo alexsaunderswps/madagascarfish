@@ -20,6 +20,7 @@ export interface DashboardResponse {
     completed: number;
   };
   last_updated: string;
+  last_sync_at: string | null;
 }
 
 export async function fetchDashboard(): Promise<DashboardResponse | null> {

@@ -14,6 +14,7 @@ from species.models import (
     CommonName,
     ConservationAssessment,
     ConservationStatusConflict,
+    Genus,
     ProtectedArea,
     Species,
     SpeciesLocality,
@@ -99,6 +100,40 @@ class SpeciesLocalityInline(admin.TabularInline):
     show_change_link = True
 
 
+@admin.register(Genus)
+class GenusAdmin(admin.ModelAdmin):
+    list_display = ["name", "family", "species_count", "has_silhouette", "updated_at"]
+    list_filter = ["family"]
+    search_fields = ["name", "family"]
+    readonly_fields = ["created_at", "updated_at"]
+    fieldsets = (
+        ("Identity", {"fields": ("name", "family")}),
+        (
+            "Silhouette",
+            {
+                "fields": ("silhouette_svg", "silhouette_credit"),
+                "description": (
+                    "Fallback SVG used on species profiles that have no "
+                    "silhouette of their own. Same authoring conventions as "
+                    "the Species silhouette field: viewBox required, "
+                    'fill="currentColor", omit width/height on the root.'
+                ),
+            },
+        ),
+        ("Notes", {"fields": ("notes",)}),
+        ("Timestamps", {"fields": ("created_at", "updated_at")}),
+    )
+    actions = [revalidate_public_pages]
+
+    @admin.display(description="# species", ordering="species__count")
+    def species_count(self, obj: Genus) -> int:
+        return obj.species.count()
+
+    @admin.display(boolean=True, description="Silhouette")
+    def has_silhouette(self, obj: Genus) -> bool:
+        return bool(obj.silhouette_svg)
+
+
 @admin.register(Species)
 class SpeciesAdmin(admin.ModelAdmin):
     list_display = [
@@ -118,13 +153,15 @@ class SpeciesAdmin(admin.ModelAdmin):
         "endemic_status",
         "family",
         "shoal_priority",
+        "genus_fk",
     ]
+    raw_id_fields = ["genus_fk"]
     search_fields = [
         "scientific_name",
         "provisional_name",
         "common_names__name",
     ]
-    list_select_related = ["taxon"]
+    list_select_related = ["taxon", "genus_fk"]
     # iucn_status is a denormalized mirror (see CLAUDE.md "Conservation status
     # sourcing"). Editing it here would bypass the audit trail and the
     # ConservationAssessment review workflow. Change status by creating an

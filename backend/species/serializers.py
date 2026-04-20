@@ -4,7 +4,22 @@ from django.db import models as db_models
 from rest_framework import serializers
 
 from accounts.serializer_mixins import TierAwareSerializerMixin
-from species.models import CommonName, ConservationAssessment, Species
+from species.models import CommonName, ConservationAssessment, Genus, Species
+
+
+class GenusBriefSerializer(serializers.ModelSerializer):
+    """Compact genus representation embedded on Species payloads. Signals
+    whether a fallback silhouette exists so the frontend cascade can decide
+    whether to fetch the SVG body from the dedicated genus endpoint."""
+
+    has_silhouette = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Genus
+        fields = ["name", "has_silhouette"]
+
+    def get_has_silhouette(self, obj: Genus) -> bool:
+        return bool(obj.silhouette_svg)
 
 
 class CommonNameSerializer(serializers.ModelSerializer):
@@ -47,6 +62,7 @@ class ConservationAssessmentFullSerializer(serializers.ModelSerializer):
 
 class SpeciesListSerializer(serializers.ModelSerializer):
     common_names = CommonNameSerializer(many=True, read_only=True)
+    genus_fk = GenusBriefSerializer(read_only=True)
 
     class Meta:
         model = Species
@@ -57,6 +73,7 @@ class SpeciesListSerializer(serializers.ModelSerializer):
             "provisional_name",
             "family",
             "genus",
+            "genus_fk",
             "endemic_status",
             "iucn_status",
             "cares_status",
@@ -75,6 +92,7 @@ class _FieldProgramBriefSerializer(serializers.Serializer):
 
 class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSerializer):
     common_names = CommonNameSerializer(many=True, read_only=True)
+    genus_fk = GenusBriefSerializer(read_only=True)
     conservation_assessments = serializers.SerializerMethodField()
     field_programs = serializers.SerializerMethodField()
     ex_situ_summary = serializers.SerializerMethodField()
@@ -93,6 +111,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
             "year_described",
             "family",
             "genus",
+            "genus_fk",
             "endemic_status",
             "iucn_status",
             "cares_status",

@@ -28,6 +28,10 @@ class SpeciesFilter(filters.FilterSet):
     # include_introduced=true to surface them, or filter endemic_status
     # explicitly — either path opts out of the default exclusion.
     include_introduced = filters.BooleanFilter(method="filter_include_introduced")
+    # Genus filter keyed on the FK's canonical name. The legacy string column
+    # is still respected when the FK lookup returns no match so API clients
+    # that predate Gate 1 keep working through the release window.
+    genus = filters.CharFilter(method="filter_genus")
 
     class Meta:
         model = Species
@@ -39,6 +43,7 @@ class SpeciesFilter(filters.FilterSet):
             "endemic_status",
             "has_captive_population",
             "include_introduced",
+            "genus",
         ]
 
     def filter_iucn_status(
@@ -69,6 +74,16 @@ class SpeciesFilter(filters.FilterSet):
         annotated = queryset.annotate(_has_captive_population=has_pop)
         return annotated.filter(_has_captive_population=value)
 
+    def filter_genus(
+        self,
+        queryset: QuerySet[Species],
+        name: str,
+        value: str | None,
+    ) -> QuerySet[Species]:
+        if not value:
+            return queryset
+        return queryset.filter(Q(genus_fk__name=value) | Q(genus=value))
+
     def filter_include_introduced(
         self,
         queryset: QuerySet[Species],
@@ -93,7 +108,7 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ["scientific_name"]
 
     def get_queryset(self):
-        qs = Species.objects.order_by("scientific_name")
+        qs = Species.objects.select_related("genus_fk").order_by("scientific_name")
         # Default to hiding introduced species from list/retrieve unless the
         # caller passes include_introduced=true or explicitly filters
         # endemic_status. Retrieve-by-id is still allowed for any species —

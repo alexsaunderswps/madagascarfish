@@ -10,6 +10,11 @@ export interface CommonName {
   language: string;
 }
 
+export interface GenusBrief {
+  name: string;
+  has_silhouette: boolean;
+}
+
 export interface SpeciesListItem {
   id: number;
   scientific_name: string;
@@ -17,6 +22,7 @@ export interface SpeciesListItem {
   provisional_name: string | null;
   family: string;
   genus: string;
+  genus_fk: GenusBrief | null;
   endemic_status: EndemicStatus;
   iucn_status: IucnStatus | null;
   cares_status: CaresStatus | null;

@@ -7,6 +7,7 @@ from fieldwork.views import FieldProgramViewSet
 from populations.views import ExSituPopulationViewSet, InstitutionViewSet
 from species.views import SpeciesViewSet
 from species.views_dashboard import DashboardView
+from species.views_genus import GenusSilhouetteView
 from species.views_map import MapSummaryView, SpeciesLocalityGeoView, WatershedListView
 
 router = DefaultRouter()
@@ -24,6 +25,12 @@ urlpatterns = [
     path("", include("husbandry.urls")),
     # Dashboard
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
+    # Genus silhouette (public cascade fallback — see docs/design.md §15)
+    path(
+        "genera/<str:name>/silhouette/",
+        GenusSilhouetteView.as_view(),
+        name="genus-silhouette",
+    ),
     # Map endpoints
     path("map/localities/", SpeciesLocalityGeoView.as_view(), name="map-localities"),
     path("map/watersheds/", WatershedListView.as_view(), name="map-watersheds"),

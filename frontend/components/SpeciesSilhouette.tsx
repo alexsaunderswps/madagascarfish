@@ -24,6 +24,7 @@ export type SpeciesSilhouetteProps = {
   maxLengthCm: number | null | undefined;
   scientificName: string;
   customSvg?: string | null;
+  svgCredit?: string | null;
   className?: string;
 };
 
@@ -31,6 +32,7 @@ export default function SpeciesSilhouette({
   maxLengthCm,
   scientificName,
   customSvg,
+  svgCredit,
   className,
 }: SpeciesSilhouetteProps) {
   const hasCustom = typeof customSvg === "string" && customSvg.trim().length > 0;
@@ -59,6 +61,7 @@ export default function SpeciesSilhouette({
       <figcaption className="mt-3 text-center text-xs text-slate-500">
         Illustrative silhouette
         {hasLength ? <> (approx. {maxLengthCm}&nbsp;cm at maximum recorded length)</> : null}
+        {svgCredit ? <> — genus silhouette, {svgCredit}</> : null}
         .{" "}
         <span className="text-slate-400">
           Photographs of this species are welcome —{" "}

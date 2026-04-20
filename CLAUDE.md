@@ -96,12 +96,19 @@ No foot-guns: if you find yourself reaching for `species.iucn_status = "..."`
 outside the mirror path, stop and route through a `ConservationAssessment`
 instead.
 
+## Active Initiatives
+
+Multi-gate initiatives have their own planning hub under `docs/planning/<initiative>/README.md`. Read the hub first in any new session touching that work — it holds the locked-in decisions, gate split, and open questions so sessions can resume without backtracking.
+
+- **Registry redesign** — `docs/planning/registry-redesign/README.md`. Porting `docs/design.md` into the production codebase. Three gates: visual system (Gate 1, pre-June 1), schema expansion (Gate 2), ex-situ coordinator dashboard (Gate 3).
+
 ## Planning Documents
 
 Planning artifacts live in `docs/planning/`:
 - `architecture/` — Architecture Agent proposals
 - `business-analysis/` — BA Agent assessments
 - `specs/` — PM Agent gate specs with acceptance criteria
+- `<initiative>/` — multi-gate initiative hubs (see Active Initiatives above)
 
 Ideation documents live in `docs/ideation/`:
 - `extinction-crisis-report.md` — domain context and species data

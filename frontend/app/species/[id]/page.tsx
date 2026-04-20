@@ -5,6 +5,7 @@ import EmptyState from "@/components/EmptyState";
 import HusbandryTeaser from "@/components/HusbandryTeaser";
 import IucnBadge from "@/components/IucnBadge";
 import SpeciesSilhouette from "@/components/SpeciesSilhouette";
+import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
 import {
   displayScientificName,
   fetchSpeciesDetail,
@@ -89,6 +90,17 @@ export default async function SpeciesProfilePage({
   const undescribed = sp.taxonomic_status === "undescribed_morphospecies";
   const sparse = countPopulatedFields(sp) < 3;
 
+  // Silhouette cascade (S13): prefer species SVG, fall back to genus SVG, then nothing.
+  const needsGenusCascade =
+    !sp.silhouette_svg && sp.genus_fk?.has_silhouette === true;
+  const genusSilhouette = needsGenusCascade
+    ? await fetchGenusSilhouette(sp.genus_fk!.name)
+    : null;
+  const effectiveSvg = sp.silhouette_svg || genusSilhouette?.svg || "";
+  const silhouetteCredit = sp.silhouette_svg
+    ? null
+    : genusSilhouette?.credit || null;
+
   const acceptedIucn = sp.conservation_assessments.find(
     (a) => a.source === "iucn_official" || a.source === "manual_expert",
   );
@@ -171,7 +183,8 @@ export default async function SpeciesProfilePage({
       <SpeciesSilhouette
         maxLengthCm={sp.max_length_cm}
         scientificName={displayName}
-        customSvg={sp.silhouette_svg}
+        customSvg={effectiveSvg}
+        svgCredit={silhouetteCredit}
       />
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
