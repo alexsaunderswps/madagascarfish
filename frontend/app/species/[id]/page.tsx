@@ -42,6 +42,8 @@ function countPopulatedFields(sp: SpeciesDetail): number {
   return candidates.filter((v) => v != null && v !== "" && v !== 0).length;
 }
 
+// Hero tint gradient (left→right, fading ~8% IUCN color into page bg).
+// Matches the Claude Design prototype: `${c.bg}14 0%, transparent 60%`.
 const STATUS_COLOR_VAR: Record<IucnStatus, string> = {
   CR: "--iucn-cr",
   EN: "--iucn-en",
@@ -134,9 +136,6 @@ export default async function SpeciesProfilePage({
   const endemicLabel =
     sp.endemic_status.charAt(0).toUpperCase() + sp.endemic_status.slice(1);
   const primaryCommon = sp.common_names[0];
-  // Hide auto-generated "Basin near 16.09°S 49.44°E" placeholders in the pill
-  // row — they render as visual noise. Real basin names (e.g. "Nosivolo")
-  // pass through.
   const basinLabel =
     sp.primary_basin && !/^Basin near/i.test(sp.primary_basin)
       ? sp.primary_basin
@@ -150,8 +149,11 @@ export default async function SpeciesProfilePage({
   const exSituEmpty =
     institutions_holding === 0 && total_individuals === 0 && breeding_programs === 0;
 
+  const habitatLabel = sp.habitat_type || "—";
+  const statusDescriptor = undescribed ? "Undescribed morphospecies" : "Described";
+
   return (
-    <main style={{ maxWidth: 960, margin: "0 auto", padding: "16px 24px 48px" }}>
+    <main>
       {fishbaseUrl ? (
         <>
           <link rel="dns-prefetch" href="https://www.fishbase.se" />
@@ -159,491 +161,554 @@ export default async function SpeciesProfilePage({
         </>
       ) : null}
 
-      {/* Breadcrumb */}
-      <nav
-        aria-label="Breadcrumb"
-        style={{ fontSize: 13, color: "var(--ink-3)", marginBottom: 12 }}
-      >
-        <Link href={backHref} style={breadcrumbLinkStyle}>
-          ← All species
-        </Link>
-        {sp.family ? (
-          <>
-            <span aria-hidden="true" style={breadcrumbSepStyle}>/</span>
-            <span>{sp.family}</span>
-          </>
-        ) : null}
-        {sp.genus ? (
-          <>
-            <span aria-hidden="true" style={breadcrumbSepStyle}>/</span>
-            <span style={{ fontStyle: "italic" }}>{sp.genus}</span>
-          </>
-        ) : null}
-      </nav>
-
-      {/* Hero — clean cream band, no stripe */}
-      <header
-        style={{
-          padding: "28px 28px 24px",
-          borderRadius: "var(--radius-lg)",
-          border: "1px solid var(--rule)",
-          backgroundColor: "var(--bg-raised)",
-          position: "relative",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 24,
-          }}
-        >
-          <div style={{ minWidth: 0, flex: "1 1 420px" }}>
-            {/* Status eyebrow (small-caps, status-colored) */}
-            <p
-              style={{
-                margin: 0,
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.12em",
-                color: `var(${statusColorVar})`,
-              }}
-            >
-              {statusEyebrow}
-            </p>
-
-            <h1
-              style={{
-                fontFamily: "var(--serif)",
-                fontStyle: "italic",
-                fontSize: 36,
-                color: "var(--ink)",
-                lineHeight: 1.1,
-                margin: "6px 0 0",
-              }}
-            >
-              {displayName}
-            </h1>
-
-            {undescribed ? (
-              <p style={{ marginTop: 8, fontSize: 12 }}>
-                <span
-                  style={{
-                    display: "inline-block",
-                    padding: "2px 8px",
-                    borderRadius: 999,
-                    backgroundColor: "var(--accent-soft)",
-                    color: "var(--accent-2)",
-                    fontWeight: 600,
-                    fontSize: 11,
-                    marginRight: 8,
-                  }}
-                >
-                  Provisional Name
-                </span>
-                <span style={{ color: "var(--ink-2)" }}>
-                  Undescribed morphospecies — formal description pending.
-                </span>
-              </p>
-            ) : sp.authority || sp.year_described ? (
-              <p style={{ marginTop: 6, fontSize: 13, color: "var(--ink-3)" }}>
-                {sp.authority}
-                {sp.authority && sp.year_described ? ", " : ""}
-                {sp.year_described}
-              </p>
-            ) : null}
-
-            {primaryCommon ? (
-              <p style={{ marginTop: 10, fontSize: 15, color: "var(--ink-2)" }}>
-                {primaryCommon.name}{" "}
-                <span style={{ color: "var(--ink-3)", fontSize: 12 }}>
-                  ({primaryCommon.language})
-                </span>
-              </p>
-            ) : null}
-
-            {/* Pill row */}
-            <div
-              style={{
-                marginTop: 16,
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 8,
-                alignItems: "center",
-              }}
-            >
-              <IucnBadge
-                status={sp.iucn_status}
-                criteria={acceptedIucn?.criteria}
-              />
-              {sp.family ? <OutlinePill>{sp.family.toUpperCase()}</OutlinePill> : null}
-              {basinLabel ? (
-                <OutlinePill>{basinLabel.toUpperCase()} BASIN</OutlinePill>
-              ) : null}
-              <OutlinePill>{endemicLabel.toUpperCase()}</OutlinePill>
-              {caresShort ? (
-                <OutlinePill tone="highlight">{caresShort}</OutlinePill>
-              ) : null}
-              {sp.shoal_priority ? (
-                <OutlinePill tone="accent">SHOAL PRIORITY</OutlinePill>
-              ) : null}
-            </div>
-          </div>
-
-          {/* Silhouette + max length, right-aligned */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-              gap: 8,
-              minWidth: 180,
-            }}
-          >
-            <SpeciesSilhouette
-              maxLengthCm={sp.max_length_cm}
-              scientificName={displayName}
-              customSvg={effectiveSvg}
-              svgCredit={silhouetteCredit}
-            />
-          </div>
-        </div>
-      </header>
-
-      {/* Three summary boxes: Distribution · Ex-situ · Husbandry */}
+      {/* Full-bleed hero with IUCN-tinted gradient */}
       <section
-        aria-label="Profile summary"
         style={{
-          marginTop: 16,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
+          background: "var(--bg-sunken)",
+          borderBottom: "1px solid var(--rule)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <SummaryBox title="Distribution">
-          {sp.has_localities ? (
-            <>
-              <p style={summaryValueStyle}>On record in Madagascar</p>
-              <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>
-                View on Map →
-              </Link>
-            </>
-          ) : (
-            <p style={summaryMutedStyle}>No locality records mapped.</p>
-          )}
-        </SummaryBox>
-
-        <SummaryBox title="Ex-situ Coverage">
-          {exSituEmpty ? (
-            <p style={summaryMutedStyle}>No captive population tracked.</p>
-          ) : (
-            <>
-              <p style={summaryValueStyle}>
-                {institutions_holding} institution
-                {institutions_holding === 1 ? "" : "s"}
-              </p>
-              <p style={summarySubStyle}>
-                {total_individuals || "—"} individuals ·{" "}
-                {breeding_programs || 0} breeding
-              </p>
-            </>
-          )}
-        </SummaryBox>
-
-        <SummaryBox title="Husbandry">
-          {sp.has_husbandry ? (
-            <>
-              <p style={summaryValueStyle}>
-                {sp.difficulty_factor_count} difficulty factor
-                {sp.difficulty_factor_count === 1 ? "" : "s"}
-              </p>
-              <Link
-                href={`/species/${sp.id}/husbandry/`}
-                style={summaryLinkStyle}
-              >
-                See guidance →
-              </Link>
-            </>
-          ) : (
-            <p style={summaryMutedStyle}>No husbandry guidance yet.</p>
-          )}
-        </SummaryBox>
-      </section>
-
-      {sparse ? (
-        <p
+        {/* Color wash — IUCN status color at ~8% alpha fading left→right */}
+        <div
+          aria-hidden="true"
           style={{
-            marginTop: 16,
-            padding: "8px 14px",
-            fontSize: 13,
-            color: "var(--highlight)",
-            backgroundColor: "color-mix(in oklab, var(--highlight) 10%, var(--bg-raised))",
-            border: "1px solid color-mix(in oklab, var(--highlight) 40%, var(--rule))",
-            borderRadius: "var(--radius-md)",
-          }}
-        >
-          Limited public data is available for this species. Additional
-          information will be added as it is published.
-        </p>
-      ) : null}
-
-      {/* Description & Ecology */}
-      {sp.description || sp.ecology_notes || sp.morphology || sp.habitat_type ? (
-        <section aria-labelledby="ecology-heading" style={{ marginTop: 32 }}>
-          <h2 id="ecology-heading" style={sectionHeadingStyle}>
-            Description &amp; Ecology
-          </h2>
-          {sp.description ? (
-            <p style={paragraphStyle}>{sp.description}</p>
-          ) : null}
-          {sp.ecology_notes ? (
-            <p style={paragraphStyle}>{sp.ecology_notes}</p>
-          ) : null}
-          {sp.morphology ? (
-            <p style={paragraphStyle}>
-              <span style={labelInlineStyle}>Morphology: </span>
-              {sp.morphology}
-            </p>
-          ) : null}
-          {sp.habitat_type ? (
-            <p style={paragraphStyle}>
-              <span style={labelInlineStyle}>Habitat: </span>
-              {sp.habitat_type}
-            </p>
-          ) : null}
-        </section>
-      ) : null}
-
-      {/* Distribution (curated map panel) */}
-      <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
-
-      {/* Conservation Status */}
-      <section aria-labelledby="conservation-heading" style={{ marginTop: 32 }}>
-        <h2 id="conservation-heading" style={sectionHeadingStyle}>
-          Conservation Status
-        </h2>
-        {acceptedIucn ? (
-          <dl style={{ marginTop: 8, fontSize: 14, color: "var(--ink-2)" }}>
-            <DlRow label="Category" value={acceptedIucn.category} />
-            {acceptedIucn.criteria ? (
-              <DlRow label="Criteria" value={acceptedIucn.criteria} />
-            ) : null}
-            {acceptedIucn.assessor ? (
-              <DlRow label="Assessor" value={acceptedIucn.assessor} />
-            ) : null}
-            {acceptedIucn.assessment_date ? (
-              <DlRow label="Date" value={acceptedIucn.assessment_date} />
-            ) : null}
-          </dl>
-        ) : (
-          <p style={paragraphStyle}>
-            Not yet assessed on the IUCN Red List.
-          </p>
-        )}
-      </section>
-
-      {/* Common Names */}
-      {sp.common_names.length > 0 ? (
-        <section aria-labelledby="common-names-heading" style={{ marginTop: 32 }}>
-          <h2 id="common-names-heading" style={sectionHeadingStyle}>
-            Common Names
-          </h2>
-          <ul style={{ marginTop: 8, padding: 0, listStyle: "none", fontSize: 14 }}>
-            {sp.common_names.map((cn) => (
-              <li key={`${cn.language}-${cn.name}`} style={{ color: "var(--ink-2)" }}>
-                {cn.name}{" "}
-                <span style={{ color: "var(--ink-3)" }}>({cn.language})</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {/* Ex-situ Population (detail) */}
-      <section aria-labelledby="captive-heading" style={{ marginTop: 32 }}>
-        <h2 id="captive-heading" style={sectionHeadingStyle}>
-          Ex-situ Population
-        </h2>
-        {exSituEmpty ? (
-          <div style={{ marginTop: 12 }}>
-            <EmptyState
-              variant="inline"
-              title="No ex-situ population tracked"
-              body="No captive population is currently tracked for this species."
-            />
-          </div>
-        ) : (
-          <dl
-            style={{
-              marginTop: 12,
-              display: "grid",
-              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-              gap: 16,
-            }}
-          >
-            <StatCell
-              label="Institutions holding"
-              value={institutions_holding || "—"}
-            />
-            <StatCell
-              label="Total individuals"
-              value={total_individuals || "—"}
-            />
-            <StatCell
-              label="Active breeding programs"
-              value={breeding_programs || "—"}
-            />
-          </dl>
-        )}
-      </section>
-
-      {sp.has_husbandry ? (
-        <HusbandryTeaser
-          speciesId={sp.id}
-          ctx={{
-            has_husbandry: sp.has_husbandry,
-            cares_status: sp.cares_status,
-            shoal_priority: sp.shoal_priority,
+            position: "absolute",
+            inset: 0,
+            background: `linear-gradient(90deg, color-mix(in oklab, var(${statusColorVar}) 14%, transparent) 0%, transparent 60%)`,
+            pointerEvents: "none",
           }}
         />
-      ) : null}
+        <div style={{ ...containerStyle, padding: "24px 28px 40px", position: "relative" }}>
+          {/* Breadcrumb */}
+          <nav
+            aria-label="Breadcrumb"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 13,
+              color: "var(--ink-3)",
+            }}
+          >
+            <Link href={backHref} style={breadcrumbBackStyle}>
+              ← All species
+            </Link>
+            {sp.family ? (
+              <>
+                <span aria-hidden="true">/</span>
+                <span>{sp.family}</span>
+              </>
+            ) : null}
+            {sp.genus ? (
+              <>
+                <span aria-hidden="true">/</span>
+                <span style={{ color: "var(--ink-2)" }}>{sp.genus}</span>
+              </>
+            ) : null}
+          </nav>
 
-      {(() => {
-        const fpEmpty = sp.field_programs.length === 0;
-        const fieldPrograms = (
-          <section aria-labelledby="field-heading" style={{ marginTop: 32 }}>
-            <h2 id="field-heading" style={sectionHeadingStyle}>
-              Field Programs
-            </h2>
-            {fpEmpty ? (
-              <div style={{ marginTop: 8 }}>
-                <EmptyState
-                  variant="inline"
-                  title="No linked field programs"
-                  body="No field programs are currently linked to this species."
+          {/* Two-column hero: details left, silhouette right */}
+          <div
+            style={{
+              marginTop: 24,
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) auto",
+              gap: 32,
+              alignItems: "flex-end",
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <p
+                style={{
+                  ...eyebrowStyle,
+                  color: `var(${statusColorVar})`,
+                  margin: 0,
+                }}
+              >
+                {statusEyebrow}
+              </p>
+
+              <h1
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontStyle: "italic",
+                  fontSize: "clamp(36px, 6vw, 56px)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.01em",
+                  color: "var(--ink)",
+                  lineHeight: 1.05,
+                  margin: "8px 0 0",
+                }}
+              >
+                {displayName}
+              </h1>
+
+              {sp.authority || sp.year_described ? (
+                <p
+                  style={{
+                    marginTop: 6,
+                    fontFamily: "var(--serif)",
+                    fontSize: 15,
+                    color: "var(--ink-2)",
+                  }}
+                >
+                  {sp.authority}
+                  {sp.authority && sp.year_described ? ", " : ""}
+                  {sp.year_described}
+                </p>
+              ) : null}
+
+              {undescribed ? (
+                <p style={{ marginTop: 12, fontSize: 12 }}>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "2px 8px",
+                      borderRadius: 999,
+                      backgroundColor: "var(--accent-soft)",
+                      color: "var(--accent-2)",
+                      fontWeight: 600,
+                      fontSize: 11,
+                      marginRight: 8,
+                    }}
+                  >
+                    Provisional Name
+                  </span>
+                  <span style={{ color: "var(--ink-2)" }}>
+                    Undescribed morphospecies — formal description pending.
+                  </span>
+                </p>
+              ) : null}
+
+              {primaryCommon ? (
+                <p
+                  style={{
+                    marginTop: 14,
+                    fontFamily: "var(--serif)",
+                    fontSize: 22,
+                    color: "var(--ink-2)",
+                  }}
+                >
+                  {primaryCommon.name}{" "}
+                  <span
+                    style={{
+                      fontFamily: "var(--mono)",
+                      fontSize: 13,
+                      color: "var(--ink-3)",
+                      marginLeft: 6,
+                    }}
+                  >
+                    ({primaryCommon.language})
+                  </span>
+                </p>
+              ) : null}
+
+              <div
+                style={{
+                  marginTop: 20,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 8,
+                  alignItems: "center",
+                }}
+              >
+                <IucnBadge
+                  status={sp.iucn_status}
+                  showLabel
+                  criteria={acceptedIucn?.criteria}
                 />
+                {sp.family ? <BasinPill>{sp.family}</BasinPill> : null}
+                {basinLabel ? <BasinPill>{basinLabel} basin</BasinPill> : null}
+                <BasinPill>{endemicLabel}</BasinPill>
+                {caresShort ? (
+                  <BasinPill tone="highlight">{caresShort}</BasinPill>
+                ) : null}
+                {sp.shoal_priority ? (
+                  <BasinPill tone="accent">SHOAL priority</BasinPill>
+                ) : null}
               </div>
+            </div>
+
+            {/* Silhouette column */}
+            <div
+              style={{
+                width: 260,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-end",
+              }}
+            >
+              <SpeciesSilhouette
+                maxLengthCm={sp.max_length_cm}
+                scientificName={displayName}
+                customSvg={effectiveSvg}
+                svgCredit={silhouetteCredit}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Page body — constrained container */}
+      <div style={{ ...containerStyle, padding: "32px 28px 48px" }}>
+        {/* Three summary boxes: Distribution · Ex-situ · Husbandry */}
+        <section
+          aria-label="Profile summary"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: 12,
+          }}
+        >
+          <SummaryBox title="Distribution">
+            {sp.has_localities ? (
+              <>
+                <p style={summaryValueStyle}>On record in Madagascar</p>
+                <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>
+                  View on Map →
+                </Link>
+              </>
             ) : (
-              <ul style={{ marginTop: 8, padding: 0, listStyle: "none", fontSize: 14 }}>
-                {sp.field_programs.map((fp) => (
-                  <li key={fp.id} style={{ color: "var(--ink-2)" }}>
-                    {fp.name}{" "}
-                    <span style={{ color: "var(--ink-3)" }}>({fp.status})</span>
-                  </li>
-                ))}
-              </ul>
+              <p style={summaryMutedStyle}>No locality records mapped.</p>
             )}
+          </SummaryBox>
+
+          <SummaryBox title="Ex-situ Coverage">
+            {exSituEmpty ? (
+              <p style={summaryMutedStyle}>No captive population tracked.</p>
+            ) : (
+              <>
+                <p style={summaryValueStyle}>
+                  {institutions_holding} institution
+                  {institutions_holding === 1 ? "" : "s"}
+                </p>
+                <p style={summarySubStyle}>
+                  {total_individuals || "—"} individuals ·{" "}
+                  {breeding_programs || 0} breeding
+                </p>
+              </>
+            )}
+          </SummaryBox>
+
+          <SummaryBox title="Husbandry">
+            {sp.has_husbandry ? (
+              <>
+                <p style={summaryValueStyle}>
+                  {sp.difficulty_factor_count} difficulty factor
+                  {sp.difficulty_factor_count === 1 ? "" : "s"}
+                </p>
+                <Link
+                  href={`/species/${sp.id}/husbandry/`}
+                  style={summaryLinkStyle}
+                >
+                  See guidance →
+                </Link>
+              </>
+            ) : (
+              <p style={summaryMutedStyle}>No husbandry guidance yet.</p>
+            )}
+          </SummaryBox>
+        </section>
+
+        {sparse ? (
+          <p
+            style={{
+              marginTop: 24,
+              padding: "8px 14px",
+              fontSize: 13,
+              color: "var(--highlight)",
+              backgroundColor: "color-mix(in oklab, var(--highlight) 10%, var(--bg-raised))",
+              border: "1px solid color-mix(in oklab, var(--highlight) 40%, var(--rule))",
+              borderRadius: "var(--radius-md)",
+            }}
+          >
+            Limited public data is available for this species. Additional
+            information will be added as it is published.
+          </p>
+        ) : null}
+
+        {/* Description & Ecology — eyebrow, lead serif paragraph, 4-col meta */}
+        {sp.description ||
+        sp.ecology_notes ||
+        sp.morphology ||
+        sp.habitat_type ||
+        sp.max_length_cm ||
+        basinLabel ? (
+          <section id="description" style={{ marginTop: 48 }}>
+            <p style={eyebrowStyle}>Description &amp; Ecology</p>
+            {sp.description ? (
+              <p
+                style={{
+                  marginTop: 12,
+                  fontFamily: "var(--serif)",
+                  fontSize: 19,
+                  lineHeight: 1.55,
+                  color: "var(--ink)",
+                  maxWidth: 640,
+                }}
+              >
+                {sp.description}
+              </p>
+            ) : null}
+            {sp.ecology_notes ? (
+              <p style={{ ...paragraphStyle, maxWidth: 640 }}>{sp.ecology_notes}</p>
+            ) : null}
+            {sp.morphology ? (
+              <p style={{ ...paragraphStyle, maxWidth: 640 }}>
+                <strong style={{ color: "var(--ink)", fontWeight: 600 }}>
+                  Morphology.
+                </strong>{" "}
+                {sp.morphology}
+              </p>
+            ) : null}
+
+            <dl
+              style={{
+                marginTop: 24,
+                display: "grid",
+                gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                gap: 20,
+              }}
+            >
+              <DtDd
+                label="Max length"
+                value={sp.max_length_cm ? `${sp.max_length_cm} cm` : "—"}
+              />
+              <DtDd label="Habitat" value={habitatLabel} />
+              <DtDd label="Basin" value={basinLabel || "—"} />
+              <DtDd label="Status" value={statusDescriptor} />
+            </dl>
           </section>
-        );
-        const externalRefs =
-          iucnUrl || fishbaseUrl ? (
-            <section aria-labelledby="links-heading" style={{ marginTop: 32 }}>
-              <h2 id="links-heading" style={sectionHeadingStyle}>
-                External References
-              </h2>
-              <ul style={{ marginTop: 8, padding: 0, listStyle: "none", fontSize: 14 }}>
-                {iucnUrl ? (
-                  <li>
-                    <a
-                      href={iucnUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "var(--accent-2)", textDecoration: "underline" }}
-                    >
-                      IUCN Red List assessment →
-                    </a>
-                  </li>
-                ) : null}
-                {fishbaseUrl ? (
-                  <li>
-                    <a
-                      href={fishbaseUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "var(--accent-2)", textDecoration: "underline" }}
-                    >
-                      FishBase species summary →
-                    </a>
-                  </li>
-                ) : null}
-              </ul>
+        ) : null}
+
+        {/* Distribution (curated map panel) */}
+        <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
+
+        {/* Conservation Status */}
+        <section id="conservation" style={{ marginTop: 48 }}>
+          <p style={eyebrowStyle}>Conservation Status</p>
+          {acceptedIucn ? (
+            <dl style={{ marginTop: 12, fontSize: 14, color: "var(--ink-2)" }}>
+              <DlRow label="Category" value={acceptedIucn.category} />
+              {acceptedIucn.criteria ? (
+                <DlRow label="Criteria" value={acceptedIucn.criteria} />
+              ) : null}
+              {acceptedIucn.assessor ? (
+                <DlRow label="Assessor" value={acceptedIucn.assessor} />
+              ) : null}
+              {acceptedIucn.assessment_date ? (
+                <DlRow label="Date" value={acceptedIucn.assessment_date} />
+              ) : null}
+            </dl>
+          ) : (
+            <p style={{ ...paragraphStyle, maxWidth: 640 }}>
+              Not yet assessed on the IUCN Red List.
+            </p>
+          )}
+        </section>
+
+        {/* Common Names */}
+        {sp.common_names.length > 0 ? (
+          <section id="common-names" style={{ marginTop: 48 }}>
+            <p style={eyebrowStyle}>Common Names</p>
+            <ul style={{ marginTop: 12, padding: 0, listStyle: "none", fontSize: 14 }}>
+              {sp.common_names.map((cn) => (
+                <li key={`${cn.language}-${cn.name}`} style={{ color: "var(--ink-2)" }}>
+                  {cn.name}{" "}
+                  <span style={{ color: "var(--ink-3)" }}>({cn.language})</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {/* Ex-situ Population (detail) */}
+        <section id="captive" style={{ marginTop: 48 }}>
+          <p style={eyebrowStyle}>Ex-situ Population</p>
+          {exSituEmpty ? (
+            <div style={{ marginTop: 12 }}>
+              <EmptyState
+                variant="inline"
+                title="No ex-situ population tracked"
+                body="No captive population is currently tracked for this species."
+              />
+            </div>
+          ) : (
+            <dl
+              style={{
+                marginTop: 16,
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 16,
+              }}
+            >
+              <StatCell
+                label="Institutions holding"
+                value={institutions_holding || "—"}
+              />
+              <StatCell
+                label="Total individuals"
+                value={total_individuals || "—"}
+              />
+              <StatCell
+                label="Active breeding programs"
+                value={breeding_programs || "—"}
+              />
+            </dl>
+          )}
+        </section>
+
+        {sp.has_husbandry ? (
+          <HusbandryTeaser
+            speciesId={sp.id}
+            ctx={{
+              has_husbandry: sp.has_husbandry,
+              cares_status: sp.cares_status,
+              shoal_priority: sp.shoal_priority,
+            }}
+          />
+        ) : null}
+
+        {(() => {
+          const fpEmpty = sp.field_programs.length === 0;
+          const fieldPrograms = (
+            <section aria-labelledby="field-heading" style={{ marginTop: 48 }}>
+              <p id="field-heading" style={eyebrowStyle}>Field Programs</p>
+              {fpEmpty ? (
+                <div style={{ marginTop: 12 }}>
+                  <EmptyState
+                    variant="inline"
+                    title="No linked field programs"
+                    body="No field programs are currently linked to this species."
+                  />
+                </div>
+              ) : (
+                <ul style={{ marginTop: 12, padding: 0, listStyle: "none", fontSize: 14 }}>
+                  {sp.field_programs.map((fp) => (
+                    <li key={fp.id} style={{ color: "var(--ink-2)" }}>
+                      {fp.name}{" "}
+                      <span style={{ color: "var(--ink-3)" }}>({fp.status})</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
-          ) : null;
-        return fpEmpty ? (
-          <>
-            {externalRefs}
-            {fieldPrograms}
-          </>
-        ) : (
-          <>
-            {fieldPrograms}
-            {externalRefs}
-          </>
-        );
-      })()}
+          );
+          const externalRefs =
+            iucnUrl || fishbaseUrl ? (
+              <section id="refs" style={{ marginTop: 48 }}>
+                <p style={eyebrowStyle}>External References</p>
+                <ul style={{ marginTop: 12, padding: 0, listStyle: "none", fontSize: 14 }}>
+                  {iucnUrl ? (
+                    <li>
+                      <a
+                        href={iucnUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--accent-2)", textDecoration: "underline" }}
+                      >
+                        IUCN Red List assessment →
+                      </a>
+                    </li>
+                  ) : null}
+                  {fishbaseUrl ? (
+                    <li>
+                      <a
+                        href={fishbaseUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--accent-2)", textDecoration: "underline" }}
+                      >
+                        FishBase species summary →
+                      </a>
+                    </li>
+                  ) : null}
+                </ul>
+              </section>
+            ) : null;
+          return fpEmpty ? (
+            <>
+              {externalRefs}
+              {fieldPrograms}
+            </>
+          ) : (
+            <>
+              {fieldPrograms}
+              {externalRefs}
+            </>
+          );
+        })()}
+      </div>
     </main>
   );
 }
 
-const breadcrumbLinkStyle = {
-  color: "var(--accent-2)",
+const containerStyle = {
+  maxWidth: 1280,
+  marginLeft: "auto",
+  marginRight: "auto",
+} as const;
+
+const breadcrumbBackStyle = {
+  color: "var(--ink-2)",
   textDecoration: "none",
+  padding: "4px 8px",
+  marginLeft: -8,
+  borderRadius: "var(--radius-md)",
 };
 
-const breadcrumbSepStyle = {
-  margin: "0 8px",
+const eyebrowStyle = {
+  fontFamily: "var(--sans)",
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "0.18em",
+  textTransform: "uppercase" as const,
   color: "var(--ink-3)",
-};
-
-const sectionHeadingStyle = {
-  fontFamily: "var(--serif)",
-  fontSize: 22,
-  color: "var(--ink)",
   margin: 0,
 };
 
 const paragraphStyle = {
-  marginTop: 8,
+  marginTop: 12,
   fontSize: 14,
   color: "var(--ink-2)",
   lineHeight: 1.55,
 };
 
-const labelInlineStyle = {
-  fontWeight: 600,
-  color: "var(--ink-3)",
-};
-
 const summaryValueStyle = {
-  margin: "6px 0 0",
-  fontSize: 15,
+  margin: "8px 0 0",
+  fontFamily: "var(--serif)",
+  fontSize: 22,
   fontWeight: 600,
   color: "var(--ink)",
+  lineHeight: 1.15,
 };
 
 const summarySubStyle = {
-  margin: "2px 0 0",
-  fontSize: 12,
-  color: "var(--ink-3)",
+  margin: "4px 0 0",
+  fontSize: 13,
+  color: "var(--ink-2)",
 };
 
 const summaryMutedStyle = {
-  margin: "6px 0 0",
+  margin: "8px 0 0",
   fontSize: 13,
   color: "var(--ink-3)",
 };
 
 const summaryLinkStyle = {
   display: "inline-block",
-  marginTop: 6,
+  marginTop: 8,
   fontSize: 12,
+  fontWeight: 600,
   color: "var(--accent-2)",
-  textDecoration: "underline",
+  textDecoration: "none",
+  borderBottom: "1px solid color-mix(in oklab, var(--accent-2) 35%, transparent)",
 };
 
-function OutlinePill({
+function BasinPill({
   children,
   tone = "default",
 }: {
@@ -655,29 +720,30 @@ function OutlinePill({
       ? "var(--highlight)"
       : tone === "accent"
         ? "var(--accent)"
-        : "var(--ink-2)";
+        : "var(--ink-3)";
   const border =
     tone === "highlight"
       ? "color-mix(in oklab, var(--highlight) 40%, var(--rule))"
       : tone === "accent"
         ? "color-mix(in oklab, var(--accent) 40%, var(--rule))"
-        : "var(--rule-strong)";
+        : "var(--rule)";
   return (
     <span
       style={{
         display: "inline-flex",
         alignItems: "center",
-        height: 20,
-        padding: "0 10px",
-        borderRadius: 999,
-        fontSize: 10,
-        fontWeight: 700,
-        letterSpacing: "0.08em",
-        lineHeight: 1,
+        gap: 6,
+        fontSize: 11,
+        fontWeight: 500,
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
         color,
+        padding: "3px 10px",
         border: `1px solid ${border}`,
-        backgroundColor: "transparent",
+        borderRadius: 999,
+        backgroundColor: "var(--bg)",
         whiteSpace: "nowrap",
+        lineHeight: 1.2,
       }}
     >
       {children}
@@ -695,25 +761,25 @@ function SummaryBox({
   return (
     <div
       style={{
-        padding: "14px 16px",
+        padding: "16px 18px",
         borderRadius: "var(--radius-lg)",
         border: "1px solid var(--rule)",
         backgroundColor: "var(--bg-raised)",
       }}
     >
-      <p
-        style={{
-          margin: 0,
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "var(--ink-3)",
-        }}
-      >
-        {title}
-      </p>
+      <p style={eyebrowStyle}>{title}</p>
       {children}
+    </div>
+  );
+}
+
+function DtDd({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt style={{ ...eyebrowStyle, fontSize: 10 }}>{label}</dt>
+      <dd style={{ marginTop: 6, margin: "6px 0 0", fontSize: 14, color: "var(--ink)" }}>
+        {value}
+      </dd>
     </div>
   );
 }
@@ -732,12 +798,14 @@ function DlRow({ label, value }: { label: string; value: string }) {
 function StatCell({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
-      <dt style={{ fontSize: 12, color: "var(--ink-3)" }}>{label}</dt>
+      <dt style={{ ...eyebrowStyle, fontSize: 10 }}>{label}</dt>
       <dd
         style={{
-          marginTop: 2,
-          fontSize: 22,
-          fontWeight: 600,
+          marginTop: 6,
+          margin: "6px 0 0",
+          fontFamily: "var(--serif)",
+          fontSize: 28,
+          fontWeight: 500,
           color: "var(--ink)",
         }}
       >
