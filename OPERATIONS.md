@@ -500,6 +500,46 @@ The local compose does **not** need a `cd deploy/staging` dance — the `.env`
 lives in the repo root for local, and in `deploy/staging/` for staging. That's
 the one structural difference.
 
+### 12.1 Running the Next.js frontend locally
+
+The Django API on `:8000` is only half the stack — the public site is the
+Next.js app in `frontend/`, run outside Docker.
+
+```bash
+cd frontend
+
+# One-time: create the env file the Next.js runtime reads. Without this,
+# every page renders the "temporarily unavailable" empty state because
+# NEXT_PUBLIC_API_URL is undefined and all fetches fail fast.
+cp .env.example .env.local
+# .env.local now contains:
+#   NEXT_PUBLIC_API_URL=http://localhost:8000
+#   NEXT_REVALIDATE_SECONDS=3600
+
+pnpm install          # first time only
+pnpm dev              # starts on http://localhost:3000
+```
+
+**Gotchas**:
+
+- **Port 3000 in use** → Next falls back to 3001. Check the dev server log
+  for the actual port. Usually means a previous `pnpm dev` is still running.
+- **Every page says "temporarily unavailable"** → `.env.local` is missing
+  or `NEXT_PUBLIC_API_URL` is wrong, or the Django stack isn't running.
+  Verify with `curl http://localhost:8000/api/v1/species/` — should 200.
+- **CSS or tokens look stale after editing `globals.css` / `tailwind.config.ts`**
+  → Next usually hot-reloads but occasionally needs a full server restart.
+  Ctrl-C and `pnpm dev` again.
+
+Full-stack smoke test sequence from cold:
+
+```bash
+docker compose up -d                 # Django + Postgres + Redis on :8000
+cd frontend && pnpm dev              # Next on :3000
+open http://localhost:3000/          # home
+open http://localhost:3000/species/  # directory
+```
+
 ---
 
 ## 13. Standard Post-Merge Flow for a Data/Seed PR
