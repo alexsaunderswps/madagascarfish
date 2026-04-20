@@ -15,7 +15,6 @@
 
 import Link from "next/link";
 import { type SpeciesListItem } from "@/lib/species";
-import BasinPill from "./BasinPill";
 import IucnBadge from "./IucnBadge";
 
 export type SpeciesCardDensity = "roomy" | "default" | "compact";
@@ -38,9 +37,9 @@ const IUCN_BAR_COLOR: Record<string, string> = {
 
 const CARES_LABEL: Record<string, string> = {
   CCR: "CARES CCR",
-  CEN: "CARES Endangered",
-  CVU: "CARES Vulnerable",
-  CLC: "CARES Least Concern",
+  CEN: "CARES CEN",
+  CVU: "CARES CVU",
+  CLC: "CARES CLC",
   priority: "CARES priority",
   monitored: "CARES monitored",
 };
@@ -87,6 +86,13 @@ export default function SpeciesCard({
   const caresLabel = species.cares_status
     ? CARES_LABEL[species.cares_status] ?? `CARES ${species.cares_status}`
     : null;
+  // Hide auto-generated "Basin near 16.09°S 49.44°E" placeholders — only show
+  // human-curated basin names. These auto-labels are set by the seed pipeline
+  // when a locality lacks a known watershed, and they're noisy on cards.
+  const basinLabel =
+    species.primary_basin && !/^Basin near/i.test(species.primary_basin)
+      ? species.primary_basin
+      : null;
   const [padY, padX] = PADDING_BY_DENSITY[density].split(" ");
 
   return (
@@ -170,17 +176,17 @@ export default function SpeciesCard({
             ) : null}
           </div>
           <div style={{ flexShrink: 0 }}>
-            <IucnBadge status={species.iucn_status} />
+            <IucnBadge status={species.iucn_status} compactUnassessed />
           </div>
         </div>
         <p
           style={{
             marginTop: 8,
-            fontSize: 12,
+            fontSize: 11,
             color: "var(--ink-3)",
             display: "flex",
             flexWrap: "wrap",
-            gap: 8,
+            gap: 6,
             alignItems: "center",
             lineHeight: 1.4,
           }}
@@ -188,10 +194,10 @@ export default function SpeciesCard({
           <span>{species.family || "—"}</span>
           <span aria-hidden="true">·</span>
           <span>{endemicLabel}</span>
-          {species.primary_basin ? (
+          {basinLabel ? (
             <>
               <span aria-hidden="true">·</span>
-              <BasinPill basin={species.primary_basin} />
+              <span>{basinLabel}</span>
             </>
           ) : null}
           {caresLabel ? (

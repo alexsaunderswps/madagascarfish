@@ -85,14 +85,16 @@ export default function IucnBadge({
   status,
   showLabel = false,
   criteria,
+  compactUnassessed = false,
 }: {
   status: IucnStatus | null;
   showLabel?: boolean;
   criteria?: string;
+  compactUnassessed?: boolean;
 }) {
-  // Null == "Not yet assessed". Rendered as the NE outlined variant, but the
-  // visible text reads "Not yet assessed" rather than the code, so the public
-  // profile never shows a raw "NE" pill for an unassessed species.
+  // Null == "Not yet assessed". Directory cards pass compactUnassessed so the
+  // pill renders as "NE" (keeps the card name from wrapping); the profile page
+  // keeps the full "Not yet assessed" wording.
   if (!status) {
     return (
       <span
@@ -100,7 +102,7 @@ export default function IucnBadge({
         aria-label="IUCN status: Not yet assessed"
       >
         <span aria-hidden="true" style={dotStyle("NE")} />
-        Not yet assessed
+        {compactUnassessed ? "NE" : "Not yet assessed"}
       </span>
     );
   }
