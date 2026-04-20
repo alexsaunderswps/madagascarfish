@@ -317,6 +317,75 @@ class TestSpeciesList:
         # Max is 200, should not error
         assert resp.status_code == 200
 
+    # --- S17: primary_basin + locality_count on list rows ---
+
+    def test_list_includes_primary_basin_and_locality_count(
+        self,
+        api_client: APIClient,
+        species_cr: Species,
+        locality: SpeciesLocality,
+    ) -> None:
+        resp = api_client.get("/api/v1/species/")
+        assert resp.status_code == 200
+        row = next(
+            r for r in resp.json()["results"] if r["id"] == species_cr.id
+        )
+        assert row["primary_basin"] == "Betsiboka"
+        assert row["locality_count"] == 1
+
+    def test_list_primary_basin_null_when_no_localities(
+        self, api_client: APIClient, species_en: Species
+    ) -> None:
+        resp = api_client.get("/api/v1/species/")
+        row = next(
+            r for r in resp.json()["results"] if r["id"] == species_en.id
+        )
+        assert row["primary_basin"] is None
+        assert row["locality_count"] == 0
+
+    def test_list_primary_basin_prefers_type_locality(
+        self,
+        api_client: APIClient,
+        species_cr: Species,
+        watershed: Watershed,
+    ) -> None:
+        # An observation locality exists with a different basin, added before
+        # the type locality; primary_basin must still follow the type locality.
+        other = Watershed.objects.create(
+            hybas_id=9999999999,
+            name="Mangoro",
+            pfafstetter_level=6,
+            pfafstetter_code=999999,
+            area_sq_km=10000,
+            geometry=watershed.geometry,
+        )
+        SpeciesLocality.objects.create(
+            species=species_cr,
+            locality_name="Earlier observation",
+            location=Point(47.1, -19.1, srid=4326),
+            locality_type="observation",
+            presence_status="present",
+            drainage_basin=other,
+            coordinate_precision="exact",
+            source_citation="Earlier ref",
+        )
+        SpeciesLocality.objects.create(
+            species=species_cr,
+            locality_name="Manombo Forest",
+            location=Point(47.52, -18.91, srid=4326),
+            locality_type="type_locality",
+            presence_status="present",
+            drainage_basin=watershed,
+            coordinate_precision="exact",
+            source_citation="Smith 2020",
+        )
+        resp = api_client.get("/api/v1/species/")
+        row = next(
+            r for r in resp.json()["results"] if r["id"] == species_cr.id
+        )
+        assert row["primary_basin"] == "Betsiboka"
+        assert row["locality_count"] == 2
+
     # --- BE-07-A: directory filters ---
 
     def test_filter_iucn_status_multi(

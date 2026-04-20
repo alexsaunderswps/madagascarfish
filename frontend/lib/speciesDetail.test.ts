@@ -31,6 +31,8 @@ function makeSp(overrides: Partial<SpeciesDetail> = {}): SpeciesDetail {
     habitat_type: "",
     iucn_taxon_id: 166478,
     common_names: [],
+    primary_basin: null,
+    locality_count: 0,
     conservation_assessments: [],
     field_programs: [],
     ex_situ_summary: { institutions_holding: 0, total_individuals: 0, breeding_programs: 0 },

@@ -63,6 +63,13 @@ class ConservationAssessmentFullSerializer(serializers.ModelSerializer):
 class SpeciesListSerializer(serializers.ModelSerializer):
     common_names = CommonNameSerializer(many=True, read_only=True)
     genus_fk = GenusBriefSerializer(read_only=True)
+    # Both fields are populated by annotations on SpeciesViewSet.get_queryset
+    # so list rendering stays O(1) per row. See docs/planning/
+    # registry-redesign/gate-1-visual-system.md (S17).
+    primary_basin = serializers.CharField(
+        read_only=True, allow_null=True, default=None
+    )
+    locality_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Species
@@ -79,6 +86,8 @@ class SpeciesListSerializer(serializers.ModelSerializer):
             "cares_status",
             "shoal_priority",
             "common_names",
+            "primary_basin",
+            "locality_count",
         ]
 
 

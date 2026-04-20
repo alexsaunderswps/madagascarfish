@@ -28,6 +28,8 @@ export interface SpeciesListItem {
   cares_status: CaresStatus | null;
   shoal_priority: boolean;
   common_names: CommonName[];
+  primary_basin: string | null;
+  locality_count: number;
 }
 
 export interface Paginated<T> {
