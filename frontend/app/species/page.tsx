@@ -102,10 +102,10 @@ export default async function SpeciesDirectoryPage({
             )
           ) : (
             <>
-              <ul className="flex flex-col gap-3">
+              <ul className="grid gap-3 sm:grid-cols-2">
                 {list.results.map((sp) => (
                   <li key={sp.id}>
-                    <SpeciesCard species={sp} density="roomy" />
+                    <SpeciesCard species={sp} />
                   </li>
                 ))}
               </ul>

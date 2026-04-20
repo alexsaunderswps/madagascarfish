@@ -2,18 +2,20 @@
  * SpeciesCard — Directory / Home silhouette-grid card (§15.2).
  *
  * Layout (left → right):
- *   [3px IUCN color bar] [72px silhouette column] [main column] [right column]
+ *   [3px IUCN color bar] [72px silhouette column] [main column] [IUCN pill]
  *
- * Silhouette column is reserved-but-empty when the species has no SVG (list
- * endpoint does not carry SVG bodies; the profile page does the cascade).
- * Basin is a Gate 2 field — omitted from the metadata row here until the
- * schema lands, to avoid rendering a missing dot-separated fragment.
+ * CARES and SHOAL are inlined into the metadata row as colored labels rather
+ * than stacked as right-column chips — matches the 2026-04-20 review.
+ *
+ * Silhouette column renders a neutral placeholder fish when the species has
+ * no SVG of its own. Once the S11–S13 genus cascade lands, that column will
+ * prefer a genus-authored SVG before falling back. Basin is a Gate 2 field —
+ * rendered only when populated.
  */
 
 import Link from "next/link";
 import { type SpeciesListItem } from "@/lib/species";
 import IucnBadge from "./IucnBadge";
-import BasinPill from "./BasinPill";
 
 export type SpeciesCardDensity = "roomy" | "default" | "compact";
 
@@ -34,13 +36,33 @@ const IUCN_BAR_COLOR: Record<string, string> = {
 };
 
 const CARES_LABEL: Record<string, string> = {
-  CCR: "CARES · Critical",
-  CEN: "CARES · Endangered",
-  CVU: "CARES · Vulnerable",
-  CLC: "CARES · Least Concern",
-  priority: "CARES · Priority",
-  monitored: "CARES · Monitored",
+  CCR: "CARES CCR",
+  CEN: "CARES Endangered",
+  CVU: "CARES Vulnerable",
+  CLC: "CARES Least Concern",
+  priority: "CARES priority",
+  monitored: "CARES monitored",
 };
+
+function PlaceholderFish() {
+  // Neutral silhouette anchor so every card has a visual; replaced per-card
+  // once Species.silhouette_svg or a genus-level cascade SVG is available.
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 80 36"
+      width="64"
+      height="28"
+      style={{ color: "var(--ink)" }}
+    >
+      <path
+        fill="currentColor"
+        d="M6 18 C 10 10, 26 4, 44 6 C 58 7, 68 12, 72 18 C 68 24, 58 29, 44 30 C 26 32, 10 26, 6 18 Z M 70 13 L 78 8 L 78 28 L 70 23 Z"
+      />
+      <circle cx="18" cy="16" r="1.6" fill="var(--bg-raised)" />
+    </svg>
+  );
+}
 
 export default function SpeciesCard({
   species,
@@ -62,8 +84,9 @@ export default function SpeciesCard({
   const endemicLabel =
     species.endemic_status.charAt(0).toUpperCase() + species.endemic_status.slice(1);
   const caresLabel = species.cares_status
-    ? CARES_LABEL[species.cares_status] ?? `CARES · ${species.cares_status}`
+    ? CARES_LABEL[species.cares_status] ?? `CARES ${species.cares_status}`
     : null;
+  const [padY, padX] = PADDING_BY_DENSITY[density].split(" ");
 
   return (
     <Link
@@ -73,12 +96,14 @@ export default function SpeciesCard({
         position: "relative",
         display: "flex",
         gap: 14,
-        padding: PADDING_BY_DENSITY[density],
-        paddingLeft: `calc(${PADDING_BY_DENSITY[density].split(" ")[1]} + 3px)`,
+        alignItems: "flex-start",
+        padding: `${padY} ${padX}`,
+        paddingLeft: `calc(${padX} + 3px)`,
         backgroundColor: "var(--bg-raised)",
         border: "1px solid var(--rule)",
         borderRadius: "var(--radius-lg)",
         transition: "border-color 120ms ease, box-shadow 120ms ease",
+        height: "100%",
       }}
     >
       <span
@@ -95,7 +120,6 @@ export default function SpeciesCard({
         }}
       />
 
-      {/* Silhouette column — reserved even when empty so cards align. */}
       <div
         aria-hidden="true"
         style={{
@@ -104,89 +128,84 @@ export default function SpeciesCard({
           display: density === "compact" ? "none" : "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "var(--ink-3)",
+          alignSelf: "center",
         }}
-      />
+      >
+        <PlaceholderFish />
+      </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        <h3
-          className="sci-name"
+        <div
           style={{
-            fontSize: 19,
-            color: "var(--ink)",
-            lineHeight: 1.2,
-            margin: 0,
-            overflowWrap: "anywhere",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 10,
           }}
         >
-          {displayName}
-        </h3>
-        {primaryCommon ? (
-          <p
-            style={{
-              fontSize: 13,
-              color: "var(--ink-3)",
-              margin: "2px 0 0",
-              overflowWrap: "anywhere",
-            }}
-          >
-            {primaryCommon}
-          </p>
-        ) : null}
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h3
+              className="sci-name"
+              style={{
+                fontSize: 19,
+                color: "var(--ink)",
+                lineHeight: 1.2,
+                margin: 0,
+                overflowWrap: "anywhere",
+              }}
+            >
+              {displayName}
+            </h3>
+            {primaryCommon ? (
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "var(--ink-3)",
+                  margin: "2px 0 0",
+                }}
+              >
+                {primaryCommon}
+              </p>
+            ) : null}
+          </div>
+          <div style={{ flexShrink: 0 }}>
+            <IucnBadge status={species.iucn_status} />
+          </div>
+        </div>
         <p
           style={{
-            marginTop: 6,
-            fontSize: 11,
+            marginTop: 8,
+            fontSize: 12,
             color: "var(--ink-3)",
             display: "flex",
             flexWrap: "wrap",
-            gap: 6,
+            gap: 8,
             alignItems: "center",
+            lineHeight: 1.4,
           }}
         >
           <span>{species.family || "—"}</span>
           <span aria-hidden="true">·</span>
           <span>{endemicLabel}</span>
-          <BasinPill basin={null} />
+          {caresLabel ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span
+                style={{ color: "var(--highlight)", fontWeight: 600 }}
+              >
+                {caresLabel}
+              </span>
+            </>
+          ) : null}
+          {species.shoal_priority ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span style={{ color: "var(--accent)", fontWeight: 600 }}>
+                SHOAL
+              </span>
+            </>
+          ) : null}
         </p>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
-          gap: 6,
-          flexShrink: 0,
-        }}
-      >
-        <IucnBadge status={species.iucn_status} />
-        {caresLabel ? (
-          <span
-            style={{
-              fontSize: 11,
-              color: "var(--ink-3)",
-              padding: "2px 8px",
-              borderRadius: 999,
-              backgroundColor: "var(--bg-sunken)",
-            }}
-          >
-            {caresLabel}
-          </span>
-        ) : null}
-        {species.shoal_priority ? (
-          <span
-            style={{
-              fontSize: 11,
-              color: "var(--accent-2)",
-              padding: "2px 8px",
-              borderRadius: 999,
-              backgroundColor: "var(--accent-soft)",
-            }}
-          >
-            SHOAL priority
-          </span>
-        ) : null}
       </div>
     </Link>
   );
