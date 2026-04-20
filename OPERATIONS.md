@@ -15,7 +15,7 @@ This document covers the *recurring* tasks that come up after that bootstrap is 
 | Thing | Value |
 |---|---|
 | Staging hostname | `mffcp-staging` |
-| Staging IP | `46.246.224.197` |
+| Staging IP | `46.224.196.197` |
 | Staging SSH user | `deploy` |
 | Repo on staging | `/home/deploy/madagascarfish` |
 | Docker Compose dir on staging | `/home/deploy/madagascarfish/deploy/staging` |
@@ -35,7 +35,7 @@ commands **must be run from that directory** — otherwise compose can't find th
 ## 1. Connecting to Staging
 
 ```bash
-ssh deploy@46.246.224.197
+ssh deploy@46.224.196.197
 ```
 
 First-time connection will prompt to trust the host key. If you see a host-key
@@ -367,7 +367,7 @@ Pull a backup locally for inspection:
 
 ```bash
 # From your laptop
-scp deploy@46.246.224.197:/home/deploy/backups/mffcp-2026-04-20.sql.gz ./
+scp deploy@46.224.196.197:/home/deploy/backups/mffcp-2026-04-20.sql.gz ./
 ```
 
 ---
@@ -508,7 +508,7 @@ The happy-path sequence after a CSV-only PR (e.g. #61, #62) merges to `main`:
 
 ```bash
 # 1. SSH in
-ssh deploy@46.246.224.197
+ssh deploy@46.224.196.197
 
 # 2. Pull latest
 cd /home/deploy/madagascarfish
@@ -529,7 +529,7 @@ docker compose exec -T web python manage.py shell -c \
 For a code/migration PR, the flow is:
 
 ```bash
-ssh deploy@46.246.224.197
+ssh deploy@46.224.196.197
 cd /home/deploy/madagascarfish && git pull --ff-only
 cd deploy/staging
 docker compose build                        # if Dockerfile or requirements changed
