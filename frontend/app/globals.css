@@ -2,8 +2,123 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------------
+ * Design tokens — Registry redesign Gate 1 (see docs/design.md §12)
+ *
+ * The "journal" palette. Warmer than Tailwind slate/sky; reads as curated
+ * scientific publication rather than dashboard. Every color token below is
+ * paralleled in tailwind.config.ts so existing `bg-slate-*` / `text-sky-*`
+ * utility classes inherit the new palette without component edits.
+ * ------------------------------------------------------------------------ */
+:root {
+  /* Surfaces */
+  --bg:         #FAFAF7;
+  --bg-raised:  #FFFFFF;
+  --bg-sunken:  #F0EEE6;
+
+  /* Ink */
+  --ink:        #0F1412;
+  --ink-2:      #2E3834;
+  --ink-3:      #6B7670;
+
+  /* Rules / borders */
+  --rule:         #DCD9CE;
+  --rule-strong:  #A8A598;
+
+  /* Accent (conservation green) */
+  --accent:       #2B6E5F;
+  --accent-2:     #0F2A2E;
+  --accent-soft:  #D6E6E0;
+
+  /* Supporting */
+  --terracotta:   #A84420;
+  --highlight:    #D4A84B;
+  --focus:        #2B6E5F;
+
+  /* Type families (bound to next/font CSS variables from layout.tsx). */
+  --serif: var(--font-spectral), 'Charter', Georgia, serif;
+  --sans:  var(--font-plex-sans), system-ui, sans-serif;
+  --mono:  var(--font-plex-mono), ui-monospace, monospace;
+
+  /* Shape */
+  --radius:     2px;
+  --radius-lg:  3px;
+
+  /* Shadows */
+  --shadow-sm: 0 0 0 1px rgba(15,20,18,0.04);
+  --shadow:    0 1px 2px rgba(15,20,18,0.04), 0 0 0 1px rgba(15,20,18,0.06);
+
+  /* Heading weight + tracking. */
+  --h1-weight:   500;
+  --h1-tracking: -0.015em;
+
+  /* Eyebrow treatment (used by the small-caps kicker class). */
+  --eyebrow-case:     uppercase;
+  --eyebrow-tracking: 0.22em;
+
+  /* IUCN Red List palette (official). */
+  --iucn-ex:  #000000;
+  --iucn-ew:  #542344;
+  --iucn-cr:  #D81E05;
+  --iucn-en:  #FC7F3F;
+  --iucn-vu:  #F9E814;
+  --iucn-nt:  #CCE226;
+  --iucn-lc:  #60C659;
+  --iucn-dd:  #D1D1C6;
+  --iucn-ne:  #FFFFFF;
+}
+
+/* Page surface + body typography baseline. */
+html {
+  background: var(--bg);
+}
+body {
+  font-family: var(--sans);
+  color: var(--ink-2);
+}
+h1, h2, h3, h4 {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+code, kbd, samp, pre {
+  font-family: var(--mono);
+}
+
+h1 {
+  font-weight: var(--h1-weight);
+  letter-spacing: var(--h1-tracking);
+}
+h2, h3 {
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+/* Eyebrow kicker — small-caps where the typeface supports it, otherwise
+ * falls back to uppercase tracking. Used above section titles per §13. */
+.eyebrow {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  font-feature-settings: "smcp";
+  font-variant-caps: all-small-caps;
+  text-transform: var(--eyebrow-case);
+  letter-spacing: var(--eyebrow-tracking);
+}
+
+/* Scientific name — italic serif, always. */
+.sci-name {
+  font-family: var(--serif);
+  font-style: italic;
+}
+
+/* Tabular numerals for stats tables and big stat numerals. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 *:focus-visible {
-  outline: 2px solid rgb(14 165 233);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -23,7 +138,7 @@
   width: 100%;
   height: 100%;
   border-radius: 9999px;
-  background: rgba(14, 116, 144, 0.9); /* sky-700 @ 90% */
+  background: var(--accent);
   color: #fff;
   font-weight: 700;
   font-size: 0.875rem;
@@ -32,5 +147,5 @@
 }
 
 .mffcp-cluster:hover {
-  background: rgba(3, 105, 161, 0.95); /* sky-800 */
+  background: var(--accent-2);
 }

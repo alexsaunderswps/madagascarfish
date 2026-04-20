@@ -40,8 +40,8 @@ export default function NavLinks() {
               aria-current={active ? "page" : undefined}
               className={
                 active
-                  ? "rounded bg-sky-50 px-2 py-0.5 text-sky-800"
-                  : "rounded px-2 py-0.5 text-slate-700 hover:text-sky-700"
+                  ? "rounded-full bg-sky-100 px-3 py-1 font-semibold text-sky-900"
+                  : "rounded-full px-3 py-1 text-slate-700 hover:text-sky-700"
               }
             >
               {link.label}
