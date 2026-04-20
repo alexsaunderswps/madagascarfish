@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LastSyncStrip from "@/components/LastSyncStrip";
 import { fetchDashboard } from "@/lib/dashboard";
 
 const COVERAGE_GAP_HREF =
@@ -38,7 +39,9 @@ export default async function HomePage() {
     gap && typeof gap.threatened_species_without_captive_population === "number";
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12 sm:py-16">
+    <>
+      <LastSyncStrip lastSyncAt={dashboard?.last_sync_at ?? null} />
+      <main className="mx-auto max-w-5xl px-6 py-12 sm:py-16">
       <section className="flex flex-col gap-8">
         <header className="flex flex-col gap-4">
           <p className="text-sm font-semibold uppercase tracking-widest text-sky-700">
@@ -101,6 +104,7 @@ export default async function HomePage() {
           </ul>
         </nav>
       </section>
-    </main>
+      </main>
+    </>
   );
 }

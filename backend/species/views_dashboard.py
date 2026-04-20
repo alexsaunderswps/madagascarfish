@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from fieldwork.models import FieldProgram
+from integration.models import SyncJob
 from populations.models import ExSituPopulation, Institution
 from species.models import Species
 
@@ -63,6 +64,17 @@ class DashboardView(APIView):
             .values_list("status", "c")
         )
 
+        # Most recent completed IUCN sync — powers the "Last synced" strip on Home.
+        last_sync = (
+            SyncJob.objects.filter(
+                job_type=SyncJob.JobType.IUCN_SYNC,
+                status=SyncJob.Status.COMPLETED,
+            )
+            .order_by("-completed_at")
+            .values_list("completed_at", flat=True)
+            .first()
+        )
+
         return {
             "species_counts": {
                 "total": total_species,
@@ -87,4 +99,5 @@ class DashboardView(APIView):
                 "completed": fp_counts.get(FieldProgram.Status.COMPLETED, 0),
             },
             "last_updated": timezone.now().isoformat(),
+            "last_sync_at": last_sync.isoformat() if last_sync else None,
         }

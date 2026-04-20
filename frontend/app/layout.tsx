@@ -44,9 +44,9 @@ export default function RootLayout({
     >
       <body className="flex min-h-screen flex-col bg-white text-slate-900 antialiased">
         <SiteHeader />
-        <main id="main-content" className="flex-1">
+        <div id="main-content" className="flex-1">
           {children}
-        </main>
+        </div>
         <SiteFooter />
       </body>
     </html>

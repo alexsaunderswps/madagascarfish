@@ -30,6 +30,7 @@ describe("fetchDashboard", () => {
       },
       field_programs: { active: 0, planned: 0, completed: 0 },
       last_updated: "2026-04-17T00:00:00Z",
+      last_sync_at: "2026-04-17T00:00:00Z",
     };
     vi.stubGlobal(
       "fetch",

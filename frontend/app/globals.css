@@ -123,6 +123,19 @@ h2, h3 {
   border-radius: 2px;
 }
 
+/* Pulse dot — used by LastSyncStrip. 2.4s ease loop, opacity only (no scale)
+ * per design §18. Motion is suppressed when the user prefers reduced motion. */
+@keyframes mffcp-pulse {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 1; }
+}
+.pulse-dot {
+  animation: mffcp-pulse 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; opacity: 1; }
+}
+
 /* Leaflet marker clusters — default plugin CSS only draws the number. Give the
  * cluster a visible disc so it reads as an interactive target against both the
  * OSM and satellite basemaps. Sizes match clusterIcon() in MapClient.tsx. */
