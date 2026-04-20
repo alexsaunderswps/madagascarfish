@@ -222,6 +222,60 @@ class Species(models.Model):
         return self.scientific_name
 
 
+class SiteMapAsset(models.Model):
+    """Curated static map thumbnails referenced by slot from public pages.
+
+    One row per slot; rows are pre-seeded in a data migration so admins only
+    need to upload the image rather than create records. The public API returns
+    404 when ``image`` is empty, so pages fall back to the stripe placeholder
+    until content is uploaded.
+    """
+
+    class Slot(models.TextChoices):
+        HERO_THUMB = "hero_thumb", "Home hero thumbnail (~160×320)"
+        PROFILE_PANEL = "profile_panel", "Profile distribution panel (~180×360)"
+
+    slot = models.CharField(
+        max_length=40,
+        choices=Slot.choices,
+        unique=True,
+        help_text="Fixed slot consumed by a specific page region.",
+    )
+    image = models.ImageField(
+        upload_to="site-maps/",
+        blank=True,
+        help_text="PNG or JPEG at or above the expected dimensions. Empty = no asset yet.",
+    )
+    alt_text = models.CharField(
+        max_length=300,
+        blank=True,
+        help_text="Screen-reader description of the thumbnail. Required when image is set.",
+    )
+    credit = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Attribution line shown alongside the image, if any.",
+    )
+    expected_width_px = models.PositiveIntegerField(
+        help_text="Target render width in CSS pixels. Set when the slot is introduced.",
+    )
+    expected_height_px = models.PositiveIntegerField(
+        help_text="Target render height in CSS pixels. Set when the slot is introduced.",
+    )
+    usage_notes = models.TextField(
+        blank=True,
+        help_text="Internal notes for editors — where the asset renders, sourcing guidance.",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "species_sitemapasset"
+        ordering = ["slot"]
+
+    def __str__(self) -> str:
+        return self.get_slot_display()
+
+
 class CommonName(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="common_names")
     name = models.CharField(max_length=200)
