@@ -9,6 +9,7 @@ from species.views import SpeciesViewSet
 from species.views_dashboard import DashboardView
 from species.views_genus import GenusSilhouetteView
 from species.views_map import MapSummaryView, SpeciesLocalityGeoView, WatershedListView
+from species.views_site_map_asset import SiteMapAssetView
 
 router = DefaultRouter()
 router.register(r"species", SpeciesViewSet, basename="species")
@@ -30,6 +31,12 @@ urlpatterns = [
         "genera/<str:name>/silhouette/",
         GenusSilhouetteView.as_view(),
         name="genus-silhouette",
+    ),
+    # Site map assets (curated static thumbnails per slot)
+    path(
+        "site-map-assets/<str:slot>/",
+        SiteMapAssetView.as_view(),
+        name="site-map-asset",
     ),
     # Map endpoints
     path("map/localities/", SpeciesLocalityGeoView.as_view(), name="map-localities"),

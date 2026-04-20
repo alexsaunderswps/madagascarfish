@@ -129,6 +129,11 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# User-uploaded media (SiteMapAsset images). Served by Django only in dev — prod
+# fronts MEDIA_ROOT via the same reverse proxy (nginx) that serves staticfiles.
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 # Default primary key
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

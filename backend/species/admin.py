@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.gis.admin import GISModelAdmin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -9,13 +9,14 @@ from django.utils.html import format_html, format_html_join
 
 from audit.context import audit_actor
 from audit.models import AuditEntry
-from species.admin_revalidate import revalidate_public_pages
+from species.admin_revalidate import _post_revalidate, revalidate_public_pages
 from species.models import (
     CommonName,
     ConservationAssessment,
     ConservationStatusConflict,
     Genus,
     ProtectedArea,
+    SiteMapAsset,
     Species,
     SpeciesLocality,
     Taxon,
@@ -132,6 +133,56 @@ class GenusAdmin(admin.ModelAdmin):
     @admin.display(boolean=True, description="Silhouette")
     def has_silhouette(self, obj: Genus) -> bool:
         return bool(obj.silhouette_svg)
+
+
+@admin.register(SiteMapAsset)
+class SiteMapAssetAdmin(admin.ModelAdmin):
+    list_display = ["slot", "image_preview", "updated_at"]
+    readonly_fields = ["image_preview", "updated_at"]
+    fieldsets = (
+        (
+            "Slot",
+            {
+                "fields": ("slot", "expected_width_px", "expected_height_px", "usage_notes"),
+                "description": (
+                    "Fixed slot consumed by a specific page region. Rows are "
+                    "pre-seeded; admins edit them rather than creating new ones."
+                ),
+            },
+        ),
+        (
+            "Image",
+            {
+                "fields": ("image", "image_preview", "alt_text", "credit"),
+                "description": (
+                    "Upload a PNG or JPEG at or above the expected dimensions. "
+                    "Alt text is required when an image is set — screen-reader "
+                    "users rely on it to understand the thumbnail."
+                ),
+            },
+        ),
+        ("Timestamps", {"fields": ("updated_at",)}),
+    )
+    actions = [revalidate_public_pages]
+
+    @admin.display(description="Preview")
+    def image_preview(self, obj: SiteMapAsset) -> str:
+        if not obj.image:
+            return "—"
+        return format_html(
+            '<img src="{}" style="max-width:240px; max-height:120px; border:1px solid #ccc;" />',
+            obj.image.url,
+        )
+
+    def save_model(
+        self, request: HttpRequest, obj: SiteMapAsset, form: forms.ModelForm, change: bool
+    ) -> None:
+        super().save_model(request, obj, form, change)
+        # Home and Profile pages pull these by slot at render time; revalidate so
+        # the new image appears without waiting for the ISR window.
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
 
 
 @admin.register(Species)
