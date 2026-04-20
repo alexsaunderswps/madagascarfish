@@ -136,6 +136,81 @@ h2, h3 {
   .pulse-dot { animation: none; opacity: 1; }
 }
 
+/* Button tokens — §15.6. Three variants share padding/type; background,
+ * border, and text color swap per variant. Focus uses the global focus ring.
+ * These are plain utility classes so existing inline buttons can adopt the
+ * look without a React component boundary. */
+.btn,
+.btn-primary,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.btn {
+  background-color: var(--bg-raised);
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--ink-2);
+  background-color: var(--bg);
+}
+.btn-primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--accent-2);
+  border-color: var(--accent-2);
+}
+.btn-ghost {
+  background-color: transparent;
+  color: var(--ink);
+}
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--bg-sunken);
+}
+.btn:disabled,
+.btn-primary:disabled,
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input tokens — §15.5. Text, search, and select inputs share baseline
+ * styling. Search variant adds left padding for the magnifier icon. */
+.input {
+  font-family: var(--sans);
+  font-size: 13px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background-color: var(--bg-raised);
+  color: var(--ink);
+  width: 100%;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.input-search {
+  padding-left: 32px;
+}
+
 /* Leaflet marker clusters — default plugin CSS only draws the number. Give the
  * cluster a visible disc so it reads as an interactive target against both the
  * OSM and satellite basemaps. Sizes match clusterIcon() in MapClient.tsx. */
