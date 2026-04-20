@@ -2,7 +2,16 @@ import { apiFetch } from "./api";
 
 export type IucnStatus = "CR" | "EN" | "VU" | "NT" | "LC" | "DD" | "NE";
 export type TaxonomicStatus = "described" | "undescribed_morphospecies";
-export type CaresStatus = "CCR" | "priority" | "monitored" | "";
+// Four-tier CARES plus the legacy priority/monitored tags. Filter rail uses
+// the four-tier codes; card metadata row tolerates both (see SpeciesCard).
+export type CaresStatus =
+  | "CCR"
+  | "CEN"
+  | "CVU"
+  | "CLC"
+  | "priority"
+  | "monitored"
+  | "";
 export type EndemicStatus = "endemic" | "native" | "introduced";
 
 export interface CommonName {
@@ -46,12 +55,24 @@ export interface SpeciesFilterState {
   family?: string;
   cares_status?: CaresStatus;
   endemic_status?: EndemicStatus | "";
+  shoal_priority?: "true" | "";
   has_captive_population?: "true" | "false" | "";
   // Introduced (exotic) species are hidden from the directory by default.
   // Flip to true to surface Oreochromis spp. and other invasives alongside the
   // native fauna. Absent / empty = default exclusion.
   include_introduced?: "true" | "";
   page?: number;
+}
+
+export type DirectoryDensity = "comfortable" | "compact";
+export const DEFAULT_DENSITY: DirectoryDensity = "comfortable";
+
+export function parseDensity(
+  searchParams: Record<string, string | string[] | undefined>,
+): DirectoryDensity {
+  const raw = searchParams["d"];
+  const val = Array.isArray(raw) ? raw[0] : raw;
+  return val === "compact" ? "compact" : DEFAULT_DENSITY;
 }
 
 export const PAGE_SIZE = 50;
@@ -95,6 +116,7 @@ export function buildSpeciesQuery(state: SpeciesFilterState): string {
   if (state.family) params.set("family", state.family);
   if (state.cares_status) params.set("cares_status", state.cares_status);
   if (state.endemic_status) params.set("endemic_status", state.endemic_status);
+  if (state.shoal_priority === "true") params.set("shoal_priority", "true");
   if (state.has_captive_population) {
     params.set("has_captive_population", state.has_captive_population);
   }
@@ -125,6 +147,7 @@ export function parseSpeciesFilterState(
     family: get("family") ?? "",
     cares_status: (get("cares_status") as CaresStatus | undefined) ?? "",
     endemic_status: (get("endemic_status") as EndemicStatus | "" | undefined) ?? "",
+    shoal_priority: get("shoal_priority") === "true" ? "true" : "",
     has_captive_population:
       (get("has_captive_population") as "true" | "false" | "" | undefined) ?? "",
     include_introduced: get("include_introduced") === "true" ? "true" : "",

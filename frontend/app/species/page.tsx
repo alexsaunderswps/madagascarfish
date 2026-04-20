@@ -1,3 +1,4 @@
+import DirectoryDensityControl from "@/components/DirectoryDensityControl";
 import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
 import SpeciesCard from "@/components/SpeciesCard";
@@ -7,6 +8,7 @@ import {
   EMPTY_PAGE,
   PAGE_SIZE,
   fetchSpeciesListSafe,
+  parseDensity,
   parseSpeciesFilterState,
 } from "@/lib/species";
 
@@ -26,6 +28,7 @@ function hasAnyFilter(searchParams: Record<string, string | string[] | undefined
     "taxonomic_status",
     "cares_status",
     "endemic_status",
+    "shoal_priority",
     "has_captive_population",
     "include_introduced",
   ];
@@ -42,6 +45,7 @@ export default async function SpeciesDirectoryPage({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   const state = parseSpeciesFilterState(searchParams);
+  const density = parseDensity(searchParams);
   const [listResult, dashboard] = await Promise.all([
     fetchSpeciesListSafe(state),
     fetchDashboard(),
@@ -52,29 +56,56 @@ export default async function SpeciesDirectoryPage({
   const counts = dashboard?.species_counts;
   const filtered = hasAnyFilter(searchParams);
 
+  // Density controls grid gap + card padding. "comfortable" ≈ current default,
+  // "compact" tightens both so researchers can scan more rows in a viewport.
+  const gridGap = density === "compact" ? 8 : 16;
+  const cardDensity = density === "compact" ? "compact" : "default";
+
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <header className="mb-6 border-b border-slate-200 pb-4">
-        <h1 className="font-serif text-3xl text-slate-900">Species Directory</h1>
-        {counts ? (
-          <p className="mt-1 text-sm text-slate-600">
-            {counts.total} endemic freshwater fish species
-            {" "}({counts.described} described, {counts.undescribed} undescribed)
-          </p>
-        ) : (
-          <p className="mt-1 text-sm text-slate-500">Species count is loading…</p>
-        )}
-        {filtered ? (
-          <p className="mt-1 text-sm text-slate-700">
-            <strong>{list.count}</strong> species match the current filters.
-          </p>
-        ) : null}
+    <main style={{ maxWidth: 1120, margin: "0 auto", padding: "40px 24px" }}>
+      <header
+        style={{
+          marginBottom: 24,
+          paddingBottom: 16,
+          borderBottom: "1px solid var(--rule)",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: 12,
+        }}
+      >
+        <div>
+          <h1 style={{ fontFamily: "var(--serif)", fontSize: 30, color: "var(--ink)", margin: 0 }}>
+            Species Directory
+          </h1>
+          {counts ? (
+            <p style={{ marginTop: 4, fontSize: 13, color: "var(--ink-2)" }}>
+              {counts.total} endemic freshwater fish species ({counts.described} described,{" "}
+              {counts.undescribed} undescribed)
+            </p>
+          ) : (
+            <p style={{ marginTop: 4, fontSize: 13, color: "var(--ink-3)" }}>
+              Species count is loading…
+            </p>
+          )}
+          {filtered ? (
+            <p style={{ marginTop: 4, fontSize: 13, color: "var(--ink)" }}>
+              <strong>{list.count}</strong> species match the current filters.
+            </p>
+          ) : null}
+        </div>
+        <DirectoryDensityControl density={density} />
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[20rem_1fr]">
-        <aside>
-          <SpeciesFilters initial={state} />
-        </aside>
+      <div
+        style={{
+          display: "grid",
+          gap: 24,
+          gridTemplateColumns: "minmax(0, 18rem) minmax(0, 1fr)",
+        }}
+      >
+        <SpeciesFilters initial={state} />
 
         <section>
           {list.results.length === 0 ? (
@@ -102,10 +133,19 @@ export default async function SpeciesDirectoryPage({
             )
           ) : (
             <>
-              <ul className="grid gap-3 sm:grid-cols-2">
+              <ul
+                style={{
+                  listStyle: "none",
+                  margin: 0,
+                  padding: 0,
+                  display: "grid",
+                  gap: gridGap,
+                  gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                }}
+              >
                 {list.results.map((sp) => (
                   <li key={sp.id}>
-                    <SpeciesCard species={sp} />
+                    <SpeciesCard species={sp} density={cardDensity} />
                   </li>
                 ))}
               </ul>

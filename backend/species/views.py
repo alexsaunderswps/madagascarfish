@@ -21,6 +21,9 @@ class SpeciesFilter(filters.FilterSet):
     family = filters.CharFilter(field_name="family")
     cares_status = filters.CharFilter(field_name="cares_status")
     endemic_status = filters.CharFilter(field_name="endemic_status")
+    # S19: Directory filter rail exposes a SHOAL priority toggle. Backend
+    # boolean filter so ?shoal_priority=true narrows to the subset.
+    shoal_priority = filters.BooleanFilter(field_name="shoal_priority")
     has_captive_population = filters.BooleanFilter(method="filter_has_captive_population")
     # Introduced (exotic) species are hidden from the default public directory
     # so the list reads as "Madagascar's native fish fauna" rather than mixing
@@ -41,6 +44,7 @@ class SpeciesFilter(filters.FilterSet):
             "family",
             "cares_status",
             "endemic_status",
+            "shoal_priority",
             "has_captive_population",
             "include_introduced",
             "genus",

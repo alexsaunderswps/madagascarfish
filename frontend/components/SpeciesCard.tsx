@@ -130,9 +130,9 @@ export default function SpeciesCard({
       <div
         aria-hidden="true"
         style={{
-          width: 72,
+          width: density === "compact" ? 56 : 72,
           flexShrink: 0,
-          display: density === "compact" ? "none" : "flex",
+          display: "flex",
           alignItems: "center",
           justifyContent: "center",
           alignSelf: "center",
