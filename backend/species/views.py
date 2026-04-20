@@ -20,6 +20,10 @@ class SpeciesFilter(filters.FilterSet):
     iucn_status = filters.BaseCSVFilter(method="filter_iucn_status")
     family = filters.CharFilter(field_name="family")
     cares_status = filters.CharFilter(field_name="cares_status")
+    # S19: Directory filter rail uses a single CARES boolean — "has any CARES
+    # listing" — rather than a four-tier chip set, so the rail stays short.
+    # ?has_cares=true narrows to species with any non-empty cares_status.
+    has_cares = filters.BooleanFilter(method="filter_has_cares")
     endemic_status = filters.CharFilter(field_name="endemic_status")
     # S19: Directory filter rail exposes a SHOAL priority toggle. Backend
     # boolean filter so ?shoal_priority=true narrows to the subset.
@@ -43,6 +47,7 @@ class SpeciesFilter(filters.FilterSet):
             "iucn_status",
             "family",
             "cares_status",
+            "has_cares",
             "endemic_status",
             "shoal_priority",
             "has_captive_population",
@@ -65,6 +70,18 @@ class SpeciesFilter(filters.FilterSet):
         if Species.IUCNStatus.NE in codes:
             q |= Q(iucn_status__isnull=True)
         return queryset.filter(q)
+
+    def filter_has_cares(
+        self,
+        queryset: QuerySet[Species],
+        name: str,
+        value: bool | None,
+    ) -> QuerySet[Species]:
+        if value is None:
+            return queryset
+        if value:
+            return queryset.exclude(cares_status="").exclude(cares_status__isnull=True)
+        return queryset.filter(Q(cares_status="") | Q(cares_status__isnull=True))
 
     def filter_has_captive_population(
         self,
