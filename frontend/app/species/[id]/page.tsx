@@ -7,6 +7,7 @@ import IucnBadge from "@/components/IucnBadge";
 import ProfileDistribution from "@/components/ProfileDistribution";
 import SpeciesSilhouette from "@/components/SpeciesSilhouette";
 import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
+import { IUCN_LABELS, type IucnStatus } from "@/lib/species";
 import {
   displayScientificName,
   fetchSpeciesDetail,
@@ -39,6 +40,21 @@ function countPopulatedFields(sp: SpeciesDetail): number {
     sp.common_names.length > 0 ? "y" : "",
   ];
   return candidates.filter((v) => v != null && v !== "" && v !== 0).length;
+}
+
+const STATUS_COLOR_VAR: Record<IucnStatus, string> = {
+  CR: "--iucn-cr",
+  EN: "--iucn-en",
+  VU: "--iucn-vu",
+  NT: "--iucn-nt",
+  LC: "--iucn-lc",
+  DD: "--iucn-dd",
+  NE: "--iucn-ne",
+};
+
+function statusEyebrowLabel(status: IucnStatus | null): string {
+  if (!status) return "NOT YET ASSESSED";
+  return IUCN_LABELS[status].toUpperCase();
 }
 
 export async function generateMetadata({
@@ -117,7 +133,22 @@ export default async function SpeciesProfilePage({
 
   const endemicLabel =
     sp.endemic_status.charAt(0).toUpperCase() + sp.endemic_status.slice(1);
-  const primaryCommon = sp.common_names[0]?.name;
+  const primaryCommon = sp.common_names[0];
+  // Hide auto-generated "Basin near 16.09°S 49.44°E" placeholders in the pill
+  // row — they render as visual noise. Real basin names (e.g. "Nosivolo")
+  // pass through.
+  const basinLabel =
+    sp.primary_basin && !/^Basin near/i.test(sp.primary_basin)
+      ? sp.primary_basin
+      : null;
+  const statusColorVar = STATUS_COLOR_VAR[sp.iucn_status ?? "NE"];
+  const statusEyebrow = statusEyebrowLabel(sp.iucn_status);
+  const caresShort = sp.cares_status ? `CARES ${sp.cares_status}` : null;
+
+  const { institutions_holding, total_individuals, breeding_programs } =
+    sp.ex_situ_summary;
+  const exSituEmpty =
+    institutions_holding === 0 && total_individuals === 0 && breeding_programs === 0;
 
   return (
     <main style={{ maxWidth: 960, margin: "0 auto", padding: "16px 24px 48px" }}>
@@ -128,26 +159,35 @@ export default async function SpeciesProfilePage({
         </>
       ) : null}
 
-      <Link
-        href={backHref}
-        style={{
-          display: "inline-block",
-          fontSize: 13,
-          color: "var(--accent-2)",
-          textDecoration: "none",
-        }}
+      {/* Breadcrumb */}
+      <nav
+        aria-label="Breadcrumb"
+        style={{ fontSize: 13, color: "var(--ink-3)", marginBottom: 12 }}
       >
-        ← All species
-      </Link>
+        <Link href={backHref} style={breadcrumbLinkStyle}>
+          ← All species
+        </Link>
+        {sp.family ? (
+          <>
+            <span aria-hidden="true" style={breadcrumbSepStyle}>/</span>
+            <span>{sp.family}</span>
+          </>
+        ) : null}
+        {sp.genus ? (
+          <>
+            <span aria-hidden="true" style={breadcrumbSepStyle}>/</span>
+            <span style={{ fontStyle: "italic" }}>{sp.genus}</span>
+          </>
+        ) : null}
+      </nav>
 
-      {/* Hero strip — stripe fallback band with name + IUCN badge overlay */}
+      {/* Hero — clean cream band, no stripe */}
       <header
-        className="bg-stripe-fallback"
         style={{
-          marginTop: 12,
           padding: "28px 28px 24px",
           borderRadius: "var(--radius-lg)",
           border: "1px solid var(--rule)",
+          backgroundColor: "var(--bg-raised)",
           position: "relative",
         }}
       >
@@ -157,27 +197,36 @@ export default async function SpeciesProfilePage({
             flexWrap: "wrap",
             alignItems: "flex-start",
             justifyContent: "space-between",
-            gap: 16,
+            gap: 24,
           }}
         >
-          <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ minWidth: 0, flex: "1 1 420px" }}>
+            {/* Status eyebrow (small-caps, status-colored) */}
+            <p
+              style={{
+                margin: 0,
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                color: `var(${statusColorVar})`,
+              }}
+            >
+              {statusEyebrow}
+            </p>
+
             <h1
               style={{
                 fontFamily: "var(--serif)",
                 fontStyle: "italic",
-                fontSize: 34,
+                fontSize: 36,
                 color: "var(--ink)",
-                lineHeight: 1.15,
-                margin: 0,
+                lineHeight: 1.1,
+                margin: "6px 0 0",
               }}
             >
               {displayName}
             </h1>
-            {primaryCommon ? (
-              <p style={{ marginTop: 4, fontSize: 15, color: "var(--ink-2)" }}>
-                {primaryCommon}
-              </p>
-            ) : null}
+
             {undescribed ? (
               <p style={{ marginTop: 8, fontSize: 12 }}>
                 <span
@@ -199,72 +248,129 @@ export default async function SpeciesProfilePage({
                 </span>
               </p>
             ) : sp.authority || sp.year_described ? (
-              <p style={{ marginTop: 8, fontSize: 13, color: "var(--ink-2)" }}>
+              <p style={{ marginTop: 6, fontSize: 13, color: "var(--ink-3)" }}>
                 {sp.authority}
                 {sp.authority && sp.year_described ? ", " : ""}
                 {sp.year_described}
               </p>
             ) : null}
+
+            {primaryCommon ? (
+              <p style={{ marginTop: 10, fontSize: 15, color: "var(--ink-2)" }}>
+                {primaryCommon.name}{" "}
+                <span style={{ color: "var(--ink-3)", fontSize: 12 }}>
+                  ({primaryCommon.language})
+                </span>
+              </p>
+            ) : null}
+
+            {/* Pill row */}
+            <div
+              style={{
+                marginTop: 16,
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                alignItems: "center",
+              }}
+            >
+              <IucnBadge
+                status={sp.iucn_status}
+                criteria={acceptedIucn?.criteria}
+              />
+              {sp.family ? <OutlinePill>{sp.family.toUpperCase()}</OutlinePill> : null}
+              {basinLabel ? (
+                <OutlinePill>{basinLabel.toUpperCase()} BASIN</OutlinePill>
+              ) : null}
+              <OutlinePill>{endemicLabel.toUpperCase()}</OutlinePill>
+              {caresShort ? (
+                <OutlinePill tone="highlight">{caresShort}</OutlinePill>
+              ) : null}
+              {sp.shoal_priority ? (
+                <OutlinePill tone="accent">SHOAL PRIORITY</OutlinePill>
+              ) : null}
+            </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-            <IucnBadge
-              status={sp.iucn_status}
-              showLabel
-              criteria={acceptedIucn?.criteria}
+
+          {/* Silhouette + max length, right-aligned */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 8,
+              minWidth: 180,
+            }}
+          >
+            <SpeciesSilhouette
+              maxLengthCm={sp.max_length_cm}
+              scientificName={displayName}
+              customSvg={effectiveSvg}
+              svgCredit={silhouetteCredit}
             />
-            {sp.cares_status ? (
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: "var(--highlight)",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                CARES {sp.cares_status}
-              </span>
-            ) : null}
-            {sp.shoal_priority ? (
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: "var(--accent)",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                SHOAL 1,000 priority
-              </span>
-            ) : null}
-            {sp.has_localities ? (
-              <Link href={`/map?species_id=${sp.id}`} style={viewOnMapStyle}>
-                View on Map →
-              </Link>
-            ) : null}
           </div>
         </div>
       </header>
 
-      {/* Three-up meta strip */}
-      <dl
+      {/* Three summary boxes: Distribution · Ex-situ · Husbandry */}
+      <section
+        aria-label="Profile summary"
         style={{
           marginTop: 16,
           display: "grid",
-          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-          gap: 16,
-          padding: "14px 20px",
-          backgroundColor: "var(--bg-raised)",
-          border: "1px solid var(--rule)",
-          borderRadius: "var(--radius-lg)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: 12,
         }}
       >
-        <MetaCell label="Family" value={sp.family || "—"} />
-        <MetaCell label="Endemism" value={endemicLabel} />
-        <MetaCell
-          label="Max length"
-          value={sp.max_length_cm ? `${sp.max_length_cm} cm` : "—"}
-        />
-      </dl>
+        <SummaryBox title="Distribution">
+          {sp.has_localities ? (
+            <>
+              <p style={summaryValueStyle}>On record in Madagascar</p>
+              <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>
+                View on Map →
+              </Link>
+            </>
+          ) : (
+            <p style={summaryMutedStyle}>No locality records mapped.</p>
+          )}
+        </SummaryBox>
+
+        <SummaryBox title="Ex-situ Coverage">
+          {exSituEmpty ? (
+            <p style={summaryMutedStyle}>No captive population tracked.</p>
+          ) : (
+            <>
+              <p style={summaryValueStyle}>
+                {institutions_holding} institution
+                {institutions_holding === 1 ? "" : "s"}
+              </p>
+              <p style={summarySubStyle}>
+                {total_individuals || "—"} individuals ·{" "}
+                {breeding_programs || 0} breeding
+              </p>
+            </>
+          )}
+        </SummaryBox>
+
+        <SummaryBox title="Husbandry">
+          {sp.has_husbandry ? (
+            <>
+              <p style={summaryValueStyle}>
+                {sp.difficulty_factor_count} difficulty factor
+                {sp.difficulty_factor_count === 1 ? "" : "s"}
+              </p>
+              <Link
+                href={`/species/${sp.id}/husbandry/`}
+                style={summaryLinkStyle}
+              >
+                See guidance →
+              </Link>
+            </>
+          ) : (
+            <p style={summaryMutedStyle}>No husbandry guidance yet.</p>
+          )}
+        </SummaryBox>
+      </section>
 
       {sparse ? (
         <p
@@ -282,13 +388,6 @@ export default async function SpeciesProfilePage({
           information will be added as it is published.
         </p>
       ) : null}
-
-      <SpeciesSilhouette
-        maxLengthCm={sp.max_length_cm}
-        scientificName={displayName}
-        customSvg={effectiveSvg}
-        svgCredit={silhouetteCredit}
-      />
 
       {/* Description & Ecology */}
       {sp.description || sp.ecology_notes || sp.morphology || sp.habitat_type ? (
@@ -317,7 +416,7 @@ export default async function SpeciesProfilePage({
         </section>
       ) : null}
 
-      {/* Distribution */}
+      {/* Distribution (curated map panel) */}
       <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
 
       {/* Conservation Status */}
@@ -362,80 +461,53 @@ export default async function SpeciesProfilePage({
         </section>
       ) : null}
 
-      {/* Ex-situ Population */}
+      {/* Ex-situ Population (detail) */}
       <section aria-labelledby="captive-heading" style={{ marginTop: 32 }}>
         <h2 id="captive-heading" style={sectionHeadingStyle}>
           Ex-situ Population
         </h2>
-        {(() => {
-          const { institutions_holding, total_individuals, breeding_programs } =
-            sp.ex_situ_summary;
-          const allZero =
-            institutions_holding === 0 &&
-            total_individuals === 0 &&
-            breeding_programs === 0;
-          if (allZero) {
-            return (
-              <p style={paragraphStyle}>
-                No captive population is currently tracked for this species.
-              </p>
-            );
-          }
-          const dash = (n: number) => (n > 0 ? n : "—");
-          return (
-            <dl
-              style={{
-                marginTop: 12,
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: 16,
-              }}
-            >
-              <StatCell label="Institutions holding" value={dash(institutions_holding)} />
-              <StatCell label="Total individuals" value={dash(total_individuals)} />
-              <StatCell label="Active breeding programs" value={dash(breeding_programs)} />
-            </dl>
-          );
-        })()}
+        {exSituEmpty ? (
+          <div style={{ marginTop: 12 }}>
+            <EmptyState
+              variant="inline"
+              title="No ex-situ population tracked"
+              body="No captive population is currently tracked for this species."
+            />
+          </div>
+        ) : (
+          <dl
+            style={{
+              marginTop: 12,
+              display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+              gap: 16,
+            }}
+          >
+            <StatCell
+              label="Institutions holding"
+              value={institutions_holding || "—"}
+            />
+            <StatCell
+              label="Total individuals"
+              value={total_individuals || "—"}
+            />
+            <StatCell
+              label="Active breeding programs"
+              value={breeding_programs || "—"}
+            />
+          </dl>
+        )}
       </section>
 
       {sp.has_husbandry ? (
-        <>
-          {sp.difficulty_factor_count >= 3 ? (
-            <p
-              style={{
-                marginTop: 24,
-                padding: "8px 14px",
-                fontSize: 13,
-                color: "var(--accent-2)",
-                backgroundColor: "var(--accent-soft)",
-                border: "1px solid color-mix(in oklab, var(--accent) 30%, var(--rule))",
-                borderRadius: "var(--radius-md)",
-              }}
-            >
-              Husbandry has {sp.difficulty_factor_count} specialized
-              considerations for this species.{" "}
-              <Link
-                href={`/species/${sp.id}/husbandry/#difficulty-heading`}
-                style={{
-                  color: "var(--accent-2)",
-                  fontWeight: 600,
-                  textDecoration: "underline",
-                }}
-              >
-                See details →
-              </Link>
-            </p>
-          ) : null}
-          <HusbandryTeaser
-            speciesId={sp.id}
-            ctx={{
-              has_husbandry: sp.has_husbandry,
-              cares_status: sp.cares_status,
-              shoal_priority: sp.shoal_priority,
-            }}
-          />
-        </>
+        <HusbandryTeaser
+          speciesId={sp.id}
+          ctx={{
+            has_husbandry: sp.has_husbandry,
+            cares_status: sp.cares_status,
+            shoal_priority: sp.shoal_priority,
+          }}
+        />
       ) : null}
 
       {(() => {
@@ -515,15 +587,14 @@ export default async function SpeciesProfilePage({
   );
 }
 
-const viewOnMapStyle = {
-  marginTop: 4,
-  padding: "4px 10px",
-  fontSize: 12,
-  borderRadius: 999,
-  border: "1px solid var(--rule-strong)",
-  backgroundColor: "var(--bg-raised)",
-  color: "var(--ink-2)",
+const breadcrumbLinkStyle = {
+  color: "var(--accent-2)",
   textDecoration: "none",
+};
+
+const breadcrumbSepStyle = {
+  margin: "0 8px",
+  color: "var(--ink-3)",
 };
 
 const sectionHeadingStyle = {
@@ -545,11 +616,94 @@ const labelInlineStyle = {
   color: "var(--ink-3)",
 };
 
-function MetaCell({ label, value }: { label: string; value: string }) {
+const summaryValueStyle = {
+  margin: "6px 0 0",
+  fontSize: 15,
+  fontWeight: 600,
+  color: "var(--ink)",
+};
+
+const summarySubStyle = {
+  margin: "2px 0 0",
+  fontSize: 12,
+  color: "var(--ink-3)",
+};
+
+const summaryMutedStyle = {
+  margin: "6px 0 0",
+  fontSize: 13,
+  color: "var(--ink-3)",
+};
+
+const summaryLinkStyle = {
+  display: "inline-block",
+  marginTop: 6,
+  fontSize: 12,
+  color: "var(--accent-2)",
+  textDecoration: "underline",
+};
+
+function OutlinePill({
+  children,
+  tone = "default",
+}: {
+  children: React.ReactNode;
+  tone?: "default" | "highlight" | "accent";
+}) {
+  const color =
+    tone === "highlight"
+      ? "var(--highlight)"
+      : tone === "accent"
+        ? "var(--accent)"
+        : "var(--ink-2)";
+  const border =
+    tone === "highlight"
+      ? "color-mix(in oklab, var(--highlight) 40%, var(--rule))"
+      : tone === "accent"
+        ? "color-mix(in oklab, var(--accent) 40%, var(--rule))"
+        : "var(--rule-strong)";
   return (
-    <div>
-      <dt
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        height: 20,
+        padding: "0 10px",
+        borderRadius: 999,
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: "0.08em",
+        lineHeight: 1,
+        color,
+        border: `1px solid ${border}`,
+        backgroundColor: "transparent",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function SummaryBox({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        padding: "14px 16px",
+        borderRadius: "var(--radius-lg)",
+        border: "1px solid var(--rule)",
+        backgroundColor: "var(--bg-raised)",
+      }}
+    >
+      <p
         style={{
+          margin: 0,
           fontSize: 11,
           fontWeight: 700,
           letterSpacing: "0.08em",
@@ -557,18 +711,9 @@ function MetaCell({ label, value }: { label: string; value: string }) {
           color: "var(--ink-3)",
         }}
       >
-        {label}
-      </dt>
-      <dd
-        style={{
-          marginTop: 4,
-          fontSize: 15,
-          color: "var(--ink)",
-          fontWeight: 500,
-        }}
-      >
-        {value}
-      </dd>
+        {title}
+      </p>
+      {children}
     </div>
   );
 }
