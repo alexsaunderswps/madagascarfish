@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from django.db.models import Exists, OuterRef, Q, QuerySet
+from django.db.models import Case, Count, Exists, IntegerField, OuterRef, Q, QuerySet, Subquery, When
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 
 from config.pagination import SpeciesListPagination
 from populations.models import ExSituPopulation
-from species.models import Species
+from species.models import Species, SpeciesLocality
 from species.serializers import SpeciesDetailSerializer, SpeciesListSerializer
 
 
@@ -108,7 +108,30 @@ class SpeciesViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ["scientific_name"]
 
     def get_queryset(self):
-        qs = Species.objects.select_related("genus_fk").order_by("scientific_name")
+        # primary_basin: drainage basin of the species' preferred locality —
+        # type_locality wins when present, otherwise earliest by id. Rows
+        # without any basin-bearing locality get NULL.
+        primary_basin_sq = (
+            SpeciesLocality.objects.filter(species=OuterRef("pk"))
+            .exclude(drainage_basin_name="")
+            .annotate(
+                _type_rank=Case(
+                    When(locality_type=SpeciesLocality.LocalityType.TYPE_LOCALITY, then=0),
+                    default=1,
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("_type_rank", "id")
+            .values("drainage_basin_name")[:1]
+        )
+        qs = (
+            Species.objects.select_related("genus_fk")
+            .annotate(
+                locality_count=Count("localities", distinct=True),
+                primary_basin=Subquery(primary_basin_sq),
+            )
+            .order_by("scientific_name")
+        )
         # Default to hiding introduced species from list/retrieve unless the
         # caller passes include_introduced=true or explicitly filters
         # endemic_status. Retrieve-by-id is still allowed for any species —

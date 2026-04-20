@@ -15,6 +15,7 @@
 
 import Link from "next/link";
 import { type SpeciesListItem } from "@/lib/species";
+import BasinPill from "./BasinPill";
 import IucnBadge from "./IucnBadge";
 
 export type SpeciesCardDensity = "roomy" | "default" | "compact";
@@ -187,6 +188,12 @@ export default function SpeciesCard({
           <span>{species.family || "—"}</span>
           <span aria-hidden="true">·</span>
           <span>{endemicLabel}</span>
+          {species.primary_basin ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <BasinPill basin={species.primary_basin} />
+            </>
+          ) : null}
           {caresLabel ? (
             <>
               <span aria-hidden="true">·</span>
