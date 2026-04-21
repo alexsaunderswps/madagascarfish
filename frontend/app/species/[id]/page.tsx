@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import EmptyState from "@/components/EmptyState";
-import HusbandryTeaser from "@/components/HusbandryTeaser";
 import IucnBadge from "@/components/IucnBadge";
 import ProfileDistribution from "@/components/ProfileDistribution";
 import SpeciesSilhouette from "@/components/SpeciesSilhouette";
@@ -41,6 +40,18 @@ function countPopulatedFields(sp: SpeciesDetail): number {
   ];
   return candidates.filter((v) => v != null && v !== "" && v !== 0).length;
 }
+
+// IUCN category short descriptions, paraphrased from the Red List
+// categorical definitions. Drives the Conservation Status panel body copy.
+const IUCN_DESCRIPTIONS: Record<IucnStatus, string> = {
+  CR: "Faces an extremely high risk of extinction in the wild. Populations have collapsed or occupy a very narrow range, and urgent intervention is required.",
+  EN: "Faces a very high risk of extinction in the wild. Populations are fragmented or declining steeply enough to threaten persistence.",
+  VU: "Faces a high risk of extinction in the wild. Threats are significant enough that decline is likely without conservation action.",
+  NT: "Close to qualifying for a threatened category, or likely to qualify in the near future without continued monitoring.",
+  LC: "Widespread and abundant. Does not currently qualify for a threatened category.",
+  DD: "Inadequate information is available to make a direct or indirect assessment of extinction risk.",
+  NE: "Has not yet been evaluated against IUCN Red List criteria.",
+};
 
 // Hero tint gradient (left→right, fading ~8% IUCN color into page bg).
 // Matches the Claude Design prototype: `${c.bg}14 0%, transparent 60%`.
@@ -100,7 +111,7 @@ export default async function SpeciesProfilePage({
             display: "inline-block",
             marginTop: 24,
             padding: "8px 16px",
-            borderRadius: "var(--radius-md)",
+            borderRadius: "var(--radius)",
             border: "1px solid var(--rule-strong)",
             color: "var(--ink-2)",
             fontSize: 13,
@@ -130,6 +141,20 @@ export default async function SpeciesProfilePage({
   const acceptedIucn = sp.conservation_assessments.find(
     (a) => a.source === "iucn_official" || a.source === "manual_expert",
   );
+  // Fallback: when no assessment row is synced yet, the mirrored status on
+  // Species is still the source of truth (per the mirror policy). Render
+  // a minimal row so the Conservation Status panel matches the hero badge.
+  const displayIucn =
+    acceptedIucn ??
+    (sp.iucn_status
+      ? {
+          category: sp.iucn_status,
+          source: "mirror",
+          assessment_date: null,
+          assessor: "",
+          criteria: "",
+        }
+      : null);
   const iucnUrl = iucnRedListUrl(sp.iucn_taxon_id);
   const fishbaseUrl = fishbaseGenusSpeciesUrl(sp);
 
@@ -430,7 +455,7 @@ export default async function SpeciesProfilePage({
               color: "var(--highlight)",
               backgroundColor: "color-mix(in oklab, var(--highlight) 10%, var(--bg-raised))",
               border: "1px solid color-mix(in oklab, var(--highlight) 40%, var(--rule))",
-              borderRadius: "var(--radius-md)",
+              borderRadius: "var(--radius)",
             }}
           >
             Limited public data is available for this species. Additional
@@ -495,80 +520,114 @@ export default async function SpeciesProfilePage({
         {/* Distribution (curated map panel) */}
         <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
 
-        {/* Conservation Status · Common Names — paired two-column section */}
+        {/* Keeping this species · Conservation Status — paired two-column */}
         <section
-          aria-label="Conservation status and common names"
+          aria-label="Husbandry and conservation status"
           style={{
             marginTop: 48,
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
             gap: 40,
+            alignItems: "stretch",
           }}
         >
-          <div id="conservation">
-            <p style={eyebrowStyle}>Red List Status</p>
-            <h2 style={h2Style}>Conservation Status</h2>
-            {acceptedIucn ? (
-              <dl style={{ marginTop: 12, fontSize: 14, color: "var(--ink-2)" }}>
-                <DlRow label="Category" value={acceptedIucn.category} />
-                {acceptedIucn.criteria ? (
-                  <DlRow label="Criteria" value={acceptedIucn.criteria} />
-                ) : null}
-                {acceptedIucn.assessor ? (
-                  <DlRow label="Assessor" value={acceptedIucn.assessor} />
-                ) : null}
-                {acceptedIucn.assessment_date ? (
-                  <DlRow label="Date" value={acceptedIucn.assessment_date} />
-                ) : null}
-              </dl>
-            ) : (
-              <p style={{ ...paragraphStyle, maxWidth: 640 }}>
-                Not yet assessed on the IUCN Red List.
+          {sp.has_husbandry ? (
+            <div
+              id="keeping"
+              aria-labelledby="husbandry-teaser-heading"
+              style={{
+                padding: "20px 22px",
+                border: "1px solid var(--rule)",
+                borderLeft: "3px solid var(--iucn-nt)",
+                borderRadius: "var(--radius-lg)",
+                backgroundColor: "var(--bg-raised)",
+              }}
+            >
+              <p style={eyebrowStyle}>Husbandry</p>
+              <h2 id="husbandry-teaser-heading" style={h2Style}>
+                Keeping this species
+              </h2>
+              {caresShort || sp.shoal_priority ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 6,
+                    marginTop: 12,
+                  }}
+                >
+                  {caresShort ? (
+                    <BasinPill tone="highlight">{caresShort}</BasinPill>
+                  ) : null}
+                  {sp.shoal_priority ? (
+                    <BasinPill tone="accent">SHOAL priority</BasinPill>
+                  ) : null}
+                </div>
+              ) : null}
+              <p style={{ ...paragraphStyle, maxWidth: 560 }}>
+                {caresShort && sp.shoal_priority
+                  ? "A CARES and SHOAL priority species — hobbyist breeders play a direct conservation role."
+                  : caresShort
+                    ? "A CARES priority species — hobbyist breeders play a direct conservation role."
+                    : sp.shoal_priority
+                      ? "A SHOAL 1,000 Fishes priority species."
+                      : "Husbandry guidance is available for this species."}
               </p>
-            )}
-            {caresShort ? (
-              <p style={{ marginTop: 10, fontSize: 14, color: "var(--ink-2)" }}>
-                <span style={{ color: "var(--ink-3)", fontWeight: 600 }}>
-                  CARES:{" "}
-                </span>
-                {sp.cares_status}
+              <p style={{ marginTop: 10, fontSize: 14 }}>
+                <Link
+                  href={`/species/${sp.id}/husbandry/`}
+                  style={refLinkStyle}
+                >
+                  See husbandry guidance →
+                </Link>
               </p>
-            ) : null}
-            {sp.shoal_priority ? (
-              <p style={{ marginTop: 4, fontSize: 14, color: "var(--ink-2)" }}>
-                SHOAL 1,000 Fishes priority species.
-              </p>
-            ) : null}
-          </div>
+            </div>
+          ) : (
+            <div
+              id="common-names"
+              style={{
+                padding: "20px 22px",
+                border: "1px solid var(--rule)",
+                borderRadius: "var(--radius-lg)",
+                backgroundColor: "var(--bg-raised)",
+              }}
+            >
+              <p style={eyebrowStyle}>Vernacular</p>
+              <h2 style={h2Style}>Common Names</h2>
+              {sp.common_names.length > 0 ? (
+                <ul
+                  style={{
+                    marginTop: 12,
+                    padding: 0,
+                    listStyle: "none",
+                    fontSize: 14,
+                  }}
+                >
+                  {sp.common_names.map((cn) => (
+                    <li
+                      key={`${cn.language}-${cn.name}`}
+                      style={{ color: "var(--ink-2)", padding: "2px 0" }}
+                    >
+                      {cn.name}{" "}
+                      <span style={{ color: "var(--ink-3)" }}>
+                        ({cn.language})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{ ...paragraphStyle, maxWidth: 640 }}>
+                  No common names recorded.
+                </p>
+              )}
+            </div>
+          )}
 
-          <div id="common-names">
-            <p style={eyebrowStyle}>Vernacular</p>
-            <h2 style={h2Style}>Common Names</h2>
-            {sp.common_names.length > 0 ? (
-              <ul
-                style={{
-                  marginTop: 12,
-                  padding: 0,
-                  listStyle: "none",
-                  fontSize: 14,
-                }}
-              >
-                {sp.common_names.map((cn) => (
-                  <li
-                    key={`${cn.language}-${cn.name}`}
-                    style={{ color: "var(--ink-2)", padding: "2px 0" }}
-                  >
-                    {cn.name}{" "}
-                    <span style={{ color: "var(--ink-3)" }}>({cn.language})</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p style={{ ...paragraphStyle, maxWidth: 640 }}>
-                No common names recorded.
-              </p>
-            )}
-          </div>
+          <ConservationStatusPanel
+            status={sp.iucn_status}
+            assessment={displayIucn}
+            iucnUrl={iucnUrl}
+          />
         </section>
 
         {/* Captive population summary — ex-situ stewardship */}
@@ -604,7 +663,7 @@ export default async function SpeciesProfilePage({
                   marginTop: 8,
                   fontSize: 14,
                   color: "var(--ink-2)",
-                  maxWidth: 560,
+                  lineHeight: 1.55,
                 }}
               >
                 {sp.iucn_status && ["CR", "EN", "VU"].includes(sp.iucn_status)
@@ -633,17 +692,6 @@ export default async function SpeciesProfilePage({
             </div>
           )}
         </section>
-
-        {sp.has_husbandry ? (
-          <HusbandryTeaser
-            speciesId={sp.id}
-            ctx={{
-              has_husbandry: sp.has_husbandry,
-              cares_status: sp.cares_status,
-              shoal_priority: sp.shoal_priority,
-            }}
-          />
-        ) : null}
 
         {/* Field Programs — sits under Captive population */}
         <section aria-labelledby="field-heading" style={{ marginTop: 48 }}>
@@ -737,7 +785,7 @@ const breadcrumbBackStyle = {
   textDecoration: "none",
   padding: "4px 8px",
   marginLeft: -8,
-  borderRadius: "var(--radius-md)",
+  borderRadius: "var(--radius)",
 };
 
 const eyebrowStyle = {
@@ -889,6 +937,114 @@ function DlRow({ label, value }: { label: string; value: string }) {
         {label}:{" "}
       </dt>
       <dd style={{ display: "inline", margin: 0 }}>{value}</dd>
+    </div>
+  );
+}
+
+function ConservationStatusPanel({
+  status,
+  assessment,
+  iucnUrl,
+}: {
+  status: IucnStatus | null;
+  assessment: {
+    category: string;
+    source: string;
+    assessment_date: string | null;
+    assessor: string;
+    criteria: string;
+  } | null;
+  iucnUrl: string | null;
+}) {
+  const key: IucnStatus = status ?? "NE";
+  const colorVar = STATUS_COLOR_VAR[key];
+  const label = IUCN_LABELS[key];
+  const description = IUCN_DESCRIPTIONS[key];
+
+  return (
+    <div
+      id="conservation"
+      style={{
+        padding: "20px 22px",
+        border: "1px solid var(--rule)",
+        borderRadius: "var(--radius-lg)",
+        backgroundColor: `color-mix(in oklab, var(${colorVar}) 7%, var(--bg-raised))`,
+        borderLeft: `3px solid var(${colorVar})`,
+        position: "relative",
+      }}
+    >
+      <p style={eyebrowStyle}>Red List Status</p>
+      <h2 style={h2Style}>Conservation Status</h2>
+
+      <div
+        style={{
+          marginTop: 14,
+          display: "flex",
+          alignItems: "baseline",
+          gap: 10,
+          flexWrap: "wrap",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: 32,
+            fontWeight: 600,
+            color: `var(${colorVar})`,
+            lineHeight: 1,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {assessment?.category ?? key}
+        </span>
+        <span
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: 14,
+            fontWeight: 600,
+            color: "var(--ink)",
+          }}
+        >
+          {label}
+        </span>
+      </div>
+
+      <p style={{ ...paragraphStyle, maxWidth: 520 }}>{description}</p>
+
+      {assessment && (assessment.criteria || assessment.assessor || assessment.assessment_date) ? (
+        <dl
+          style={{
+            marginTop: 14,
+            fontSize: 13,
+            color: "var(--ink-2)",
+            display: "grid",
+            gap: 4,
+          }}
+        >
+          {assessment.criteria ? (
+            <DlRow label="Criteria" value={assessment.criteria} />
+          ) : null}
+          {assessment.assessor ? (
+            <DlRow label="Assessor" value={assessment.assessor} />
+          ) : null}
+          {assessment.assessment_date ? (
+            <DlRow label="Assessed" value={assessment.assessment_date} />
+          ) : null}
+        </dl>
+      ) : null}
+
+      {iucnUrl ? (
+        <p style={{ marginTop: 12, fontSize: 14 }}>
+          <a
+            href={iucnUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={refLinkStyle}
+          >
+            View Red List assessment →
+          </a>
+        </p>
+      ) : null}
     </div>
   );
 }

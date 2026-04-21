@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { fetchLocalities } from "@/lib/mapLocalities";
 import { fetchSiteMapAsset } from "@/lib/siteMapAssets";
 
@@ -99,17 +101,40 @@ export default async function ProfileDistribution({
         </figure>
       ) : null}
 
-      <p
-        style={{
-          marginTop: 16,
-          fontSize: 13,
-          color: hasLocalities && count > 0 ? "var(--ink-2)" : "var(--ink-3)",
-        }}
-      >
-        {hasLocalities && count > 0
-          ? `${count} locality record${count === 1 ? "" : "s"} on record.`
-          : "No locality records are currently mapped for this species."}
-      </p>
+      {hasLocalities && count > 0 ? (
+        <p
+          style={{
+            marginTop: 16,
+            fontSize: 13,
+            color: "var(--ink-2)",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "baseline",
+            gap: 12,
+          }}
+        >
+          <span>
+            Mapped at {count} localit{count === 1 ? "y" : "ies"}.
+          </span>
+          <Link
+            href={`/map?species_id=${speciesId}`}
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--accent-2)",
+              textDecoration: "none",
+              borderBottom:
+                "1px solid color-mix(in oklab, var(--accent-2) 35%, transparent)",
+            }}
+          >
+            View on map →
+          </Link>
+        </p>
+      ) : (
+        <p style={{ marginTop: 16, fontSize: 13, color: "var(--ink-3)" }}>
+          No locality records are currently mapped for this species.
+        </p>
+      )}
     </section>
   );
 }
