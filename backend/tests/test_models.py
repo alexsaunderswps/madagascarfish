@@ -376,6 +376,24 @@ class TestSilhouetteSvgNormalization:
     def test_handles_empty_string(self) -> None:
         assert strip_svg_root_size_attrs("") == ""
 
+    def test_synthesizes_viewbox_when_missing(self) -> None:
+        raw = '<svg width="1200" height="675"><g><path d="M6660 5391z"/></g></svg>'
+        out = strip_svg_root_size_attrs(raw)
+        assert 'viewBox="0 0 1200 675"' in out
+        assert "width=" not in out.split(">", 1)[0]
+        assert "height=" not in out.split(">", 1)[0]
+
+    def test_synthesizes_viewbox_with_px_units(self) -> None:
+        raw = '<svg width="1200px" height="675px"><path d="M0 0"/></svg>'
+        out = strip_svg_root_size_attrs(raw)
+        assert 'viewBox="0 0 1200 675"' in out
+
+    def test_does_not_synthesize_viewbox_when_present(self) -> None:
+        raw = '<svg width="500" height="200" viewBox="0 0 100 40"/>'
+        out = strip_svg_root_size_attrs(raw)
+        assert out.count("viewBox") == 1
+        assert 'viewBox="0 0 100 40"' in out
+
     def test_save_normalizes_silhouette_svg(self, db: None) -> None:
         sp = Species.objects.create(
             scientific_name="Paretroplus test",
