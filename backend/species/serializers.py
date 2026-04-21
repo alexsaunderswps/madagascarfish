@@ -108,6 +108,11 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
     has_localities = serializers.SerializerMethodField()
     has_husbandry = serializers.SerializerMethodField()
     difficulty_factor_count = serializers.SerializerMethodField()
+    # Populated by the SpeciesViewSet queryset annotation (same Subquery used
+    # on the list endpoint). NULL when no locality carries a basin name.
+    primary_basin = serializers.CharField(
+        read_only=True, allow_null=True, default=None
+    )
 
     class Meta:
         model = Species
@@ -140,6 +145,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
             "has_localities",
             "has_husbandry",
             "difficulty_factor_count",
+            "primary_basin",
         ]
 
     def get_has_localities(self, obj: Species) -> bool:

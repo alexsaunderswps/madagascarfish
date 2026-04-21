@@ -225,9 +225,14 @@ function FocusLocality({
 export default function MapClient({
   initialData,
   focusLocalityId = null,
+  heightClass = "h-[calc(100vh-8rem)] min-h-[500px]",
 }: {
   initialData: LocalityFeatureCollection | null;
   focusLocalityId?: number | string | null;
+  // S20 Profile embeds MapClient in a constrained distribution panel, so
+  // callers can override the default full-viewport height with a shorter
+  // Tailwind height class (e.g. "h-[380px]").
+  heightClass?: string;
 }) {
   const features = initialData?.features ?? [];
   const totalFeatures = features.length;
@@ -239,7 +244,7 @@ export default function MapClient({
       : Number(focusLocalityId);
 
   return (
-    <div className="relative h-[calc(100vh-8rem)] min-h-[500px] w-full">
+    <div className={`relative w-full ${heightClass}`}>
       <MapContainer
         center={MADAGASCAR_CENTER}
         zoom={MADAGASCAR_ZOOM}
