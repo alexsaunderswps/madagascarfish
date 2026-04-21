@@ -7,6 +7,8 @@ from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
+from django.core.files.uploadedfile import UploadedFile
+
 from audit.context import audit_actor
 from audit.models import AuditEntry
 from species.admin_revalidate import _post_revalidate, revalidate_public_pages
@@ -59,6 +61,68 @@ class ConservationAssessmentAdminForm(forms.ModelForm):
         return cleaned
 
 
+_SILHOUETTE_UPLOAD_HELP = (
+    "Pick a .svg file to replace the text below on save. width/height are "
+    "stripped automatically; a viewBox is synthesized if the source has "
+    "none. Leave empty to keep the pasted text."
+)
+
+
+def _apply_silhouette_upload(form: forms.ModelForm, cleaned: dict[str, object]) -> None:
+    """Shared clean-step for Species / Genus admin forms.
+
+    If a file was uploaded, decode it and overwrite ``silhouette_svg`` in
+    cleaned_data so the model save hook normalizes it the same way pasted
+    text is normalized (width/height stripped, viewBox synthesized).
+    """
+    uploaded = cleaned.get("silhouette_svg_file")
+    if not isinstance(uploaded, UploadedFile):
+        return
+    try:
+        raw = uploaded.read().decode("utf-8")
+    except UnicodeDecodeError:
+        form.add_error("silhouette_svg_file", "File is not valid UTF-8 text.")
+        return
+    if "<svg" not in raw.lower():
+        form.add_error("silhouette_svg_file", "File does not contain an <svg> element.")
+        return
+    cleaned["silhouette_svg"] = raw
+
+
+class SpeciesAdminForm(forms.ModelForm):
+    silhouette_svg_file = forms.FileField(
+        required=False,
+        label="Upload .svg file (optional)",
+        help_text=_SILHOUETTE_UPLOAD_HELP,
+    )
+
+    class Meta:
+        model = Species
+        fields = "__all__"
+
+    def clean(self) -> dict[str, object]:
+        cleaned = super().clean() or {}
+        _apply_silhouette_upload(self, cleaned)
+        return cleaned
+
+
+class GenusAdminForm(forms.ModelForm):
+    silhouette_svg_file = forms.FileField(
+        required=False,
+        label="Upload .svg file (optional)",
+        help_text=_SILHOUETTE_UPLOAD_HELP,
+    )
+
+    class Meta:
+        model = Genus
+        fields = "__all__"
+
+    def clean(self) -> dict[str, object]:
+        cleaned = super().clean() or {}
+        _apply_silhouette_upload(self, cleaned)
+        return cleaned
+
+
 class ConservationAssessmentInline(admin.TabularInline):
     model = ConservationAssessment
     extra = 1
@@ -103,6 +167,7 @@ class SpeciesLocalityInline(admin.TabularInline):
 
 @admin.register(Genus)
 class GenusAdmin(admin.ModelAdmin):
+    form = GenusAdminForm
     list_display = ["name", "family", "species_count", "has_silhouette", "updated_at"]
     list_filter = ["family"]
     search_fields = ["name", "family"]
@@ -112,7 +177,7 @@ class GenusAdmin(admin.ModelAdmin):
         (
             "Silhouette",
             {
-                "fields": ("silhouette_svg", "silhouette_credit"),
+                "fields": ("silhouette_svg_file", "silhouette_svg", "silhouette_credit"),
                 "description": (
                     "Fallback SVG used on species profiles that have no "
                     "silhouette of their own. Same authoring conventions as "
@@ -187,6 +252,7 @@ class SiteMapAssetAdmin(admin.ModelAdmin):
 
 @admin.register(Species)
 class SpeciesAdmin(admin.ModelAdmin):
+    form = SpeciesAdminForm
     list_display = [
         "scientific_name",
         "taxonomic_status",
