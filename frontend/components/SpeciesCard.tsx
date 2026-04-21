@@ -148,6 +148,7 @@ export default function SpeciesCard({
       >
         {effectiveSvg ? (
           <div
+            className="[&>svg]:h-auto [&>svg]:w-full [&>svg]:max-h-[36px]"
             style={{
               width: density === "compact" ? 56 : 72,
               display: "flex",
