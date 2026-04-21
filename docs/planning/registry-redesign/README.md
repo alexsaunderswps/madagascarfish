@@ -86,11 +86,16 @@ The architecture agent should resolve or surface:
 
 ## Gate specs
 
-- [Gate 1 — Visual system](./gate-1-visual-system.md)
-- [Gate 2 — Schema expansion](./gate-2-schema.md)
-- [Gate 3 — Dashboard](./gate-3-dashboard.md)
+- [Gate 1 — Visual system](./gate-1-visual-system.md) — ✅ Shipped 2026-04-21
+- [Gate 2 — Schema expansion](./gate-2-schema.md) — ✅ Closed by drift 2026-04-21 (see close-out audit)
+- [Gate 3 — Dashboard](./gate-3-dashboard.md) — 🟡 Spec kickoff 2026-04-21
 
-Each spec is a stub until the architecture + PM reviews fill it in.
+## Follow-up ideation
+
+Ideas raised during Gate 1/2 that don't block the June 1 deadline:
+
+- [Narrow-range / microendemic pill](../ideation/narrow-range-pill.md) — sampling-bias risk, likely resolved with a basin count on cards rather than a categorical pill.
+- [Key Biodiversity Area (KBA) overlay](../ideation/kba-overlay.md) — post-ABQ work; high value for the SHOAL conversation but additive to the dashboard rather than a blocker.
 
 ---
 
