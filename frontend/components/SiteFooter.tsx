@@ -42,18 +42,54 @@ const COLUMNS: FooterColumn[] = [
   },
 ];
 
+const linkStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  minHeight: 32,
+  color: "var(--ink-2)",
+  textDecoration: "none",
+  transition: "color 120ms ease",
+} as const;
+
 export default function SiteFooter() {
   return (
     <footer
-      className="mt-24 border-t border-slate-200"
-      style={{ backgroundColor: "var(--bg-sunken)" }}
+      style={{
+        marginTop: 96,
+        borderTop: "1px solid var(--rule)",
+        backgroundColor: "var(--bg-sunken)",
+      }}
     >
-      <div className="mx-auto max-w-6xl px-7 pb-10 pt-12">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
+      <div
+        style={{
+          margin: "0 auto",
+          maxWidth: 1152,
+          padding: "48px 28px 40px",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: 40,
+          }}
+        >
           {COLUMNS.map((col) => (
             <div key={col.heading}>
-              <p className="eyebrow mb-3">{col.heading}</p>
-              <ul className="flex flex-col gap-2 text-[13px] text-slate-700">
+              <p className="eyebrow" style={{ marginBottom: 12 }}>
+                {col.heading}
+              </p>
+              <ul
+                style={{
+                  listStyle: "none",
+                  margin: 0,
+                  padding: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  fontSize: 13,
+                }}
+              >
                 {col.links.map((link) => (
                   <li key={link.href}>
                     {link.external ? (
@@ -61,12 +97,12 @@ export default function SiteFooter() {
                         href={link.href}
                         target="_blank"
                         rel="noreferrer"
-                        className="hover:text-sky-700"
+                        style={linkStyle}
                       >
                         {link.label}
                       </a>
                     ) : (
-                      <Link href={link.href} className="hover:text-sky-700">
+                      <Link href={link.href} style={linkStyle}>
                         {link.label}
                       </Link>
                     )}
@@ -76,9 +112,22 @@ export default function SiteFooter() {
             </div>
           ))}
         </div>
-        <div className="mt-10 flex flex-col gap-2 border-t border-slate-200 pt-6 text-[12px] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>Madagascar Freshwater Fish Conservation Platform — Apache-2.0</p>
-          <p className="sm:text-right">
+        <div
+          style={{
+            marginTop: 40,
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            borderTop: "1px solid var(--rule)",
+            paddingTop: 24,
+            fontSize: 12,
+            color: "var(--ink-3)",
+          }}
+        >
+          <p style={{ margin: 0 }}>
+            Madagascar Freshwater Fish Conservation Platform — Apache-2.0
+          </p>
+          <p style={{ margin: 0 }}>
             Data mirrored from IUCN, FishBase, GBIF, ZIMS, SHOAL, and CARES.
           </p>
         </div>
