@@ -1,5 +1,30 @@
 import Link from "next/link";
 
+const baseLinkStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  minHeight: 44,
+  padding: "8px 14px",
+  borderRadius: "var(--radius)",
+  fontFamily: "var(--sans)",
+  fontSize: 13,
+  fontWeight: 500,
+  lineHeight: 1,
+  textDecoration: "none",
+  border: "1px solid var(--rule-strong)",
+  color: "var(--ink)",
+  backgroundColor: "var(--bg-raised)",
+  transition: "border-color 120ms ease, background-color 120ms ease",
+} as const;
+
+const disabledStyle = {
+  ...baseLinkStyle,
+  color: "var(--ink-3)",
+  backgroundColor: "var(--bg-sunken)",
+  borderColor: "var(--rule)",
+  cursor: "not-allowed",
+} as const;
+
 export default function Pagination({
   page,
   totalCount,
@@ -28,38 +53,36 @@ export default function Pagination({
   };
 
   return (
-    <nav aria-label="Pagination" className="mt-6 flex items-center justify-between text-sm">
-      <div className="text-slate-600">
+    <nav
+      aria-label="Pagination"
+      style={{
+        marginTop: 24,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 16,
+        fontSize: 13,
+      }}
+    >
+      <div style={{ color: "var(--ink-2)" }}>
         Page {page} of {totalPages} — {totalCount} total
       </div>
-      <div className="flex gap-2">
+      <div style={{ display: "flex", gap: 8 }}>
         {page > 1 ? (
-          <Link
-            href={buildHref(page - 1)}
-            className="rounded border border-slate-300 px-3 py-1 hover:border-slate-400"
-          >
+          <Link href={buildHref(page - 1)} style={baseLinkStyle}>
             ← Previous
           </Link>
         ) : (
-          <span
-            aria-disabled="true"
-            className="rounded border border-slate-200 px-3 py-1 text-slate-400"
-          >
+          <span aria-disabled="true" style={disabledStyle}>
             ← Previous
           </span>
         )}
         {page < totalPages ? (
-          <Link
-            href={buildHref(page + 1)}
-            className="rounded border border-slate-300 px-3 py-1 hover:border-slate-400"
-          >
+          <Link href={buildHref(page + 1)} style={baseLinkStyle}>
             Next →
           </Link>
         ) : (
-          <span
-            aria-disabled="true"
-            className="rounded border border-slate-200 px-3 py-1 text-slate-400"
-          >
+          <span aria-disabled="true" style={disabledStyle}>
             Next →
           </span>
         )}

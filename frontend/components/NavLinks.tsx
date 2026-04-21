@@ -30,7 +30,17 @@ export function isActive(pathname: string, href: string): boolean {
 export default function NavLinks() {
   const pathname = usePathname() ?? "/";
   return (
-    <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium">
+    <ul
+      style={{
+        listStyle: "none",
+        margin: 0,
+        padding: 0,
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: "4px 16px",
+      }}
+    >
       {PRIMARY_NAV.map((link) => {
         const active = isActive(pathname, link.href);
         return (
@@ -38,11 +48,21 @@ export default function NavLinks() {
             <Link
               href={link.href}
               aria-current={active ? "page" : undefined}
-              className={
-                active
-                  ? "rounded-full bg-sky-100 px-3 py-1 font-semibold text-sky-900"
-                  : "rounded-full px-3 py-1 text-slate-700 hover:text-sky-700"
-              }
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                minHeight: 44,
+                padding: "6px 14px",
+                borderRadius: 999,
+                fontFamily: "var(--sans)",
+                fontSize: 13,
+                fontWeight: active ? 600 : 500,
+                lineHeight: 1,
+                textDecoration: "none",
+                color: active ? "var(--accent-2)" : "var(--ink-2)",
+                backgroundColor: active ? "var(--accent-soft)" : "transparent",
+                transition: "background-color 120ms ease, color 120ms ease",
+              }}
             >
               {link.label}
             </Link>

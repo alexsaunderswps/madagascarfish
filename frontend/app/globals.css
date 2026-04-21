@@ -162,6 +162,15 @@ h2, h3 {
 }
 @media (prefers-reduced-motion: reduce) {
   .pulse-dot { animation: none; opacity: 1; }
+  /* Blanket suppression for users who asked for reduced motion.
+   * All buttons/links across the design book use short color transitions;
+   * honor the OS preference by neutralizing them everywhere. */
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Button tokens — §15.6. Three variants share padding/type; background,
