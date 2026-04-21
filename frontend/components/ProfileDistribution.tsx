@@ -1,15 +1,17 @@
-import Link from "next/link";
-
 import { fetchLocalities } from "@/lib/mapLocalities";
 import { fetchSiteMapAsset } from "@/lib/siteMapAssets";
 
 /**
- * ProfileDistribution — S20 profile Distribution summary box.
+ * ProfileDistribution — S20 profile Distribution panel.
  *
- * Renders the curated `profile_panel` SiteMapAsset (or stripe fallback)
- * alongside a locality-count line + "Open full map" link. The interactive
- * MapClient is reserved for /map; embedding it on every profile made the
- * page heavy and visually noisy (2026-04-20 review).
+ * Renders the curated `profile_panel` SiteMapAsset when present with the
+ * locality count caption underneath. When no SMA is uploaded, the panel
+ * drops out entirely and only the count line remains — the previous
+ * stripe-hatched fallback looked like a missing-image placeholder
+ * (2026-04-20 review).
+ *
+ * The "Open full map" CTA lives in the top-of-page Distribution summary
+ * box; this section stays informational to avoid duplicating the action.
  */
 
 export default async function ProfileDistribution({
@@ -29,31 +31,46 @@ export default async function ProfileDistribution({
   const count = localities?.features.length ?? 0;
 
   return (
-    <section aria-labelledby="distribution-heading" style={{ marginTop: 32 }}>
-      <h2
-        id="distribution-heading"
+    <section id="distribution" style={{ marginTop: 48 }}>
+      <p
         style={{
-          fontFamily: "var(--serif)",
-          fontSize: 22,
-          color: "var(--ink)",
-          margin: "0 0 12px",
+          fontFamily: "var(--sans)",
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: "var(--ink-3)",
+          margin: 0,
         }}
       >
         Distribution
-      </h2>
-
-      <div
+      </p>
+      <h2
         style={{
-          display: "flex",
-          flexDirection: "column",
-          borderRadius: "var(--radius-lg)",
-          border: "1px solid var(--rule)",
-          overflow: "hidden",
-          backgroundColor: "var(--bg-raised)",
+          marginTop: 8,
+          fontFamily: "var(--serif)",
+          fontSize: 28,
+          fontWeight: 600,
+          letterSpacing: "-0.01em",
+          color: "var(--ink)",
+          lineHeight: 1.15,
         }}
       >
-        {sma ? (
-          // eslint-disable-next-line @next/next/no-img-element
+        Where it&rsquo;s found
+      </h2>
+
+      {sma ? (
+        <figure
+          style={{
+            marginTop: 16,
+            marginInline: 0,
+            borderRadius: "var(--radius-lg)",
+            border: "1px solid var(--rule)",
+            overflow: "hidden",
+            backgroundColor: "var(--bg-raised)",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={sma.url}
             alt={sma.alt || "Distribution overview"}
@@ -63,53 +80,36 @@ export default async function ProfileDistribution({
               display: "block",
               width: "100%",
               height: "auto",
-              maxHeight: 220,
+              maxHeight: 260,
               objectFit: "cover",
-              borderBottom: "1px solid var(--rule)",
             }}
           />
-        ) : (
-          <div
-            aria-hidden="true"
-            className="bg-stripe-fallback"
-            style={{
-              height: 120,
-              borderBottom: "1px solid var(--rule)",
-            }}
-          />
-        )}
-
-        <div style={{ padding: "14px 16px" }}>
-          {hasLocalities && count > 0 ? (
-            <p style={{ fontSize: 13, color: "var(--ink-2)", margin: 0 }}>
-              {count} locality record{count === 1 ? "" : "s"} on record.{" "}
-              <Link
-                href={`/map?species_id=${speciesId}`}
-                style={{ color: "var(--accent-2)", textDecoration: "underline" }}
-              >
-                Open full map →
-              </Link>
-            </p>
-          ) : (
-            <p style={{ fontSize: 13, color: "var(--ink-3)", margin: 0 }}>
-              No locality records are currently mapped for this species.
-            </p>
-          )}
-
-          {sma?.credit ? (
-            <p
+          {sma.credit ? (
+            <figcaption
               style={{
                 fontSize: 11,
                 color: "var(--ink-3)",
-                marginTop: 8,
-                marginBottom: 0,
+                padding: "8px 16px",
+                borderTop: "1px solid var(--rule)",
               }}
             >
-              Map panel: {sma.credit}
-            </p>
+              {sma.credit}
+            </figcaption>
           ) : null}
-        </div>
-      </div>
+        </figure>
+      ) : null}
+
+      <p
+        style={{
+          marginTop: 16,
+          fontSize: 13,
+          color: hasLocalities && count > 0 ? "var(--ink-2)" : "var(--ink-3)",
+        }}
+      >
+        {hasLocalities && count > 0
+          ? `${count} locality record${count === 1 ? "" : "s"} on record.`
+          : "No locality records are currently mapped for this species."}
+      </p>
     </section>
   );
 }

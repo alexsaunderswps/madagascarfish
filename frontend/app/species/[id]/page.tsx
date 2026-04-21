@@ -151,6 +151,16 @@ export default async function SpeciesProfilePage({
 
   const habitatLabel = sp.habitat_type || "—";
   const statusDescriptor = undescribed ? "Undescribed morphospecies" : "Described";
+  // Summary-box Distribution line reflects how the species relates to
+  // Madagascar rather than a generic "on record" phrase. Endemic = only
+  // found here; native = occurs here naturally but not restricted;
+  // introduced = non-native (rare on the public directory by default).
+  const distributionSummary =
+    sp.endemic_status === "endemic"
+      ? "Endemic to Madagascar"
+      : sp.endemic_status === "introduced"
+        ? "Introduced to Madagascar"
+        : "Native to Madagascar";
 
   return (
     <main>
@@ -364,13 +374,11 @@ export default async function SpeciesProfilePage({
           }}
         >
           <SummaryBox title="Distribution">
+            <p style={summaryValueStyle}>{distributionSummary}</p>
             {sp.has_localities ? (
-              <>
-                <p style={summaryValueStyle}>On record in Madagascar</p>
-                <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>
-                  View on Map →
-                </Link>
-              </>
+              <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>
+                View on Map →
+              </Link>
             ) : (
               <p style={summaryMutedStyle}>No locality records mapped.</p>
             )}
@@ -487,57 +495,125 @@ export default async function SpeciesProfilePage({
         {/* Distribution (curated map panel) */}
         <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
 
-        {/* Conservation Status */}
-        <section id="conservation" style={{ marginTop: 48 }}>
-          <p style={eyebrowStyle}>Conservation Status</p>
-          {acceptedIucn ? (
-            <dl style={{ marginTop: 12, fontSize: 14, color: "var(--ink-2)" }}>
-              <DlRow label="Category" value={acceptedIucn.category} />
-              {acceptedIucn.criteria ? (
-                <DlRow label="Criteria" value={acceptedIucn.criteria} />
-              ) : null}
-              {acceptedIucn.assessor ? (
-                <DlRow label="Assessor" value={acceptedIucn.assessor} />
-              ) : null}
-              {acceptedIucn.assessment_date ? (
-                <DlRow label="Date" value={acceptedIucn.assessment_date} />
-              ) : null}
-            </dl>
-          ) : (
-            <p style={{ ...paragraphStyle, maxWidth: 640 }}>
-              Not yet assessed on the IUCN Red List.
-            </p>
-          )}
+        {/* Conservation Status · Common Names — paired two-column section */}
+        <section
+          aria-label="Conservation status and common names"
+          style={{
+            marginTop: 48,
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: 40,
+          }}
+        >
+          <div id="conservation">
+            <p style={eyebrowStyle}>Red List Status</p>
+            <h2 style={h2Style}>Conservation Status</h2>
+            {acceptedIucn ? (
+              <dl style={{ marginTop: 12, fontSize: 14, color: "var(--ink-2)" }}>
+                <DlRow label="Category" value={acceptedIucn.category} />
+                {acceptedIucn.criteria ? (
+                  <DlRow label="Criteria" value={acceptedIucn.criteria} />
+                ) : null}
+                {acceptedIucn.assessor ? (
+                  <DlRow label="Assessor" value={acceptedIucn.assessor} />
+                ) : null}
+                {acceptedIucn.assessment_date ? (
+                  <DlRow label="Date" value={acceptedIucn.assessment_date} />
+                ) : null}
+              </dl>
+            ) : (
+              <p style={{ ...paragraphStyle, maxWidth: 640 }}>
+                Not yet assessed on the IUCN Red List.
+              </p>
+            )}
+            {caresShort ? (
+              <p style={{ marginTop: 10, fontSize: 14, color: "var(--ink-2)" }}>
+                <span style={{ color: "var(--ink-3)", fontWeight: 600 }}>
+                  CARES:{" "}
+                </span>
+                {sp.cares_status}
+              </p>
+            ) : null}
+            {sp.shoal_priority ? (
+              <p style={{ marginTop: 4, fontSize: 14, color: "var(--ink-2)" }}>
+                SHOAL 1,000 Fishes priority species.
+              </p>
+            ) : null}
+          </div>
+
+          <div id="common-names">
+            <p style={eyebrowStyle}>Vernacular</p>
+            <h2 style={h2Style}>Common Names</h2>
+            {sp.common_names.length > 0 ? (
+              <ul
+                style={{
+                  marginTop: 12,
+                  padding: 0,
+                  listStyle: "none",
+                  fontSize: 14,
+                }}
+              >
+                {sp.common_names.map((cn) => (
+                  <li
+                    key={`${cn.language}-${cn.name}`}
+                    style={{ color: "var(--ink-2)", padding: "2px 0" }}
+                  >
+                    {cn.name}{" "}
+                    <span style={{ color: "var(--ink-3)" }}>({cn.language})</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ ...paragraphStyle, maxWidth: 640 }}>
+                No common names recorded.
+              </p>
+            )}
+          </div>
         </section>
 
-        {/* Common Names */}
-        {sp.common_names.length > 0 ? (
-          <section id="common-names" style={{ marginTop: 48 }}>
-            <p style={eyebrowStyle}>Common Names</p>
-            <ul style={{ marginTop: 12, padding: 0, listStyle: "none", fontSize: 14 }}>
-              {sp.common_names.map((cn) => (
-                <li key={`${cn.language}-${cn.name}`} style={{ color: "var(--ink-2)" }}>
-                  {cn.name}{" "}
-                  <span style={{ color: "var(--ink-3)" }}>({cn.language})</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
-        {/* Ex-situ Population (detail) */}
+        {/* Captive population summary — ex-situ stewardship */}
         <section id="captive" style={{ marginTop: 48 }}>
-          <p style={eyebrowStyle}>Ex-situ Population</p>
+          <p style={eyebrowStyle}>Ex-situ Stewardship</p>
+          <h2 style={h2Style}>Captive population summary</h2>
           {exSituEmpty ? (
-            <div style={{ marginTop: 12 }}>
-              <EmptyState
-                variant="inline"
-                title="No ex-situ population tracked"
-                body="No captive population is currently tracked for this species."
-              />
+            <div
+              className="card"
+              style={{
+                marginTop: 16,
+                padding: 20,
+                borderLeft: `3px solid var(--iucn-cr)`,
+                borderRadius: "var(--radius-lg)",
+                border: "1px solid var(--rule)",
+                borderLeftWidth: 3,
+                borderLeftColor: "var(--iucn-cr)",
+                backgroundColor: "var(--bg-raised)",
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: "var(--serif)",
+                  fontSize: 18,
+                  color: "var(--ink)",
+                }}
+              >
+                No captive population is currently tracked.
+              </p>
+              <p
+                style={{
+                  marginTop: 8,
+                  fontSize: 14,
+                  color: "var(--ink-2)",
+                  maxWidth: 560,
+                }}
+              >
+                {sp.iucn_status && ["CR", "EN", "VU"].includes(sp.iucn_status)
+                  ? "This species is threatened and has no ex-situ safety net. Contact the registry to register a holding."
+                  : "No institution has registered holdings for this species."}
+              </p>
             </div>
           ) : (
-            <dl
+            <div
               style={{
                 marginTop: 16,
                 display: "grid",
@@ -545,19 +621,16 @@ export default async function SpeciesProfilePage({
                 gap: 16,
               }}
             >
-              <StatCell
-                label="Institutions holding"
-                value={institutions_holding || "—"}
+              <StatTile label="Institutions" value={institutions_holding} />
+              <StatTile
+                label="Individuals"
+                value={total_individuals.toLocaleString()}
               />
-              <StatCell
-                label="Total individuals"
-                value={total_individuals || "—"}
-              />
-              <StatCell
+              <StatTile
                 label="Active breeding programs"
-                value={breeding_programs || "—"}
+                value={breeding_programs}
               />
-            </dl>
+            </div>
           )}
         </section>
 
@@ -572,75 +645,82 @@ export default async function SpeciesProfilePage({
           />
         ) : null}
 
-        {(() => {
-          const fpEmpty = sp.field_programs.length === 0;
-          const fieldPrograms = (
-            <section aria-labelledby="field-heading" style={{ marginTop: 48 }}>
-              <p id="field-heading" style={eyebrowStyle}>Field Programs</p>
-              {fpEmpty ? (
-                <div style={{ marginTop: 12 }}>
-                  <EmptyState
-                    variant="inline"
-                    title="No linked field programs"
-                    body="No field programs are currently linked to this species."
-                  />
-                </div>
-              ) : (
-                <ul style={{ marginTop: 12, padding: 0, listStyle: "none", fontSize: 14 }}>
-                  {sp.field_programs.map((fp) => (
-                    <li key={fp.id} style={{ color: "var(--ink-2)" }}>
-                      {fp.name}{" "}
-                      <span style={{ color: "var(--ink-3)" }}>({fp.status})</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          );
-          const externalRefs =
-            iucnUrl || fishbaseUrl ? (
-              <section id="refs" style={{ marginTop: 48 }}>
-                <p style={eyebrowStyle}>External References</p>
-                <ul style={{ marginTop: 12, padding: 0, listStyle: "none", fontSize: 14 }}>
-                  {iucnUrl ? (
-                    <li>
-                      <a
-                        href={iucnUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "var(--accent-2)", textDecoration: "underline" }}
-                      >
-                        IUCN Red List assessment →
-                      </a>
-                    </li>
-                  ) : null}
-                  {fishbaseUrl ? (
-                    <li>
-                      <a
-                        href={fishbaseUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "var(--accent-2)", textDecoration: "underline" }}
-                      >
-                        FishBase species summary →
-                      </a>
-                    </li>
-                  ) : null}
-                </ul>
-              </section>
-            ) : null;
-          return fpEmpty ? (
-            <>
-              {externalRefs}
-              {fieldPrograms}
-            </>
+        {/* Field Programs — sits under Captive population */}
+        <section aria-labelledby="field-heading" style={{ marginTop: 48 }}>
+          <p id="field-heading" style={eyebrowStyle}>
+            Field Programs
+          </p>
+          <h2 style={h2Style}>In-situ linkages</h2>
+          {sp.field_programs.length === 0 ? (
+            <div style={{ marginTop: 16 }}>
+              <EmptyState
+                variant="inline"
+                title="No linked field programs"
+                body="No field programs are currently linked to this species."
+              />
+            </div>
           ) : (
-            <>
-              {fieldPrograms}
-              {externalRefs}
-            </>
-          );
-        })()}
+            <ul
+              style={{
+                marginTop: 16,
+                padding: 0,
+                listStyle: "none",
+                fontSize: 14,
+              }}
+            >
+              {sp.field_programs.map((fp) => (
+                <li
+                  key={fp.id}
+                  style={{ color: "var(--ink-2)", padding: "2px 0" }}
+                >
+                  {fp.name}{" "}
+                  <span style={{ color: "var(--ink-3)" }}>({fp.status})</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {iucnUrl || fishbaseUrl ? (
+          <section id="refs" style={{ marginTop: 48 }}>
+            <p style={eyebrowStyle}>External References</p>
+            <ul
+              style={{
+                marginTop: 12,
+                padding: 0,
+                listStyle: "none",
+                fontSize: 14,
+                display: "grid",
+                gap: 6,
+              }}
+            >
+              {iucnUrl ? (
+                <li>
+                  <a
+                    href={iucnUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={refLinkStyle}
+                  >
+                    IUCN Red List assessment →
+                  </a>
+                </li>
+              ) : null}
+              {fishbaseUrl ? (
+                <li>
+                  <a
+                    href={fishbaseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={refLinkStyle}
+                  >
+                    FishBase species summary →
+                  </a>
+                </li>
+              ) : null}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </main>
   );
@@ -668,6 +748,24 @@ const eyebrowStyle = {
   textTransform: "uppercase" as const,
   color: "var(--ink-3)",
   margin: 0,
+};
+
+const h2Style = {
+  marginTop: 8,
+  fontFamily: "var(--serif)",
+  fontSize: 28,
+  fontWeight: 600,
+  letterSpacing: "-0.01em",
+  color: "var(--ink)",
+  lineHeight: 1.15,
+  marginBottom: 0,
+};
+
+const refLinkStyle = {
+  color: "var(--accent-2)",
+  textDecoration: "none",
+  borderBottom:
+    "1px solid color-mix(in oklab, var(--accent-2) 35%, transparent)",
 };
 
 const paragraphStyle = {
@@ -795,22 +893,36 @@ function DlRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function StatCell({ label, value }: { label: string; value: string | number }) {
+function StatTile({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
   return (
-    <div>
-      <dt style={{ ...eyebrowStyle, fontSize: 10 }}>{label}</dt>
-      <dd
+    <div
+      style={{
+        padding: 20,
+        border: "1px solid var(--rule)",
+        borderRadius: "var(--radius-lg)",
+        backgroundColor: "var(--bg-raised)",
+      }}
+    >
+      <p style={eyebrowStyle}>{label}</p>
+      <p
         style={{
-          marginTop: 6,
-          margin: "6px 0 0",
+          margin: "8px 0 0",
           fontFamily: "var(--serif)",
           fontSize: 28,
           fontWeight: 500,
+          fontVariantNumeric: "tabular-nums",
           color: "var(--ink)",
+          lineHeight: 1.1,
         }}
       >
         {value}
-      </dd>
+      </p>
     </div>
   );
 }
