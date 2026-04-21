@@ -34,21 +34,39 @@ export default function MapViewToggle({
   const mapHref = buildHref("/map/", searchParams, "map");
   const listHref = buildHref("/map/", searchParams, "list");
 
+  const activeStyle = {
+    padding: "6px 14px",
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#fff",
+    backgroundColor: "var(--accent-2)",
+    textDecoration: "none",
+  } as const;
+  const inactiveStyle = {
+    padding: "6px 14px",
+    fontSize: 13,
+    fontWeight: 500,
+    color: "var(--ink-2)",
+    backgroundColor: "var(--bg)",
+    textDecoration: "none",
+  } as const;
+
   return (
     <div
       role="group"
       aria-label="View mode"
-      className="inline-flex overflow-hidden rounded border border-slate-300 text-sm"
+      style={{
+        display: "inline-flex",
+        overflow: "hidden",
+        borderRadius: "var(--radius)",
+        border: "1px solid var(--rule-strong)",
+      }}
     >
       <Link
         href={mapHref}
         aria-current={current === "map" ? "page" : undefined}
         prefetch={false}
-        className={
-          current === "map"
-            ? "bg-sky-600 px-3 py-1.5 font-semibold text-white"
-            : "bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50"
-        }
+        style={current === "map" ? activeStyle : inactiveStyle}
       >
         Map
       </Link>
@@ -56,11 +74,7 @@ export default function MapViewToggle({
         href={listHref}
         aria-current={current === "list" ? "page" : undefined}
         prefetch={false}
-        className={
-          current === "list"
-            ? "bg-sky-600 px-3 py-1.5 font-semibold text-white"
-            : "bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50"
-        }
+        style={current === "list" ? activeStyle : inactiveStyle}
       >
         View as list
       </Link>

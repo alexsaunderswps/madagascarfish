@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 
 import type { LocalityFeature, LocalityFeatureCollection } from "@/lib/mapLocalities";
 import { iucnColor } from "@/lib/mapLocalities";
@@ -16,8 +16,6 @@ type SortKey =
   | "year_collected";
 type SortDir = "asc" | "desc";
 
-// IUCN severity ordering (CR most imperiled → NE unassessed) so sorting by
-// "IUCN" surfaces the species that need attention first, not alphabetical nonsense.
 const IUCN_RANK: Record<string, number> = {
   CR: 0,
   EN: 1,
@@ -54,6 +52,31 @@ function compareValues(
   }
 }
 
+const TH_STYLE: CSSProperties = {
+  padding: "10px 12px",
+  fontFamily: "var(--sans)",
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  color: "var(--ink-3)",
+  textAlign: "left",
+  whiteSpace: "nowrap",
+};
+
+const TD_STYLE: CSSProperties = {
+  padding: "10px 12px",
+  fontSize: 13,
+  color: "var(--ink)",
+  borderTop: "1px solid var(--rule)",
+};
+
+const CELL_LINK_STYLE: CSSProperties = {
+  display: "block",
+  color: "inherit",
+  textDecoration: "none",
+};
+
 function SortHeader({
   label,
   sortKey,
@@ -70,14 +93,34 @@ function SortHeader({
   const active = activeKey === sortKey;
   const indicator = active ? (dir === "asc" ? "▲" : "▼") : "↕";
   return (
-    <th scope="col" className="px-3 py-2" aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}>
+    <th
+      scope="col"
+      style={TH_STYLE}
+      aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
+    >
       <button
         type="button"
         onClick={() => onSort(sortKey)}
-        className="inline-flex items-center gap-1 rounded font-semibold uppercase tracking-wide hover:text-sky-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 4,
+          padding: 0,
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          font: "inherit",
+          letterSpacing: "inherit",
+          textTransform: "inherit",
+          color: active ? "var(--accent-2)" : "var(--ink-3)",
+          fontWeight: 700,
+        }}
       >
         <span>{label}</span>
-        <span aria-hidden className={active ? "text-sky-700" : "text-slate-400"}>
+        <span
+          aria-hidden="true"
+          style={{ color: active ? "var(--accent-2)" : "var(--ink-3)" }}
+        >
           {indicator}
         </span>
       </button>
@@ -116,20 +159,47 @@ export default function MapListView({
   }, [features, sortKey, sortDir]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <p className="mb-4 text-sm text-slate-600">
-        Showing <strong>{totalFeatures}</strong> locality records across{" "}
-        <strong>{speciesCount}</strong> species. Click a column header to sort;
-        use the Locality link in each row to view it on the map.
+    <div
+      style={{
+        maxWidth: 1280,
+        margin: "0 auto",
+        padding: "32px 24px 48px",
+      }}
+    >
+      <p style={{ margin: "0 0 20px", fontSize: 13, color: "var(--ink-2)" }}>
+        Showing{" "}
+        <strong style={{ color: "var(--ink)", fontVariantNumeric: "tabular-nums" }}>
+          {totalFeatures}
+        </strong>{" "}
+        locality records across{" "}
+        <strong style={{ color: "var(--ink)", fontVariantNumeric: "tabular-nums" }}>
+          {speciesCount}
+        </strong>{" "}
+        species. Click a column header to sort; use the Locality link in each
+        row to view it on the map.
       </p>
-      <div className="overflow-x-auto rounded border border-slate-200">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
+      <div
+        style={{
+          overflowX: "auto",
+          borderRadius: "var(--radius-lg)",
+          border: "1px solid var(--rule)",
+          backgroundColor: "var(--bg-raised)",
+        }}
+      >
+        <table
+          style={{
+            width: "100%",
+            minWidth: 960,
+            borderCollapse: "collapse",
+            fontSize: 13,
+          }}
+        >
           <caption className="sr-only">
             Locality records for Madagascar freshwater fish, one row per marker
-            visible on the map. Columns are sortable; use each row&rsquo;s Locality
-            link to open that locality on the map.
+            visible on the map. Columns are sortable; use each row&rsquo;s
+            Locality link to open that locality on the map.
           </caption>
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
+          <thead style={{ backgroundColor: "var(--bg-sunken)" }}>
             <tr>
               <SortHeader label="Scientific name" sortKey="scientific_name" activeKey={sortKey} dir={sortDir} onSort={onSort} />
               <SortHeader label="IUCN" sortKey="iucn_status" activeKey={sortKey} dir={sortDir} onSort={onSort} />
@@ -138,76 +208,90 @@ export default function MapListView({
               <SortHeader label="Presence" sortKey="presence_status" activeKey={sortKey} dir={sortDir} onSort={onSort} />
               <SortHeader label="Water body" sortKey="water_body" activeKey={sortKey} dir={sortDir} onSort={onSort} />
               <SortHeader label="Year" sortKey="year_collected" activeKey={sortKey} dir={sortDir} onSort={onSort} />
-              <th scope="col" className="px-3 py-2">Source</th>
+              <th scope="col" style={TH_STYLE}>Source</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white text-slate-800">
+          <tbody>
             {sorted.map((f) => {
               const p = f.properties;
               const localityId = f.id ?? p.id;
-              // Row-level navigation to the map focused on this locality.
-              // Keeping the species-profile link intact via stopPropagation on
-              // the scientific-name cell so the name still links to the profile.
               const mapHref = `/map/?species_id=${p.species_id}&focus_locality=${localityId}`;
               return (
-                <tr
-                  key={localityId}
-                  className="hover:bg-sky-50 focus-within:bg-sky-50"
-                >
-                  <td className="px-3 py-2 italic">
+                <tr key={localityId}>
+                  <td style={{ ...TD_STYLE, fontStyle: "italic" }}>
                     <Link
                       href={`/species/${p.species_id}/`}
                       onClick={(e) => e.stopPropagation()}
-                      className="text-sky-700 underline underline-offset-2 hover:text-sky-900"
+                      style={{
+                        color: "var(--accent-2)",
+                        textDecoration: "none",
+                        borderBottom:
+                          "1px solid color-mix(in oklab, var(--accent-2) 35%, transparent)",
+                      }}
                     >
                       {p.scientific_name}
                     </Link>
                   </td>
-                  <td className="px-3 py-2">
-                    <Link href={mapHref} className="block">
+                  <td style={TD_STYLE}>
+                    <Link href={mapHref} style={CELL_LINK_STYLE}>
                       {p.iucn_status ? (
                         <span
-                          className="inline-block rounded px-1.5 py-0.5 text-xs font-semibold text-white"
-                          style={{ backgroundColor: iucnColor(p.iucn_status) }}
+                          style={{
+                            display: "inline-block",
+                            padding: "2px 8px",
+                            borderRadius: "var(--radius)",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "#fff",
+                            backgroundColor: iucnColor(p.iucn_status),
+                          }}
                         >
                           {p.iucn_status}
                         </span>
                       ) : (
-                        <span className="text-slate-400">—</span>
+                        <span style={{ color: "var(--ink-3)" }}>—</span>
                       )}
                     </Link>
                   </td>
-                  <td className="px-3 py-2">
-                    <Link href={mapHref} className="block text-slate-800 hover:text-sky-800">
+                  <td style={TD_STYLE}>
+                    <Link href={mapHref} style={CELL_LINK_STYLE}>
                       {p.locality_name || "—"}
                     </Link>
                   </td>
-                  <td className="px-3 py-2 capitalize">
-                    <Link href={mapHref} className="block">
+                  <td style={{ ...TD_STYLE, textTransform: "capitalize" }}>
+                    <Link href={mapHref} style={CELL_LINK_STYLE}>
                       {p.locality_type.replace(/_/g, " ")}
                     </Link>
                   </td>
-                  <td className="px-3 py-2 capitalize">
-                    <Link href={mapHref} className="block">
+                  <td style={{ ...TD_STYLE, textTransform: "capitalize" }}>
+                    <Link href={mapHref} style={CELL_LINK_STYLE}>
                       {p.presence_status}
                     </Link>
                   </td>
-                  <td className="px-3 py-2">
-                    <Link href={mapHref} className="block">
-                      {p.water_body || <span className="text-slate-400">—</span>}
+                  <td style={TD_STYLE}>
+                    <Link href={mapHref} style={CELL_LINK_STYLE}>
+                      {p.water_body || (
+                        <span style={{ color: "var(--ink-3)" }}>—</span>
+                      )}
                       {p.water_body_type ? (
-                        <span className="ml-1 text-xs text-slate-500">
+                        <span
+                          style={{
+                            marginLeft: 4,
+                            fontSize: 11,
+                            color: "var(--ink-3)",
+                          }}
+                        >
                           ({p.water_body_type})
                         </span>
                       ) : null}
                     </Link>
                   </td>
-                  <td className="px-3 py-2 tabular-nums">
-                    <Link href={mapHref} className="block">
+                  <td style={{ ...TD_STYLE, fontVariantNumeric: "tabular-nums" }}>
+                    <Link href={mapHref} style={CELL_LINK_STYLE}>
                       {p.year_collected ?? "—"}
                     </Link>
                   </td>
-                  <td className="px-3 py-2 text-xs text-slate-600">
+                  <td style={{ ...TD_STYLE, fontSize: 12, color: "var(--ink-3)" }}>
                     {p.source_citation || "—"}
                   </td>
                 </tr>
