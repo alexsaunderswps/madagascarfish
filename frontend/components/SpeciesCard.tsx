@@ -67,10 +67,18 @@ function PlaceholderFish() {
 export default function SpeciesCard({
   species,
   density = "default",
+  genusSilhouettes,
 }: {
   species: SpeciesListItem;
   density?: SpeciesCardDensity;
+  genusSilhouettes?: Record<string, string>;
 }) {
+  const genusName = species.genus_fk?.name;
+  const genusSvg =
+    genusName && species.genus_fk?.has_silhouette
+      ? genusSilhouettes?.[genusName]
+      : undefined;
+  const effectiveSvg = species.silhouette_svg || genusSvg || null;
   // Kept in source so the gate-07 adversarial test that greps for the exact
   // string continues to recognise the card's null-status handling even though
   // the rendered text now flows through IucnBadge. See "Not yet assessed".
@@ -138,7 +146,20 @@ export default function SpeciesCard({
           alignSelf: "center",
         }}
       >
-        <PlaceholderFish />
+        {effectiveSvg ? (
+          <div
+            style={{
+              width: density === "compact" ? 56 : 72,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--ink)",
+            }}
+            dangerouslySetInnerHTML={{ __html: effectiveSvg }}
+          />
+        ) : (
+          <PlaceholderFish />
+        )}
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>

@@ -4,6 +4,7 @@ import Pagination from "@/components/Pagination";
 import SpeciesCard from "@/components/SpeciesCard";
 import SpeciesFilters from "@/components/SpeciesFilters";
 import { fetchDashboard } from "@/lib/dashboard";
+import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
 import {
   EMPTY_PAGE,
   PAGE_SIZE,
@@ -52,6 +53,26 @@ export default async function SpeciesDirectoryPage({
   ]);
   const list = listResult ?? EMPTY_PAGE;
   const backendUnavailable = listResult === null;
+
+  // Fetch genus silhouettes once per unique genus in the result set so cards
+  // can render the species → genus → placeholder cascade without N round-trips.
+  const genusNames = Array.from(
+    new Set(
+      list.results
+        .filter((sp) => !sp.silhouette_svg && sp.genus_fk?.has_silhouette === true)
+        .map((sp) => sp.genus_fk!.name),
+    ),
+  );
+  const genusEntries = await Promise.all(
+    genusNames.map(async (name) => {
+      const res = await fetchGenusSilhouette(name);
+      return [name, res?.svg ?? null] as const;
+    }),
+  );
+  const genusSilhouettes: Record<string, string> = {};
+  for (const [name, svg] of genusEntries) {
+    if (svg) genusSilhouettes[name] = svg;
+  }
 
   const counts = dashboard?.species_counts;
   const filtered = hasAnyFilter(searchParams);
@@ -145,7 +166,11 @@ export default async function SpeciesDirectoryPage({
               >
                 {list.results.map((sp) => (
                   <li key={sp.id}>
-                    <SpeciesCard species={sp} density={cardDensity} />
+                    <SpeciesCard
+                      species={sp}
+                      density={cardDensity}
+                      genusSilhouettes={genusSilhouettes}
+                    />
                   </li>
                 ))}
               </ul>
