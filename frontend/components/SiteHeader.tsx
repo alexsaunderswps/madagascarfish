@@ -11,10 +11,7 @@ export default function SiteHeader() {
         WebkitBackdropFilter: "saturate(140%) blur(8px)",
       }}
     >
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2 focus:shadow focus:ring-2"
-      >
+      <a href="#main-content" className="skip-to-content">
         Skip to content
       </a>
       <div

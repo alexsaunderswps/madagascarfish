@@ -35,7 +35,10 @@ export default function MapViewToggle({
   const listHref = buildHref("/map/", searchParams, "list");
 
   const activeStyle = {
-    padding: "6px 14px",
+    minHeight: 44,
+    padding: "10px 16px",
+    display: "inline-flex",
+    alignItems: "center",
     fontSize: 13,
     fontWeight: 600,
     color: "#fff",
@@ -43,7 +46,10 @@ export default function MapViewToggle({
     textDecoration: "none",
   } as const;
   const inactiveStyle = {
-    padding: "6px 14px",
+    minHeight: 44,
+    padding: "10px 16px",
+    display: "inline-flex",
+    alignItems: "center",
     fontSize: 13,
     fontWeight: 500,
     color: "var(--ink-2)",
