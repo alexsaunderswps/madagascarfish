@@ -11,6 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from rest_framework import status
 from rest_framework.permissions import AllowAny
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -28,7 +29,7 @@ class GenusSilhouetteView(APIView):
 
     permission_classes = [AllowAny]
 
-    def get(self, request, name: str) -> HttpResponse:
+    def get(self, request: Request, name: str) -> HttpResponse:
         try:
             genus = Genus.objects.only("silhouette_svg", "silhouette_credit").get(name=name)
         except Genus.DoesNotExist:

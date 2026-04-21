@@ -13,4 +13,7 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # django-stubs models urlpatterns as list[URLResolver] and static() returns
+    # list[URLPattern]; Django itself treats both as URL entries, so cast the
+    # concatenation target to keep mypy quiet without loosening the module type.
+    urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # type: ignore[operator]
