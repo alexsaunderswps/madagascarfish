@@ -2,12 +2,11 @@ from django import forms
 from django.contrib import admin, messages
 from django.contrib.gis.admin import GISModelAdmin
 from django.core.exceptions import PermissionDenied
+from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
-
-from django.core.files.uploadedfile import UploadedFile
 
 from audit.context import audit_actor
 from audit.models import AuditEntry
