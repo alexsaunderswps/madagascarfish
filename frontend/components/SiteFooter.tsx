@@ -116,7 +116,9 @@ export default function SiteFooter() {
           style={{
             marginTop: 40,
             display: "flex",
-            flexDirection: "column",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
             gap: 8,
             borderTop: "1px solid var(--rule)",
             paddingTop: 24,
@@ -127,7 +129,7 @@ export default function SiteFooter() {
           <p style={{ margin: 0 }}>
             Madagascar Freshwater Fish Conservation Platform — Apache-2.0
           </p>
-          <p style={{ margin: 0 }}>
+          <p style={{ margin: 0, textAlign: "right" }}>
             Data mirrored from IUCN, FishBase, GBIF, ZIMS, SHOAL, and CARES.
           </p>
         </div>
