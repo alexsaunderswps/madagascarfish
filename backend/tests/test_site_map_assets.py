@@ -107,6 +107,4 @@ class TestSiteMapAssetAdminRevalidate:
 def admin_user(db):
     from accounts.models import User
 
-    return User.objects.create_superuser(
-        email="admin-smt@example.com", password="pw-smt-12345"
-    )
+    return User.objects.create_superuser(email="admin-smt@example.com", password="pw-smt-12345")

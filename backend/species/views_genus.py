@@ -32,13 +32,7 @@ class GenusSilhouetteView(APIView):
         try:
             genus = Genus.objects.only("silhouette_svg", "silhouette_credit").get(name=name)
         except Genus.DoesNotExist:
-            return Response(
-                {"detail": "Genus not found."}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"detail": "Genus not found."}, status=status.HTTP_404_NOT_FOUND)
         if not genus.silhouette_svg:
-            return Response(
-                {"detail": "No silhouette on file."}, status=status.HTTP_404_NOT_FOUND
-            )
-        return Response(
-            {"svg": genus.silhouette_svg, "credit": genus.silhouette_credit}
-        )
+            return Response({"detail": "No silhouette on file."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"svg": genus.silhouette_svg, "credit": genus.silhouette_credit})

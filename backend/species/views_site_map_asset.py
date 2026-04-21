@@ -31,19 +31,13 @@ class SiteMapAssetView(APIView):
 
     def get(self, request: HttpRequest, slot: str) -> HttpResponse:
         if slot not in SiteMapAsset.Slot.values:
-            return Response(
-                {"detail": "Unknown slot."}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"detail": "Unknown slot."}, status=status.HTTP_404_NOT_FOUND)
         try:
             asset = SiteMapAsset.objects.get(slot=slot)
         except SiteMapAsset.DoesNotExist:
-            return Response(
-                {"detail": "Slot not seeded."}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"detail": "Slot not seeded."}, status=status.HTTP_404_NOT_FOUND)
         if not asset.image:
-            return Response(
-                {"detail": "No asset uploaded."}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"detail": "No asset uploaded."}, status=status.HTTP_404_NOT_FOUND)
         return Response(
             {
                 "url": request.build_absolute_uri(asset.image.url),

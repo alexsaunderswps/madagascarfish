@@ -79,7 +79,7 @@ class Genus(models.Model):
             "species profiles that lack their own SVG. Paste the full "
             "<svg>…</svg> element. Same authoring conventions as "
             "<code>Species.silhouette_svg</code>: include a "
-            "<code>viewBox</code>, use <code>fill=\"currentColor\"</code>, and "
+            '<code>viewBox</code>, use <code>fill="currentColor"</code>, and '
             "omit <code>width</code>/<code>height</code> on the root &lt;svg&gt; "
             "— they are stripped on save so CSS can size the figure."
         ),
@@ -184,8 +184,8 @@ class Species(models.Model):
             "Optional inline SVG markup for a species-specific silhouette shown "
             "on the public profile when no photograph is available. Paste the "
             "full <svg>…</svg> element. Authoring conventions: include a "
-            "<code>viewBox</code> attribute (e.g. <code>viewBox=\"0 0 200 80\"</code>), "
-            "use <code>fill=\"currentColor\"</code> on paths so the figure inherits "
+            '<code>viewBox</code> attribute (e.g. <code>viewBox="0 0 200 80"</code>), '
+            'use <code>fill="currentColor"</code> on paths so the figure inherits '
             "theme color, and omit <code>width</code>/<code>height</code> on the "
             "root &lt;svg&gt; — they are stripped on save so CSS can size the "
             "figure (renders ~300px wide on the public profile). Tier-5 only."

@@ -327,9 +327,7 @@ class TestSpeciesList:
     ) -> None:
         resp = api_client.get("/api/v1/species/")
         assert resp.status_code == 200
-        row = next(
-            r for r in resp.json()["results"] if r["id"] == species_cr.id
-        )
+        row = next(r for r in resp.json()["results"] if r["id"] == species_cr.id)
         assert row["primary_basin"] == "Betsiboka"
         assert row["locality_count"] == 1
 
@@ -337,9 +335,7 @@ class TestSpeciesList:
         self, api_client: APIClient, species_en: Species
     ) -> None:
         resp = api_client.get("/api/v1/species/")
-        row = next(
-            r for r in resp.json()["results"] if r["id"] == species_en.id
-        )
+        row = next(r for r in resp.json()["results"] if r["id"] == species_en.id)
         assert row["primary_basin"] is None
         assert row["locality_count"] == 0
 
@@ -380,9 +376,7 @@ class TestSpeciesList:
             source_citation="Smith 2020",
         )
         resp = api_client.get("/api/v1/species/")
-        row = next(
-            r for r in resp.json()["results"] if r["id"] == species_cr.id
-        )
+        row = next(r for r in resp.json()["results"] if r["id"] == species_cr.id)
         assert row["primary_basin"] == "Betsiboka"
         assert row["locality_count"] == 2
 
