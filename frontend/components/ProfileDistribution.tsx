@@ -1,19 +1,16 @@
-import Link from "next/link";
-
 import { fetchLocalities } from "@/lib/mapLocalities";
 import { fetchSiteMapAsset } from "@/lib/siteMapAssets";
 
 /**
  * ProfileDistribution — S20 profile Distribution panel.
  *
- * Renders the curated `profile_panel` SiteMapAsset when present with the
- * locality count caption underneath. When no SMA is uploaded, the panel
- * drops out entirely and only the count line remains — the previous
- * stripe-hatched fallback looked like a missing-image placeholder
- * (2026-04-20 review).
+ * Renders the curated `profile_panel` SiteMapAsset and a "Found in"
+ * breakdown of distinct drainage basins where the species has been
+ * recorded, with per-basin locality counts.
  *
- * The "Open full map" CTA lives in the top-of-page Distribution summary
- * box; this section stays informational to avoid duplicating the action.
+ * The locality count and the "View on Map" link live in the top-of-page
+ * Distribution summary box, so this section stays focused on
+ * where-specifically content rather than the repeat CTA.
  */
 
 export default async function ProfileDistribution({
@@ -30,10 +27,19 @@ export default async function ProfileDistribution({
       : Promise.resolve(null),
   ]);
 
-  const count = localities?.features.length ?? 0;
+  const basinCounts = new Map<string, number>();
+  if (localities) {
+    for (const f of localities.features) {
+      const name = (f.properties.drainage_basin_name || "").trim();
+      if (!name || /^basin near/i.test(name)) continue;
+      basinCounts.set(name, (basinCounts.get(name) ?? 0) + 1);
+    }
+  }
+  const basins = Array.from(basinCounts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
   return (
-    <section id="distribution" style={{ marginTop: 48 }}>
+    <section id="distribution" style={{ marginTop: 0 }}>
       <p
         style={{
           fontFamily: "var(--sans)",
@@ -101,36 +107,61 @@ export default async function ProfileDistribution({
         </figure>
       ) : null}
 
-      {hasLocalities && count > 0 ? (
-        <p
-          style={{
-            marginTop: 16,
-            fontSize: 13,
-            color: "var(--ink-2)",
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "baseline",
-            gap: 12,
-          }}
-        >
-          <span>
-            Mapped at {count} localit{count === 1 ? "y" : "ies"}.
-          </span>
-          <Link
-            href={`/map?species_id=${speciesId}`}
+      {basins.length > 0 ? (
+        <div style={{ marginTop: 20 }}>
+          <p
             style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "var(--accent-2)",
-              textDecoration: "none",
-              borderBottom:
-                "1px solid color-mix(in oklab, var(--accent-2) 35%, transparent)",
+              margin: 0,
+              fontFamily: "var(--sans)",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "var(--ink-3)",
             }}
           >
-            View on map →
-          </Link>
-        </p>
-      ) : (
+            Found in
+          </p>
+          <ul
+            role="list"
+            style={{
+              listStyle: "none",
+              margin: "10px 0 0",
+              padding: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: 0,
+            }}
+          >
+            {basins.map(([name, count], i) => (
+              <li
+                key={name}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  gap: 12,
+                  padding: "8px 0",
+                  borderTop: i === 0 ? "none" : "1px solid var(--rule)",
+                  fontSize: 14,
+                  color: "var(--ink-2)",
+                }}
+              >
+                <span style={{ color: "var(--ink)" }}>{name}</span>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--ink-3)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {count} record{count === 1 ? "" : "s"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : hasLocalities ? null : (
         <p style={{ marginTop: 16, fontSize: 13, color: "var(--ink-3)" }}>
           No locality records are currently mapped for this species.
         </p>
