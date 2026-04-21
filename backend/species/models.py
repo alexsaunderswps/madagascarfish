@@ -10,16 +10,46 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 _SVG_ROOT_TAG_RE = re.compile(r"(<svg\b)([^>]*)(>)", re.IGNORECASE)
 _SVG_SIZE_ATTR_RE = re.compile(r'\s+(?:width|height)\s*=\s*"[^"]*"', re.IGNORECASE)
+_SVG_WIDTH_RE = re.compile(r'\bwidth\s*=\s*"([^"]+)"', re.IGNORECASE)
+_SVG_HEIGHT_RE = re.compile(r'\bheight\s*=\s*"([^"]+)"', re.IGNORECASE)
+_SVG_VIEWBOX_RE = re.compile(r"\bviewBox\s*=", re.IGNORECASE)
+_NUMERIC_PX_RE = re.compile(r"^\s*([0-9]*\.?[0-9]+)\s*(?:px)?\s*$", re.IGNORECASE)
+
+
+def _parse_px(value: str) -> float | None:
+    m = _NUMERIC_PX_RE.match(value)
+    if not m:
+        return None
+    try:
+        return float(m.group(1))
+    except ValueError:
+        return None
 
 
 def strip_svg_root_size_attrs(svg: str) -> str:
-    """Remove width/height attributes from the root <svg> tag so the frontend
-    can size it via CSS. Preserves viewBox and everything else verbatim."""
+    """Normalize the root <svg> tag for CSS-driven sizing.
+
+    Removes ``width``/``height`` attributes so the frontend can size the SVG
+    via CSS. If the original had width + height but no ``viewBox``, synthesize
+    ``viewBox="0 0 W H"`` first so the path coordinate system still maps into
+    the box — without this, CSS-scaled SVGs render blank or off-canvas when
+    authors paste Inkscape/Illustrator exports that relied on the width/height
+    attributes for their coordinate system.
+    """
     if not svg:
         return svg
 
     def _scrub(match: re.Match[str]) -> str:
-        return match.group(1) + _SVG_SIZE_ATTR_RE.sub("", match.group(2)) + match.group(3)
+        attrs = match.group(2)
+        if not _SVG_VIEWBOX_RE.search(attrs):
+            w_match = _SVG_WIDTH_RE.search(attrs)
+            h_match = _SVG_HEIGHT_RE.search(attrs)
+            if w_match and h_match:
+                w = _parse_px(w_match.group(1))
+                h = _parse_px(h_match.group(1))
+                if w and h:
+                    attrs = f' viewBox="0 0 {w:g} {h:g}"' + attrs
+        return match.group(1) + _SVG_SIZE_ATTR_RE.sub("", attrs) + match.group(3)
 
     return _SVG_ROOT_TAG_RE.sub(_scrub, svg, count=1)
 
