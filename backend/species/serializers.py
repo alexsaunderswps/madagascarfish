@@ -84,6 +84,7 @@ class SpeciesListSerializer(serializers.ModelSerializer):
             "cares_status",
             "shoal_priority",
             "common_names",
+            "silhouette_svg",
             "primary_basin",
             "locality_count",
         ]
