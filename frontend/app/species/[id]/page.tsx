@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import EmptyState from "@/components/EmptyState";
 import IucnBadge from "@/components/IucnBadge";
+import ProfileCommonNames from "@/components/ProfileCommonNames";
 import ProfileDistribution from "@/components/ProfileDistribution";
 import SpeciesSilhouette from "@/components/SpeciesSilhouette";
 import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
@@ -401,9 +402,10 @@ export default async function SpeciesProfilePage({
           <SummaryBox title="Distribution">
             <p style={summaryValueStyle}>{distributionSummary}</p>
             {sp.has_localities ? (
-              <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>
-                View on Map →
-              </Link>
+              <>
+                <p style={summarySubStyle}>{`Mapped at ${sp.locality_count} ${sp.locality_count === 1 ? "locality" : "localities"}`}</p>
+                <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>View on Map →</Link>
+              </>
             ) : (
               <p style={summaryMutedStyle}>No locality records mapped.</p>
             )}
@@ -517,8 +519,20 @@ export default async function SpeciesProfilePage({
           </section>
         ) : null}
 
-        {/* Distribution (curated map panel) */}
-        <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
+        {/* Distribution + Common Names — paired two-column */}
+        <section
+          aria-label="Distribution and common names"
+          style={{
+            marginTop: 48,
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: 40,
+            alignItems: "start",
+          }}
+        >
+          <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
+          <ProfileCommonNames commonNames={sp.common_names} />
+        </section>
 
         {/* Keeping this species · Conservation Status — paired two-column */}
         <section
@@ -582,46 +596,7 @@ export default async function SpeciesProfilePage({
                 </Link>
               </p>
             </div>
-          ) : (
-            <div
-              id="common-names"
-              style={{
-                padding: "20px 22px",
-                border: "1px solid var(--rule)",
-                borderRadius: "var(--radius-lg)",
-                backgroundColor: "var(--bg-raised)",
-              }}
-            >
-              <p style={eyebrowStyle}>Vernacular</p>
-              <h2 style={h2Style}>Common Names</h2>
-              {sp.common_names.length > 0 ? (
-                <ul
-                  style={{
-                    marginTop: 12,
-                    padding: 0,
-                    listStyle: "none",
-                    fontSize: 14,
-                  }}
-                >
-                  {sp.common_names.map((cn) => (
-                    <li
-                      key={`${cn.language}-${cn.name}`}
-                      style={{ color: "var(--ink-2)", padding: "2px 0" }}
-                    >
-                      {cn.name}{" "}
-                      <span style={{ color: "var(--ink-3)" }}>
-                        ({cn.language})
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p style={{ ...paragraphStyle, maxWidth: 640 }}>
-                  No common names recorded.
-                </p>
-              )}
-            </div>
-          )}
+          ) : null}
 
           <ConservationStatusPanel
             status={sp.iucn_status}

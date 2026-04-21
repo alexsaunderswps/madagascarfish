@@ -113,6 +113,9 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
     primary_basin = serializers.CharField(
         read_only=True, allow_null=True, default=None
     )
+    # Populated by the SpeciesViewSet queryset annotation. Matches the list
+    # endpoint so profile pages can surface a count without a second fetch.
+    locality_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Species
@@ -146,6 +149,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
             "has_husbandry",
             "difficulty_factor_count",
             "primary_basin",
+            "locality_count",
         ]
 
     def get_has_localities(self, obj: Species) -> bool:

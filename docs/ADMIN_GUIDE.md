@@ -23,7 +23,7 @@ Tier gates are enforced on specific models — see each section.
 | Upload the species-profile distribution panel image | **Species → Site map assets** → find row with key `profile_panel` → upload | Same pattern |
 | Edit a watershed / drainage basin | **Species → Watersheds** | Read-only (HyBAS mirror) — contact dev to re-import |
 | Add a locality / occurrence record | **Species → Species localities** | GIS map picker; check `needs_review` to quarantine |
-| Add a common name for a species | **Species → Species** → open species → Common names inline | Tabular inline at bottom of species form |
+| Add a common name for a species | **Species → Species** → open species → Common names inline | Tabular inline at bottom of species form. Set `language` to ISO 639-1 code (en, mg, fr, de). Public profile groups by language. |
 | Add an institution holding captive fish | **Populations → Institutions** | |
 | Record a captive population | **Populations → Ex situ populations** | Tier 3–4 scoped to own institution |
 | Log a census snapshot | **Populations → Ex situ populations** → open row → Holding records inline | Reporter auto-fills to current user |
@@ -175,7 +175,12 @@ general Accounts audit.
 4. **Species → Conservation assessments → Add** referencing the new
    species, with `source=manual_expert` (or wait for the next IUCN sync
    if the species has an `iucn_taxon_id`). This sets the public badge.
-5. (Optional) Add **Common names** inline on the species form.
+5. (Optional) Add **Common names** inline on the species form. Use ISO
+   639-1 language codes (`en`, `mg`, `fr`, `de`, `es`, …). The public
+   profile's Common Names panel groups entries by language — English,
+   Malagasy, French, German appear first in that order; other codes fall
+   through alphabetically. Unknown codes render with the uppercased code
+   as a label rather than disappearing.
 
 ### Add or replace a silhouette
 
