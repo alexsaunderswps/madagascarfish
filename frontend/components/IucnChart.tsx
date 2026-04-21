@@ -4,14 +4,14 @@ import { IUCN_LABELS, type IucnStatus } from "@/lib/species";
 
 const BAR_ORDER: IucnStatus[] = ["CR", "EN", "VU", "NT", "LC", "DD", "NE"];
 
-const BAR_COLORS: Record<IucnStatus, string> = {
-  CR: "bg-red-600",
-  EN: "bg-orange-500",
-  VU: "bg-amber-400",
-  NT: "bg-yellow-300",
-  LC: "bg-emerald-500",
-  DD: "bg-slate-400",
-  NE: "bg-slate-300",
+const BAR_VAR: Record<IucnStatus, string> = {
+  CR: "--iucn-cr",
+  EN: "--iucn-en",
+  VU: "--iucn-vu",
+  NT: "--iucn-nt",
+  LC: "--iucn-lc",
+  DD: "--iucn-dd",
+  NE: "--iucn-ne",
 };
 
 export default function IucnChart({
@@ -23,9 +23,33 @@ export default function IucnChart({
 }) {
   const max = Math.max(1, ...BAR_ORDER.map((s) => counts[s] ?? 0));
   return (
-    <figure className="flex flex-col gap-3" aria-labelledby="iucn-chart-caption">
-      <h2 className="text-lg font-semibold text-slate-900">Species by IUCN status</h2>
-      <ul className="flex flex-col gap-2" role="list">
+    <figure
+      aria-labelledby="iucn-chart-caption"
+      style={{ display: "flex", flexDirection: "column", gap: 12, margin: 0 }}
+    >
+      <h2
+        style={{
+          margin: 0,
+          fontFamily: "var(--serif)",
+          fontSize: 20,
+          fontWeight: 600,
+          letterSpacing: "-0.01em",
+          color: "var(--ink)",
+        }}
+      >
+        Species by IUCN status
+      </h2>
+      <ul
+        role="list"
+        style={{
+          listStyle: "none",
+          margin: 0,
+          padding: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+        }}
+      >
         {BAR_ORDER.map((status) => {
           const count = counts[status] ?? 0;
           const pct = (count / max) * 100;
@@ -34,22 +58,53 @@ export default function IucnChart({
             <li key={status}>
               <Link
                 href={`/species/?iucn_status=${status}`}
-                className="group grid grid-cols-[minmax(13rem,1fr)_3fr_auto] items-center gap-3 rounded px-1 py-1 text-sm hover:bg-slate-50"
                 aria-label={`${count} species with status ${IUCN_LABELS[status]}`}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "minmax(13rem, 1fr) 3fr auto",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "4px 6px",
+                  borderRadius: "var(--radius)",
+                  fontSize: 13,
+                  color: "var(--ink-2)",
+                  textDecoration: "none",
+                }}
               >
-                <span className="text-slate-700 group-hover:text-sky-700 group-hover:underline">
-                  {label}
-                </span>
+                <span>{label}</span>
                 <span
-                  className="relative h-5 w-full overflow-hidden rounded bg-slate-100"
-                  aria-hidden
+                  aria-hidden="true"
+                  style={{
+                    position: "relative",
+                    display: "block",
+                    height: 20,
+                    width: "100%",
+                    overflow: "hidden",
+                    borderRadius: "var(--radius)",
+                    backgroundColor: "var(--bg-sunken)",
+                    border: "1px solid var(--rule)",
+                  }}
                 >
                   <span
-                    className={`absolute inset-y-0 left-0 ${BAR_COLORS[status]}`}
-                    style={{ width: `${pct}%` }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      left: 0,
+                      width: `${pct}%`,
+                      backgroundColor: `var(${BAR_VAR[status]})`,
+                    }}
                   />
                 </span>
-                <span className="min-w-[2.5rem] text-right font-semibold tabular-nums text-slate-900">
+                <span
+                  style={{
+                    minWidth: 40,
+                    textAlign: "right",
+                    fontFamily: "var(--serif)",
+                    fontWeight: 600,
+                    fontVariantNumeric: "tabular-nums",
+                    color: "var(--ink)",
+                  }}
+                >
                   {count}
                 </span>
               </Link>
@@ -57,7 +112,10 @@ export default function IucnChart({
           );
         })}
       </ul>
-      <figcaption id="iucn-chart-caption" className="text-xs text-slate-500">
+      <figcaption
+        id="iucn-chart-caption"
+        style={{ fontSize: 12, color: "var(--ink-3)" }}
+      >
         {caption}
       </figcaption>
     </figure>
