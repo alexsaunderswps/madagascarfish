@@ -1,6 +1,16 @@
 from __future__ import annotations
 
-from django.db.models import Case, Count, Exists, IntegerField, OuterRef, Q, QuerySet, Subquery, When
+from django.db.models import (
+    Case,
+    Count,
+    Exists,
+    IntegerField,
+    OuterRef,
+    Q,
+    QuerySet,
+    Subquery,
+    When,
+)
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny

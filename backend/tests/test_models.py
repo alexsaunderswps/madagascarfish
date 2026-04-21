@@ -363,8 +363,8 @@ class TestSilhouetteSvgNormalization:
             'height="120" fill="currentColor"><circle r="1"/></svg>'
         )
         out = strip_svg_root_size_attrs(raw)
-        assert 'width=' not in out.split(">", 1)[0]
-        assert 'height=' not in out.split(">", 1)[0]
+        assert "width=" not in out.split(">", 1)[0]
+        assert "height=" not in out.split(">", 1)[0]
         assert 'viewBox="0 0 100 40"' in out
         assert 'fill="currentColor"' in out
         assert '<circle r="1"/>' in out
@@ -385,6 +385,6 @@ class TestSilhouetteSvgNormalization:
             silhouette_svg='<svg width="500" height="200" viewBox="0 0 500 200"/>',
         )
         sp.refresh_from_db()
-        assert 'width=' not in sp.silhouette_svg.split(">", 1)[0]
-        assert 'height=' not in sp.silhouette_svg.split(">", 1)[0]
+        assert "width=" not in sp.silhouette_svg.split(">", 1)[0]
+        assert "height=" not in sp.silhouette_svg.split(">", 1)[0]
         assert 'viewBox="0 0 500 200"' in sp.silhouette_svg

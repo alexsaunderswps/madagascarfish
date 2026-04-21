@@ -66,9 +66,7 @@ class SpeciesListSerializer(serializers.ModelSerializer):
     # Both fields are populated by annotations on SpeciesViewSet.get_queryset
     # so list rendering stays O(1) per row. See docs/planning/
     # registry-redesign/gate-1-visual-system.md (S17).
-    primary_basin = serializers.CharField(
-        read_only=True, allow_null=True, default=None
-    )
+    primary_basin = serializers.CharField(read_only=True, allow_null=True, default=None)
     locality_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
@@ -110,9 +108,7 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
     difficulty_factor_count = serializers.SerializerMethodField()
     # Populated by the SpeciesViewSet queryset annotation (same Subquery used
     # on the list endpoint). NULL when no locality carries a basin name.
-    primary_basin = serializers.CharField(
-        read_only=True, allow_null=True, default=None
-    )
+    primary_basin = serializers.CharField(read_only=True, allow_null=True, default=None)
     # Populated by the SpeciesViewSet queryset annotation. Matches the list
     # endpoint so profile pages can surface a count without a second fetch.
     locality_count = serializers.IntegerField(read_only=True, default=0)
