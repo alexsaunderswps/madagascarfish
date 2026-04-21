@@ -123,6 +123,34 @@ h2, h3 {
   border-radius: 2px;
 }
 
+/* Skip-to-content: visually hidden until focused, then pinned to the
+ * top-left as a tokenized button. First focusable element in SiteHeader. */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 100;
+}
+.skip-to-content:focus,
+.skip-to-content:focus-visible {
+  left: 16px;
+  top: 16px;
+  width: auto;
+  height: auto;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background-color: var(--bg-raised);
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--ink) 18%, transparent);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
 /* Pulse dot — used by LastSyncStrip. 2.4s ease loop, opacity only (no scale)
  * per design §18. Motion is suppressed when the user prefers reduced motion. */
 @keyframes mffcp-pulse {
