@@ -26,7 +26,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import TierOrServiceTokenPermission
-from populations.models import ExSituPopulation
+from populations.models import ExSituPopulation, Transfer
 from species.models import Species
 
 # Census threshold. Days is the source of truth (used for the cutoff); months
@@ -415,5 +415,106 @@ class SexRatioRiskView(APIView):
                     "unsexed_fraction_threshold": UNSEXED_FRACTION_THRESHOLD,
                 },
                 "results": results,
+            }
+        )
+
+
+# ---------- Panel 5 — Transfer activity ----------
+
+# Window for "recent" transfers surfaced on the dashboard. Coordinator-scale
+# cadence: quarterly working groups, so 90 days gives plenty of room to
+# catch movement between meetings without flooding the panel.
+TRANSFER_ACTIVITY_WINDOW_DAYS = 90
+
+# Statuses that count as "in motion right now" — always shown regardless of
+# date, so stuck permits and overdue handovers stay visible past the window.
+_TRANSFER_IN_FLIGHT = [
+    Transfer.Status.PROPOSED,
+    Transfer.Status.APPROVED,
+    Transfer.Status.IN_TRANSIT,
+]
+
+
+def _serialize_transfer(t: Transfer) -> dict[str, object]:
+    return {
+        "transfer_id": t.id,
+        "species": {
+            "id": t.species_id,
+            "scientific_name": t.species.scientific_name,
+        },
+        "source_institution": {
+            "id": t.source_institution_id,
+            "name": t.source_institution.name,
+        },
+        "destination_institution": {
+            "id": t.destination_institution_id,
+            "name": t.destination_institution.name,
+        },
+        "status": t.status,
+        "proposed_date": t.proposed_date.isoformat() if t.proposed_date else None,
+        "planned_date": t.planned_date.isoformat() if t.planned_date else None,
+        "actual_date": t.actual_date.isoformat() if t.actual_date else None,
+        "count_male": t.count_male,
+        "count_female": t.count_female,
+        "count_unsexed": t.count_unsexed,
+        "cites_reference": t.cites_reference or None,
+        "coordinated_program_id": t.coordinated_program_id,
+    }
+
+
+class TransferActivityView(APIView):
+    """Transfer lifecycle panel for the coordinator dashboard.
+
+    Returns two lists:
+    - ``in_flight``: every transfer currently in proposed / approved /
+      in_transit, regardless of date. Stuck permits or overdue handovers
+      stay visible here until someone resolves them.
+    - ``recent_completed``: transfers with status=completed whose
+      ``actual_date`` falls within the last 90 days. Bounded so the
+      panel doesn't turn into a full history log.
+    """
+
+    permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
+
+    def get(self, request: Request) -> Response:
+        today = timezone.now().date()
+        window_start = today - timedelta(days=TRANSFER_ACTIVITY_WINDOW_DAYS)
+
+        base = Transfer.objects.select_related(
+            "species",
+            "source_institution",
+            "destination_institution",
+        ).only(
+            "id",
+            "species_id",
+            "source_institution_id",
+            "destination_institution_id",
+            "status",
+            "proposed_date",
+            "planned_date",
+            "actual_date",
+            "count_male",
+            "count_female",
+            "count_unsexed",
+            "cites_reference",
+            "coordinated_program_id",
+            "species__scientific_name",
+            "source_institution__name",
+            "destination_institution__name",
+        )
+
+        in_flight_qs = base.filter(status__in=_TRANSFER_IN_FLIGHT).order_by("proposed_date")
+        recent_qs = base.filter(
+            status=Transfer.Status.COMPLETED, actual_date__gte=window_start
+        ).order_by("-actual_date")
+
+        return Response(
+            {
+                "window_days": TRANSFER_ACTIVITY_WINDOW_DAYS,
+                "reference_date": today.isoformat(),
+                "in_flight_count": in_flight_qs.count(),
+                "recent_completed_count": recent_qs.count(),
+                "in_flight": [_serialize_transfer(t) for t in in_flight_qs],
+                "recent_completed": [_serialize_transfer(t) for t in recent_qs],
             }
         )
