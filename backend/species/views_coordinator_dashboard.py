@@ -26,9 +26,20 @@ from rest_framework.views import APIView
 
 from accounts.permissions import TierPermission
 from populations.models import ExSituPopulation
+from species.models import Species
 
 STALE_CENSUS_THRESHOLD_MONTHS = 12
 STALE_CENSUS_THRESHOLD_DAYS = 365
+
+# Severity ordering, highest first. Drives Panel 1 sort and is narrower than
+# the full IUCNStatus enum because Panel 1 is a fragility triage for
+# confirmed-threatened species, not a status audit.
+COVERAGE_GAP_THREATENED = [
+    Species.IUCNStatus.CR,
+    Species.IUCNStatus.EN,
+    Species.IUCNStatus.VU,
+]
+_SEVERITY_RANK = {s: i for i, s in enumerate(COVERAGE_GAP_THREATENED)}
 
 
 class StalePopulationRow(TypedDict):
@@ -118,3 +129,81 @@ class StaleCensusView(APIView):
                 "results": stale_rows,
             }
         )
+
+
+def _serialize_species_row(sp: Species) -> dict[str, object]:
+    return {
+        "species_id": sp.id,
+        "scientific_name": sp.scientific_name,
+        "genus": sp.genus,
+        "family": sp.family,
+        "iucn_status": sp.iucn_status,
+        "endemic_status": sp.endemic_status,
+        "population_trend": sp.population_trend,
+        "cares_status": sp.cares_status,
+        "shoal_priority": sp.shoal_priority,
+    }
+
+
+class CoverageGapView(APIView):
+    """Threatened species with zero ex-situ populations (Gate 3 Panel 1).
+
+    Default surface is endemic-only because the ABQ coordinator audience
+    triages endemic, threatened, no-program species first — that cut is
+    the single highest-signal view of the registry for this workshop.
+    A ``?endemic_only=false`` toggle is surfaced obviously in the frontend.
+
+    A companion Data Deficient card rides the same response so the
+    frontend doesn't pay a second round trip for the "needs assessment"
+    sibling: ``data_deficient.total`` / ``data_deficient.endemic_count``.
+    """
+
+    permission_classes = [TierPermission(3)]
+
+    def get(self, request: Request) -> Response:
+        endemic_only = self._parse_bool(request.query_params.get("endemic_only"), default=True)
+
+        gap_qs = Species.objects.filter(
+            iucn_status__in=COVERAGE_GAP_THREATENED,
+            ex_situ_populations__isnull=True,
+        )
+        if endemic_only:
+            gap_qs = gap_qs.filter(endemic_status=Species.EndemicStatus.ENDEMIC)
+        gap_qs = gap_qs.only(
+            "id",
+            "scientific_name",
+            "genus",
+            "family",
+            "iucn_status",
+            "endemic_status",
+            "population_trend",
+            "cares_status",
+            "shoal_priority",
+        )
+
+        rows = sorted(
+            (_serialize_species_row(sp) for sp in gap_qs),
+            key=lambda r: (_SEVERITY_RANK.get(r["iucn_status"], 99), r["scientific_name"]),
+        )
+
+        dd_qs = Species.objects.filter(iucn_status=Species.IUCNStatus.DD)
+        dd_total = dd_qs.count()
+        dd_endemic = dd_qs.filter(endemic_status=Species.EndemicStatus.ENDEMIC).count()
+
+        return Response(
+            {
+                "endemic_only": endemic_only,
+                "total": len(rows),
+                "results": rows,
+                "data_deficient": {
+                    "total": dd_total,
+                    "endemic_count": dd_endemic,
+                },
+            }
+        )
+
+    @staticmethod
+    def _parse_bool(raw: str | None, *, default: bool) -> bool:
+        if raw is None:
+            return default
+        return raw.strip().lower() in ("1", "true", "yes", "on")
