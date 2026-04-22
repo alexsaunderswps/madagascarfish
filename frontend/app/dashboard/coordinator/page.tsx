@@ -9,6 +9,7 @@ import {
   fetchSexRatioRisk,
   fetchStaleCensus,
   fetchStudbookStatus,
+  isCoordinatorTokenConfigured,
 } from "@/lib/coordinatorDashboard";
 
 export const dynamic = "force-dynamic";
@@ -71,11 +72,56 @@ const TIER_NOTE_STYLE: CSSProperties = {
   fontStyle: "italic",
 };
 
+const CONFIG_ERROR_STYLE: CSSProperties = {
+  padding: "14px 16px",
+  borderRadius: "var(--radius)",
+  border: "1px solid color-mix(in oklab, var(--terracotta) 60%, var(--rule))",
+  backgroundColor:
+    "color-mix(in oklab, var(--terracotta) 10%, var(--bg-raised))",
+  fontSize: 13,
+  color: "var(--ink)",
+  lineHeight: 1.5,
+};
+
+function ConfigErrorBanner() {
+  return (
+    <div role="alert" style={CONFIG_ERROR_STYLE}>
+      <strong>Coordinator token not configured.</strong> The
+      <code
+        style={{
+          margin: "0 4px",
+          padding: "1px 4px",
+          background: "var(--bg-sunken)",
+          borderRadius: 2,
+          fontSize: 12,
+        }}
+      >
+        COORDINATOR_API_TOKEN
+      </code>
+      env var is missing on this deployment, so the dashboard can&apos;t
+      authenticate to the API. Panels below will show empty. See{" "}
+      <code
+        style={{
+          margin: "0 2px",
+          padding: "1px 4px",
+          background: "var(--bg-sunken)",
+          borderRadius: 2,
+          fontSize: 12,
+        }}
+      >
+        OPERATIONS.md §11.2
+      </code>{" "}
+      for the setup steps.
+    </div>
+  );
+}
+
 export default async function CoordinatorDashboardPage({
   searchParams,
 }: PageProps) {
   const params = (await searchParams) ?? {};
   const endemicOnly = params.endemic_only !== "false";
+  const tokenConfigured = isCoordinatorTokenConfigured();
 
   const [coverage, studbook, sexRatio, staleCensus] = await Promise.all([
     fetchCoverageGap({ endemicOnly }),
@@ -99,6 +145,8 @@ export default async function CoordinatorDashboardPage({
           server-side token.
         </p>
       </header>
+
+      {tokenConfigured ? null : <ConfigErrorBanner />}
 
       <CoverageGapPanel data={coverage} />
       <StudbookStatusPanel data={studbook} />

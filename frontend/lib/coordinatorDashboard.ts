@@ -105,6 +105,19 @@ function coordinatorHeaders(): HeadersInit {
   return { Authorization: `Bearer ${token}` };
 }
 
+/**
+ * Server-side check: is the coordinator token wired up?
+ *
+ * Returns false in two cases we want to distinguish visually from an
+ * upstream error — a blank-dashboard rendered with a silent 403 cascade
+ * is indistinguishable from "the data just isn't there yet," which
+ * masks a misconfigured Vercel env. The page uses this to render an
+ * operator-facing banner instead of four identical fallback states.
+ */
+export function isCoordinatorTokenConfigured(): boolean {
+  return Boolean(process.env.COORDINATOR_API_TOKEN);
+}
+
 async function fetchCoordinator<T>(path: string): Promise<T | null> {
   try {
     // revalidate: 0 bypasses Next.js's fetch cache for these responses.

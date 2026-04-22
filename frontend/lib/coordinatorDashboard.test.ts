@@ -5,6 +5,7 @@ import {
   fetchSexRatioRisk,
   fetchStaleCensus,
   fetchStudbookStatus,
+  isCoordinatorTokenConfigured,
 } from "./coordinatorDashboard";
 
 describe("coordinatorDashboard fetchers", () => {
@@ -74,5 +75,27 @@ describe("coordinatorDashboard fetchers", () => {
     );
     expect(await fetchStudbookStatus()).toBeNull();
     expect(await fetchSexRatioRisk()).toBeNull();
+  });
+});
+
+describe("isCoordinatorTokenConfigured", () => {
+  const ORIGINAL = { ...process.env };
+  afterEach(() => {
+    process.env = { ...ORIGINAL };
+  });
+
+  it("is true when COORDINATOR_API_TOKEN is set", () => {
+    process.env.COORDINATOR_API_TOKEN = "x";
+    expect(isCoordinatorTokenConfigured()).toBe(true);
+  });
+
+  it("is false when unset", () => {
+    delete process.env.COORDINATOR_API_TOKEN;
+    expect(isCoordinatorTokenConfigured()).toBe(false);
+  });
+
+  it("is false when set to an empty string", () => {
+    process.env.COORDINATOR_API_TOKEN = "";
+    expect(isCoordinatorTokenConfigured()).toBe(false);
   });
 });
