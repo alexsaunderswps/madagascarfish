@@ -17,6 +17,8 @@ This document covers the *recurring* tasks that come up after that bootstrap is 
 | Staging hostname | `mffcp-staging` |
 | Staging IP | `46.224.196.197` |
 | Staging SSH user | `deploy` |
+| Public site (Vercel) | `https://malagasyfishes.org` |
+| Revalidate webhook | `https://malagasyfishes.org/api/revalidate` |
 | Repo on staging | `/home/deploy/madagascarfish` |
 | Docker Compose dir on staging | `/home/deploy/madagascarfish/deploy/staging` |
 | Compose `.env` location | `/home/deploy/madagascarfish/deploy/staging/.env` |
@@ -392,23 +394,105 @@ aggregator yet.
 
 ---
 
-## 11. Common Failure Modes and Fixes
+## 11. Next.js Cache Revalidation (ISR webhook)
 
-### 11.1 `env file /home/deploy/madagascarfish/.env not found`
+The public site (Vercel, `malagasyfishes.org`) uses ISR with
+`revalidate = 3600`, so a species/genus edit in Django admin takes up to an
+hour to appear publicly — unless the backend fires the revalidate webhook on
+save. `SpeciesAdmin`, `GenusAdmin`, and `SiteMapAssetAdmin` all call it
+automatically; the admin also exposes a manual **"Revalidate public pages"**
+action on those list views.
+
+### 11.1 How it's wired
+
+- Frontend route: `POST https://malagasyfishes.org/api/revalidate` (reads
+  `REVALIDATE_SECRET` env var on Vercel; rejects with 401 if the header
+  doesn't match).
+- Backend sender: `backend/species/admin_revalidate.py::_post_revalidate()`
+  (reads `NEXT_REVALIDATE_URL` and `NEXT_REVALIDATE_SECRET` from settings).
+- Both ends must share the **same** secret, and the URL must point at the
+  canonical (non-redirecting) domain — `malagasyfishes.org`, not
+  `www.malagasyfishes.org` (the `www` variant 308s, and POSTs don't follow
+  redirects reliably).
+
+### 11.2 Configuring / rotating the secret
+
+**1. Generate a shared secret** on your laptop:
+
+```bash
+openssl rand -hex 32
+```
+
+**2. Vercel** (Project Settings → Environment Variables):
+
+| Variable | Value |
+|---|---|
+| `REVALIDATE_SECRET` | `<the secret>` |
+
+Redeploy the Vercel project so the new env is picked up.
+
+**3. Staging backend** — SSH in, edit the compose `.env`:
+
+```bash
+ssh deploy@46.224.196.197
+cd /home/deploy/madagascarfish/deploy/staging
+nano .env
+```
+
+Add / update:
+
+```
+NEXT_REVALIDATE_URL=https://malagasyfishes.org/api/revalidate
+NEXT_REVALIDATE_SECRET=<same secret as Vercel>
+```
+
+Recreate the web container so it reads the new env (no rebuild needed):
+
+```bash
+docker compose up -d --force-recreate web
+```
+
+### 11.3 Verifying it works
+
+Edit any species in `/admin/` and save. The admin banner should read:
+
+> Revalidated N path(s).
+
+If you instead see:
+
+> Revalidate is not configured: set NEXT_REVALIDATE_URL and NEXT_REVALIDATE_SECRET in the environment.
+
+…the backend env vars aren't set or the container wasn't recreated after
+editing `.env` — see §11.2 step 3.
+
+If you see `HTTP 401`, the secrets don't match between Vercel and the backend.
+
+Quick sanity check that the frontend route is reachable (should return
+`405 Method Not Allowed` on GET — route exists, rejects the wrong method):
+
+```bash
+curl -sI https://malagasyfishes.org/api/revalidate | head -1
+```
+
+---
+
+## 12. Common Failure Modes and Fixes
+
+### 12.1 `env file /home/deploy/madagascarfish/.env not found`
 
 You're running `docker compose` from the wrong directory. The `.env` lives in
 `deploy/staging/`, not the repo root.
 
 **Fix:** `cd /home/deploy/madagascarfish/deploy/staging` first.
 
-### 11.2 `CSV not found: data/seed/...`
+### 12.2 `CSV not found: data/seed/...`
 
 You passed a host-style path to a command running inside the container.
 
 **Fix:** use the container path `--csv /data/seed/...` (leading slash, `/data`
 not `data`).
 
-### 11.3 `species not found: 'Foo bar'` during `seed_localities`
+### 12.3 `species not found: 'Foo bar'` during `seed_localities`
 
 The locality CSV references a scientific name that isn't in the species
 catalog yet.
@@ -419,7 +503,7 @@ catalog yet.
 - correct the name in the locality CSV (often a typo or case mismatch — e.g.
   `Bedotia sp. 'Manombo'` vs. existing `Bedotia sp. 'manombo'`).
 
-### 11.4 `presence_status='X' not in [...]` or `water_body_type='Y' not in [...]`
+### 12.4 `presence_status='X' not in [...]` or `water_body_type='Y' not in [...]`
 
 CSV has an enum value that doesn't match the model choices.
 
@@ -428,7 +512,7 @@ CSV has an enum value that doesn't match the model choices.
 `SpeciesLocality.PresenceStatus` / `SpeciesLocality.WaterBodyType` in
 `backend/species/models.py`.
 
-### 11.5 `git pull --ff-only` refuses
+### 12.5 `git pull --ff-only` refuses
 
 Staging has local commits, which it shouldn't. Find out what happened before
 doing anything destructive:
@@ -442,7 +526,7 @@ git status
 If the local commits are legitimate work someone did by hand on the server,
 preserve them on a branch before resetting. Don't `git reset --hard` reflexively.
 
-### 11.6 Staging is behind `main` on GitHub even after a merge
+### 12.6 Staging is behind `main` on GitHub even after a merge
 
 The GitHub Actions deploy (`workflow_run`) runs only if the CI workflow
 succeeded. If CI was red, deploy is skipped silently.
@@ -455,7 +539,7 @@ seed/migrate/restart is needed.
 
 ---
 
-## 12. Local Development Equivalents
+## 13. Local Development Equivalents
 
 The commands are near-identical to staging — just run them from the repo root
 on your laptop, and use the root `docker-compose.yml` (no `deploy/staging/`
@@ -500,7 +584,7 @@ The local compose does **not** need a `cd deploy/staging` dance — the `.env`
 lives in the repo root for local, and in `deploy/staging/` for staging. That's
 the one structural difference.
 
-### 12.1 Running the Next.js frontend locally
+### 13.1 Running the Next.js frontend locally
 
 The Django API on `:8000` is only half the stack — the public site is the
 Next.js app in `frontend/`, run outside Docker.
@@ -542,7 +626,7 @@ open http://localhost:3000/species/  # directory
 
 ---
 
-## 13. Standard Post-Merge Flow for a Data/Seed PR
+## 14. Standard Post-Merge Flow for a Data/Seed PR
 
 The happy-path sequence after a CSV-only PR (e.g. #61, #62) merges to `main`:
 
