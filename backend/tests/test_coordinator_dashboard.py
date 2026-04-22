@@ -177,9 +177,7 @@ class TestStaleCensusLogic:
         """
         today = date.today()
         pop = self._pop(species_one, institution_zoo, today - timedelta(days=400))
-        HoldingRecord.objects.create(
-            population=pop, date=today - timedelta(days=10), count_total=8
-        )
+        HoldingRecord.objects.create(population=pop, date=today - timedelta(days=10), count_total=8)
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(STALE_ENDPOINT).json()
         assert body["total_stale"] == 0
@@ -213,13 +211,9 @@ class TestStaleCensusLogic:
     ) -> None:
         today = date.today()
         self._pop(species_one, institution_zoo, today - timedelta(days=400))
-        inst_b = Institution.objects.create(
-            name="Inst B", institution_type="zoo", country="DE"
-        )
+        inst_b = Institution.objects.create(name="Inst B", institution_type="zoo", country="DE")
         self._pop(species_two, inst_b, None)  # never censused
-        inst_c = Institution.objects.create(
-            name="Inst C", institution_type="zoo", country="DE"
-        )
+        inst_c = Institution.objects.create(name="Inst C", institution_type="zoo", country="DE")
         self._pop(species_one, inst_c, today - timedelta(days=600))
 
         api_client.force_authenticate(user=tier3_user)
