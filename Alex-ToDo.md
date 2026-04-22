@@ -107,6 +107,12 @@ species → keeper.
 decision (e.g. when to check `studbook_managed` for a CARES population —
 usually unchecked, that's the whole point of the four-bucket split).
 
+**If you have a CSV** (CARES list in spreadsheet form), skip the manual
+admin clicking and use the `seed_populations` management command —
+see `POPULATION_DATA_GUIDE.md` §9. The CSV schema there maps cleanly
+to a CARES-style export (one row per keeper-species pair). Idempotent,
+dry-run supported, institutions auto-deduplicated by name.
+
 **Concrete steps to start:**
 
 1. Sign in to https://api.malagasyfishes.org/admin/ as a Tier 5
