@@ -6,78 +6,153 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('species', '0001_initial'),
+        ("species", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Institution',
+            name="Institution",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=300)),
-                ('institution_type', models.CharField(choices=[('zoo', 'Zoo'), ('aquarium', 'Aquarium'), ('research_org', 'Research Org'), ('hobbyist_program', 'Hobbyist Program'), ('ngo', 'Ngo'), ('government', 'Government')], max_length=30)),
-                ('country', models.CharField(max_length=100)),
-                ('city', models.CharField(blank=True, max_length=100)),
-                ('zims_member', models.BooleanField(default=False)),
-                ('species360_id', models.CharField(blank=True, max_length=50)),
-                ('eaza_member', models.BooleanField(default=False)),
-                ('aza_member', models.BooleanField(default=False)),
-                ('website', models.URLField(blank=True)),
-                ('contact_email', models.EmailField(blank=True, help_text='Visible at Tier 3+ only', max_length=254)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=300)),
+                (
+                    "institution_type",
+                    models.CharField(
+                        choices=[
+                            ("zoo", "Zoo"),
+                            ("aquarium", "Aquarium"),
+                            ("research_org", "Research Org"),
+                            ("hobbyist_program", "Hobbyist Program"),
+                            ("ngo", "Ngo"),
+                            ("government", "Government"),
+                        ],
+                        max_length=30,
+                    ),
+                ),
+                ("country", models.CharField(max_length=100)),
+                ("city", models.CharField(blank=True, max_length=100)),
+                ("zims_member", models.BooleanField(default=False)),
+                ("species360_id", models.CharField(blank=True, max_length=50)),
+                ("eaza_member", models.BooleanField(default=False)),
+                ("aza_member", models.BooleanField(default=False)),
+                ("website", models.URLField(blank=True)),
+                (
+                    "contact_email",
+                    models.EmailField(
+                        blank=True, help_text="Visible at Tier 3+ only", max_length=254
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
-                'db_table': 'populations_institution',
+                "db_table": "populations_institution",
             },
         ),
         migrations.CreateModel(
-            name='ExSituPopulation',
+            name="ExSituPopulation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('count_total', models.IntegerField(blank=True, null=True)),
-                ('count_male', models.IntegerField(blank=True, null=True)),
-                ('count_female', models.IntegerField(blank=True, null=True)),
-                ('count_unsexed', models.IntegerField(blank=True, null=True)),
-                ('date_established', models.DateField(blank=True, null=True)),
-                ('founding_source', models.CharField(blank=True, max_length=300)),
-                ('breeding_status', models.CharField(choices=[('breeding', 'Breeding'), ('non-breeding', 'Non Breeding'), ('unknown', 'Unknown')], default='unknown', max_length=20)),
-                ('studbook_managed', models.BooleanField(default=False)),
-                ('last_census_date', models.DateField(blank=True, null=True)),
-                ('notes', models.TextField(blank=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('species', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ex_situ_populations', to='species.species')),
-                ('institution', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ex_situ_populations', to='populations.institution')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("count_total", models.IntegerField(blank=True, null=True)),
+                ("count_male", models.IntegerField(blank=True, null=True)),
+                ("count_female", models.IntegerField(blank=True, null=True)),
+                ("count_unsexed", models.IntegerField(blank=True, null=True)),
+                ("date_established", models.DateField(blank=True, null=True)),
+                ("founding_source", models.CharField(blank=True, max_length=300)),
+                (
+                    "breeding_status",
+                    models.CharField(
+                        choices=[
+                            ("breeding", "Breeding"),
+                            ("non-breeding", "Non Breeding"),
+                            ("unknown", "Unknown"),
+                        ],
+                        default="unknown",
+                        max_length=20,
+                    ),
+                ),
+                ("studbook_managed", models.BooleanField(default=False)),
+                ("last_census_date", models.DateField(blank=True, null=True)),
+                ("notes", models.TextField(blank=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "species",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ex_situ_populations",
+                        to="species.species",
+                    ),
+                ),
+                (
+                    "institution",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ex_situ_populations",
+                        to="populations.institution",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'populations_exsitupopulation',
+                "db_table": "populations_exsitupopulation",
             },
         ),
         migrations.CreateModel(
-            name='HoldingRecord',
+            name="HoldingRecord",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField()),
-                ('count_total', models.IntegerField()),
-                ('count_male', models.IntegerField(blank=True, null=True)),
-                ('count_female', models.IntegerField(blank=True, null=True)),
-                ('count_unsexed', models.IntegerField(blank=True, null=True)),
-                ('notes', models.TextField(blank=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('population', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='holding_records', to='populations.exsitupopulation')),
-                ('reporter', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='holding_records', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("date", models.DateField()),
+                ("count_total", models.IntegerField()),
+                ("count_male", models.IntegerField(blank=True, null=True)),
+                ("count_female", models.IntegerField(blank=True, null=True)),
+                ("count_unsexed", models.IntegerField(blank=True, null=True)),
+                ("notes", models.TextField(blank=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "population",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="holding_records",
+                        to="populations.exsitupopulation",
+                    ),
+                ),
+                (
+                    "reporter",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="holding_records",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'populations_holdingrecord',
-                'ordering': ['-date'],
+                "db_table": "populations_holdingrecord",
+                "ordering": ["-date"],
             },
         ),
         migrations.AddConstraint(
-            model_name='exsitupopulation',
-            constraint=models.UniqueConstraint(fields=('species', 'institution'), name='unique_species_institution'),
+            model_name="exsitupopulation",
+            constraint=models.UniqueConstraint(
+                fields=("species", "institution"), name="unique_species_institution"
+            ),
         ),
     ]

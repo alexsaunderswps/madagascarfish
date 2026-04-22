@@ -7,6 +7,25 @@ Dashboard at `/dashboard/coordinator`.
 
 ---
 
+## 0. What data lives where
+
+At the top level, five models connect to make a coordinator view:
+
+| Model | What it is | Who writes it |
+|---|---|---|
+| `Species` | The ~79 endemics | Seeded from CSV; curated by admin |
+| `Institution` | A zoo / aquarium / hobbyist keeper / research org | You, through admin |
+| `ExSituPopulation` | "Institution X holds species Y" — one per species-institution pair | You, through admin |
+| `HoldingRecord` | Optional census snapshot for an `ExSituPopulation`, with counts on a date | You, or auto when you update population counts |
+| `CoordinatedProgram` | Formal program (AZA SSP / EAZA EEP / CARES / independent) around a species | You, through admin |
+| `Transfer` | Movement of animals between institutions — lifecycle from proposed → completed | You, through admin |
+
+`CoordinatedProgram` and `Transfer` land in Gate 4. This guide covers
+both the Gate 3 models (Species / Institution / ExSituPopulation /
+HoldingRecord) and the Gate 4 additions.
+
+---
+
 ## 1. Where each panel gets its data
 
 | Panel | Reads from | Driven by which field(s) |
@@ -229,6 +248,78 @@ ignores count changes — it watches the date field.
 Confirm `count_male`, `count_female`, and `count_unsexed` are all
 populated (not null). If all three are null, Panel 3 can't compute a
 ratio and skips the row.
+
+---
+
+## 8.5 Gate 4 additions — CoordinatedProgram + Transfer
+
+These two models capture the "who runs this" and "what's moving" layers
+above `ExSituPopulation`. Added in Gate 4 Phase 1. Admin surfaces live
+alongside the existing population models.
+
+### CoordinatedProgram
+
+One row per species per program framework. A species can appear in
+multiple programs simultaneously (e.g. AZA SSP and CARES), but only
+once per `program_type`.
+
+**When to add one:** when a species has a formal breeding / conservation
+program tracking it (AZA SSP, EAZA EEP, CARES priority listing, or an
+independent regional program).
+
+**Admin:** `/admin/populations/coordinatedprogram/add/`
+
+Key fields:
+- `species` — autocomplete
+- `program_type` — `ssp` / `eep` / `cares` / `independent` / `other`
+- `name` — human-readable, shown on the dashboard. Format guidance:
+  *"AZA SSP: Common Name"*, *"EAZA EEP: Common Name"*,
+  *"CARES: Common Name"*
+- `status` — `planning` / `active` / `paused` / `deprecated`
+- `coordinating_institution` — who holds the studbook
+- `studbook_keeper` — if a named user is assigned
+- `enrolled_institutions` (M2M) — partner zoos / keepers
+- `target_population_size`, `plan_summary`, `plan_document_url`,
+  `start_date`, `next_review_date` — plan-level metadata
+
+### Transfer
+
+One row per planned or completed animal movement between two
+institutions.
+
+**When to add one:** any time animals move between `Institution`
+rows — whether that's a formal SSP transfer, a hobbyist moving a
+founder pair, or an accession from the wild (with the collecting
+institution as source). Use `status` to indicate where the transfer is
+in its lifecycle.
+
+**Admin:** `/admin/populations/transfer/add/`
+
+Key fields:
+- `species` / `source_institution` / `destination_institution` — all
+  autocomplete. Source ≠ destination (enforced at the DB level).
+- `status` — `proposed` / `approved` / `in_transit` / `completed` / `cancelled`
+- `proposed_date` — when the transfer was first logged. Required.
+- `planned_date` — when it's *scheduled* to happen. Optional.
+- `actual_date` — when it *actually* completed. Set this when status
+  moves to `completed`.
+- `count_male` / `count_female` / `count_unsexed` — M.F.U convention
+- `cites_reference` — permit number for CITES-listed species. Blank
+  otherwise.
+- `coordinated_program` — link to the program this transfer serves,
+  if applicable.
+- `notes` — anything else. Holding pens, quarantine details, etc.
+
+**`created_by` auto-fills** to the admin user on save — not editable.
+
+### Why these are separate from `ExSituPopulation`
+
+`ExSituPopulation` is *current state* (counts per species per
+institution today). `Transfer` is *movement* — even if the counts
+don't change (e.g. a 1:1 swap), the transfer still happened. Both
+matter to a coordinator. Don't manually edit `ExSituPopulation`
+counts to reflect a transfer; log the `Transfer` row and update the
+population's counts separately when the animals arrive.
 
 ---
 

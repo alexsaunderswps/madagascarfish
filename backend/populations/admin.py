@@ -3,7 +3,13 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
-from populations.models import ExSituPopulation, HoldingRecord, Institution
+from populations.models import (
+    CoordinatedProgram,
+    ExSituPopulation,
+    HoldingRecord,
+    Institution,
+    Transfer,
+)
 from species.admin_revalidate import _post_revalidate, revalidate_public_pages
 
 
@@ -130,3 +136,146 @@ class ExSituPopulationAdmin(admin.ModelAdmin):
                 obj.reporter = request.user  # type: ignore[assignment]
             obj.save()
         formset.save_m2m()  # type: ignore[union-attr]
+
+
+@admin.register(CoordinatedProgram)
+class CoordinatedProgramAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "species",
+        "program_type",
+        "status",
+        "coordinating_institution",
+        "studbook_keeper",
+        "target_population_size",
+        "next_review_date",
+    ]
+    list_filter = ["program_type", "status"]
+    search_fields = ["name", "species__scientific_name"]
+    autocomplete_fields = ["species", "coordinating_institution", "studbook_keeper"]
+    filter_horizontal = ["enrolled_institutions"]
+    list_select_related = ["species", "coordinating_institution", "studbook_keeper"]
+    readonly_fields = ["created_at", "updated_at"]
+    fieldsets = (
+        ("Identity", {"fields": ("species", "name", "program_type", "status")}),
+        (
+            "Coordination",
+            {
+                "fields": (
+                    "coordinating_institution",
+                    "studbook_keeper",
+                    "enrolled_institutions",
+                ),
+                "description": (
+                    "Coordinating institution holds the studbook. Enrolled "
+                    "institutions are the partner zoos / aquariums / keepers "
+                    "participating in the program."
+                ),
+            },
+        ),
+        (
+            "Plan",
+            {
+                "fields": (
+                    "target_population_size",
+                    "plan_summary",
+                    "plan_document_url",
+                    "start_date",
+                    "next_review_date",
+                ),
+            },
+        ),
+        ("Timestamps", {"fields": ("created_at", "updated_at")}),
+    )
+    actions = [revalidate_public_pages]
+
+    def save_model(
+        self, request: HttpRequest, obj: CoordinatedProgram, form: object, change: bool
+    ) -> None:
+        super().save_model(request, obj, form, change)
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
+
+
+@admin.register(Transfer)
+class TransferAdmin(admin.ModelAdmin):
+    list_display = [
+        "species",
+        "source_institution",
+        "destination_institution",
+        "status",
+        "proposed_date",
+        "planned_date",
+        "actual_date",
+    ]
+    list_filter = ["status", "proposed_date"]
+    search_fields = [
+        "species__scientific_name",
+        "source_institution__name",
+        "destination_institution__name",
+        "cites_reference",
+    ]
+    autocomplete_fields = [
+        "species",
+        "source_institution",
+        "destination_institution",
+        "coordinated_program",
+    ]
+    list_select_related = [
+        "species",
+        "source_institution",
+        "destination_institution",
+    ]
+    readonly_fields = ["created_by", "created_at", "updated_at"]
+    fieldsets = (
+        (
+            "What",
+            {
+                "fields": (
+                    "species",
+                    "source_institution",
+                    "destination_institution",
+                    "coordinated_program",
+                )
+            },
+        ),
+        (
+            "When",
+            {
+                "fields": ("status", "proposed_date", "planned_date", "actual_date"),
+                "description": (
+                    "Status drives the lifecycle. actual_date should be set when "
+                    "status='completed'; blank until then."
+                ),
+            },
+        ),
+        (
+            "Counts",
+            {
+                "fields": ("count_male", "count_female", "count_unsexed"),
+                "description": "Males.Females.Unsexed (M.F.U) convention.",
+            },
+        ),
+        (
+            "Compliance",
+            {
+                "fields": ("cites_reference", "notes"),
+            },
+        ),
+        (
+            "Audit",
+            {
+                "fields": ("created_by", "created_at", "updated_at"),
+            },
+        ),
+    )
+    actions = [revalidate_public_pages]
+
+    def save_model(self, request: HttpRequest, obj: Transfer, form: object, change: bool) -> None:
+        if not change and obj.created_by_id is None:
+            obj.created_by = request.user  # type: ignore[assignment]
+        super().save_model(request, obj, form, change)
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
