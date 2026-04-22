@@ -5,6 +5,7 @@ import {
   fetchSexRatioRisk,
   fetchStaleCensus,
   fetchStudbookStatus,
+  fetchTransferActivity,
   isCoordinatorTokenConfigured,
 } from "./coordinatorDashboard";
 
@@ -75,6 +76,37 @@ describe("coordinatorDashboard fetchers", () => {
     );
     expect(await fetchStudbookStatus()).toBeNull();
     expect(await fetchSexRatioRisk()).toBeNull();
+  });
+
+  it("fetchTransferActivity hits the correct path", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            window_days: 90,
+            reference_date: "2026-04-22",
+            in_flight_count: 0,
+            recent_completed_count: 0,
+            in_flight: [],
+            recent_completed: [],
+          }),
+          { status: 200 },
+        ),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const body = await fetchTransferActivity();
+    expect(body).toEqual({
+      window_days: 90,
+      reference_date: "2026-04-22",
+      in_flight_count: 0,
+      recent_completed_count: 0,
+      in_flight: [],
+      recent_completed: [],
+    });
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toContain("/coordinator-dashboard/transfer-activity/");
   });
 });
 
