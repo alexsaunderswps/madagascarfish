@@ -181,6 +181,13 @@ NEXT_REVALIDATE_URL = env(
 NEXT_REVALIDATE_SECRET = env("NEXT_REVALIDATE_SECRET", default="")
 NEXT_REVALIDATE_TIMEOUT_SECONDS = env.int("NEXT_REVALIDATE_TIMEOUT_SECONDS", default=10)
 
+# Shared secret that lets trusted server-side callers (e.g. Next.js rendering
+# the Tier 3+ coordinator dashboard) fetch /api/v1/coordinator-dashboard/*
+# without a user session. Sent as Authorization: Bearer <token>. Blank in
+# dev/test disables the bypass — only authenticated Tier 3+ users can hit
+# the endpoints.
+COORDINATOR_API_TOKEN = env("COORDINATOR_API_TOKEN", default="")
+
 # CORS — frontend is Next.js on Vercel (Gate 07). Only the /api/* surface needs
 # cross-origin; admin/static remain same-origin.
 CORS_URLS_REGEX = r"^/api/.*$"

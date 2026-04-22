@@ -93,6 +93,23 @@ class TestStaleCensusAuth:
         api_client.force_authenticate(user=tier2_user)
         assert api_client.get(STALE_ENDPOINT).status_code == status.HTTP_403_FORBIDDEN
 
+    def test_service_token_grants_access(self, api_client: APIClient, settings: object) -> None:
+        settings.COORDINATOR_API_TOKEN = "test-service-token"  # type: ignore[attr-defined]
+        resp = api_client.get(STALE_ENDPOINT, HTTP_AUTHORIZATION="Bearer test-service-token")
+        assert resp.status_code == status.HTTP_200_OK
+
+    def test_wrong_service_token_rejected(self, api_client: APIClient, settings: object) -> None:
+        settings.COORDINATOR_API_TOKEN = "test-service-token"  # type: ignore[attr-defined]
+        resp = api_client.get(STALE_ENDPOINT, HTTP_AUTHORIZATION="Bearer wrong-token")
+        assert resp.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_blank_token_setting_disables_bypass(
+        self, api_client: APIClient, settings: object
+    ) -> None:
+        settings.COORDINATOR_API_TOKEN = ""  # type: ignore[attr-defined]
+        resp = api_client.get(STALE_ENDPOINT, HTTP_AUTHORIZATION="Bearer anything")
+        assert resp.status_code == status.HTTP_403_FORBIDDEN
+
     def test_tier3_200(self, api_client: APIClient, tier3_user: User) -> None:
         api_client.force_authenticate(user=tier3_user)
         resp = api_client.get(STALE_ENDPOINT)
