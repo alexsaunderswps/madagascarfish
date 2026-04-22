@@ -41,7 +41,19 @@ test("site header nav renders links in Dashboard → Map → Directory → About
     exact: true,
   });
   const labels = await primaryNav.getByRole("link").allInnerTexts();
-  expect(labels).toEqual(["Dashboard", "Map", "Species Directory", "About"]);
+  // Gate 4 inserted "Coordinator" between Dashboard and Map. The original
+  // four spec labels must stay in order; Coordinator is allowed.
+  expect(labels).toContain("Dashboard");
+  expect(labels).toContain("Map");
+  expect(labels).toContain("Species Directory");
+  expect(labels).toContain("About");
+  expect(labels.indexOf("Dashboard")).toBeLessThan(labels.indexOf("Map"));
+  expect(labels.indexOf("Map")).toBeLessThan(
+    labels.indexOf("Species Directory"),
+  );
+  expect(labels.indexOf("Species Directory")).toBeLessThan(
+    labels.indexOf("About"),
+  );
 });
 
 test("About page renders owner and GitHub link", async ({ page }) => {

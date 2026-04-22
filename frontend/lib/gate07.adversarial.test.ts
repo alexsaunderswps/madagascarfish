@@ -51,11 +51,21 @@ describe("NavLinks — PRIMARY_NAV order (FE-07-8 AC)", () => {
   it("labels match the spec labels (not implementation-invented names)", async () => {
     const { PRIMARY_NAV } = await import("../components/NavLinks");
     const labels = PRIMARY_NAV.map((l) => l.label);
-    // Spec: "Dashboard → Map → Species Directory → About"
-    expect(labels[0]).toBe("Dashboard");
-    expect(labels[1]).toBe("Map");
-    expect(labels[2]).toBe("Species Directory");
-    expect(labels[3]).toBe("About");
+    // Spec: the four locked Gate 07 labels must exist and remain in order.
+    // Gate 4 added a "Coordinator" link between Dashboard and Map; the
+    // indexOf-based ordering assertion above already allows that interleaving,
+    // so this test just verifies the four spec labels still appear (no rename).
+    expect(labels).toContain("Dashboard");
+    expect(labels).toContain("Map");
+    expect(labels).toContain("Species Directory");
+    expect(labels).toContain("About");
+    expect(labels.indexOf("Dashboard")).toBeLessThan(labels.indexOf("Map"));
+    expect(labels.indexOf("Map")).toBeLessThan(
+      labels.indexOf("Species Directory"),
+    );
+    expect(labels.indexOf("Species Directory")).toBeLessThan(
+      labels.indexOf("About"),
+    );
   });
 });
 
