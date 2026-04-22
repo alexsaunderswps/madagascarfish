@@ -39,7 +39,7 @@ COVERAGE_GAP_THREATENED = [
     Species.IUCNStatus.EN,
     Species.IUCNStatus.VU,
 ]
-_SEVERITY_RANK = {s: i for i, s in enumerate(COVERAGE_GAP_THREATENED)}
+_SEVERITY_RANK: dict[str, int] = {str(s): i for i, s in enumerate(COVERAGE_GAP_THREATENED)}
 
 
 class StalePopulationRow(TypedDict):
@@ -184,7 +184,7 @@ class CoverageGapView(APIView):
         def _sort_key(row: dict[str, object]) -> tuple[int, str]:
             status = str(row["iucn_status"] or "")
             name = str(row["scientific_name"] or "")
-            return (_SEVERITY_RANK.get(status, 99), name)  # type: ignore[arg-type]
+            return (_SEVERITY_RANK.get(status, 99), name)
 
         rows = sorted((_serialize_species_row(sp) for sp in gap_qs), key=_sort_key)
 
