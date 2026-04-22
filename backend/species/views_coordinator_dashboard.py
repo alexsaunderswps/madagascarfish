@@ -181,10 +181,12 @@ class CoverageGapView(APIView):
             "shoal_priority",
         )
 
-        rows = sorted(
-            (_serialize_species_row(sp) for sp in gap_qs),
-            key=lambda r: (_SEVERITY_RANK.get(r["iucn_status"], 99), r["scientific_name"]),
-        )
+        def _sort_key(row: dict[str, object]) -> tuple[int, str]:
+            status = str(row["iucn_status"] or "")
+            name = str(row["scientific_name"] or "")
+            return (_SEVERITY_RANK.get(status, 99), name)  # type: ignore[arg-type]
+
+        rows = sorted((_serialize_species_row(sp) for sp in gap_qs), key=_sort_key)
 
         dd_qs = Species.objects.filter(iucn_status=Species.IUCNStatus.DD)
         dd_total = dd_qs.count()
