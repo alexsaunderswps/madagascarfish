@@ -18,6 +18,8 @@ from species.models import Species
 
 STALE_ENDPOINT = "/api/v1/coordinator-dashboard/stale-census/"
 COVERAGE_GAP_ENDPOINT = "/api/v1/coordinator-dashboard/coverage-gap/"
+STUDBOOK_ENDPOINT = "/api/v1/coordinator-dashboard/studbook-status/"
+SEX_RATIO_ENDPOINT = "/api/v1/coordinator-dashboard/sex-ratio-risk/"
 
 
 @pytest.fixture
@@ -380,3 +382,254 @@ class TestCoverageGapFilter:
             "cares_status",
             "shoal_priority",
         }
+
+
+# ---------- Panel 2: Studbook Status ----------
+
+
+def _pop(
+    species: Species,
+    institution: Institution,
+    *,
+    studbook: bool = False,
+    breeding: str = "unknown",
+    count_total: int = 10,
+    count_male: int | None = None,
+    count_female: int | None = None,
+    count_unsexed: int | None = None,
+) -> ExSituPopulation:
+    return ExSituPopulation.objects.create(
+        species=species,
+        institution=institution,
+        count_total=count_total,
+        count_male=count_male,
+        count_female=count_female,
+        count_unsexed=count_unsexed,
+        breeding_status=breeding,
+        studbook_managed=studbook,
+    )
+
+
+@pytest.mark.django_db
+class TestStudbookAuth:
+    def test_anonymous_403(self, api_client: APIClient) -> None:
+        assert api_client.get(STUDBOOK_ENDPOINT).status_code == status.HTTP_403_FORBIDDEN
+
+    def test_tier2_403(self, api_client: APIClient, tier2_user: User) -> None:
+        api_client.force_authenticate(user=tier2_user)
+        assert api_client.get(STUDBOOK_ENDPOINT).status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestStudbookBuckets:
+    def test_empty_state(self, api_client: APIClient, tier3_user: User) -> None:
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(STUDBOOK_ENDPOINT).json()
+        buckets = body["buckets"]
+        assert buckets["studbook_managed"]["count"] == 0
+        assert buckets["breeding_not_studbook"]["count"] == 0
+        assert buckets["holdings_only"]["count"] == 0
+        assert buckets["no_captive_population"]["count"] == 0
+
+    def test_studbook_bucket_wins_even_with_non_breeding(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        # Species with two populations: one studbook-managed, one not breeding.
+        # Should land in "studbook_managed" bucket, not split.
+        _pop(species_one, institution_zoo, studbook=True, breeding="unknown")
+        inst_b = Institution.objects.create(name="Inst B", institution_type="zoo", country="DE")
+        _pop(species_one, inst_b, studbook=False, breeding="non-breeding")
+
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(STUDBOOK_ENDPOINT).json()
+        assert body["buckets"]["studbook_managed"]["count"] == 1
+        assert body["buckets"]["breeding_not_studbook"]["count"] == 0
+        assert body["buckets"]["holdings_only"]["count"] == 0
+
+    def test_breeding_not_studbook_bucket(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, studbook=False, breeding="breeding")
+
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(STUDBOOK_ENDPOINT).json()
+        assert body["buckets"]["breeding_not_studbook"]["count"] == 1
+        assert body["buckets"]["studbook_managed"]["count"] == 0
+
+    def test_holdings_only_bucket(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, studbook=False, breeding="unknown")
+
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(STUDBOOK_ENDPOINT).json()
+        assert body["buckets"]["holdings_only"]["count"] == 1
+
+    def test_no_captive_count_excludes_species_with_populations(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        species_two: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, studbook=True)
+        # species_two has zero populations → counted as no_captive
+
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(STUDBOOK_ENDPOINT).json()
+        assert body["buckets"]["no_captive_population"]["count"] == 1
+
+    def test_species_list_sorted_by_scientific_name(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        institution_zoo: Institution,
+    ) -> None:
+        sp_z = _mkspecies("Zeta zeta", "CR")
+        sp_a = _mkspecies("Alpha alpha", "CR")
+        _pop(sp_z, institution_zoo, breeding="breeding")
+        inst_b = Institution.objects.create(name="Inst B", institution_type="zoo", country="DE")
+        _pop(sp_a, inst_b, breeding="breeding")
+
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(STUDBOOK_ENDPOINT).json()
+        names = [s["scientific_name"] for s in body["buckets"]["breeding_not_studbook"]["species"]]
+        assert names == ["Alpha alpha", "Zeta zeta"]
+
+
+# ---------- Panel 3: Sex-Ratio Risk ----------
+
+
+@pytest.mark.django_db
+class TestSexRatioAuth:
+    def test_anonymous_403(self, api_client: APIClient) -> None:
+        assert api_client.get(SEX_RATIO_ENDPOINT).status_code == status.HTTP_403_FORBIDDEN
+
+    def test_tier2_403(self, api_client: APIClient, tier2_user: User) -> None:
+        api_client.force_authenticate(user=tier2_user)
+        assert api_client.get(SEX_RATIO_ENDPOINT).status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestSexRatioLogic:
+    def test_balanced_population_not_at_risk(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, count_male=5, count_female=5, count_unsexed=0)
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(SEX_RATIO_ENDPOINT).json()
+        assert body["total_at_risk"] == 0
+
+    def test_no_males_flagged(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, count_male=0, count_female=10, count_unsexed=0)
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(SEX_RATIO_ENDPOINT).json()
+        assert body["total_at_risk"] == 1
+        row = body["results"][0]
+        assert "no_males" in row["risk_reasons"]
+        assert row["mfu"] == "0.10.0"
+
+    def test_skew_over_four_to_one_flagged(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, count_male=1, count_female=5, count_unsexed=0)
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(SEX_RATIO_ENDPOINT).json()
+        assert body["total_at_risk"] == 1
+        assert "skewed_ratio" in body["results"][0]["risk_reasons"]
+
+    def test_exactly_four_to_one_not_flagged(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, count_male=1, count_female=4, count_unsexed=0)
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(SEX_RATIO_ENDPOINT).json()
+        assert body["total_at_risk"] == 0
+
+    def test_mostly_unsexed_flagged(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, count_male=2, count_female=2, count_unsexed=10)
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(SEX_RATIO_ENDPOINT).json()
+        assert body["total_at_risk"] == 1
+        assert "mostly_unsexed" in body["results"][0]["risk_reasons"]
+
+    def test_zero_totals_not_flagged(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, count_male=0, count_female=0, count_unsexed=0)
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(SEX_RATIO_ENDPOINT).json()
+        assert body["total_at_risk"] == 0
+
+    def test_mfu_convention(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        species_one: Species,
+        institution_zoo: Institution,
+    ) -> None:
+        _pop(species_one, institution_zoo, count_male=0, count_female=7, count_unsexed=3)
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(SEX_RATIO_ENDPOINT).json()
+        assert body["results"][0]["mfu"] == "0.7.3"
+
+    def test_sort_by_risk_count_then_name(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        institution_zoo: Institution,
+    ) -> None:
+        sp_single = _mkspecies("Single risk", "CR")
+        sp_double = _mkspecies("Double risk", "CR", genus="Bedotia", family="Bedotiidae")
+        # Single risk: no_males only
+        _pop(sp_single, institution_zoo, count_male=0, count_female=5, count_unsexed=0)
+        # Double risk: no_males AND mostly_unsexed
+        inst_b = Institution.objects.create(name="Inst B", institution_type="zoo", country="DE")
+        _pop(sp_double, inst_b, count_male=0, count_female=1, count_unsexed=10)
+
+        api_client.force_authenticate(user=tier3_user)
+        body = api_client.get(SEX_RATIO_ENDPOINT).json()
+        names = [r["species"]["scientific_name"] for r in body["results"]]
+        assert names[0] == "Double risk"  # 2 reasons
+        assert names[1] == "Single risk"  # 1 reason
