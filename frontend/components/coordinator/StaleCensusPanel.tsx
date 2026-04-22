@@ -29,7 +29,7 @@ const TD_STYLE: CSSProperties = {
 
 const NEVER_TAG_STYLE: CSSProperties = {
   fontSize: 11,
-  color: "#c0392b",
+  color: "var(--danger)",
   fontWeight: 700,
   letterSpacing: "0.04em",
   textTransform: "uppercase",

@@ -29,8 +29,11 @@ from accounts.permissions import TierOrServiceTokenPermission
 from populations.models import ExSituPopulation
 from species.models import Species
 
-STALE_CENSUS_THRESHOLD_MONTHS = 12
+# Census threshold. Days is the source of truth (used for the cutoff); months
+# is a derived informational value emitted in the API response so frontend
+# captions can say "past 12 months" without risking drift from the cutoff.
 STALE_CENSUS_THRESHOLD_DAYS = 365
+STALE_CENSUS_THRESHOLD_MONTHS = STALE_CENSUS_THRESHOLD_DAYS // 30
 
 # Severity ordering, highest first. Drives Panel 1 sort and is narrower than
 # the full IUCNStatus enum because Panel 1 is a fragility triage for
@@ -224,6 +227,15 @@ HOLDINGS_ONLY = "holdings_only"
 NO_CAPTIVE = "no_captive_population"
 
 
+@dataclass
+class _SpeciesAggregate:
+    species_id: int
+    scientific_name: str
+    population_count: int = 0
+    has_studbook: bool = False
+    has_breeding: bool = False
+
+
 class StudbookStatusView(APIView):
     """Per-species classification across the four studbook/breeding buckets."""
 
@@ -240,14 +252,6 @@ class StudbookStatusView(APIView):
             "studbook_managed",
             "species__scientific_name",
         )
-
-        @dataclass
-        class _SpeciesAggregate:
-            species_id: int
-            scientific_name: str
-            population_count: int = 0
-            has_studbook: bool = False
-            has_breeding: bool = False
 
         by_species: dict[int, _SpeciesAggregate] = {}
         for pop in populations:

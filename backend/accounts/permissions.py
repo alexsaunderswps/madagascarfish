@@ -48,7 +48,7 @@ def TierOrServiceTokenPermission(  # noqa: N802
                 auth = request.headers.get("Authorization", "")
                 if auth.startswith("Bearer "):
                     provided = auth[len("Bearer ") :]
-                    if hmac.compare_digest(provided, expected):
+                    if hmac.compare_digest(provided.encode("utf-8"), expected.encode("utf-8")):
                         return True
             if not request.user or not request.user.is_authenticated:
                 return False

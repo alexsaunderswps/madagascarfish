@@ -4,15 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import type { CSSProperties } from "react";
 
+import IucnBadge from "@/components/IucnBadge";
 import type { CoverageGapRow } from "@/lib/coordinatorDashboard";
+import type { IucnStatus } from "@/lib/species";
 
 const DEFAULT_VISIBLE = 10;
-
-const STATUS_COLORS: Record<string, string> = {
-  CR: "#c0392b",
-  EN: "#d35400",
-  VU: "#c18a1f",
-};
 
 const TABLE_STYLE: CSSProperties = {
   width: "100%",
@@ -35,16 +31,6 @@ const TD_STYLE: CSSProperties = {
   padding: "8px 10px",
   borderBottom: "1px solid var(--rule)",
   color: "var(--ink)",
-};
-
-const BADGE_STYLE: CSSProperties = {
-  display: "inline-block",
-  padding: "2px 8px",
-  borderRadius: 4,
-  fontSize: 11,
-  fontWeight: 700,
-  color: "white",
-  letterSpacing: "0.04em",
 };
 
 const ACTIONS_ROW_STYLE: CSSProperties = {
@@ -113,15 +99,7 @@ export default function CoverageGapTable({ rows, endemicOnly }: Props) {
             {visible.map((row) => (
               <tr key={row.species_id}>
                 <td style={TD_STYLE}>
-                  <span
-                    style={{
-                      ...BADGE_STYLE,
-                      backgroundColor:
-                        STATUS_COLORS[row.iucn_status] ?? "var(--ink-3)",
-                    }}
-                  >
-                    {row.iucn_status}
-                  </span>
+                  <IucnBadge status={row.iucn_status as IucnStatus} />
                 </td>
                 <td style={TD_STYLE}>
                   <Link

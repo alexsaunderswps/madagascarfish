@@ -66,6 +66,11 @@
   --iucn-lc:  #60C659;
   --iucn-dd:  #D1D1C6;
   --iucn-ne:  #FFFFFF;
+
+  /* Semantic severity accents (non-IUCN-specific — used for "never
+     censused" tags, demographic-risk flags, and similar coordinator-
+     facing signals). */
+  --danger: #c0392b;
 }
 
 /* Page surface + body typography baseline. */
