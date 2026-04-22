@@ -4,15 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('populations', '0001_initial'),
+        ("populations", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='institution',
-            name='institution_type',
-            field=models.CharField(choices=[('zoo', 'Zoo'), ('aquarium', 'Aquarium'), ('research_org', 'Research Org'), ('hobbyist_program', 'Hobbyist program (CARES, Citizen Conservation)'), ('hobbyist_keeper', 'Hobbyist keeper (individual)'), ('ngo', 'Ngo'), ('government', 'Government')], max_length=30),
+            model_name="institution",
+            name="institution_type",
+            field=models.CharField(
+                choices=[
+                    ("zoo", "Zoo"),
+                    ("aquarium", "Aquarium"),
+                    ("research_org", "Research Org"),
+                    ("hobbyist_program", "Hobbyist program (CARES, Citizen Conservation)"),
+                    ("hobbyist_keeper", "Hobbyist keeper (individual)"),
+                    ("ngo", "Ngo"),
+                    ("government", "Government"),
+                ],
+                max_length=30,
+            ),
         ),
     ]
