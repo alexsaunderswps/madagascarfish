@@ -209,3 +209,200 @@ class CoverageGapView(APIView):
         if raw is None:
             return default
         return raw.strip().lower() in ("1", "true", "yes", "on")
+
+
+# ---------- Panel 2 — Studbook status ----------
+
+# Four coordinator-relevant buckets, per the BA review decision on Q3. The
+# "breeding, not studbook" bucket is load-bearing — it's the ad-hoc-hobbyist
+# row the spec's "Why" blurb calls out, and collapsing it into "holdings"
+# loses the signal the panel exists for.
+STUDBOOK_MANAGED = "studbook_managed"
+BREEDING_NOT_STUDBOOK = "breeding_not_studbook"
+HOLDINGS_ONLY = "holdings_only"
+NO_CAPTIVE = "no_captive_population"
+
+
+class StudbookStatusView(APIView):
+    """Per-species classification across the four studbook/breeding buckets."""
+
+    permission_classes = [TierPermission(3)]
+
+    def get(self, request: Request) -> Response:
+        # Pull populations once, group in Python. This is small enough (dozens
+        # of populations at MVP scale) that hitting the DB once beats three
+        # filtered queries.
+        populations = ExSituPopulation.objects.select_related("species").only(
+            "id",
+            "species_id",
+            "breeding_status",
+            "studbook_managed",
+            "species__scientific_name",
+        )
+        by_species: dict[int, dict[str, object]] = {}
+        for pop in populations:
+            entry = by_species.setdefault(
+                pop.species_id,
+                {
+                    "species_id": pop.species_id,
+                    "scientific_name": pop.species.scientific_name,
+                    "has_studbook": False,
+                    "has_breeding": False,
+                    "population_count": 0,
+                },
+            )
+            entry["population_count"] = int(entry["population_count"]) + 1  # type: ignore[arg-type]
+            if pop.studbook_managed:
+                entry["has_studbook"] = True
+            if pop.breeding_status == ExSituPopulation.BreedingStatus.BREEDING:
+                entry["has_breeding"] = True
+
+        buckets: dict[str, list[dict[str, object]]] = {
+            STUDBOOK_MANAGED: [],
+            BREEDING_NOT_STUDBOOK: [],
+            HOLDINGS_ONLY: [],
+        }
+        for entry in by_species.values():
+            row = {
+                "species_id": entry["species_id"],
+                "scientific_name": entry["scientific_name"],
+                "population_count": entry["population_count"],
+            }
+            if entry["has_studbook"]:
+                buckets[STUDBOOK_MANAGED].append(row)
+            elif entry["has_breeding"]:
+                buckets[BREEDING_NOT_STUDBOOK].append(row)
+            else:
+                buckets[HOLDINGS_ONLY].append(row)
+
+        for key in buckets:
+            buckets[key].sort(key=lambda r: str(r["scientific_name"]))
+
+        species_with_captive = set(by_species.keys())
+        no_captive_count = Species.objects.exclude(id__in=species_with_captive).count()
+
+        return Response(
+            {
+                "buckets": {
+                    STUDBOOK_MANAGED: {
+                        "count": len(buckets[STUDBOOK_MANAGED]),
+                        "species": buckets[STUDBOOK_MANAGED],
+                    },
+                    BREEDING_NOT_STUDBOOK: {
+                        "count": len(buckets[BREEDING_NOT_STUDBOOK]),
+                        "species": buckets[BREEDING_NOT_STUDBOOK],
+                    },
+                    HOLDINGS_ONLY: {
+                        "count": len(buckets[HOLDINGS_ONLY]),
+                        "species": buckets[HOLDINGS_ONLY],
+                    },
+                    NO_CAPTIVE: {
+                        "count": no_captive_count,
+                        # species list omitted — Panel 1 covers the
+                        # threatened subset; full list is a species-directory
+                        # deep link, not a bucket payload.
+                    },
+                },
+            }
+        )
+
+
+# ---------- Panel 3 — Sex-ratio / demographic risk ----------
+
+# BA review missing-panel #2. Flag a population as at-risk if:
+#   - skew worse than 1:4 in either direction (after ignoring unsexed), OR
+#   - unsexed fraction exceeds 50% of a known total
+# Both thresholds are coordinator-intuition defaults; tunable if ABQ feedback
+# says they're noisy. #.#.# display convention is males.females.unsexed.
+SEX_RATIO_MAX_SKEW = 4.0
+UNSEXED_FRACTION_THRESHOLD = 0.5
+
+
+def _mfu_string(m: int | None, f: int | None, u: int | None) -> str:
+    return f"{m or 0}.{f or 0}.{u or 0}"
+
+
+def _demographic_risk_reasons(m: int | None, f: int | None, u: int | None) -> list[str]:
+    reasons: list[str] = []
+    males = m or 0
+    females = f or 0
+    unsexed = u or 0
+    total = males + females + unsexed
+    if total == 0:
+        return reasons
+
+    if males == 0 and females > 0:
+        reasons.append("no_males")
+    elif females == 0 and males > 0:
+        reasons.append("no_females")
+    elif males > 0 and females > 0:
+        ratio = max(males, females) / min(males, females)
+        if ratio > SEX_RATIO_MAX_SKEW:
+            reasons.append("skewed_ratio")
+
+    if unsexed / total > UNSEXED_FRACTION_THRESHOLD:
+        reasons.append("mostly_unsexed")
+
+    return reasons
+
+
+class SexRatioRiskView(APIView):
+    """Populations where demographic composition is functionally at-risk."""
+
+    permission_classes = [TierPermission(3)]
+
+    def get(self, request: Request) -> Response:
+        populations = ExSituPopulation.objects.select_related("species", "institution").only(
+            "id",
+            "species_id",
+            "institution_id",
+            "count_male",
+            "count_female",
+            "count_unsexed",
+            "count_total",
+            "species__scientific_name",
+            "institution__name",
+        )
+
+        results: list[dict[str, object]] = []
+        total_populations = 0
+        for pop in populations:
+            total_populations += 1
+            reasons = _demographic_risk_reasons(pop.count_male, pop.count_female, pop.count_unsexed)
+            if not reasons:
+                continue
+            results.append(
+                {
+                    "population_id": pop.id,
+                    "species": {
+                        "id": pop.species_id,
+                        "scientific_name": pop.species.scientific_name,
+                    },
+                    "institution": {
+                        "id": pop.institution_id,
+                        "name": pop.institution.name,
+                    },
+                    "mfu": _mfu_string(pop.count_male, pop.count_female, pop.count_unsexed),
+                    "count_total": pop.count_total,
+                    "risk_reasons": reasons,
+                }
+            )
+
+        results.sort(
+            key=lambda r: (
+                -len(r["risk_reasons"]),  # type: ignore[arg-type]
+                str(r["species"]["scientific_name"]),  # type: ignore[index]
+            )
+        )
+
+        return Response(
+            {
+                "total_populations": total_populations,
+                "total_at_risk": len(results),
+                "thresholds": {
+                    "max_skew_ratio": SEX_RATIO_MAX_SKEW,
+                    "unsexed_fraction_threshold": UNSEXED_FRACTION_THRESHOLD,
+                },
+                "results": results,
+            }
+        )

@@ -6,7 +6,12 @@ from config.views import health_check
 from fieldwork.views import FieldProgramViewSet
 from populations.views import ExSituPopulationViewSet, InstitutionViewSet
 from species.views import SpeciesViewSet
-from species.views_coordinator_dashboard import CoverageGapView, StaleCensusView
+from species.views_coordinator_dashboard import (
+    CoverageGapView,
+    SexRatioRiskView,
+    StaleCensusView,
+    StudbookStatusView,
+)
 from species.views_dashboard import DashboardView
 from species.views_genus import GenusSilhouetteView
 from species.views_map import MapSummaryView, SpeciesLocalityGeoView, WatershedListView
@@ -37,6 +42,16 @@ urlpatterns = [
         "coordinator-dashboard/coverage-gap/",
         CoverageGapView.as_view(),
         name="coordinator-coverage-gap",
+    ),
+    path(
+        "coordinator-dashboard/studbook-status/",
+        StudbookStatusView.as_view(),
+        name="coordinator-studbook-status",
+    ),
+    path(
+        "coordinator-dashboard/sex-ratio-risk/",
+        SexRatioRiskView.as_view(),
+        name="coordinator-sex-ratio-risk",
     ),
     # Genus silhouette (public cascade fallback — see docs/design.md §15)
     path(
