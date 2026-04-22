@@ -17,6 +17,9 @@ This document covers the *recurring* tasks that come up after that bootstrap is 
 | Staging hostname | `mffcp-staging` |
 | Staging IP | `46.224.196.197` |
 | Staging SSH user | `deploy` |
+| Public site (Vercel) | `https://malagasyfishes.org` |
+| Backend API (staging) | `https://api.malagasyfishes.org` |
+| Revalidate webhook | `https://malagasyfishes.org/api/revalidate` |
 | Repo on staging | `/home/deploy/madagascarfish` |
 | Docker Compose dir on staging | `/home/deploy/madagascarfish/deploy/staging` |
 | Compose `.env` location | `/home/deploy/madagascarfish/deploy/staging/.env` |
@@ -392,23 +395,130 @@ aggregator yet.
 
 ---
 
-## 11. Common Failure Modes and Fixes
+## 11. Shared Secrets (Vercel ↔ Django)
 
-### 11.1 `env file /home/deploy/madagascarfish/.env not found`
+Two separate shared secrets bridge the Next.js frontend (Vercel,
+`malagasyfishes.org`) and the Django backend (Hetzner staging). Both
+**must match exactly** across the two environments, and both default to
+blank — blank disables the feature with the safer posture.
+
+| Setting | Django env | Vercel env | What it does |
+|---|---|---|---|
+| Next.js revalidate webhook | `NEXT_REVALIDATE_URL` + `NEXT_REVALIDATE_SECRET` | `REVALIDATE_SECRET` | Admin save → public page refresh |
+| Coordinator dashboard auth | `COORDINATOR_API_TOKEN` | `COORDINATOR_API_TOKEN` | SSR fetch of Tier 3+ panels |
+
+### 11.1 Next.js cache revalidation (ISR webhook)
+
+The public site uses ISR with `revalidate = 3600`, so a species/genus
+edit in Django admin takes up to an hour to appear publicly — unless
+the backend fires the revalidate webhook on save. `SpeciesAdmin`,
+`GenusAdmin`, and `SiteMapAssetAdmin` all call it automatically; the
+admin also exposes a manual **"Revalidate public pages"** action.
+
+**Wiring:**
+- Frontend route: `POST https://malagasyfishes.org/api/revalidate`
+  (checks `REVALIDATE_SECRET` env; 401 on mismatch).
+- Backend sender: `backend/species/admin_revalidate.py::_post_revalidate()`
+  (reads `NEXT_REVALIDATE_URL` + `NEXT_REVALIDATE_SECRET`).
+- URL must point at the canonical (non-redirecting) domain —
+  `malagasyfishes.org`, not `www.malagasyfishes.org` (the `www`
+  variant 308s; POSTs don't follow redirects reliably).
+
+**Configuring / rotating:**
+
+```bash
+# 1. Generate a secret
+openssl rand -hex 32
+
+# 2. Vercel env:
+#    REVALIDATE_SECRET = <the secret>
+# Redeploy Vercel.
+
+# 3. Staging backend:
+ssh deploy@46.224.196.197
+cd /home/deploy/madagascarfish/deploy/staging
+nano .env
+# Add:
+#   NEXT_REVALIDATE_URL=https://malagasyfishes.org/api/revalidate
+#   NEXT_REVALIDATE_SECRET=<same secret>
+docker compose up -d --force-recreate web
+```
+
+**Verifying:** edit a species in admin and save. The banner should say
+"Revalidated N path(s)." If it says "Revalidate is not configured...",
+the backend env is unset or the container wasn't recreated after
+editing `.env`. HTTP 401 means the secrets don't match.
+
+### 11.2 Coordinator dashboard service token
+
+`/dashboard/coordinator` (Gate 3 Ex-situ Coordinator view) renders four
+Tier 3+ endpoints in the Next.js server runtime. Session cookies don't
+cross the Vercel ↔ Hetzner origins, so the page uses a shared secret
+sent in `Authorization: Bearer <token>`. The token is server-only and
+never reaches the browser.
+
+**Wiring:**
+- Frontend (Vercel env): `COORDINATOR_API_TOKEN`
+- Backend (`deploy/staging/.env`): `COORDINATOR_API_TOKEN`
+- Blank on the backend disables the bypass entirely — only real Tier 3+
+  sessions work. Blank on Vercel means the page will render all-panels
+  in the "Unable to load..." fallback state.
+
+**Configuring / rotating:**
+
+```bash
+# 1. Generate a secret
+openssl rand -hex 32
+
+# 2. Vercel env:
+#    COORDINATOR_API_TOKEN = <the secret>
+# Redeploy Vercel.
+
+# 3. Staging backend:
+ssh deploy@46.224.196.197
+cd /home/deploy/madagascarfish/deploy/staging
+nano .env
+# Add: COORDINATOR_API_TOKEN=<same secret>
+docker compose up -d --force-recreate web
+```
+
+**Verifying:**
+
+```bash
+# With token → 200
+curl -s -o /dev/null -w "%{http_code}\n" \
+  -H "Authorization: Bearer <token>" \
+  https://api.malagasyfishes.org/api/v1/coordinator-dashboard/stale-census/
+
+# Without token → 403
+curl -s -o /dev/null -w "%{http_code}\n" \
+  https://api.malagasyfishes.org/api/v1/coordinator-dashboard/stale-census/
+```
+
+Open `/dashboard/coordinator` — all four panels (coverage gap, studbook,
+sex-ratio, stale census) should render data. Every panel in fallback
+state ⇒ Vercel env is unset or doesn't match the backend value. Check
+the Vercel deployment's Functions log for an upstream 403.
+
+---
+
+## 12. Common Failure Modes and Fixes
+
+### 12.1 `env file /home/deploy/madagascarfish/.env not found`
 
 You're running `docker compose` from the wrong directory. The `.env` lives in
 `deploy/staging/`, not the repo root.
 
 **Fix:** `cd /home/deploy/madagascarfish/deploy/staging` first.
 
-### 11.2 `CSV not found: data/seed/...`
+### 12.2 `CSV not found: data/seed/...`
 
 You passed a host-style path to a command running inside the container.
 
 **Fix:** use the container path `--csv /data/seed/...` (leading slash, `/data`
 not `data`).
 
-### 11.3 `species not found: 'Foo bar'` during `seed_localities`
+### 12.3 `species not found: 'Foo bar'` during `seed_localities`
 
 The locality CSV references a scientific name that isn't in the species
 catalog yet.
@@ -419,7 +529,7 @@ catalog yet.
 - correct the name in the locality CSV (often a typo or case mismatch — e.g.
   `Bedotia sp. 'Manombo'` vs. existing `Bedotia sp. 'manombo'`).
 
-### 11.4 `presence_status='X' not in [...]` or `water_body_type='Y' not in [...]`
+### 12.4 `presence_status='X' not in [...]` or `water_body_type='Y' not in [...]`
 
 CSV has an enum value that doesn't match the model choices.
 
@@ -428,7 +538,7 @@ CSV has an enum value that doesn't match the model choices.
 `SpeciesLocality.PresenceStatus` / `SpeciesLocality.WaterBodyType` in
 `backend/species/models.py`.
 
-### 11.5 `git pull --ff-only` refuses
+### 12.5 `git pull --ff-only` refuses
 
 Staging has local commits, which it shouldn't. Find out what happened before
 doing anything destructive:
@@ -442,7 +552,7 @@ git status
 If the local commits are legitimate work someone did by hand on the server,
 preserve them on a branch before resetting. Don't `git reset --hard` reflexively.
 
-### 11.6 Staging is behind `main` on GitHub even after a merge
+### 12.6 Staging is behind `main` on GitHub even after a merge
 
 The GitHub Actions deploy (`workflow_run`) runs only if the CI workflow
 succeeded. If CI was red, deploy is skipped silently.
@@ -455,7 +565,7 @@ seed/migrate/restart is needed.
 
 ---
 
-## 12. Local Development Equivalents
+## 13. Local Development Equivalents
 
 The commands are near-identical to staging — just run them from the repo root
 on your laptop, and use the root `docker-compose.yml` (no `deploy/staging/`
@@ -500,7 +610,7 @@ The local compose does **not** need a `cd deploy/staging` dance — the `.env`
 lives in the repo root for local, and in `deploy/staging/` for staging. That's
 the one structural difference.
 
-### 12.1 Running the Next.js frontend locally
+### 13.1 Running the Next.js frontend locally
 
 The Django API on `:8000` is only half the stack — the public site is the
 Next.js app in `frontend/`, run outside Docker.
@@ -542,7 +652,7 @@ open http://localhost:3000/species/  # directory
 
 ---
 
-## 13. Standard Post-Merge Flow for a Data/Seed PR
+## 14. Standard Post-Merge Flow for a Data/Seed PR
 
 The happy-path sequence after a CSV-only PR (e.g. #61, #62) merges to `main`:
 
