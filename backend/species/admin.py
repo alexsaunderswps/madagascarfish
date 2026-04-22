@@ -198,6 +198,14 @@ class GenusAdmin(admin.ModelAdmin):
     def has_silhouette(self, obj: Genus) -> bool:
         return bool(obj.silhouette_svg)
 
+    def save_model(
+        self, request: HttpRequest, obj: Genus, form: forms.ModelForm, change: bool
+    ) -> None:
+        super().save_model(request, obj, form, change)
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
+
 
 @admin.register(SiteMapAsset)
 class SiteMapAssetAdmin(admin.ModelAdmin):
@@ -338,6 +346,14 @@ class SpeciesAdmin(admin.ModelAdmin):
             "<th>Actor</th><th>Reason</th></tr></thead><tbody>{}</tbody></table>",
             rows,
         )
+
+    def save_model(
+        self, request: HttpRequest, obj: Species, form: forms.ModelForm, change: bool
+    ) -> None:
+        super().save_model(request, obj, form, change)
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
 
 
 def _user_tier(request: HttpRequest) -> int:
