@@ -6,6 +6,7 @@ from config.views import health_check
 from fieldwork.views import FieldProgramViewSet
 from populations.views import ExSituPopulationViewSet, InstitutionViewSet
 from species.views import SpeciesViewSet
+from species.views_coordinator_dashboard import StaleCensusView
 from species.views_dashboard import DashboardView
 from species.views_genus import GenusSilhouetteView
 from species.views_map import MapSummaryView, SpeciesLocalityGeoView, WatershedListView
@@ -26,6 +27,12 @@ urlpatterns = [
     path("", include("husbandry.urls")),
     # Dashboard
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
+    # Coordinator dashboard (Tier 3+) — Gate 3 panels
+    path(
+        "coordinator-dashboard/stale-census/",
+        StaleCensusView.as_view(),
+        name="coordinator-stale-census",
+    ),
     # Genus silhouette (public cascade fallback — see docs/design.md §15)
     path(
         "genera/<str:name>/silhouette/",
