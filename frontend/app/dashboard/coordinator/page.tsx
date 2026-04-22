@@ -4,11 +4,13 @@ import CoverageGapPanel from "@/components/coordinator/CoverageGapPanel";
 import SexRatioRiskPanel from "@/components/coordinator/SexRatioRiskPanel";
 import StaleCensusPanel from "@/components/coordinator/StaleCensusPanel";
 import StudbookStatusPanel from "@/components/coordinator/StudbookStatusPanel";
+import TransferActivityPanel from "@/components/coordinator/TransferActivityPanel";
 import {
   fetchCoverageGap,
   fetchSexRatioRisk,
   fetchStaleCensus,
   fetchStudbookStatus,
+  fetchTransferActivity,
   isCoordinatorTokenConfigured,
 } from "@/lib/coordinatorDashboard";
 
@@ -123,12 +125,14 @@ export default async function CoordinatorDashboardPage({
   const endemicOnly = params.endemic_only !== "false";
   const tokenConfigured = isCoordinatorTokenConfigured();
 
-  const [coverage, studbook, sexRatio, staleCensus] = await Promise.all([
-    fetchCoverageGap({ endemicOnly }),
-    fetchStudbookStatus(),
-    fetchSexRatioRisk(),
-    fetchStaleCensus(),
-  ]);
+  const [coverage, studbook, sexRatio, staleCensus, transferActivity] =
+    await Promise.all([
+      fetchCoverageGap({ endemicOnly }),
+      fetchStudbookStatus(),
+      fetchSexRatioRisk(),
+      fetchStaleCensus(),
+      fetchTransferActivity(),
+    ]);
 
   return (
     <main style={PAGE_WRAPPER}>
@@ -152,6 +156,7 @@ export default async function CoordinatorDashboardPage({
       <StudbookStatusPanel data={studbook} />
       <SexRatioRiskPanel data={sexRatio} />
       <StaleCensusPanel data={staleCensus} />
+      <TransferActivityPanel data={transferActivity} />
     </main>
   );
 }

@@ -95,6 +95,40 @@ export interface StaleCensusResponse {
   results: StaleCensusRow[];
 }
 
+// ---------- Panel 5: Transfer activity (Gate 4 Phase 1) ----------
+
+export type TransferStatus =
+  | "proposed"
+  | "approved"
+  | "in_transit"
+  | "completed"
+  | "cancelled";
+
+export interface TransferRow {
+  transfer_id: number;
+  species: { id: number; scientific_name: string };
+  source_institution: { id: number; name: string };
+  destination_institution: { id: number; name: string };
+  status: TransferStatus;
+  proposed_date: string | null;
+  planned_date: string | null;
+  actual_date: string | null;
+  count_male: number | null;
+  count_female: number | null;
+  count_unsexed: number | null;
+  cites_reference: string | null;
+  coordinated_program_id: number | null;
+}
+
+export interface TransferActivityResponse {
+  window_days: number;
+  reference_date: string;
+  in_flight_count: number;
+  recent_completed_count: number;
+  in_flight: TransferRow[];
+  recent_completed: TransferRow[];
+}
+
 // ---------- Shared fetch helpers ----------
 
 function coordinatorHeaders(): HeadersInit {
@@ -161,5 +195,11 @@ export function fetchSexRatioRisk(): Promise<SexRatioRiskResponse | null> {
 export function fetchStaleCensus(): Promise<StaleCensusResponse | null> {
   return fetchCoordinator<StaleCensusResponse>(
     "/api/v1/coordinator-dashboard/stale-census/",
+  );
+}
+
+export function fetchTransferActivity(): Promise<TransferActivityResponse | null> {
+  return fetchCoordinator<TransferActivityResponse>(
+    "/api/v1/coordinator-dashboard/transfer-activity/",
   );
 }

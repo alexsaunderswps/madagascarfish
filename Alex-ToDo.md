@@ -205,7 +205,83 @@ chip at between other tasks.
 
 ---
 
-### 2.4 Audit existing `studbook_managed` checkboxes
+### 2.4 Enter CoordinatedProgram rows for known SSPs / EEPs / CARES
+
+**Priority:** medium-high for ABQ demo narrative.
+
+**What it is:** `CoordinatedProgram` is the "who runs this species'
+program" layer (landed in Gate 4 Phase 1). Each row links a species
+to a formal program — AZA SSP, EAZA EEP, CARES priority, or an
+independent regional program. Surfaces on Panel 2 (studbook bucketing)
+and Panel 5 (transfer activity linked to a program).
+
+**Steps:**
+
+1. https://api.malagasyfishes.org/admin/populations/coordinatedprogram/add/
+2. Fill in:
+   - **Species**: autocomplete
+   - **Program type**: `ssp` / `eep` / `cares` / `independent` / `other`
+   - **Name**: human-readable, shown on the dashboard. Suggested format:
+     *"AZA SSP: Madagascar Rainbowfish"*, *"CARES: Paretroplus menarambo"*
+   - **Status**: `planning` / `active` / `paused` / `deprecated`
+   - **Coordinating institution**: who holds the studbook
+   - **Studbook keeper**: the named user (if they're in the system)
+   - **Enrolled institutions**: partner zoos / keepers (M2M; dual
+     listbox widget)
+   - **Target population size**, **plan summary**, **plan document URL**,
+     **start date**, **next review date** — fill what you know
+3. Save.
+
+**How to verify:** no direct panel for CoordinatedProgram itself yet
+(Gate 4 Phase 2 candidate). For now, the linkage shows up on
+Panel 5 when a Transfer references a program.
+
+**Workflow tip:** if you're entering CARES hobbyist populations and
+want the species to show up as "CARES priority" at the program level,
+add **one** CoordinatedProgram row per species with
+`program_type=cares` — don't create one per keeper.
+
+### 2.5 Enter Transfer rows as you learn of moves
+
+**Priority:** medium. Panel 5 ("Transfer activity") renders whatever
+is here — empty until you start logging.
+
+**What it is:** `Transfer` tracks animal movement between institutions
+with a lifecycle (proposed → approved → in_transit → completed /
+cancelled). Landed in Gate 4 Phase 1.
+
+**When to add a Transfer:**
+- A zoo tells you they're planning to move fish to another institution
+- A hobbyist moves founders between keepers
+- An accession from the wild (use the collecting institution as source)
+- A past move you know happened but isn't recorded
+
+**Steps:**
+
+1. https://api.malagasyfishes.org/admin/populations/transfer/add/
+2. Fill in:
+   - **Species / Source institution / Destination institution** (all
+     autocomplete; source must differ from destination — DB-enforced)
+   - **Status**: where it is in the lifecycle. `proposed` for something
+     discussed but not agreed; `completed` for a past event.
+   - **Proposed date** (required): when it was first logged/discussed
+   - **Planned date** (optional): scheduled date
+   - **Actual date** (required when status = `completed`)
+   - **M.F.U counts** if known (males.females.unsexed)
+   - **CITES reference**: permit number for CITES-listed species (CR,
+     EN, VU are all CITES-relevant for Madagascar endemics). Blank for
+     non-CITES cases.
+   - **Coordinated program** (optional): if this transfer serves an
+     existing SSP/EEP/CARES program row, link it.
+   - **Notes**: quarantine info, holding pens, anything relevant
+3. Save. `created_by` auto-fills to you.
+
+**How to verify:** `/dashboard/coordinator` → Panel 5 "Transfer
+activity" shows the row in "In flight" (if status is
+proposed/approved/in_transit) or "Recently completed" (if status=
+completed and actual_date is within last 90 days).
+
+### 2.6 Audit existing `studbook_managed` checkboxes
 
 **Priority:** low. Panel 2's "Studbook-managed" bucket reads this flag
 directly. If any existing `ExSituPopulation` rows have it set
