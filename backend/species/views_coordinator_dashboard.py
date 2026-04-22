@@ -74,7 +74,8 @@ class StaleCensusView(APIView):
         total = 0
         for pop in populations:
             total += 1
-            effective = _effective_last_update(pop.last_census_date, pop.latest_holding)
+            latest_holding: date | None = pop.latest_holding  # type: ignore[attr-defined]
+            effective = _effective_last_update(pop.last_census_date, latest_holding)
             if effective is not None and effective >= threshold_date:
                 continue
             days_since = (today - effective).days if effective else None
@@ -93,7 +94,7 @@ class StaleCensusView(APIView):
                         pop.last_census_date.isoformat() if pop.last_census_date else None
                     ),
                     "most_recent_holding_record_date": (
-                        pop.latest_holding.isoformat() if pop.latest_holding else None
+                        latest_holding.isoformat() if latest_holding else None
                     ),
                     "effective_last_update": effective.isoformat() if effective else None,
                     "days_since_update": days_since,
