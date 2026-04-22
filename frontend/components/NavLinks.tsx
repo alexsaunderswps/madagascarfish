@@ -10,14 +10,19 @@ export interface NavLink {
 
 export const PRIMARY_NAV: NavLink[] = [
   { href: "/dashboard/", label: "Dashboard" },
+  { href: "/dashboard/coordinator/", label: "Coordinator" },
   { href: "/map/", label: "Map" },
   { href: "/species/", label: "Species Directory" },
   { href: "/about/", label: "About" },
 ];
 
+function normalize(path: string): string {
+  return path.endsWith("/") ? path : `${path}/`;
+}
+
 export function isActive(pathname: string, href: string): boolean {
-  const normalizedHref = href.endsWith("/") ? href : `${href}/`;
-  const normalizedPath = pathname.endsWith("/") ? pathname : `${pathname}/`;
+  const normalizedHref = normalize(href);
+  const normalizedPath = normalize(pathname);
   if (normalizedHref === "/") {
     return normalizedPath === "/";
   }
@@ -27,8 +32,29 @@ export function isActive(pathname: string, href: string): boolean {
   );
 }
 
+/**
+ * Pick the single nav link most specific to this pathname. When two links
+ * both match (e.g. `/dashboard/` and `/dashboard/coordinator/` both match
+ * `/dashboard/coordinator/`), the longer href wins. This keeps the parent
+ * link from lighting up when you're actually on a nested page.
+ */
+export function mostSpecificActiveHref(
+  pathname: string,
+  links: readonly NavLink[],
+): string | null {
+  let winner: NavLink | null = null;
+  for (const link of links) {
+    if (!isActive(pathname, link.href)) continue;
+    if (winner === null || link.href.length > winner.href.length) {
+      winner = link;
+    }
+  }
+  return winner?.href ?? null;
+}
+
 export default function NavLinks() {
   const pathname = usePathname() ?? "/";
+  const activeHref = mostSpecificActiveHref(pathname, PRIMARY_NAV);
   return (
     <ul
       style={{
@@ -42,7 +68,7 @@ export default function NavLinks() {
       }}
     >
       {PRIMARY_NAV.map((link) => {
-        const active = isActive(pathname, link.href);
+        const active = activeHref === link.href;
         return (
           <li key={link.href}>
             <Link
