@@ -11,6 +11,7 @@ from species.views_coordinator_dashboard import (
     SexRatioRiskView,
     StaleCensusView,
     StudbookStatusView,
+    TransferActivityView,
 )
 from species.views_dashboard import DashboardView
 from species.views_genus import GenusSilhouetteView
@@ -52,6 +53,11 @@ urlpatterns = [
         "coordinator-dashboard/sex-ratio-risk/",
         SexRatioRiskView.as_view(),
         name="coordinator-sex-ratio-risk",
+    ),
+    path(
+        "coordinator-dashboard/transfer-activity/",
+        TransferActivityView.as_view(),
+        name="coordinator-transfer-activity",
     ),
     # Genus silhouette (public cascade fallback — see docs/design.md §15)
     path(
