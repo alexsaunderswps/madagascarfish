@@ -17,7 +17,8 @@ class Institution(models.Model):
         ZOO = "zoo"
         AQUARIUM = "aquarium"
         RESEARCH_ORG = "research_org"
-        HOBBYIST_PROGRAM = "hobbyist_program"
+        HOBBYIST_PROGRAM = "hobbyist_program", "Hobbyist program (CARES, Citizen Conservation)"
+        HOBBYIST_KEEPER = "hobbyist_keeper", "Hobbyist keeper (individual)"
         NGO = "ngo"
         GOVERNMENT = "government"
 
