@@ -25,7 +25,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.permissions import TierPermission
+from accounts.permissions import TierOrServiceTokenPermission
 from populations.models import ExSituPopulation
 from species.models import Species
 
@@ -70,7 +70,7 @@ class StaleCensusView(APIView):
     censused, which is itself a coordinator-relevant gap.
     """
 
-    permission_classes = [TierPermission(3)]
+    permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
 
     def get(self, request: Request) -> Response:
         today = timezone.now().date()
@@ -159,7 +159,7 @@ class CoverageGapView(APIView):
     sibling: ``data_deficient.total`` / ``data_deficient.endemic_count``.
     """
 
-    permission_classes = [TierPermission(3)]
+    permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
 
     def get(self, request: Request) -> Response:
         endemic_only = self._parse_bool(request.query_params.get("endemic_only"), default=True)
@@ -227,7 +227,7 @@ NO_CAPTIVE = "no_captive_population"
 class StudbookStatusView(APIView):
     """Per-species classification across the four studbook/breeding buckets."""
 
-    permission_classes = [TierPermission(3)]
+    permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
 
     def get(self, request: Request) -> Response:
         # Pull populations once, group in Python. This is small enough (dozens
@@ -356,7 +356,7 @@ def _demographic_risk_reasons(m: int | None, f: int | None, u: int | None) -> li
 class SexRatioRiskView(APIView):
     """Populations where demographic composition is functionally at-risk."""
 
-    permission_classes = [TierPermission(3)]
+    permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
 
     def get(self, request: Request) -> Response:
         populations = ExSituPopulation.objects.select_related("species", "institution").only(
