@@ -68,7 +68,7 @@ export default function CoverageGapPanel({ data }: Props) {
       title={`Coverage gap — ${total} ${endemic_only ? "endemic " : ""}species`}
       caption="Critically Endangered, Endangered, and Vulnerable species with no ex-situ population on record. The highest-signal triage list for coordinators."
     >
-      <div style={TOGGLE_ROW_STYLE} role="tablist" aria-label="Endemic filter">
+      <nav style={TOGGLE_ROW_STYLE} aria-label="Endemic filter">
         <Link
           href="/dashboard/coordinator"
           style={endemic_only ? TOGGLE_ACTIVE_STYLE : TOGGLE_LINK_STYLE}
@@ -86,7 +86,7 @@ export default function CoverageGapPanel({ data }: Props) {
         >
           All threatened
         </Link>
-      </div>
+      </nav>
 
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>

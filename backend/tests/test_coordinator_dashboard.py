@@ -404,7 +404,7 @@ class TestCoverageGapFilter:
 # ---------- Panel 2: Studbook Status ----------
 
 
-def _pop(
+def _make_pop(
     species: Species,
     institution: Institution,
     *,
@@ -457,9 +457,9 @@ class TestStudbookBuckets:
     ) -> None:
         # Species with two populations: one studbook-managed, one not breeding.
         # Should land in "studbook_managed" bucket, not split.
-        _pop(species_one, institution_zoo, studbook=True, breeding="unknown")
+        _make_pop(species_one, institution_zoo, studbook=True, breeding="unknown")
         inst_b = Institution.objects.create(name="Inst B", institution_type="zoo", country="DE")
-        _pop(species_one, inst_b, studbook=False, breeding="non-breeding")
+        _make_pop(species_one, inst_b, studbook=False, breeding="non-breeding")
 
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(STUDBOOK_ENDPOINT).json()
@@ -474,7 +474,7 @@ class TestStudbookBuckets:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, studbook=False, breeding="breeding")
+        _make_pop(species_one, institution_zoo, studbook=False, breeding="breeding")
 
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(STUDBOOK_ENDPOINT).json()
@@ -488,7 +488,7 @@ class TestStudbookBuckets:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, studbook=False, breeding="unknown")
+        _make_pop(species_one, institution_zoo, studbook=False, breeding="unknown")
 
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(STUDBOOK_ENDPOINT).json()
@@ -502,7 +502,7 @@ class TestStudbookBuckets:
         species_two: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, studbook=True)
+        _make_pop(species_one, institution_zoo, studbook=True)
         # species_two has zero populations → counted as no_captive
 
         api_client.force_authenticate(user=tier3_user)
@@ -517,9 +517,9 @@ class TestStudbookBuckets:
     ) -> None:
         sp_z = _mkspecies("Zeta zeta", "CR")
         sp_a = _mkspecies("Alpha alpha", "CR")
-        _pop(sp_z, institution_zoo, breeding="breeding")
+        _make_pop(sp_z, institution_zoo, breeding="breeding")
         inst_b = Institution.objects.create(name="Inst B", institution_type="zoo", country="DE")
-        _pop(sp_a, inst_b, breeding="breeding")
+        _make_pop(sp_a, inst_b, breeding="breeding")
 
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(STUDBOOK_ENDPOINT).json()
@@ -549,7 +549,7 @@ class TestSexRatioLogic:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, count_male=5, count_female=5, count_unsexed=0)
+        _make_pop(species_one, institution_zoo, count_male=5, count_female=5, count_unsexed=0)
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(SEX_RATIO_ENDPOINT).json()
         assert body["total_at_risk"] == 0
@@ -561,7 +561,7 @@ class TestSexRatioLogic:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, count_male=0, count_female=10, count_unsexed=0)
+        _make_pop(species_one, institution_zoo, count_male=0, count_female=10, count_unsexed=0)
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(SEX_RATIO_ENDPOINT).json()
         assert body["total_at_risk"] == 1
@@ -576,7 +576,7 @@ class TestSexRatioLogic:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, count_male=1, count_female=5, count_unsexed=0)
+        _make_pop(species_one, institution_zoo, count_male=1, count_female=5, count_unsexed=0)
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(SEX_RATIO_ENDPOINT).json()
         assert body["total_at_risk"] == 1
@@ -589,7 +589,7 @@ class TestSexRatioLogic:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, count_male=1, count_female=4, count_unsexed=0)
+        _make_pop(species_one, institution_zoo, count_male=1, count_female=4, count_unsexed=0)
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(SEX_RATIO_ENDPOINT).json()
         assert body["total_at_risk"] == 0
@@ -601,7 +601,7 @@ class TestSexRatioLogic:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, count_male=2, count_female=2, count_unsexed=10)
+        _make_pop(species_one, institution_zoo, count_male=2, count_female=2, count_unsexed=10)
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(SEX_RATIO_ENDPOINT).json()
         assert body["total_at_risk"] == 1
@@ -614,7 +614,7 @@ class TestSexRatioLogic:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, count_male=0, count_female=0, count_unsexed=0)
+        _make_pop(species_one, institution_zoo, count_male=0, count_female=0, count_unsexed=0)
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(SEX_RATIO_ENDPOINT).json()
         assert body["total_at_risk"] == 0
@@ -626,7 +626,7 @@ class TestSexRatioLogic:
         species_one: Species,
         institution_zoo: Institution,
     ) -> None:
-        _pop(species_one, institution_zoo, count_male=0, count_female=7, count_unsexed=3)
+        _make_pop(species_one, institution_zoo, count_male=0, count_female=7, count_unsexed=3)
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(SEX_RATIO_ENDPOINT).json()
         assert body["results"][0]["mfu"] == "0.7.3"
@@ -640,10 +640,10 @@ class TestSexRatioLogic:
         sp_single = _mkspecies("Single risk", "CR")
         sp_double = _mkspecies("Double risk", "CR", genus="Bedotia", family="Bedotiidae")
         # Single risk: no_males only
-        _pop(sp_single, institution_zoo, count_male=0, count_female=5, count_unsexed=0)
+        _make_pop(sp_single, institution_zoo, count_male=0, count_female=5, count_unsexed=0)
         # Double risk: no_males AND mostly_unsexed
         inst_b = Institution.objects.create(name="Inst B", institution_type="zoo", country="DE")
-        _pop(sp_double, inst_b, count_male=0, count_female=1, count_unsexed=10)
+        _make_pop(sp_double, inst_b, count_male=0, count_female=1, count_unsexed=10)
 
         api_client.force_authenticate(user=tier3_user)
         body = api_client.get(SEX_RATIO_ENDPOINT).json()

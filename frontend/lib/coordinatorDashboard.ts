@@ -107,7 +107,15 @@ function coordinatorHeaders(): HeadersInit {
 
 async function fetchCoordinator<T>(path: string): Promise<T | null> {
   try {
-    return await apiFetch<T>(path, { headers: coordinatorHeaders() });
+    // revalidate: 0 bypasses Next.js's fetch cache for these responses.
+    // Coordinator panels surface population-level detail at an identifiable
+    // institution; caching the response in Next's shared fetch cache (default
+    // 1h via apiFetch) would let the same payload be replayed to subsequent
+    // SSR requests without re-authenticating upstream. Hit Django every time.
+    return await apiFetch<T>(path, {
+      headers: coordinatorHeaders(),
+      revalidate: 0,
+    });
   } catch {
     return null;
   }
