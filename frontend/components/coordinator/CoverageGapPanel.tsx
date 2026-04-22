@@ -3,46 +3,8 @@ import type { CSSProperties } from "react";
 
 import type { CoverageGapResponse } from "@/lib/coordinatorDashboard";
 
+import CoverageGapTable from "./CoverageGapTable";
 import PanelShell from "./PanelShell";
-
-const STATUS_COLORS: Record<string, string> = {
-  CR: "#c0392b",
-  EN: "#d35400",
-  VU: "#c18a1f",
-};
-
-const TABLE_STYLE: CSSProperties = {
-  width: "100%",
-  borderCollapse: "collapse",
-  fontSize: 13,
-};
-
-const TH_STYLE: CSSProperties = {
-  textAlign: "left",
-  padding: "8px 10px",
-  borderBottom: "1px solid var(--rule)",
-  fontWeight: 600,
-  color: "var(--ink-2)",
-  fontSize: 12,
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
-};
-
-const TD_STYLE: CSSProperties = {
-  padding: "8px 10px",
-  borderBottom: "1px solid var(--rule)",
-  color: "var(--ink)",
-};
-
-const BADGE_STYLE: CSSProperties = {
-  display: "inline-block",
-  padding: "2px 8px",
-  borderRadius: 4,
-  fontSize: 11,
-  fontWeight: 700,
-  color: "white",
-  letterSpacing: "0.04em",
-};
 
 const DD_CARD_STYLE: CSSProperties = {
   marginTop: 16,
@@ -132,67 +94,7 @@ export default function CoverageGapPanel({ data }: Props) {
           match.
         </p>
       ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table style={TABLE_STYLE}>
-            <thead>
-              <tr>
-                <th style={TH_STYLE}>Status</th>
-                <th style={TH_STYLE}>Species</th>
-                <th style={TH_STYLE}>Family</th>
-                <th style={TH_STYLE}>Endemic</th>
-                <th style={TH_STYLE}>Trend</th>
-                <th style={TH_STYLE}>CARES</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((row) => (
-                <tr key={row.species_id}>
-                  <td style={TD_STYLE}>
-                    <span
-                      style={{
-                        ...BADGE_STYLE,
-                        backgroundColor:
-                          STATUS_COLORS[row.iucn_status] ?? "var(--ink-3)",
-                      }}
-                    >
-                      {row.iucn_status}
-                    </span>
-                  </td>
-                  <td style={TD_STYLE}>
-                    <Link
-                      href={`/species/${row.species_id}`}
-                      style={{
-                        color: "var(--accent-2)",
-                        textDecoration: "none",
-                        fontStyle: "italic",
-                      }}
-                    >
-                      {row.scientific_name}
-                    </Link>
-                    {row.shoal_priority ? (
-                      <span
-                        style={{
-                          marginLeft: 8,
-                          fontSize: 10,
-                          color: "var(--accent-2)",
-                          fontWeight: 700,
-                          letterSpacing: "0.04em",
-                        }}
-                        title="SHOAL 1,000 Fishes priority species"
-                      >
-                        SHOAL
-                      </span>
-                    ) : null}
-                  </td>
-                  <td style={TD_STYLE}>{row.family}</td>
-                  <td style={TD_STYLE}>{row.endemic_status}</td>
-                  <td style={TD_STYLE}>{row.population_trend ?? "—"}</td>
-                  <td style={TD_STYLE}>{row.cares_status ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <CoverageGapTable rows={results} endemicOnly={endemic_only} />
       )}
 
       <div style={DD_CARD_STYLE}>
