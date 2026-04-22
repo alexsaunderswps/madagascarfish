@@ -15,6 +15,7 @@ Panel numbering follows the user's ordering from the Gate 3 scope call
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import TypedDict
 
@@ -239,23 +240,29 @@ class StudbookStatusView(APIView):
             "studbook_managed",
             "species__scientific_name",
         )
-        by_species: dict[int, dict[str, object]] = {}
+
+        @dataclass
+        class _SpeciesAggregate:
+            species_id: int
+            scientific_name: str
+            population_count: int = 0
+            has_studbook: bool = False
+            has_breeding: bool = False
+
+        by_species: dict[int, _SpeciesAggregate] = {}
         for pop in populations:
-            entry = by_species.setdefault(
-                pop.species_id,
-                {
-                    "species_id": pop.species_id,
-                    "scientific_name": pop.species.scientific_name,
-                    "has_studbook": False,
-                    "has_breeding": False,
-                    "population_count": 0,
-                },
-            )
-            entry["population_count"] = int(entry["population_count"]) + 1  # type: ignore[arg-type]
+            entry = by_species.get(pop.species_id)
+            if entry is None:
+                entry = _SpeciesAggregate(
+                    species_id=pop.species_id,
+                    scientific_name=pop.species.scientific_name,
+                )
+                by_species[pop.species_id] = entry
+            entry.population_count += 1
             if pop.studbook_managed:
-                entry["has_studbook"] = True
+                entry.has_studbook = True
             if pop.breeding_status == ExSituPopulation.BreedingStatus.BREEDING:
-                entry["has_breeding"] = True
+                entry.has_breeding = True
 
         buckets: dict[str, list[dict[str, object]]] = {
             STUDBOOK_MANAGED: [],
@@ -263,14 +270,14 @@ class StudbookStatusView(APIView):
             HOLDINGS_ONLY: [],
         }
         for entry in by_species.values():
-            row = {
-                "species_id": entry["species_id"],
-                "scientific_name": entry["scientific_name"],
-                "population_count": entry["population_count"],
+            row: dict[str, object] = {
+                "species_id": entry.species_id,
+                "scientific_name": entry.scientific_name,
+                "population_count": entry.population_count,
             }
-            if entry["has_studbook"]:
+            if entry.has_studbook:
                 buckets[STUDBOOK_MANAGED].append(row)
-            elif entry["has_breeding"]:
+            elif entry.has_breeding:
                 buckets[BREEDING_NOT_STUDBOOK].append(row)
             else:
                 buckets[HOLDINGS_ONLY].append(row)
