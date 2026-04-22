@@ -1,9 +1,10 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
 from populations.models import ExSituPopulation, HoldingRecord, Institution
+from species.admin_revalidate import _post_revalidate, revalidate_public_pages
 
 
 class HoldingRecordInline(admin.TabularInline):
@@ -40,6 +41,15 @@ class InstitutionAdmin(admin.ModelAdmin):
         "aza_member",
     ]
     search_fields = ["name", "city", "country"]
+    actions = [revalidate_public_pages]
+
+    def save_model(
+        self, request: HttpRequest, obj: Institution, form: object, change: bool
+    ) -> None:
+        super().save_model(request, obj, form, change)
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
 
 
 @admin.register(ExSituPopulation)
@@ -58,6 +68,7 @@ class ExSituPopulationAdmin(admin.ModelAdmin):
     search_fields = ["species__scientific_name", "institution__name"]
     list_select_related = ["species", "institution"]
     inlines = [HoldingRecordInline]
+    actions = [revalidate_public_pages]
 
     def _is_institution_scoped(self, request: HttpRequest) -> bool:
         """Tier 3-4 users can only write to their own institution's records."""
@@ -106,6 +117,9 @@ class ExSituPopulationAdmin(admin.ModelAdmin):
             if obj.institution_id != request.user.institution_id:  # type: ignore[union-attr]
                 raise PermissionDenied("You can only create records for your own institution.")
         super().save_model(request, obj, form, change)
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
 
     def save_formset(
         self, request: HttpRequest, form: object, formset: object, change: bool
