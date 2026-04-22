@@ -323,12 +323,78 @@ population's counts separately when the animals arrive.
 
 ---
 
-## 9. Bulk import
+## 9. Bulk import — `seed_populations`
 
-Not built yet. Every row is entered through admin currently. If you
-accumulate a CARES list with tens of rows, say the word and a
-`seed_populations` management command reading a CSV is a few hours of
-work — same pattern as `seed_species`.
+For bulk CARES loads, use the `seed_populations` management command
+instead of clicking each row through admin.
+
+### CSV shape
+
+One row = one population. Institutions are deduplicated by
+`institution_name` — three rows with the same name create one
+Institution and three populations attached to it.
+
+| Column | Required | Notes |
+|---|---|---|
+| `institution_name` | yes | The dedup key |
+| `institution_type` | no | Default `hobbyist_keeper`. Enum: `zoo`, `aquarium`, `research_org`, `hobbyist_program`, `hobbyist_keeper`, `ngo`, `government` |
+| `country` | no | Default `"Unknown"` |
+| `city` | no | |
+| `contact_email` | no | Tier 3+ only on display |
+| `species_scientific_name` | yes | Must already exist in the registry |
+| `count_total` / `count_male` / `count_female` / `count_unsexed` | no | Integers, blanks OK |
+| `breeding_status` | no | Enum: `breeding` / `non-breeding` / `unknown`. Default `unknown` |
+| `studbook_managed` | no | Boolean. Accepts `true/false/yes/no/1/0`. Default `false` |
+| `last_census_date` / `date_established` | no | `YYYY-MM-DD` |
+| `founding_source`, `notes` | no | Free text |
+
+Convention for CARES hobbyist rows: `institution_type=hobbyist_keeper`,
+`studbook_managed=false`, set `last_census_date` to the date your
+CARES data was collected.
+
+### Example row
+
+```csv
+institution_name,institution_type,country,species_scientific_name,count_total,count_male,count_female,count_unsexed,breeding_status,studbook_managed,last_census_date
+J. Smith (CARES),hobbyist_keeper,United States,Paretroplus menarambo,10,4,5,1,breeding,false,2026-04-15
+```
+
+### Running it on staging
+
+SSH in and drop the CSV at `data/seed/populations.csv` on the host
+(SCP from your laptop or edit with `nano` on the server):
+
+```bash
+ssh deploy@46.224.196.197
+cd /home/deploy/madagascarfish/deploy/staging
+
+# Dry-run first — parse + validate, roll back all DB changes
+docker compose exec -T web python manage.py seed_populations \
+  --csv /data/seed/populations.csv --dry-run
+
+# Review the output, then the real run
+docker compose exec -T web python manage.py seed_populations \
+  --csv /data/seed/populations.csv
+```
+
+The command is **idempotent**: re-running with the same CSV updates
+existing rows rather than duplicating them. Dedup keys are
+`Institution.name` and `(species, institution)` for populations.
+
+### Error handling
+
+- Rows with invalid enums or missing required fields are **skipped
+  individually** — the rest of the CSV still loads. Errors print to
+  stderr (first 50, then a suppressed-count line).
+- Rows referencing a species scientific name that's not in the
+  registry are skipped with a `species not found` error.
+
+### What it does NOT do
+
+- Doesn't touch `HoldingRecord` — populations get current-state
+  counts, historical census snapshots are admin-only.
+- Doesn't touch `CoordinatedProgram` or `Transfer` — those stay
+  admin-only.
 
 ---
 
