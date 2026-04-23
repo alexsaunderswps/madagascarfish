@@ -557,7 +557,7 @@ def _serialize_recommendation(r: BreedingRecommendation) -> dict[str, object]:
                 "id": r.target_institution_id,
                 "name": r.target_institution.name,
             }
-            if r.target_institution_id
+            if r.target_institution is not None
             else None
         ),
         "rationale": r.rationale or "",
@@ -608,9 +608,12 @@ class OpenRecommendationsView(APIView):
 
         # Count how many have a due_date already in the past — coordinator
         # signal that these are overdue, not just open.
-        overdue_count = sum(
-            1 for row in rows if row["due_date"] and row["due_date"] < today.isoformat()
-        )
+        today_iso = today.isoformat()
+        overdue_count = 0
+        for row in rows:
+            due = row["due_date"]
+            if isinstance(due, str) and due < today_iso:
+                overdue_count += 1
 
         return Response(
             {
