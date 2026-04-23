@@ -6,89 +6,16 @@ needs your domain judgment, or reference lookups that help steer the next
 round of development. I'll maintain it as items land or become obsolete.
 
 **How to use this file:**
-- Items are grouped by type, not by priority. The **Priority** column inside
-  each section is what ranks them.
+
+- Items are grouped by type, not by priority. The **Priority** line inside
+  each item is what ranks them.
 - Each item says what to do, why it matters, and how to verify it's done.
-- **Don't delete completed items** — strike them through (`~~like this~~`) or
-  move them to the "Done" section at the bottom so we can see what was
-  actually shipped without a git archaeology dig.
+- **Don't delete completed items** — move them to the "Done" section at
+  the bottom with a short note on what it unlocked.
 
----
-
-## 1. Configuration (operator setup)
-
-### 1.1 Set `COORDINATOR_API_TOKEN` on Vercel + staging backend
-
-**Priority:** high. Without it, `/dashboard/coordinator` shows the orange
-"token not configured" banner we just added and all four panels are empty.
-
-**Steps:**
-
-1. Generate a secret on your laptop:
-   ```bash
-   openssl rand -hex 32
-   ```
-   Copy the output — same value goes into both places below.
-
-2. **Vercel** (Project Settings → Environment Variables):
-   - Key: `COORDINATOR_API_TOKEN`
-   - Value: the hex string
-   - Environments: check **Production** (and Preview if you want preview
-     branches to fetch coordinator data too)
-   - Save, then redeploy the project once (Vercel only picks up new env
-     vars on a fresh deploy).
-
-3. **Staging backend** — SSH in and edit the compose `.env`:
-   ```bash
-   ssh deploy@46.224.196.197
-   cd /home/deploy/madagascarfish/deploy/staging
-   nano .env
-   ```
-   Add the line:
-   ```
-   COORDINATOR_API_TOKEN=<same hex string>
-   ```
-   Save (`Ctrl-O`, Enter, `Ctrl-X`), then recreate the web container so
-   Django picks up the new env:
-   ```bash
-   docker compose up -d --force-recreate web
-   ```
-
-**How to verify:** open `https://malagasyfishes.org/dashboard/coordinator`.
-No orange banner. Panels render (they may be empty if you haven't seeded
-any populations yet — see §2.1). The curl check:
-```bash
-curl -s -o /dev/null -w "%{http_code}\n" \
-  -H "Authorization: Bearer <your token>" \
-  https://api.malagasyfishes.org/api/v1/coordinator-dashboard/stale-census/
-```
-should print `200`. Without the header it should print `403`.
-
-**Full runbook for this:** OPERATIONS.md §11.2.
-
----
-
-### 1.2 Verify the revalidate webhook is configured
-
-**Priority:** medium. Not blocking, but without it every admin save takes
-up to an hour to show on the public site.
-
-**Steps:** same pattern as §1.1 but with different names.
-
-- **Vercel env:** `REVALIDATE_SECRET` = `<a different secret you generate>`
-- **Staging `.env`:**
-  ```
-  NEXT_REVALIDATE_URL=https://malagasyfishes.org/api/revalidate
-  NEXT_REVALIDATE_SECRET=<same value as Vercel's REVALIDATE_SECRET>
-  ```
-- `docker compose up -d --force-recreate web`
-
-**How to verify:** edit any species in admin and save. The green banner
-should read "Revalidated N path(s)." If it says "Revalidate is not
-configured..." the backend env vars aren't set or the container wasn't
-recreated.
-
-**Full runbook:** OPERATIONS.md §11.1.
+**Last updated:** 2026-04-23 (reference PDFs dropped into `data/reference/`;
+§3 restructured to show which arrived, new §2.7 added with concrete
+EAZA-derived programs to seed).
 
 ---
 
@@ -113,9 +40,9 @@ see `POPULATION_DATA_GUIDE.md` §9. The CSV schema there maps cleanly
 to a CARES-style export (one row per keeper-species pair). Idempotent,
 dry-run supported, institutions auto-deduplicated by name.
 
-**Concrete steps to start:**
+**Concrete steps to start (manual admin path):**
 
-1. Sign in to https://api.malagasyfishes.org/admin/ as a Tier 5
+1. Sign in to <https://api.malagasyfishes.org/admin/> as a Tier 5
    (superuser) or Tier 3+ staff account.
 
 2. For each unique CARES keeper on your list:
@@ -140,37 +67,13 @@ dry-run supported, institutions auto-deduplicated by name.
    - `last_census_date`: **set to today** or the date of your CARES data
    - Save
 
-4. After a batch of entries, click the **"Revalidate public pages"** admin
-   action (available on Species / Genus / Institution / ExSituPopulation /
-   SiteMapAsset list views) to refresh ISR immediately. Or wait up to
-   an hour for it to refresh on its own.
+4. After a batch of entries, the admin save hook now auto-triggers
+   "Revalidate public pages" — the public site and dashboard refresh
+   immediately instead of waiting up to an hour for ISR.
 
 **How to verify:** open `/dashboard/coordinator` — Panel 2 should move
 species out of "No captive population" into whichever bucket fits
 (holdings-only, breeding-not-studbook, or studbook-managed).
-
----
-
-### 2.2 Re-upload silhouettes for Paretroplus menarambo + P. nourissati
-
-**Priority:** medium. These profiles currently show a placeholder fish
-because the original SVGs were stripped of width/height without a viewBox
-being synthesized — fix landed in PR #85 but the corrupted rows need
-re-upload to recover.
-
-**Steps:**
-
-1. https://api.malagasyfishes.org/admin/species/species/ → search for
-   "menarambo" → open it
-2. In the **Silhouette** section, use the **"Upload .svg file (optional)"**
-   picker to select the menarambo SVG from wherever you keep them locally
-3. Save. You should see the green revalidate banner.
-4. Repeat for `Paretroplus nourissati`.
-5. Open the public profile `/species/<id>/` — silhouette should render.
-
-**How to verify:** the directory card at `/species/` and the profile at
-`/species/<id>/` both show the species-specific SVG instead of the
-generic placeholder fish.
 
 ---
 
@@ -189,7 +92,7 @@ is in a basin HyBAS hasn't split out.
 
 **Steps:**
 
-1. https://api.malagasyfishes.org/admin/species/specieslocality/
+1. <https://api.malagasyfishes.org/admin/species/specieslocality/>
 2. In the right-hand filter column, check **"Drainage basin: (None)"**
    and **"Needs review: Yes"** — the rows you care about.
 3. For each one, open it and look at the `location` field on the map
@@ -223,7 +126,7 @@ and Panel 5 (transfer activity linked to a program).
 
 **Steps:**
 
-1. https://api.malagasyfishes.org/admin/populations/coordinatedprogram/add/
+1. <https://api.malagasyfishes.org/admin/populations/coordinatedprogram/add/>
 2. Fill in:
    - **Species**: autocomplete
    - **Program type**: `ssp` / `eep` / `cares` / `independent` / `other`
@@ -247,6 +150,11 @@ want the species to show up as "CARES priority" at the program level,
 add **one** CoordinatedProgram row per species with
 `program_type=cares` — don't create one per keeper.
 
+**See also §2.7 below — a starter list of real EEPs you can seed
+straight from the April 2026 EAZA programme overview.**
+
+---
+
 ### 2.5 Enter Transfer rows as you learn of moves
 
 **Priority:** medium. Panel 5 ("Transfer activity") renders whatever
@@ -257,6 +165,7 @@ with a lifecycle (proposed → approved → in_transit → completed /
 cancelled). Landed in Gate 4 Phase 1.
 
 **When to add a Transfer:**
+
 - A zoo tells you they're planning to move fish to another institution
 - A hobbyist moves founders between keepers
 - An accession from the wild (use the collecting institution as source)
@@ -264,7 +173,7 @@ cancelled). Landed in Gate 4 Phase 1.
 
 **Steps:**
 
-1. https://api.malagasyfishes.org/admin/populations/transfer/add/
+1. <https://api.malagasyfishes.org/admin/populations/transfer/add/>
 2. Fill in:
    - **Species / Source institution / Destination institution** (all
      autocomplete; source must differ from destination — DB-enforced)
@@ -287,6 +196,8 @@ activity" shows the row in "In flight" (if status is
 proposed/approved/in_transit) or "Recently completed" (if status=
 completed and actual_date is within last 90 days).
 
+---
+
 ### 2.6 Audit existing `studbook_managed` checkboxes
 
 **Priority:** low. Panel 2's "Studbook-managed" bucket reads this flag
@@ -296,7 +207,7 @@ incorrectly (e.g. CARES populations that should be in
 
 **Steps:**
 
-1. https://api.malagasyfishes.org/admin/populations/exsitupopulation/
+1. <https://api.malagasyfishes.org/admin/populations/exsitupopulation/>
 2. Filter: **"Studbook managed: Yes"**
 3. For each row, ask yourself: "Is there a formal studbook keeper
    assigned and a coordinated plan?" If no, uncheck.
@@ -306,107 +217,89 @@ that match your mental model.
 
 ---
 
-## 3. Reference documents to pull (helps me build)
+### 2.7 Seed real EAZA EEPs from the April 2026 programme overview
 
-If you have access to any of these, send them my way and I can shape
-Gate 4 Phase 2+ models tighter to what coordinators actually expect.
+**Priority:** medium-high for ABQ. These are **real, public** program
+entries — not demo data — and they make Panel 2 and Panel 5 feel
+meaningfully populated even before CARES data lands.
 
-### 3.1 AZA SSP / Regional Collection Plan template
+**Source:** `data/reference/April_2026_8e69dc12b4.pdf` (EAZA Ex-situ
+Programme overview, April 2026, rows 31 and 36 on page 1). These are
+the only two EEPs that directly touch Madagascar endemic freshwater
+fish families on the list.
 
-**Priority:** high for Gate 4 Phase 2.
+**Rows to enter** (all via
+<https://api.malagasyfishes.org/admin/populations/coordinatedprogram/add/>):
 
-**What I need:** a current AZA Species Survival Plan template —
-specifically the fields the studbook keeper maintains and the structure
-of a breeding recommendation. Public samples usually live on AZA's
-website but they're often behind member-only logins.
+| Field | Value #1 | Value #2 |
+|---|---|---|
+| Species | Pick one Bedotiidae species as the anchor (e.g. *Bedotia madagascariensis*) — or the whole family if we model that later | Pick one Paretroplus species as the anchor (e.g. *Paretroplus menarambo*) |
+| Program type | `eep` | `eep` |
+| Name | `EAZA EEP: Madagascar rainbowfishes (Bedotiidae)` | `EAZA EEP: Cichlids (Cichlidae)` |
+| Status | `active` | `active` |
+| Coordinating institution | Create `Bristol Zoo Project` (type `zoo`, country `United Kingdom`) if not present | Create `National Aquarium Denmark` (type `aquarium`, country `Denmark`) |
+| Studbook keeper | Blank unless Charles Fusari / Peter Petersen get accounts | Blank |
+| Plan summary | "EAZA EEP for the Bedotiidae rainbowfish family. Coordinator: Charles Fusari (Bristol Zoo Project). IUCN: EN. As of April 2026 EAZA overview." | "EAZA EEP for the Cichlidae family. Coordinator: Peter Petersen (National Aquarium Denmark). IUCN: CR. As of April 2026 EAZA overview." |
+| Start date | Blank (not given in the overview) | Blank |
 
-**How it'll help:** tighter `CoordinatedProgram` fields and a realistic
-`BreedingRecommendation` shape. Without this, I'm inferring from
-conference papers and old SPARKS documentation.
+**Note:** Our `CoordinatedProgram.species` is currently a single FK, so
+"family-level" EEPs need a stand-in species row. Pick the one most
+representative or that you have the most captive data for. Post-ABQ we
+can extend the model to carry family-level programs (Gate 4 Phase 2
+decision).
 
-**Concrete asks:**
-- One example filled-in SSP plan document
-- The SSP Annual Report template (if you can get it)
-- The Breeding and Transfer Plan template
+**Other EAZA EEPs worth noting (from the same overview):**
 
----
+Not Madagascar-endemic but tangentially relevant:
 
-### 3.2 EAZA EEP Best Practice Guidelines
+- **Goodeids (Goodeidae)** — Chester Zoo, Joe Chattell, EW-EN. Good
+  reference for CARES-adjacent hobbyist programs; see
+  `Action-Plan-for-the-Conservation-of-Mexicos-Goodeid-Fishes-23-33.pdf`.
+- **Sail-fin silversides / Pseudomugilidae** — Jens Bohn, CR-DD.
+- **Toothcarps (Valenciidae)** — Bristol Zoo Project, Brian Zimmerman, CR.
 
-**Priority:** high for Gate 4 Phase 2.
+These are not Madagascar species, so don't enter them against our
+registry — but they're useful context if someone at ABQ asks "who else
+runs freshwater-fish EEPs."
 
-**What I need:** EAZA publishes
-[Best Practice Guidelines per taxon](https://www.eaza.net/conservation/programmes/).
-A fish-relevant one (e.g. a cichlid EEP) would give me the European
-equivalent structure to AZA's and help me validate the shape.
-
-**Concrete asks:**
-- One EAZA EEP Best Practice Guidelines PDF for a freshwater fish
-- The current EAZA Monitor (population management software) export
-  schema if they publish it
-
----
-
-### 3.3 ZIMS export schema or field dictionary
-
-**Priority:** medium.
-
-**What I need:** if you or a partner institution has a ZIMS / Species360
-account, the **Data Export** section has per-module schemas. The ones
-that matter:
-- Specimen records (individual-level animal tracking)
-- Holding records (location over time)
-- Move / Transaction (transfers between institutions)
-- Breeding Event records
-
-**How it'll help:** if we want the platform to eventually exchange data
-with ZIMS, matching field names and enums reduces friction later.
-
-**Concrete ask:** a CSV export (even with fake data) of each of those
-four modules from a ZIMS-enabled institution. PDF field dictionary
-also works.
+**How to verify:** `/dashboard/coordinator` Panel 2 shows non-zero
+"Studbook-managed" or "Breeding, not studbook" counts; Panel 5
+"in flight" stays empty until you log Transfers.
 
 ---
 
-### 3.4 PMx / PMxWeb input format
+## 3. Reference documents
 
-**Priority:** low.
+### 3.1 Received and parsed (April 2026 batch)
 
-**What I need:** PMx is the demographic analysis tool studbook keepers
-run against their data. Its CSV input format is a real constraint on
-what we need to track per-animal to be PMx-compatible.
+The following arrived in `data/reference/` on 2026-04-23 and have been
+skimmed. Each closes a previous "need" item in this section.
 
-**Concrete ask:** the PMx CSV input spec, or a sample input file. Often
-in PMx training materials or SSP coordinator onboarding docs.
+| File | What it is | What it unlocks |
+|---|---|---|
+| `April_2026_8e69dc12b4.pdf` | EAZA Ex-situ Programme overview, April 2026 — the live registry of every EEP with coordinator + institution + IUCN status | **§2.7 above** — two concrete EEPs to seed right now (Bedotiidae, Cichlidae). Supersedes the §3.2 ask. |
+| `aza_ssp_handbook.pdf` | AZA Species Survival Plan Program Handbook (2024 revision) | Settles §3.1. Phase 2 model shape for `BreedingRecommendation` will follow the "Breeding and Transfer Plan" structure from Chapter 4; sustainability designations (green/yellow/red SSP) informs a future enum. |
+| `EAZA_Population_Management_Manual_V6_2_67db7a6627.pdf` | EAZA Population Management Manual V6.2 (Jan 2025) | Settles §3.2. Introduces the TAG → EEP → Species Committee hierarchy and the Long-Term Management Plan (LTMP) concept; also distinguishes EEP (intensive) from ESB (European Studbook, less intensive). Phase 2 may add `program_type='esb'` and an optional TAG layer above `CoordinatedProgram`. |
+| `starting_a_new_aza_studbook_in_zims_for_studbooks_2023.pdf` | ZIMS for Studbooks — SSP startup workflow | Partial for §3.3. Covers the operator workflow, not the field-level schema. |
+| `how_to_publish_a_studbook_using_zims_for_studbooks_mac.pdf` | ZIMS for Studbooks — publication workflow | Same as above. |
+| `guidelines_for_data_entry_and_maintenance_1996.pdf` | Studbook data entry guidelines (1996, SPARKS era) | Dated but useful — the per-animal field list is essentially stable. Informs `BreedingEvent` shape. |
+| `Action-Plan-for-the-Conservation-of-Mexicos-Goodeid-Fishes-23-33.pdf` | Goodeid Action Plan 2023-2033 | Domain analog — Mexican Goodeids are a parallel hobbyist-heavy CARES-adjacent case. Useful for workshop narrative but doesn't change the data model. |
+| `ActiveShoalPriorityMadagascar.csv` | SHOAL Priority Species — active Madagascar subset (44 rows) | Settles §3.6. A `reconcile_shoal_priority` management command can diff this against the registry and flip `Species.shoal_priority=True` for matches. Good half-day task when you want to run it. |
 
----
+**What this lets me do:** when you give the go-ahead for Gate 4
+Phase 2 (BreedingRecommendation + BreedingEvent models), I'll shape
+the fields against the AZA Breeding and Transfer Plan structure
+(Chapter 4 of the SSP Handbook) and the EAZA annual recommendations
+categories (breed / non-breed / transfer, per §3.14 of the EAZA
+manual). No new asks from you for that modeling work.
 
-### 3.5 CARES priority species list — current dataset
+### 3.2 Still outstanding
 
-**Priority:** high.
-
-**What I need:** the authoritative current CARES list in CSV form. The
-species records you're entering populations against should all have
-`cares_status` set correctly on the Species row.
-
-**Concrete ask:** the current CARES CSV (or a URL you can point me at).
-If it's a list I can pull and diff against what's in the registry, I
-can write a management command to reconcile automatically — say the
-word.
-
----
-
-### 3.6 SHOAL 1,000 Fishes Blueprint priority species
-
-**Priority:** low-medium.
-
-**What I need:** the current SHOAL 1,000 Fishes priority list for
-Madagascar endemics. `Species.shoal_priority` is a boolean in the
-model; it should reflect the current blueprint.
-
-**Concrete ask:** the Madagascar subset of the 1,000 Fishes list.
-Probably on shoalconservation.org or available on request. The
-conversation SHOAL is hosting at ABQ may be the natural place to ask.
+| Ask | Priority | Notes |
+|---|---|---|
+| **Current CARES priority species list — CSV** | high | The EAZA overview isn't this. Need the authoritative CARES list as a CSV (or URL) so I can diff against `Species.cares_status` and reconcile. If you have access to the CARES database or maintainer, request. |
+| **PMx / PMxWeb input format** | low | Only matters if we want the platform to export directly into PMx for demographic analysis. Not blocking ABQ or Phase 2. |
+| **ZIMS field dictionary (not just workflow)** | low-medium | The two ZIMS PDFs cover the operator workflow. A per-module field schema (CSV export column list or PDF dictionary) would let us shape models to be ZIMS-exportable in the future. Nice to have, not essential. |
 
 ---
 
@@ -418,29 +311,28 @@ conversation SHOAL is hosting at ABQ may be the natural place to ask.
 
 **Steps:** walk through `/dashboard/coordinator` end-to-end with real
 seeded data, ideally in the week before ABQ. Check:
-- All four panels populated and telling a coherent story
+
+- All five panels populated and telling a coherent story (Panel 5 is
+  Transfer activity; don't forget it)
 - "Show N more" on Panel 1 works with realistic list lengths
 - Tier 3+ gating works (log in as a non-admin tier 3 user too)
 - M.F.U formatting on Panel 3 reads sensibly with real ratios
 - Panel 4 catches populations you know are overdue
+- Coordinator nav link highlights correctly when you're on the page
+  (and doesn't double-highlight with Dashboard)
 
 **How to verify:** the person demoing (presumably you) can talk through
 each panel without awkward empty states or visible bugs.
 
----
+### 4.2 Decide whether to keep the Coordinator nav link visible at ABQ
 
-### 4.2 Decide: do you link `/dashboard/coordinator` from main nav for ABQ?
+**Priority:** low. The link is live as of PR #102 — anyone on the site
+sees it. You can still hide it before the demo if the "invited to see
+this" framing matters more than discoverability.
 
-**Priority:** medium.
-
-**Context:** currently the page is unlinked — you reach it by typing
-the URL. We agreed the "obscurity + token" posture is fine through
-ABQ. Before the workshop, decide whether the demo goes better linked
-from nav (easier to navigate on stage) or unlinked (preserves the
-"invited to see this" framing).
-
-**If you decide to link it:** ping me and I'll add a nav entry —
-it's a five-line change to `NavLinks.tsx`.
+**If you want to hide it for ABQ:** ping me and I'll drop the nav entry
+on a short branch; can put it back after the workshop. Keeping it
+visible is the default.
 
 ---
 
@@ -463,6 +355,99 @@ Listing these so you know they're not on your plate.
 
 ## Done
 
-_(Move items here with a strikethrough once completed, so we keep the
-receipt without cluttering the active list. First entry will go here
-once you close out 1.1.)_
+Completed items are archived here. We keep the full how-to for each so
+there's a runbook to refer back to when something needs to be re-done
+(e.g. secret rotation). Newest at the top.
+
+### 1.2 Verify the revalidate webhook is configured — DONE
+
+**Completed:** 2026-04-22.
+**Unlocks:** admin saves on Species / Genus / Institution /
+ExSituPopulation / SiteMapAsset immediately refresh the public site
+and coordinator dashboard; no more 1h ISR stale window.
+
+Runbook in case of secret rotation (same pattern as 1.1, different
+names):
+
+- **Vercel env:** `REVALIDATE_SECRET` = `<secret>`
+- **Staging `.env`:**
+
+  ```
+  NEXT_REVALIDATE_URL=https://malagasyfishes.org/api/revalidate
+  NEXT_REVALIDATE_SECRET=<same value as Vercel's REVALIDATE_SECRET>
+  ```
+
+- `docker compose up -d --force-recreate web`
+
+**Verification:** edit any species in admin and save. The green banner
+should read "Revalidated N path(s)." If it says "Revalidate is not
+configured..." the backend env vars aren't set or the container wasn't
+recreated. OPERATIONS.md §11.1.
+
+### 1.1 Set `COORDINATOR_API_TOKEN` on Vercel + staging backend — DONE
+
+**Completed:** 2026-04-22.
+**Unlocks:** `/dashboard/coordinator` renders panel data from the
+Tier 3+ API endpoints without a user session (service-token SSR).
+
+Runbook in case of secret rotation:
+
+1. Generate a secret on your laptop:
+
+   ```bash
+   openssl rand -hex 32
+   ```
+
+2. **Vercel** (Project Settings → Environment Variables):
+   - Key: `COORDINATOR_API_TOKEN`
+   - Value: the hex string
+   - Environments: **Production** (+ Preview if you want preview
+     branches to fetch coordinator data)
+   - Save, then redeploy the project.
+
+3. **Staging backend** — SSH in and edit the compose `.env`:
+
+   ```bash
+   ssh deploy@46.224.196.197
+   cd /home/deploy/madagascarfish/deploy/staging
+   nano .env
+   ```
+
+   Add / update:
+
+   ```
+   COORDINATOR_API_TOKEN=<same hex string>
+   ```
+
+   Save, then recreate the web container:
+
+   ```bash
+   docker compose up -d --force-recreate web
+   ```
+
+**Verification:**
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" \
+  -H "Authorization: Bearer <your token>" \
+  https://api.malagasyfishes.org/api/v1/coordinator-dashboard/stale-census/
+```
+
+Should print `200`. Without the header it should print `403`.
+
+Full runbook: OPERATIONS.md §11.2.
+
+### 2.2 Re-upload silhouettes for Paretroplus menarambo + P. nourissati — DONE
+
+**Completed:** 2026-04-22.
+**Unlocks:** species-specific silhouettes render on the directory card
+and profile page for both species; no more placeholder fish.
+
+The admin SVG file picker (PR #86) made this a drag-and-drop: open the
+species in `/admin/species/species/`, use the "Upload .svg file
+(optional)" field in the Silhouette section, save.
+
+### 3.1 / 3.2 / 3.3 (partial) / 3.6 reference documents — DONE on 2026-04-23
+
+See §3.1 above for the received-docs table. Remaining outstanding
+asks moved to §3.2.
