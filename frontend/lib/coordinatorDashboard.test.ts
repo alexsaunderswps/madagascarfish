@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   fetchCoverageGap,
+  fetchOpenRecommendations,
   fetchSexRatioRisk,
   fetchStaleCensus,
   fetchStudbookStatus,
@@ -76,6 +77,38 @@ describe("coordinatorDashboard fetchers", () => {
     );
     expect(await fetchStudbookStatus()).toBeNull();
     expect(await fetchSexRatioRisk()).toBeNull();
+  });
+
+  it("fetchOpenRecommendations hits the correct path and parses response", async () => {
+    const payload = {
+      reference_date: "2026-04-23",
+      total_open: 2,
+      overdue_count: 1,
+      results: [
+        {
+          recommendation_id: 1,
+          species: { id: 10, scientific_name: "Paretroplus menarambo" },
+          recommendation_type: "breed",
+          priority: "critical",
+          status: "open",
+          issued_date: "2026-04-01",
+          due_date: "2026-04-15",
+          coordinated_program_id: null,
+          source_population_id: null,
+          target_institution: null,
+          rationale: "Genetic bottleneck.",
+        },
+      ],
+    };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify(payload), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const body = await fetchOpenRecommendations();
+    expect(body).toEqual(payload);
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toContain("/coordinator-dashboard/open-recommendations/");
   });
 
   it("fetchTransferActivity hits the correct path", async () => {
