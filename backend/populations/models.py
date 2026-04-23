@@ -284,3 +284,184 @@ class HoldingRecord(models.Model):
 
     def __str__(self) -> str:
         return f"{self.population} — {self.date}"
+
+
+class BreedingRecommendation(models.Model):
+    """A formal coordinator recommendation for a species / population.
+
+    Shaped against EAZA Population Management Manual §3.14 (Annual breeding
+    and transfer recommendations) and AZA SSP Handbook Chapter 4 (Breeding
+    and Transfer Plans). Three primary recommendation categories map to
+    EAZA's breed / non-breed / transfer cut — with a catch-all 'other' for
+    anything that doesn't fit cleanly.
+
+    This is the coordinator's to-do list: what should happen with which
+    population, with what priority, by when. Surfaces on the coordinator
+    dashboard as an open-recommendations panel.
+    """
+
+    class RecommendationType(models.TextChoices):
+        BREED = "breed"
+        NON_BREED = "non_breed", "Non-breed (hold)"
+        TRANSFER = "transfer"
+        OTHER = "other"
+
+    class Priority(models.TextChoices):
+        CRITICAL = "critical"
+        HIGH = "high"
+        MEDIUM = "medium"
+        LOW = "low"
+
+    class Status(models.TextChoices):
+        OPEN = "open"
+        IN_PROGRESS = "in_progress", "In progress"
+        COMPLETED = "completed"
+        SUPERSEDED = "superseded"
+        CANCELLED = "cancelled"
+
+    species = models.ForeignKey(
+        "species.Species",
+        on_delete=models.PROTECT,
+        related_name="breeding_recommendations",
+    )
+    coordinated_program = models.ForeignKey(
+        "populations.CoordinatedProgram",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="breeding_recommendations",
+        help_text="The program this recommendation was issued under, if any.",
+    )
+    recommendation_type = models.CharField(max_length=20, choices=RecommendationType.choices)
+    priority = models.CharField(max_length=10, choices=Priority.choices, default=Priority.MEDIUM)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.OPEN)
+    source_population = models.ForeignKey(
+        ExSituPopulation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="breeding_recommendations_source",
+        help_text=(
+            "The specific population this recommendation concerns, when applicable. "
+            "Null for species-wide recommendations."
+        ),
+    )
+    target_institution = models.ForeignKey(
+        Institution,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="breeding_recommendations_target",
+        help_text=(
+            "The institution the recommendation is directed to — e.g. 'breed at "
+            "Bristol', 'transfer to Cologne'. Null for coordinator-wide calls."
+        ),
+    )
+    rationale = models.TextField(
+        blank=True,
+        help_text=(
+            "Why this recommendation. Copy from the SSP / EEP plan, planning "
+            "meeting minutes, or coordinator's own reasoning."
+        ),
+    )
+    issued_date = models.DateField(
+        help_text="When the recommendation was issued. Required.",
+    )
+    due_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Target date for action, if the plan specifies one.",
+    )
+    outcome_notes = models.TextField(
+        blank=True,
+        help_text="Free text — what happened. Filled in at resolution.",
+    )
+    issued_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="breeding_recommendations_issued",
+    )
+    resolved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="breeding_recommendations_resolved",
+    )
+    resolved_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "populations_breedingrecommendation"
+        ordering = ["-issued_date", "-priority"]
+        indexes = [
+            models.Index(fields=["status", "priority"]),
+            models.Index(fields=["species", "status"]),
+        ]
+
+    def __str__(self) -> str:
+        return (
+            f"{self.get_recommendation_type_display()} — "
+            f"{self.species} ({self.get_status_display()})"
+        )
+
+
+class BreedingEvent(models.Model):
+    """Time-series reproductive / demographic events per population.
+
+    Covers the studbook-style event log: spawning, hatching, mortality,
+    acquisition, disposition. Count deltas are signed — a mortality of
+    three males becomes ``count_delta_male = -3``. Applied as-is to
+    ``ExSituPopulation`` counts by an operator, not auto-recomputed here;
+    this table is the ledger, not the running total.
+
+    Field shape aligns with ZIMS studbook event types and the SPARKS-era
+    data-entry guidelines. Extends naturally if new event categories are
+    needed later (add to the enum).
+    """
+
+    class EventType(models.TextChoices):
+        SPAWNING = "spawning"
+        HATCHING = "hatching"
+        MORTALITY = "mortality"
+        ACQUISITION = "acquisition"
+        DISPOSITION = "disposition"
+        OTHER = "other"
+
+    population = models.ForeignKey(
+        ExSituPopulation,
+        on_delete=models.CASCADE,
+        related_name="breeding_events",
+    )
+    event_type = models.CharField(max_length=20, choices=EventType.choices)
+    event_date = models.DateField()
+    count_delta_male = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Signed change in male count. Negative = loss.",
+    )
+    count_delta_female = models.IntegerField(null=True, blank=True)
+    count_delta_unsexed = models.IntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    reporter = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="breeding_events_reported",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "populations_breedingevent"
+        ordering = ["-event_date", "-created_at"]
+        indexes = [
+            models.Index(fields=["population", "-event_date"]),
+            models.Index(fields=["event_type", "-event_date"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.get_event_type_display()} — {self.population} ({self.event_date})"
