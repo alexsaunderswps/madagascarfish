@@ -4,6 +4,8 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 
 from populations.models import (
+    BreedingEvent,
+    BreedingRecommendation,
     CoordinatedProgram,
     ExSituPopulation,
     HoldingRecord,
@@ -275,6 +277,177 @@ class TransferAdmin(admin.ModelAdmin):
     def save_model(self, request: HttpRequest, obj: Transfer, form: object, change: bool) -> None:
         if not change and obj.created_by_id is None:
             obj.created_by = request.user  # type: ignore[assignment]
+        super().save_model(request, obj, form, change)
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
+
+
+class BreedingEventInline(admin.TabularInline):
+    model = BreedingEvent
+    extra = 1
+    fields = [
+        "event_type",
+        "event_date",
+        "count_delta_male",
+        "count_delta_female",
+        "count_delta_unsexed",
+        "notes",
+        "reporter",
+    ]
+    readonly_fields = ["reporter"]
+
+
+@admin.register(BreedingRecommendation)
+class BreedingRecommendationAdmin(admin.ModelAdmin):
+    list_display = [
+        "species",
+        "recommendation_type",
+        "priority",
+        "status",
+        "target_institution",
+        "issued_date",
+        "due_date",
+    ]
+    list_filter = ["status", "recommendation_type", "priority"]
+    search_fields = [
+        "species__scientific_name",
+        "rationale",
+        "outcome_notes",
+    ]
+    autocomplete_fields = [
+        "species",
+        "coordinated_program",
+        "source_population",
+        "target_institution",
+    ]
+    list_select_related = [
+        "species",
+        "coordinated_program",
+        "target_institution",
+    ]
+    readonly_fields = [
+        "issued_by",
+        "resolved_by",
+        "created_at",
+        "updated_at",
+    ]
+    fieldsets = (
+        (
+            "What",
+            {
+                "fields": (
+                    "species",
+                    "recommendation_type",
+                    "priority",
+                    "rationale",
+                )
+            },
+        ),
+        (
+            "Who / where",
+            {
+                "fields": (
+                    "coordinated_program",
+                    "source_population",
+                    "target_institution",
+                )
+            },
+        ),
+        (
+            "Lifecycle",
+            {
+                "fields": (
+                    "status",
+                    "issued_date",
+                    "due_date",
+                    "resolved_date",
+                    "outcome_notes",
+                ),
+                "description": (
+                    "issued_date is required. Set status to in_progress when "
+                    "work starts, completed when done (with resolved_date and "
+                    "outcome_notes). superseded means a later recommendation "
+                    "replaced this one; cancelled means the plan changed."
+                ),
+            },
+        ),
+        (
+            "Audit",
+            {
+                "fields": ("issued_by", "resolved_by", "created_at", "updated_at"),
+            },
+        ),
+    )
+    actions = [revalidate_public_pages]
+
+    def save_model(
+        self,
+        request: HttpRequest,
+        obj: BreedingRecommendation,
+        form: object,
+        change: bool,
+    ) -> None:
+        if not change and obj.issued_by_id is None:
+            obj.issued_by = request.user  # type: ignore[assignment]
+        # Auto-fill resolved_by when status transitions to a terminal state.
+        if change and obj.status in (
+            BreedingRecommendation.Status.COMPLETED,
+            BreedingRecommendation.Status.SUPERSEDED,
+            BreedingRecommendation.Status.CANCELLED,
+        ):
+            if obj.resolved_by_id is None:
+                obj.resolved_by = request.user  # type: ignore[assignment]
+        super().save_model(request, obj, form, change)
+        ok, msg = _post_revalidate()
+        level = messages.SUCCESS if ok else messages.WARNING
+        self.message_user(request, msg, level=level)
+
+
+@admin.register(BreedingEvent)
+class BreedingEventAdmin(admin.ModelAdmin):
+    list_display = [
+        "population",
+        "event_type",
+        "event_date",
+        "count_delta_male",
+        "count_delta_female",
+        "count_delta_unsexed",
+        "reporter",
+    ]
+    list_filter = ["event_type"]
+    search_fields = [
+        "population__species__scientific_name",
+        "population__institution__name",
+        "notes",
+    ]
+    autocomplete_fields = ["population"]
+    list_select_related = ["population", "population__species", "population__institution"]
+    readonly_fields = ["reporter", "created_at"]
+    fieldsets = (
+        ("What", {"fields": ("population", "event_type", "event_date")}),
+        (
+            "Counts delta",
+            {
+                "fields": ("count_delta_male", "count_delta_female", "count_delta_unsexed"),
+                "description": (
+                    "Signed deltas. A mortality of three males is -3 in count_delta_male; "
+                    "a spawning that recruited five unsexed fry is +5 in count_delta_unsexed. "
+                    "Leave blank if the event didn't change the count (e.g. a spawning "
+                    "before hatching is recorded without a delta)."
+                ),
+            },
+        ),
+        ("Notes", {"fields": ("notes",)}),
+        ("Audit", {"fields": ("reporter", "created_at")}),
+    )
+    actions = [revalidate_public_pages]
+
+    def save_model(
+        self, request: HttpRequest, obj: BreedingEvent, form: object, change: bool
+    ) -> None:
+        if not change and obj.reporter_id is None:
+            obj.reporter = request.user  # type: ignore[assignment]
         super().save_model(request, obj, form, change)
         ok, msg = _post_revalidate()
         level = messages.SUCCESS if ok else messages.WARNING
