@@ -268,6 +268,176 @@ runs freshwater-fish EEPs."
 
 ---
 
+### 2.8 Enter BreedingRecommendation rows
+
+**Priority:** medium for ABQ demo narrative. Panel 6 on the coordinator
+dashboard ("Open breeding recommendations") only renders what's in this
+table — empty until you log.
+
+**What it is:** `BreedingRecommendation` is the coordinator's to-do
+list. Landed in Gate 4 Phase 2. Each row captures one recommendation
+for a species (or a specific population of that species) with a
+priority, type, and lifecycle status. Shaped against the EAZA
+Population Management Manual §3.14 three-category cut and the AZA SSP
+Handbook Chapter 4 Breeding and Transfer Plans structure.
+
+**When to add a row:**
+
+- A coordinated program (SSP / EEP / CARES) has published a plan and
+  recommends a specific species-level action (breed, hold, transfer).
+- A working-group meeting produced an action item with an owner and
+  a due date.
+- You as coordinator want to log "this population needs breeding
+  intervention" so it surfaces on the dashboard for follow-up.
+
+**Steps:**
+
+1. <https://api.malagasyfishes.org/admin/populations/breedingrecommendation/add/>
+2. Fill in the **What** section:
+   - **Species**: autocomplete
+   - **Recommendation type**: `breed` / `non_breed` / `transfer` / `other`.
+     (Use `transfer` when the plan calls for moving animals; a matching
+     Transfer row in §2.5 is the operational execution.)
+   - **Priority**: `critical` / `high` / `medium` / `low`.
+     Critical lights up red on the dashboard; use sparingly.
+   - **Rationale**: free text — why this recommendation exists. Copy
+     from SSP/EEP plan, working-group minutes, or your own note.
+3. **Who / where** (all optional):
+   - **Coordinated program**: link to the SSP/EEP/CARES row this
+     recommendation was issued under, if any (§2.4 entries).
+   - **Source population**: the specific `ExSituPopulation` this
+     applies to, when the rec is population-specific (e.g. "breed
+     Bristol's menarambo pair").
+   - **Target institution**: who the rec is directed to, when it's
+     directed. Null for coordinator-wide calls.
+4. **Lifecycle**:
+   - **Status**: start at `open`; flip to `in_progress` when the
+     target institution starts work; `completed` / `superseded` /
+     `cancelled` are terminal.
+   - **Issued date**: required. When the recommendation was issued.
+   - **Due date**: optional. If set AND in the past, the dashboard
+     tags the row as overdue.
+   - **Resolved date** / **outcome notes**: fill in at terminal
+     transition.
+5. Save. `issued_by` auto-fills to you on create; `resolved_by`
+   auto-fills when you move status to a terminal state.
+
+**How to verify:** `/dashboard/coordinator` → Panel 6 "Open breeding
+recommendations" shows the row sorted by priority (critical first).
+Completed / superseded / cancelled rows drop out of the panel.
+
+---
+
+### 2.9 Log BreedingEvent rows as events happen
+
+**Priority:** low for ABQ but high ongoing — this is the ledger that
+makes longitudinal analysis possible post-ABQ.
+
+**What it is:** `BreedingEvent` is the per-population event log.
+Landed in Gate 4 Phase 2. One row per discrete event: spawning,
+hatching, mortality, acquisition, disposition. Count deltas are
+**signed** — a three-male mortality is `count_delta_male = -3`, a
+thirty-fry hatch is `count_delta_unsexed = +30`. The table is a
+ledger; it doesn't auto-update `ExSituPopulation.count_*`.
+
+**When to add a row:**
+
+- A spawning / hatching event occurs (fish ex-situ is almost
+  exclusively oviparous — log both the spawn and later the hatch
+  as separate rows).
+- A mortality event (individual or group).
+- Animals arrive from another institution or the wild (acquisition).
+- Animals leave (disposition) outside the Transfer lifecycle — e.g.
+  euthanasia, escape, loss to natural cause.
+
+**Steps:**
+
+1. <https://api.malagasyfishes.org/admin/populations/breedingevent/add/>
+2. Fill in:
+   - **Population**: autocomplete (species at institution).
+   - **Event type**: the six-value enum above.
+   - **Event date**: when it actually happened.
+   - **Count deltas** (all signed, all optional):
+     - A spawning with no immediate recruit: leave deltas blank.
+     - A hatching that produced 30 fry: `count_delta_unsexed = 30`.
+     - A mortality of 2 females + 1 male: `count_delta_male = -1`,
+       `count_delta_female = -2`.
+     - An acquisition of 5 males + 5 females: `count_delta_male = 5`,
+       `count_delta_female = 5`.
+   - **Notes**: anything relevant. Water conditions, clutch size,
+     mortality cause.
+3. Save. `reporter` auto-fills to you.
+
+**What this does NOT do:** the event row is the ledger — it doesn't
+adjust the running `ExSituPopulation.count_total` / `count_male` /
+etc. Update those separately in the population's admin page after
+logging the event. The split is intentional: events are immutable
+history; counts are current state.
+
+**How to verify:** open the population in admin
+(`/admin/populations/exsitupopulation/<id>/`) — the inline at the
+bottom of the page lists the population's breeding events in
+reverse-chronological order.
+
+**No dashboard panel yet.** Events are for the record, not the
+coordinator triage view. A Gate 4 Phase 3 "recent reproductive
+activity" panel is plausible once you have enough events logged
+that it'd read as a trend line instead of a sparse list.
+
+---
+
+### 2.10 Reconcile SHOAL priority flags using the worklist report
+
+**Priority:** medium. Not blocking ABQ, but gets the public species
+directory and dashboard captions accurate about which species carry
+SHOAL's priority flag.
+
+**What it is:** a read-only management command (`shoal_priority_report`)
+that diffs `data/reference/ActiveShoalPriorityMadagascar.csv` against
+the registry and prints three lists. It makes no writes — you use the
+output as a worklist to manually flip `Species.shoal_priority` in
+admin, reviewing each flip against the current SHOAL website or
+published list.
+
+**Why the manual gate:** the CSV has no version / provenance metadata,
+taxonomy drift (`Pachypanchax omalonota` vs `omalonotus`) will cause
+false negatives on direct string match, and 8 species currently
+flagged in the registry aren't in the CSV. An auto-sync risks
+silently un-flagging species that should stay flagged.
+
+**Run it** (on staging or locally):
+
+```bash
+docker compose exec -T web python manage.py shoal_priority_report \
+  --csv /data/reference/ActiveShoalPriorityMadagascar.csv
+```
+
+The output has three sections:
+
+- **In CSV, not flagged True in registry** — candidates to flip True.
+- **Flagged True in registry, not in CSV** — candidates to review (flip
+  False? or CSV is stale?).
+- **In CSV, not in registry at all** — likely taxonomy drift or missing
+  species in our seed; investigate before adding.
+
+**Workflow:**
+
+1. Run the command. Save the output.
+2. For each entry in list #1: open
+   `/admin/species/species/?q=<scientific name>` and flip
+   `shoal_priority = True` if SHOAL's current website still lists them.
+3. For each entry in list #2: check if SHOAL removed them in a newer
+   list. If yes, flip False. If unclear, leave as-is.
+4. For each entry in list #3: check taxonomy (is it a synonym of
+   something we have?) — the `Pachypanchax omalonota` vs `omalonotus`
+   pattern is the most likely culprit. If it's a real missing species,
+   it should be added via the species seed process, not this command.
+
+**When to re-run:** when SHOAL publishes an updated priority list.
+Annually at most.
+
+---
+
 ## 3. Reference documents
 
 ### 3.1 Received and parsed (April 2026 batch)
@@ -286,12 +456,12 @@ skimmed. Each closes a previous "need" item in this section.
 | `Action-Plan-for-the-Conservation-of-Mexicos-Goodeid-Fishes-23-33.pdf` | Goodeid Action Plan 2023-2033 | Domain analog — Mexican Goodeids are a parallel hobbyist-heavy CARES-adjacent case. Useful for workshop narrative but doesn't change the data model. |
 | `ActiveShoalPriorityMadagascar.csv` | SHOAL Priority Species — active Madagascar subset (44 rows) | Settles §3.6. A `reconcile_shoal_priority` management command can diff this against the registry and flip `Species.shoal_priority=True` for matches. Good half-day task when you want to run it. |
 
-**What this lets me do:** when you give the go-ahead for Gate 4
-Phase 2 (BreedingRecommendation + BreedingEvent models), I'll shape
-the fields against the AZA Breeding and Transfer Plan structure
-(Chapter 4 of the SSP Handbook) and the EAZA annual recommendations
-categories (breed / non-breed / transfer, per §3.14 of the EAZA
-manual). No new asks from you for that modeling work.
+**What this let me do:** Gate 4 Phase 2 landed on 2026-04-23 with
+`BreedingRecommendation` + `BreedingEvent` models shaped against the
+AZA Breeding and Transfer Plan structure (Chapter 4 of the SSP
+Handbook) and the EAZA annual recommendations categories (breed /
+non-breed / transfer, per §3.14 of the EAZA manual). Data entry
+workflows for both are in §2.8 and §2.9 above.
 
 ### 3.2 Still outstanding
 
