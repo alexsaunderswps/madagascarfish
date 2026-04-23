@@ -1,12 +1,14 @@
 import type { CSSProperties } from "react";
 
 import CoverageGapPanel from "@/components/coordinator/CoverageGapPanel";
+import OpenRecommendationsPanel from "@/components/coordinator/OpenRecommendationsPanel";
 import SexRatioRiskPanel from "@/components/coordinator/SexRatioRiskPanel";
 import StaleCensusPanel from "@/components/coordinator/StaleCensusPanel";
 import StudbookStatusPanel from "@/components/coordinator/StudbookStatusPanel";
 import TransferActivityPanel from "@/components/coordinator/TransferActivityPanel";
 import {
   fetchCoverageGap,
+  fetchOpenRecommendations,
   fetchSexRatioRisk,
   fetchStaleCensus,
   fetchStudbookStatus,
@@ -125,14 +127,21 @@ export default async function CoordinatorDashboardPage({
   const endemicOnly = params.endemic_only !== "false";
   const tokenConfigured = isCoordinatorTokenConfigured();
 
-  const [coverage, studbook, sexRatio, staleCensus, transferActivity] =
-    await Promise.all([
-      fetchCoverageGap({ endemicOnly }),
-      fetchStudbookStatus(),
-      fetchSexRatioRisk(),
-      fetchStaleCensus(),
-      fetchTransferActivity(),
-    ]);
+  const [
+    coverage,
+    studbook,
+    sexRatio,
+    staleCensus,
+    transferActivity,
+    openRecommendations,
+  ] = await Promise.all([
+    fetchCoverageGap({ endemicOnly }),
+    fetchStudbookStatus(),
+    fetchSexRatioRisk(),
+    fetchStaleCensus(),
+    fetchTransferActivity(),
+    fetchOpenRecommendations(),
+  ]);
 
   return (
     <main style={PAGE_WRAPPER}>
@@ -157,6 +166,7 @@ export default async function CoordinatorDashboardPage({
       <SexRatioRiskPanel data={sexRatio} />
       <StaleCensusPanel data={staleCensus} />
       <TransferActivityPanel data={transferActivity} />
+      <OpenRecommendationsPanel data={openRecommendations} />
     </main>
   );
 }
