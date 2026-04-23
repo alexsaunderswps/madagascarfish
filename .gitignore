@@ -47,4 +47,9 @@ docs/ideation
 
 # Reference data source downloads (full-continent/global files; clipped outputs are committed)
 data/reference/source/
+# Third-party reference documents (AZA / EAZA / ZIMS / action plans /
+# SHOAL / CARES priority lists). Kept locally for development context,
+# not redistributed via the repo.
+data/reference/*.pdf
+data/reference/*.csv
 .claude/scheduled_tasks.lock
