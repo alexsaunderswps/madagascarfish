@@ -26,7 +26,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import TierOrServiceTokenPermission
-from populations.models import ExSituPopulation, Transfer
+from populations.models import BreedingRecommendation, ExSituPopulation, Transfer
 from species.models import Species
 
 # Census threshold. Days is the source of truth (used for the cutoff); months
@@ -518,3 +518,120 @@ class TransferActivityView(APIView):
                 "recent_completed": [_serialize_transfer(t) for t in recent_qs],
             }
         )
+
+
+# ---------- Panel 6 — Open breeding recommendations ----------
+
+# Priority ordering for sort — critical first, low last.
+_PRIORITY_RANK: dict[str, int] = {
+    str(BreedingRecommendation.Priority.CRITICAL): 0,
+    str(BreedingRecommendation.Priority.HIGH): 1,
+    str(BreedingRecommendation.Priority.MEDIUM): 2,
+    str(BreedingRecommendation.Priority.LOW): 3,
+}
+
+# Non-terminal statuses shown on the dashboard. Completed / superseded /
+# cancelled recommendations are archived; the panel is a to-do list.
+_OPEN_STATUSES = [
+    BreedingRecommendation.Status.OPEN,
+    BreedingRecommendation.Status.IN_PROGRESS,
+]
+
+
+def _serialize_recommendation(r: BreedingRecommendation) -> dict[str, object]:
+    return {
+        "recommendation_id": r.id,
+        "species": {
+            "id": r.species_id,
+            "scientific_name": r.species.scientific_name,
+        },
+        "recommendation_type": r.recommendation_type,
+        "priority": r.priority,
+        "status": r.status,
+        "issued_date": r.issued_date.isoformat() if r.issued_date else None,
+        "due_date": r.due_date.isoformat() if r.due_date else None,
+        "coordinated_program_id": r.coordinated_program_id,
+        "source_population_id": r.source_population_id,
+        "target_institution": (
+            {
+                "id": r.target_institution_id,
+                "name": r.target_institution.name,
+            }
+            if r.target_institution is not None
+            else None
+        ),
+        "rationale": r.rationale or "",
+    }
+
+
+class OpenRecommendationsView(APIView):
+    """Open breeding recommendations for the coordinator dashboard.
+
+    Returns non-terminal recommendations (open / in_progress) sorted by
+    priority (critical → low) then issued_date descending. A coordinator
+    scanning this panel sees the most-urgent work at the top, then the
+    in-progress rows that are already being worked.
+    """
+
+    permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
+
+    def get(self, request: Request) -> Response:
+        today = timezone.now().date()
+        qs = (
+            BreedingRecommendation.objects.select_related("species", "target_institution")
+            .filter(status__in=_OPEN_STATUSES)
+            .only(
+                "id",
+                "species_id",
+                "recommendation_type",
+                "priority",
+                "status",
+                "issued_date",
+                "due_date",
+                "coordinated_program_id",
+                "source_population_id",
+                "target_institution_id",
+                "rationale",
+                "species__scientific_name",
+                "target_institution__name",
+            )
+        )
+
+        rows = sorted(
+            (_serialize_recommendation(r) for r in qs),
+            key=lambda row: (
+                _PRIORITY_RANK.get(str(row["priority"]), 99),
+                # Newer issued first within the same priority bucket.
+                -_iso_date_sort_key(row["issued_date"]),
+            ),
+        )
+
+        # Count how many have a due_date already in the past — coordinator
+        # signal that these are overdue, not just open.
+        today_iso = today.isoformat()
+        overdue_count = 0
+        for row in rows:
+            due = row["due_date"]
+            if isinstance(due, str) and due < today_iso:
+                overdue_count += 1
+
+        return Response(
+            {
+                "reference_date": today.isoformat(),
+                "total_open": len(rows),
+                "overdue_count": overdue_count,
+                "results": rows,
+            }
+        )
+
+
+def _iso_date_sort_key(iso: object) -> int:
+    """Convert an ISO date string to an integer sort key.
+
+    Returns 0 for null so null-date rows sort last within their priority
+    bucket (since we negate the value for desc ordering).
+    """
+    if not isinstance(iso, str):
+        return 0
+    # YYYY-MM-DD → YYYYMMDD int. Stable within the same priority bucket.
+    return int(iso.replace("-", ""))

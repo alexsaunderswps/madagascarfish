@@ -129,6 +129,38 @@ export interface TransferActivityResponse {
   recent_completed: TransferRow[];
 }
 
+// ---------- Panel 6: Open breeding recommendations (Gate 4 Phase 2) ----------
+
+export type RecommendationType = "breed" | "non_breed" | "transfer" | "other";
+export type RecommendationPriority = "critical" | "high" | "medium" | "low";
+export type RecommendationStatus =
+  | "open"
+  | "in_progress"
+  | "completed"
+  | "superseded"
+  | "cancelled";
+
+export interface OpenRecommendationRow {
+  recommendation_id: number;
+  species: { id: number; scientific_name: string };
+  recommendation_type: RecommendationType;
+  priority: RecommendationPriority;
+  status: RecommendationStatus;
+  issued_date: string | null;
+  due_date: string | null;
+  coordinated_program_id: number | null;
+  source_population_id: number | null;
+  target_institution: { id: number; name: string } | null;
+  rationale: string;
+}
+
+export interface OpenRecommendationsResponse {
+  reference_date: string;
+  total_open: number;
+  overdue_count: number;
+  results: OpenRecommendationRow[];
+}
+
 // ---------- Shared fetch helpers ----------
 
 function coordinatorHeaders(): HeadersInit {
@@ -201,5 +233,11 @@ export function fetchStaleCensus(): Promise<StaleCensusResponse | null> {
 export function fetchTransferActivity(): Promise<TransferActivityResponse | null> {
   return fetchCoordinator<TransferActivityResponse>(
     "/api/v1/coordinator-dashboard/transfer-activity/",
+  );
+}
+
+export function fetchOpenRecommendations(): Promise<OpenRecommendationsResponse | null> {
+  return fetchCoordinator<OpenRecommendationsResponse>(
+    "/api/v1/coordinator-dashboard/open-recommendations/",
   );
 }
