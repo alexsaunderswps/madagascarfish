@@ -14,6 +14,9 @@ Covers:
 - GeoJSON shape validation per RFC 7946
 - Sensitive coordinate redaction when is_sensitive=True
 - Sensitive coordinates NOT served when location_generalized is absent
+- Tier-aware coordinate disclosure: Tier 3+ sees exact coords, lower tiers
+  see generalized points for CR/EN/VU species and for species flagged via
+  Species.location_sensitivity=override_sensitive
 - Write operations (POST/PUT/PATCH/DELETE) rejected on all read-only endpoints
 - Empty database state for each endpoint
 - Speculative field exposure: private fields must never appear in lower-tier responses
@@ -132,6 +135,21 @@ def species_cr(db: None) -> Species:
 
 
 @pytest.fixture
+def species_lc(db: None) -> Species:
+    """Least Concern species — not auto-generalized on the public map."""
+    return Species.objects.create(
+        scientific_name="Paretroplus polyactis",
+        taxonomic_status="described",
+        authority="Bleeker, 1878",
+        year_described=1878,
+        family="Cichlidae",
+        genus="Paretroplus",
+        endemic_status="endemic",
+        iucn_status="LC",
+    )
+
+
+@pytest.fixture
 def species_en(db: None) -> Species:
     return Species.objects.create(
         scientific_name="Pachypanchax sakaramyi",
@@ -234,6 +252,25 @@ def locality(species_cr: Species, watershed: Watershed) -> SpeciesLocality:
         locality_type="type_locality",
         presence_status="present",
         water_body="Manombo River",
+        water_body_type="river",
+        drainage_basin=watershed,
+        year_collected=2020,
+        coordinate_precision="exact",
+        source_citation="Smith et al. 2020",
+        is_sensitive=False,
+    )
+
+
+@pytest.fixture
+def public_locality(species_lc: Species, watershed: Watershed) -> SpeciesLocality:
+    """Locality tied to an LC species — should serve exact coordinates publicly."""
+    return SpeciesLocality.objects.create(
+        species=species_lc,
+        locality_name="Public River",
+        location=Point(47.52, -18.91, srid=4326),
+        locality_type="type_locality",
+        presence_status="present",
+        water_body="Public River",
         water_body_type="river",
         drainage_basin=watershed,
         year_collected=2020,
@@ -999,9 +1036,10 @@ class TestSensitiveCoordinateRedaction:
         assert coords[1] == pytest.approx(-19.6, abs=0.01)
 
     def test_non_sensitive_record_serves_exact_coordinates(
-        self, api_client: APIClient, locality: SpeciesLocality
+        self, api_client: APIClient, public_locality: SpeciesLocality
     ) -> None:
-        # Non-sensitive locality at 47.52, -18.91 must have exact coords
+        # Public locality (LC species, is_sensitive=False) at 47.52, -18.91
+        # — effective_is_sensitive is False, exact coords expected.
         resp = api_client.get("/api/v1/map/localities/")
         coords = resp.json()["features"][0]["geometry"]["coordinates"]
         assert coords[0] == pytest.approx(47.52, abs=0.0001)
@@ -1029,7 +1067,7 @@ class TestSensitiveCoordinateRedaction:
     def test_sensitive_and_non_sensitive_mixed_in_same_response(
         self,
         api_client: APIClient,
-        locality: SpeciesLocality,
+        public_locality: SpeciesLocality,
         sensitive_locality: SpeciesLocality,
     ) -> None:
         # With two localities in the response, only the sensitive one is generalized
@@ -1040,12 +1078,234 @@ class TestSensitiveCoordinateRedaction:
         for feature in data["features"]:
             name = feature["properties"]["locality_name"]
             coords = feature["geometry"]["coordinates"]
-            if name == "Manombo Forest":
-                # Non-sensitive: exact coords expected
+            if name == "Public River":
+                # LC species, non-sensitive: exact coords expected
                 assert coords[0] == pytest.approx(47.52, abs=0.0001)
             elif name == "Secret Cave":
                 # Sensitive: exact coords must NOT appear
                 assert coords[0] != pytest.approx(47.1234, abs=0.0001)
+
+
+# ===========================================================================
+# TIER-AWARE COORDINATE DISCLOSURE — Tier 3+ sees exact coords for sensitive
+# records; lower tiers (anonymous, Tier 1, Tier 2) see generalized points.
+# IUCN-derived sensitivity (CR/EN/VU) is enforced independently of the legacy
+# per-row is_sensitive flag; Species.location_sensitivity=override_sensitive
+# forces generalization regardless of IUCN status.
+# ===========================================================================
+
+
+@pytest.fixture
+def cr_locality_per_row_flag_off(species_cr: Species, watershed: Watershed) -> SpeciesLocality:
+    """CR species locality with is_sensitive=False.
+
+    Under the new IUCN-derived rule this record is effectively sensitive via
+    species status and must be generalized below the Tier-3 gate — even
+    though the legacy per-row flag is off.
+    """
+    return SpeciesLocality.objects.create(
+        species=species_cr,
+        locality_name="CR-species public-flag-off",
+        location=Point(47.4567, -19.1234, srid=4326),
+        locality_type="observation",
+        presence_status="present",
+        drainage_basin=watershed,
+        year_collected=2023,
+        coordinate_precision="exact",
+        source_citation="GBIF 2023",
+        is_sensitive=False,
+    )
+
+
+@pytest.fixture
+def override_sensitive_locality(species_lc: Species, watershed: Watershed) -> SpeciesLocality:
+    """LC species with the species-level override forcing sensitivity.
+
+    Simulates a local expert deciding a non-threatened species's refugium
+    should still be obscured on the public map.
+    """
+    species_lc.location_sensitivity = Species.LocationSensitivity.OVERRIDE_SENSITIVE
+    species_lc.save()
+    return SpeciesLocality.objects.create(
+        species=species_lc,
+        locality_name="Override-sensitive refugium",
+        location=Point(48.7654, -17.3210, srid=4326),
+        locality_type="observation",
+        presence_status="present",
+        drainage_basin=watershed,
+        year_collected=2024,
+        coordinate_precision="exact",
+        source_citation="Local survey 2024",
+        is_sensitive=False,
+    )
+
+
+@pytest.mark.django_db
+class TestTierAwareCoordinates:
+    """Verifies the contract: Tier 3+ sees exact coords, everyone else sees
+    generalized points for any record whose species is IUCN-sensitive or
+    carries a species-level override. Covers CLAUDE.md `Sensitive Data Rules`
+    and the public promise on /about/data/.
+    """
+
+    # -----------------------------------------------------------------
+    # Below-tier-3 (anonymous, Tier 1, Tier 2) → generalized for sensitive
+    # -----------------------------------------------------------------
+
+    def test_anonymous_gets_generalized_for_cr_species(
+        self,
+        api_client: APIClient,
+        cr_locality_per_row_flag_off: SpeciesLocality,
+    ) -> None:
+        """CR species + is_sensitive=False still generalizes for anonymous."""
+        resp = api_client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        # Exact stored point: 47.4567, -19.1234 — must NOT be returned.
+        assert coords[0] != pytest.approx(47.4567, abs=0.0001), (
+            "Exact longitude leaked to anonymous user for CR species"
+        )
+        assert coords[1] != pytest.approx(-19.1234, abs=0.0001), (
+            "Exact latitude leaked to anonymous user for CR species"
+        )
+        # Generalized point: rounded to 0.1° → 47.5, -19.1
+        assert coords[0] == pytest.approx(47.5, abs=0.01)
+        assert coords[1] == pytest.approx(-19.1, abs=0.01)
+
+    def test_tier1_gets_generalized_for_cr_species(
+        self,
+        api_client: APIClient,
+        tier1_user: User,
+        cr_locality_per_row_flag_off: SpeciesLocality,
+    ) -> None:
+        client = _auth_client(api_client, tier1_user)
+        resp = client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        # Assert both negative (exact leaked) and positive (generalized present)
+        # so the test fails if the serializer degrades to a null-geometry path.
+        assert coords[0] != pytest.approx(47.4567, abs=0.0001)
+        assert coords[1] != pytest.approx(-19.1234, abs=0.0001)
+        assert coords[0] == pytest.approx(47.5, abs=0.01)
+        assert coords[1] == pytest.approx(-19.1, abs=0.01)
+
+    def test_tier2_gets_generalized_for_cr_species(
+        self,
+        api_client: APIClient,
+        tier2_user: User,
+        cr_locality_per_row_flag_off: SpeciesLocality,
+    ) -> None:
+        """Researcher tier is still below the coordinator gate."""
+        client = _auth_client(api_client, tier2_user)
+        resp = client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        assert coords[0] != pytest.approx(47.4567, abs=0.0001)
+        assert coords[1] != pytest.approx(-19.1234, abs=0.0001)
+        assert coords[0] == pytest.approx(47.5, abs=0.01)
+        assert coords[1] == pytest.approx(-19.1, abs=0.01)
+
+    def test_anonymous_gets_generalized_for_override_sensitive_species(
+        self,
+        api_client: APIClient,
+        override_sensitive_locality: SpeciesLocality,
+    ) -> None:
+        """LC species flipped via Species.location_sensitivity override."""
+        resp = api_client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        # Exact: 48.7654, -17.3210 — must not appear
+        assert coords[0] != pytest.approx(48.7654, abs=0.0001)
+        assert coords[1] != pytest.approx(-17.3210, abs=0.0001)
+
+    def test_anonymous_gets_exact_for_lc_species(
+        self,
+        api_client: APIClient,
+        public_locality: SpeciesLocality,
+    ) -> None:
+        """LC species with no override, no per-row flag → exact coords public."""
+        resp = api_client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        assert coords[0] == pytest.approx(47.52, abs=0.0001)
+        assert coords[1] == pytest.approx(-18.91, abs=0.0001)
+
+    # -----------------------------------------------------------------
+    # Tier 3+ (coordinator, program manager, admin) → exact for everything
+    # -----------------------------------------------------------------
+
+    def test_tier3_gets_exact_for_cr_species(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        cr_locality_per_row_flag_off: SpeciesLocality,
+    ) -> None:
+        client = _auth_client(api_client, tier3_user)
+        resp = client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        assert coords[0] == pytest.approx(47.4567, abs=0.0001), (
+            "Tier 3 coordinator must see exact longitude for CR species"
+        )
+        assert coords[1] == pytest.approx(-19.1234, abs=0.0001), (
+            "Tier 3 coordinator must see exact latitude for CR species"
+        )
+
+    def test_tier3_gets_exact_for_per_row_sensitive_flag(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        sensitive_locality: SpeciesLocality,
+    ) -> None:
+        """Tier 3 unblocks the legacy per-row override too."""
+        client = _auth_client(api_client, tier3_user)
+        resp = client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        assert coords[0] == pytest.approx(47.1234, abs=0.0001)
+        assert coords[1] == pytest.approx(-19.5678, abs=0.0001)
+
+    def test_tier3_gets_exact_for_override_sensitive_species(
+        self,
+        api_client: APIClient,
+        tier3_user: User,
+        override_sensitive_locality: SpeciesLocality,
+    ) -> None:
+        client = _auth_client(api_client, tier3_user)
+        resp = client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        assert coords[0] == pytest.approx(48.7654, abs=0.0001)
+        assert coords[1] == pytest.approx(-17.3210, abs=0.0001)
+
+    def test_tier4_gets_exact_for_cr_species(
+        self,
+        api_client: APIClient,
+        tier4_user: User,
+        cr_locality_per_row_flag_off: SpeciesLocality,
+    ) -> None:
+        """Program Manager tier is above the gate too."""
+        client = _auth_client(api_client, tier4_user)
+        resp = client.get("/api/v1/map/localities/")
+        coords = resp.json()["features"][0]["geometry"]["coordinates"]
+        assert coords[0] == pytest.approx(47.4567, abs=0.0001)
+        assert coords[1] == pytest.approx(-19.1234, abs=0.0001)
+
+    def test_inactive_tier3_is_treated_as_anonymous(
+        self,
+        api_client: APIClient,
+        inactive_tier3_user: User,
+        cr_locality_per_row_flag_off: SpeciesLocality,
+    ) -> None:
+        """A deactivated Tier 3 account must not smuggle exact coords.
+
+        Token auth rejects inactive users outright, so the request lands as
+        anonymous and must receive the generalized point.
+        """
+        client = _auth_client(api_client, inactive_tier3_user)
+        resp = client.get("/api/v1/map/localities/")
+        # Auth for an inactive user is rejected before the view runs (401/403
+        # depending on DRF config) — either way, no exact coords leak. A 200
+        # fallback with generalized coords is also acceptable; all three
+        # paths satisfy the gate.
+        if resp.status_code == 200:
+            coords = resp.json()["features"][0]["geometry"]["coordinates"]
+            assert coords[0] != pytest.approx(47.4567, abs=0.0001)
+            assert coords[1] != pytest.approx(-19.1234, abs=0.0001)
+        else:
+            assert resp.status_code in (401, 403)
 
 
 # ===========================================================================

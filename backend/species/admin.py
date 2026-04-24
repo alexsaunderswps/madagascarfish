@@ -269,6 +269,7 @@ class SpeciesAdmin(admin.ModelAdmin):
         "iucn_status",
         "cares_status",
         "shoal_priority",
+        "location_sensitivity",
     ]
     list_filter = [
         "taxonomic_status",
@@ -277,6 +278,7 @@ class SpeciesAdmin(admin.ModelAdmin):
         "endemic_status",
         "family",
         "shoal_priority",
+        "location_sensitivity",
         "genus_fk",
     ]
     raw_id_fields = ["genus_fk"]
@@ -301,6 +303,11 @@ class SpeciesAdmin(admin.ModelAdmin):
         if obj is not None and _user_tier(request) >= 3:
             if "recent_iucn_status_audit" not in fields:
                 fields.append("recent_iucn_status_audit")
+        # location_sensitivity flips coordinate visibility on the public map,
+        # so editing it is superuser-only — mirrors the gating on
+        # SpeciesLocality.is_sensitive.
+        if not request.user.is_superuser and "location_sensitivity" not in fields:
+            fields.append("location_sensitivity")
         return fields
 
     def get_fieldsets(

@@ -19,7 +19,15 @@ MAP_CACHE_TTL = 300  # 5 minutes
 
 
 class SpeciesLocalityGeoView(APIView):
-    """GeoJSON FeatureCollection of species localities with filtering."""
+    """GeoJSON FeatureCollection of species localities with filtering.
+
+    Permission is intentionally ``AllowAny`` — the map is a public surface.
+    The tier-aware coordinate gate (Tier 3+ sees exact coords, everyone
+    else sees generalized points for sensitive species) lives inside
+    ``SpeciesLocalityGeoSerializer``, which reads ``context["request"]``.
+    Future refactors must keep passing the request context or the gate
+    silently fails *closed* (generalized everywhere) rather than open.
+    """
 
     permission_classes = [AllowAny]
 
@@ -73,7 +81,10 @@ class SpeciesLocalityGeoView(APIView):
             except (ValueError, TypeError):
                 pass  # Ignore malformed bbox
 
-        serializer = SpeciesLocalityGeoSerializer(qs, many=True)
+        # Pass request context so the serializer can gate on access tier —
+        # Tier 3+ sees exact coordinates, anyone else sees generalized points
+        # for sensitive species.
+        serializer = SpeciesLocalityGeoSerializer(qs, many=True, context={"request": request})
         return Response(serializer.data)
 
 
