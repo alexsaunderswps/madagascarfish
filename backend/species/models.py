@@ -16,6 +16,14 @@ _SVG_VIEWBOX_RE = re.compile(r"\bviewBox\s*=", re.IGNORECASE)
 _NUMERIC_PX_RE = re.compile(r"^\s*([0-9]*\.?[0-9]+)\s*(?:px)?\s*$", re.IGNORECASE)
 
 
+# IUCN categories that flip a species to sensitive on the public map under
+# Species.LocationSensitivity.AUTO. Mirrors GBIF sensitive-species guidance
+# (threatened taxa = CR / EN / VU). Kept at module scope so management
+# commands and downstream code can import it without reaching into the
+# Species class.
+SENSITIVE_IUCN_STATUSES = frozenset({"CR", "EN", "VU"})
+
+
 def _parse_px(value: str) -> float | None:
     m = _NUMERIC_PX_RE.match(value)
     if not m:
@@ -168,6 +176,10 @@ class Species(models.Model):
         CVU = "CVU", "CARES Vulnerable"
         CLC = "CLC", "CARES Least Concern"
 
+    class LocationSensitivity(models.TextChoices):
+        AUTO = "auto", "Auto (IUCN-derived)"
+        OVERRIDE_SENSITIVE = "override_sensitive", "Override — always sensitive"
+
     objects = SpeciesQuerySet.as_manager()
 
     scientific_name = models.CharField(max_length=200)
@@ -195,12 +207,35 @@ class Species(models.Model):
     endemic_status = models.CharField(
         max_length=20, choices=EndemicStatus.choices, default=EndemicStatus.ENDEMIC
     )
+    # Denormalized mirror of the most recent accepted ConservationAssessment
+    # — see CLAUDE.md "Conservation status sourcing". This field also drives
+    # SpeciesLocality.effective_is_sensitive (CR/EN/VU → generalize on the
+    # public map), but note: changing iucn_status does NOT recompute
+    # location_generalized on existing rows. SpeciesLocality.save() always
+    # precomputes it, so the stored value is available whenever the rule
+    # flips. Anything that bypasses save() (raw UPDATE, COPY) must
+    # recompute location_generalized itself.
     iucn_status = models.CharField(max_length=5, choices=IUCNStatus.choices, null=True, blank=True)
     population_trend = models.CharField(
         max_length=20, choices=PopulationTrend.choices, null=True, blank=True
     )
     cares_status = models.CharField(
         max_length=5, choices=CARESStatus.choices, null=True, blank=True
+    )
+    location_sensitivity = models.CharField(
+        max_length=30,
+        choices=LocationSensitivity.choices,
+        default=LocationSensitivity.AUTO,
+        help_text=(
+            "Controls whether locality coordinates for this species are "
+            "generalized on the public map. <b>Auto</b> defers to IUCN status "
+            "— CR, EN, and VU are generalized; everything else is served "
+            "exact. <b>Override — always sensitive</b> forces generalization "
+            "regardless of status, for cases where local experts want "
+            "stricter protection than IUCN implies (e.g. a newly-discovered "
+            "refugium of a species still listed Least Concern). Tier 3+ "
+            "coordinators see exact coordinates in both cases."
+        ),
     )
     shoal_priority = models.BooleanField(default=False)
     description = models.TextField(blank=True)
@@ -546,6 +581,11 @@ class SpeciesLocality(models.Model):
     coordinate_precision = models.CharField(
         max_length=25, choices=CoordinatePrecision.choices, default=CoordinatePrecision.EXACT
     )
+    # Legacy per-row override. Set True to force generalization for this
+    # specific record regardless of the species-level rule. Only *adds*
+    # sensitivity — it never demotes a species-sensitive record to public.
+    # Prefer ``Species.location_sensitivity`` for new work; this field exists
+    # so pre-IUCN-derived imports still honor per-record intent.
     is_sensitive = models.BooleanField(default=False)
     # needs_review quarantines a record from the public map without deleting it.
     # Flip when a source-data error is suspected (e.g. coordinates place the
@@ -582,13 +622,42 @@ class SpeciesLocality(models.Model):
     def __str__(self) -> str:
         return f"{self.species} — {self.locality_name}"
 
+    @property
+    def effective_is_sensitive(self) -> bool:
+        """Single source of truth for whether coordinates are generalized.
+
+        Collapses three inputs into one decision; any one of them flips the
+        record to sensitive:
+
+        - ``Species.location_sensitivity == OVERRIDE_SENSITIVE`` — stricter
+          protection than IUCN implies.
+        - Species IUCN status in CR / EN / VU — GBIF sensitive-species rule.
+        - Legacy per-row ``is_sensitive=True`` — retained as an additive
+          override for pre-existing data.
+
+        Tier 3+ users see exact coordinates regardless; this property only
+        decides what gets served below that gate. See
+        ``species.serializers_map.SpeciesLocalityGeoSerializer``.
+        """
+        if self.is_sensitive:
+            return True
+        species = self.species
+        if species is None:
+            return False
+        if species.location_sensitivity == Species.LocationSensitivity.OVERRIDE_SENSITIVE:
+            return True
+        return (species.iucn_status or "") in SENSITIVE_IUCN_STATUSES
+
     def save(self, *args: object, **kwargs: object) -> None:
-        # Deterministic coordinate key for unique constraint
+        # Deterministic coordinate key for the unique constraint, and an
+        # always-on precomputed 0.1° generalized point. The generalization is
+        # unconditional (not gated on is_sensitive) so the public serializer
+        # has a safe value to serve whenever the effective sensitivity flips
+        # — e.g. when a species's IUCN status is upgraded to CR via an
+        # accepted ConservationAssessment, or when an admin toggles
+        # Species.location_sensitivity to override_sensitive.
         if self.location:
             self.location_key = f"{self.location.x:.5f},{self.location.y:.5f}"
-
-        # Auto-compute generalized coordinates for sensitive records
-        if self.is_sensitive and self.location:
             self.location_generalized = Point(
                 round(self.location.x, 1),
                 round(self.location.y, 1),

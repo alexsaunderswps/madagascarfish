@@ -265,8 +265,16 @@ class TestSpeciesLocality:
         assert abs(loc.location_generalized.x - 47.5) < 0.001
         assert abs(loc.location_generalized.y - (-18.9)) < 0.001
 
-    def test_non_sensitive_location_generalized_null(self, species: Species) -> None:
-        """Non-sensitive records have null location_generalized."""
+    def test_location_generalized_always_precomputed(self, species: Species) -> None:
+        """Non-sensitive records also precompute location_generalized.
+
+        The serializer decides at request time whether to serve the
+        generalized point or the exact one; ``save()`` guarantees the
+        generalized value is available whenever a record's effective
+        sensitivity flips (e.g. species IUCN status upgraded to CR after the
+        locality was created). The precomputed value is never leaked for
+        public records — ``effective_is_sensitive`` is the gate.
+        """
         loc = SpeciesLocality.objects.create(
             species=species,
             locality_name="Public site",
@@ -275,7 +283,68 @@ class TestSpeciesLocality:
             source_citation="Test",
             is_sensitive=False,
         )
-        assert loc.location_generalized is None
+        assert loc.location_generalized is not None
+        assert abs(loc.location_generalized.x - 47.5) < 0.001
+        assert abs(loc.location_generalized.y - (-18.9)) < 0.001
+        assert loc.effective_is_sensitive is False
+
+    def test_effective_is_sensitive_follows_species_iucn(self, db: None) -> None:
+        """A CR/EN/VU species flips effective_is_sensitive on even when the
+        per-row flag is False."""
+        cr_species = Species.objects.create(
+            scientific_name="Bedotia cr-fixture",
+            family="Bedotiidae",
+            genus="Bedotia",
+            endemic_status="endemic",
+            iucn_status="CR",
+        )
+        loc = SpeciesLocality.objects.create(
+            species=cr_species,
+            locality_name="CR-species public locality",
+            location=Point(47.52, -18.91, srid=4326),
+            locality_type="observation",
+            source_citation="Test",
+            is_sensitive=False,
+        )
+        assert loc.effective_is_sensitive is True
+
+    def test_effective_is_sensitive_respects_species_override(self, db: None) -> None:
+        """Species.location_sensitivity=override_sensitive flips a non-threatened
+        species to sensitive regardless of IUCN status."""
+        lc_override = Species.objects.create(
+            scientific_name="Bedotia lc-override-fixture",
+            family="Bedotiidae",
+            genus="Bedotia",
+            endemic_status="endemic",
+            iucn_status="LC",
+            location_sensitivity=Species.LocationSensitivity.OVERRIDE_SENSITIVE,
+        )
+        loc = SpeciesLocality.objects.create(
+            species=lc_override,
+            locality_name="LC but overridden",
+            location=Point(47.52, -18.91, srid=4326),
+            locality_type="observation",
+            source_citation="Test",
+        )
+        assert loc.effective_is_sensitive is True
+
+    def test_effective_is_sensitive_false_for_lc_without_override(self, db: None) -> None:
+        """LC species with no override and no per-row flag stays public."""
+        lc_species = Species.objects.create(
+            scientific_name="Bedotia lc-fixture",
+            family="Bedotiidae",
+            genus="Bedotia",
+            endemic_status="endemic",
+            iucn_status="LC",
+        )
+        loc = SpeciesLocality.objects.create(
+            species=lc_species,
+            locality_name="LC public locality",
+            location=Point(47.52, -18.91, srid=4326),
+            locality_type="observation",
+            source_citation="Test",
+        )
+        assert loc.effective_is_sensitive is False
 
     def test_drainage_basin_name_auto_populated(
         self, species: Species, watershed: Watershed
