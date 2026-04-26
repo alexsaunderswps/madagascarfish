@@ -33,9 +33,7 @@ From the *Paretroplus menarambo* UX review (2026-04-19).
 - ✅ Difficulty Factors Option A — profile callout at ≥3 factors + husbandry
   page `<details>` progressive disclosure.
 - ✅ Husbandry breadcrumb reads "← Back to *{binomial}*".
-- ⏳ **Mobile pass on husbandry at 375px** — verify at-a-glance labels
-  ("CARES registered breeders" is the likely wrap offender) and governance
-  footer don't wrap ugly. Fix what breaks.
+- ✅ Mobile pass on husbandry at 375px (PR #111).
 - ⏳ **Author custom silhouette SVGs for priority species** (Alex).
   Form lives in Species admin now; paste inline `<svg>…</svg>` with
   `currentColor` fills. Start with *P. menarambo*, then other CARES/SHOAL.
@@ -44,20 +42,23 @@ From the *Paretroplus menarambo* UX review (2026-04-19).
 
 From the UX review:
 
-- Sticky in-page TOC on husbandry wide-screens (twelve h2s, reader can't
-  jump to Breeding without scrolling past six sections).
+- ✅ Sticky in-page TOC on husbandry wide-screens (PR #111).
 - Right-rail Difficulty Factors sidebar (Option B) — revisit if the inline
   list still feels heavy after real users test the page.
 - Iconography Difficulty Factors (Option C) — only with a designer.
-- Prioritization score + CARES/SHOAL chips surfaced in the profile header
-  (currently only on the husbandry teaser).
-- Narrative first-paragraph lede treatment when narrative > ~400 words.
-- Double-check the sparse-data amber bar + emphasized-teaser accent border
-  don't both render on the same profile.
-- "View on Map" button competes with the IUCN badge in the header — consider
-  moving below the taxonomic line.
-- Disclaimer slab — line-break after "conditions vary between systems,
-  regions, and individual fish" for scannability.
+- ✅ Prioritization score + CARES/SHOAL chips on the profile header
+  (already shipped — `BasinPill` chips at lines 361–366 of species
+  profile; todo.md note was stale).
+- ✅ Narrative first-paragraph lede treatment when narrative > ~400 words
+  (already shipped — see husbandry page.tsx `wordCount > 400` branch).
+- ✅ Sparse-data amber bar + emphasized-teaser accent border conflict —
+  moot in current code: `HusbandryTeaser` component exists but is not
+  imported on the species profile, so the overlap can't happen today.
+  Re-evaluate if/when the emphasized teaser is wired in.
+- ✅ "View on Map" button — already lives in the body Distribution box,
+  not the header; the todo note was stale.
+- ✅ Disclaimer slab line-break — already a two-paragraph block in
+  `HusbandryDisclaimer.tsx`; the todo note was stale.
 - Silhouette **scale bar** — reintroduce alongside calibrated per-species
   SVG story when ready (removed 2026-04-19).
 
