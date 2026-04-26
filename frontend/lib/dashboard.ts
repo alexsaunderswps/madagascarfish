@@ -19,6 +19,16 @@ export interface DashboardResponse {
     planned: number;
     completed: number;
   };
+  // Optional during the v1 → v2 rollout: backend deployments that haven't
+  // picked up the new payload shape will omit this block. The /dashboard/
+  // page page falls back to a zero shape when undefined.
+  coordination?: {
+    active_programs_total: number;
+    active_programs_by_type: Record<string, number>;
+    transfer_window_days: number;
+    transfers_in_flight: number;
+    transfers_recent_completed: number;
+  };
   last_updated: string;
   last_sync_at: string | null;
 }

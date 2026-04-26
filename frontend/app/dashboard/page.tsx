@@ -180,6 +180,22 @@ export default async function DashboardPage() {
   }
 
   const { species_counts, ex_situ_coverage, field_programs, last_updated } = data;
+  // The `coordination` block is part of the v2 dashboard payload. Fall back
+  // to a zero shape when an older deployment of the backend (still serving
+  // v1) is upstream — keeps the page rendering instead of crashing during
+  // prerender or SSR. Remove the fallback once every environment is on v2.
+  const coordination = data.coordination ?? {
+    active_programs_total: 0,
+    active_programs_by_type: { ssp: 0, eep: 0, cares: 0, independent: 0, other: 0 },
+    transfer_window_days: 90,
+    transfers_in_flight: 0,
+    transfers_recent_completed: 0,
+  };
+  const programByType = coordination.active_programs_by_type;
+  const formalPrograms =
+    (programByType.ssp ?? 0) + (programByType.eep ?? 0) + (programByType.cares ?? 0);
+  const otherPrograms =
+    (programByType.independent ?? 0) + (programByType.other ?? 0);
   const lastUpdatedMs = Date.parse(last_updated);
   const isStale =
     Number.isFinite(lastUpdatedMs) && Date.now() - lastUpdatedMs > STALE_THRESHOLD_MS;
@@ -307,6 +323,46 @@ export default async function DashboardPage() {
             <StatTile
               label="Ex-situ populations tracked"
               value={ex_situ_coverage.total_populations_tracked}
+            />
+          </li>
+        </ul>
+      </section>
+
+      <section aria-label="Coordinated breeding programs">
+        <p style={SECTION_EYEBROW_STYLE}>Coordinated breeding</p>
+        <h2 style={SECTION_H2_STYLE}>Active programs &amp; transfers</h2>
+        <ul
+          role="list"
+          style={{
+            ...GRID_STYLE,
+            listStyle: "none",
+            margin: "16px 0 0",
+            padding: 0,
+          }}
+        >
+          <li>
+            <StatTile
+              label="Active programs"
+              value={coordination.active_programs_total}
+              sublabel={
+                coordination.active_programs_total > 0
+                  ? `${formalPrograms} SSP / EEP / CARES${otherPrograms > 0 ? `, ${otherPrograms} other` : ""}`
+                  : "No active programs registered yet."
+              }
+            />
+          </li>
+          <li>
+            <StatTile
+              label="Transfers in flight"
+              value={coordination.transfers_in_flight}
+              sublabel="Proposed, approved, or in transit."
+            />
+          </li>
+          <li>
+            <StatTile
+              label={`Transfers completed (last ${coordination.transfer_window_days}d)`}
+              value={coordination.transfers_recent_completed}
+              sublabel="Recorded animal movements between institutions."
             />
           </li>
         </ul>
