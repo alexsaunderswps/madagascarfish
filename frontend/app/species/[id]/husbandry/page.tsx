@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import HusbandryDifficultyFactors from "@/components/HusbandryDifficultyFactors";
 import HusbandryDisclaimer from "@/components/HusbandryDisclaimer";
 import HusbandrySourcingEthics from "@/components/HusbandrySourcingEthics";
+import HusbandryToc, { type HusbandryTocItem } from "@/components/HusbandryToc";
+import { collectDifficultyFactors } from "@/lib/husbandry";
 import {
   fetchSpeciesHusbandry,
   narrativeExcerpt,
@@ -201,12 +203,37 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
 
   const narrativeParagraphs = h.narrative ? h.narrative : "";
 
+  // Build the TOC item list from the same predicates the page uses to
+  // render each section. A blank section (e.g. no breeding data) is
+  // already elided below; including it in the TOC would create a dead
+  // link, so we mirror the gating exactly.
+  const tocItems: HusbandryTocItem[] = [];
+  if (hasAnyGlance) tocItems.push({ id: "at-a-glance-heading", label: "At a glance" });
+  if (collectDifficultyFactors(h).length > 0) {
+    tocItems.push({ id: "difficulty-heading", label: "Difficulty factors" });
+  }
+  if (showWater) tocItems.push({ id: "water-heading", label: "Water parameters" });
+  if (showTank) tocItems.push({ id: "tank-heading", label: "Tank & system" });
+  if (showDiet) tocItems.push({ id: "diet-heading", label: "Diet" });
+  if (showBehavior) tocItems.push({ id: "behavior-heading", label: "Behavior" });
+  if (showBreeding) tocItems.push({ id: "breeding-heading", label: "Breeding" });
+  if (narrativeParagraphs) tocItems.push({ id: "narrative-heading", label: "Narrative" });
+  tocItems.push({ id: "sourcing-ethics-heading", label: "Sourcing ethics" });
+  if (h.sourcing_notes) {
+    tocItems.push({ id: "sourcing-notes-heading", label: "Sourcing notes" });
+  }
+  if (h.sources.length > 0) {
+    tocItems.push({ id: "references-heading", label: "References" });
+  }
+
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <div className="mx-auto max-w-6xl px-6 py-10 lg:grid lg:grid-cols-[200px_1fr] lg:gap-12">
+      <HusbandryToc items={tocItems} className="hidden lg:block" />
+      <main className="mx-auto max-w-3xl lg:mx-0 [&_h2]:scroll-mt-24">
       {/* 1. Breadcrumb */}
       <Link
         href={`/species/${sp.id}/`}
-        className="text-sm text-sky-700 hover:underline"
+        className="block break-words text-sm text-sky-700 hover:underline"
       >
         ← Back to <span className="italic">{displayName}</span>
       </Link>
@@ -230,7 +257,13 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
           >
             At a glance
           </h2>
-          <dl className="mt-2 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+          {/*
+            375px viewport (iPhone SE / mini): 2-col grid forced "CARES
+            registered breeders" to wrap onto 3 short lines, making the
+            panel feel ragged. Stack to 1 col on phones; reintroduce
+            multi-col only when each cell has room for a 2-line label.
+          */}
+          <dl className="mt-2 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
             <Glance label="Spawning mode" value={glanceSpawningMode} />
             <Glance label="Flow preference" value={glanceFlow} />
             <Glance label="Min tank volume" value={glanceMinVolume} />
@@ -531,7 +564,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
           </h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
             {h.sources.map((s, i) => (
-              <li key={`${s.label}-${i}`}>
+              <li key={`${s.label}-${i}`} className="break-words">
                 {s.url ? (
                   <a
                     href={s.url}
@@ -552,34 +585,32 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
 
       {/* 14. Governance footer: reviewed-by stamp + stale note */}
       {h.last_reviewed_by || h.last_reviewed_at ? (
-        <p className="mt-10 break-words text-xs text-slate-500">
-          Reviewed by{" "}
-          <span className="font-medium text-slate-700">
-            {h.last_reviewed_by?.name ?? "unknown"}
-          </span>
+        <div className="mt-10 text-xs text-slate-500">
+          <p className="break-words">
+            Reviewed by{" "}
+            <span className="font-medium text-slate-700">
+              {h.last_reviewed_by?.name ?? "unknown"}
+            </span>
+            {h.last_reviewed_at ? <> on {h.last_reviewed_at}.</> : "."}
+          </p>
           {h.last_reviewed_by?.orcid_id ? (
-            <>
-              {" "}
+            <p className="mt-0.5 break-all">
               <a
                 href={`https://orcid.org/${h.last_reviewed_by.orcid_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sky-700 hover:underline"
               >
-                (ORCID {h.last_reviewed_by.orcid_id})
+                ORCID {h.last_reviewed_by.orcid_id}
               </a>
-            </>
+            </p>
           ) : null}
-          {h.last_reviewed_at ? <> on {h.last_reviewed_at}.</> : "."}
           {h.review_is_stale ? (
-            <>
-              {" "}
-              <span className="text-slate-400">
-                Review pending — content may be out of date.
-              </span>
-            </>
+            <p className="mt-0.5 text-slate-400">
+              Review pending — content may be out of date.
+            </p>
           ) : null}
-        </p>
+        </div>
       ) : null}
 
       {/* 15. Contributors */}
@@ -634,6 +665,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
           ) : null}
         </ul>
       </nav>
-    </main>
+      </main>
+    </div>
   );
 }

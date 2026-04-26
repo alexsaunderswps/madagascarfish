@@ -59,8 +59,11 @@ test("site header nav renders links in Dashboard → Map → Directory → About
 test("About page renders owner and GitHub link", async ({ page }) => {
   await page.goto("/about/");
 
+  // The About page is structured with an "About" eyebrow above an h1 that
+  // carries the descriptive title — was renamed from a literal "About" h1
+  // during the visual-system pass. Match the descriptive headline instead.
   await expect(
-    page.getByRole("heading", { level: 1, name: /^About$/ }),
+    page.getByRole("heading", { level: 1, name: /Madagascar.*endemic freshwater fish/i }),
   ).toBeVisible();
   await expect(page.getByText(/Aleksei Saunders/)).toBeVisible();
   await expect(
