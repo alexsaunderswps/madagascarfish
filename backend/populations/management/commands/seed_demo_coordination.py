@@ -194,11 +194,13 @@ class Command(BaseCommand):
     def _program_name(sp: Species, program_type: str) -> str:
         # Only the two values _program_type_for can return. Other program
         # types use their own seed paths and are not the demo command's
-        # responsibility.
-        prefix = {
-            CoordinatedProgram.ProgramType.EEP: "EAZA EEP",
-            CoordinatedProgram.ProgramType.CARES: "CARES",
-        }.get(program_type, "Coordinated program")
+        # responsibility. Keys are stringified so mypy doesn't see a
+        # TextChoices-vs-str mismatch on the .get() call.
+        prefix_map: dict[str, str] = {
+            str(CoordinatedProgram.ProgramType.EEP): "EAZA EEP",
+            str(CoordinatedProgram.ProgramType.CARES): "CARES",
+        }
+        prefix = prefix_map.get(program_type, "Coordinated program")
         return f"{prefix}: {sp.scientific_name}"
 
     def _seed_transfers(self, today: date) -> int:
