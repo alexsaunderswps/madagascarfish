@@ -735,6 +735,92 @@ class TestDashboard:
         assert resp.status_code == 200
         data = resp.json()
         assert data["species_counts"]["total"] == 0
+        # Coordination summary present and zero on a fresh DB.
+        coord = data["coordination"]
+        assert coord["active_programs_total"] == 0
+        # Stable contract: every program type appears as a key with a 0 count.
+        assert set(coord["active_programs_by_type"].keys()) == {
+            "ssp",
+            "eep",
+            "cares",
+            "independent",
+            "other",
+        }
+        assert coord["transfers_in_flight"] == 0
+        assert coord["transfers_recent_completed"] == 0
+        assert coord["transfer_window_days"] == 90
+
+    def test_coordination_block_counts_active_programs_and_transfers(
+        self,
+        api_client: APIClient,
+        species_cr: Species,
+        species_en: Species,
+        population: ExSituPopulation,
+    ) -> None:
+        """Public dashboard surfaces aggregate coordination signals — counts
+        only, no institution names or population details (those stay Tier 3+
+        on /coordinator-dashboard/transfer-activity/)."""
+        from datetime import date, timedelta
+
+        from populations.models import CoordinatedProgram, Institution, Transfer
+
+        inst_a = Institution.objects.create(
+            name="Bristol Zoo", institution_type="zoo", country="GB"
+        )
+        inst_b = Institution.objects.create(
+            name="Cologne Zoo", institution_type="zoo", country="DE"
+        )
+
+        # One active EEP program for species_cr.
+        CoordinatedProgram.objects.create(
+            species=species_cr,
+            program_type=CoordinatedProgram.ProgramType.EEP,
+            name="EAZA EEP: Test cichlid",
+            status=CoordinatedProgram.Status.ACTIVE,
+            coordinating_institution=inst_a,
+        )
+        # One CARES program but in PLANNING — must not count.
+        CoordinatedProgram.objects.create(
+            species=species_en,
+            program_type=CoordinatedProgram.ProgramType.CARES,
+            name="CARES: Test rainbowfish",
+            status=CoordinatedProgram.Status.PLANNING,
+            coordinating_institution=inst_a,
+        )
+        # In-flight + recent-completed transfers.
+        today = date.today()
+        Transfer.objects.create(
+            species=species_cr,
+            source_institution=inst_a,
+            destination_institution=inst_b,
+            status=Transfer.Status.IN_TRANSIT,
+            proposed_date=today - timedelta(days=10),
+        )
+        Transfer.objects.create(
+            species=species_cr,
+            source_institution=inst_b,
+            destination_institution=inst_a,
+            status=Transfer.Status.COMPLETED,
+            proposed_date=today - timedelta(days=80),
+            actual_date=today - timedelta(days=30),
+        )
+        # An old completed transfer outside the 90-day window — must not count.
+        Transfer.objects.create(
+            species=species_cr,
+            source_institution=inst_a,
+            destination_institution=inst_b,
+            status=Transfer.Status.COMPLETED,
+            proposed_date=today - timedelta(days=200),
+            actual_date=today - timedelta(days=180),
+        )
+
+        resp = api_client.get("/api/v1/dashboard/")
+        coord = resp.json()["coordination"]
+        assert coord["active_programs_total"] == 1
+        assert coord["active_programs_by_type"]["eep"] == 1
+        assert coord["active_programs_by_type"]["cares"] == 0  # PLANNING excluded
+        assert coord["transfers_in_flight"] == 1
+        assert coord["transfers_recent_completed"] == 1  # 180-day-old completion excluded
 
 
 # ============================================================

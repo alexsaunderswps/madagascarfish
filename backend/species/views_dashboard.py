@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import timedelta
+
 from django.core.cache import cache
 from django.db.models import Count
 from django.utils import timezone
@@ -10,16 +12,29 @@ from rest_framework.views import APIView
 
 from fieldwork.models import FieldProgram
 from integration.models import SyncJob
-from populations.models import ExSituPopulation, Institution
+from populations.models import CoordinatedProgram, ExSituPopulation, Institution, Transfer
 from species.models import Species
 
-DASHBOARD_CACHE_KEY = "api:dashboard:v1"
+# Bumped to v2 because the response shape gained a `coordination` block —
+# stale v1 cached payloads must not bleed into a v2 deploy.
+DASHBOARD_CACHE_KEY = "api:dashboard:v2"
 DASHBOARD_CACHE_TTL = 300  # 5 minutes
+
+# Window for "recent transfer activity" on the public dashboard. Matches the
+# coordinator-dashboard Panel 5 window so the two views read on the same
+# cadence — a public visitor and a coordinator see "recent" the same way.
+PUBLIC_TRANSFER_ACTIVITY_WINDOW_DAYS = 90
 
 _THREATENED_STATUSES = [
     Species.IUCNStatus.CR,
     Species.IUCNStatus.EN,
     Species.IUCNStatus.VU,
+]
+
+_TRANSFER_IN_FLIGHT_STATUSES = [
+    Transfer.Status.PROPOSED,
+    Transfer.Status.APPROVED,
+    Transfer.Status.IN_TRANSIT,
 ]
 
 
@@ -75,6 +90,27 @@ class DashboardView(APIView):
             .first()
         )
 
+        # Coordination summary — aggregate-only, no institution names or
+        # population details. Safe for the public payload (Tier 1) and lets
+        # SHOAL / EAZA visitors see "this platform has working coordination"
+        # without needing a coordinator token.
+        program_counts = dict(
+            CoordinatedProgram.objects.filter(status=CoordinatedProgram.Status.ACTIVE)
+            .values_list("program_type")
+            .annotate(c=Count("id"))
+            .values_list("program_type", "c")
+        )
+        active_programs_total = sum(program_counts.values())
+        today = timezone.now().date()
+        transfer_window_start = today - timedelta(days=PUBLIC_TRANSFER_ACTIVITY_WINDOW_DAYS)
+        transfers_in_flight = Transfer.objects.filter(
+            status__in=_TRANSFER_IN_FLIGHT_STATUSES
+        ).count()
+        transfers_recent_completed = Transfer.objects.filter(
+            status=Transfer.Status.COMPLETED,
+            actual_date__gte=transfer_window_start,
+        ).count()
+
         return {
             "species_counts": {
                 "total": total_species,
@@ -97,6 +133,16 @@ class DashboardView(APIView):
                 "active": fp_counts.get(FieldProgram.Status.ACTIVE, 0),
                 "planned": fp_counts.get(FieldProgram.Status.PLANNED, 0),
                 "completed": fp_counts.get(FieldProgram.Status.COMPLETED, 0),
+            },
+            "coordination": {
+                "active_programs_total": active_programs_total,
+                "active_programs_by_type": {
+                    str(t): program_counts.get(t, 0)
+                    for t, _ in CoordinatedProgram.ProgramType.choices
+                },
+                "transfer_window_days": PUBLIC_TRANSFER_ACTIVITY_WINDOW_DAYS,
+                "transfers_in_flight": transfers_in_flight,
+                "transfers_recent_completed": transfers_recent_completed,
             },
             "last_updated": timezone.now().isoformat(),
             "last_sync_at": last_sync.isoformat() if last_sync else None,

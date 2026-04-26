@@ -29,6 +29,13 @@ describe("fetchDashboard", () => {
         total_populations_tracked: 4,
       },
       field_programs: { active: 0, planned: 0, completed: 0 },
+      coordination: {
+        active_programs_total: 2,
+        active_programs_by_type: { ssp: 0, eep: 1, cares: 1, independent: 0, other: 0 },
+        transfer_window_days: 90,
+        transfers_in_flight: 1,
+        transfers_recent_completed: 1,
+      },
       last_updated: "2026-04-17T00:00:00Z",
       last_sync_at: "2026-04-17T00:00:00Z",
     };
