@@ -9,6 +9,7 @@ from species.views import SpeciesViewSet
 from species.views_coordinator_dashboard import (
     CoverageGapView,
     OpenRecommendationsView,
+    ReproductiveActivityView,
     SexRatioRiskView,
     StaleCensusView,
     StudbookStatusView,
@@ -64,6 +65,11 @@ urlpatterns = [
         "coordinator-dashboard/open-recommendations/",
         OpenRecommendationsView.as_view(),
         name="coordinator-open-recommendations",
+    ),
+    path(
+        "coordinator-dashboard/reproductive-activity/",
+        ReproductiveActivityView.as_view(),
+        name="coordinator-reproductive-activity",
     ),
     # Genus silhouette (public cascade fallback — see docs/design.md §15)
     path(

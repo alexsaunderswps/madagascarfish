@@ -26,7 +26,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import TierOrServiceTokenPermission
-from populations.models import BreedingRecommendation, ExSituPopulation, Transfer
+from populations.models import BreedingEvent, BreedingRecommendation, ExSituPopulation, Transfer
 from species.models import Species
 
 # Census threshold. Days is the source of truth (used for the cutoff); months
@@ -635,3 +635,127 @@ def _iso_date_sort_key(iso: object) -> int:
         return 0
     # YYYY-MM-DD → YYYYMMDD int. Stable within the same priority bucket.
     return int(iso.replace("-", ""))
+
+
+# ---------- Panel 7 — Recent reproductive activity ----------
+
+# Window for "recent" breeding events surfaced on the dashboard. Aligned with
+# the transfer-activity window so the two ledger panels read on the same
+# cadence; coordinators scanning the page see the same time horizon for
+# both. Tunable in one place if working-group cadence changes.
+REPRODUCTIVE_ACTIVITY_WINDOW_DAYS = 90
+
+# Cap the result list per panel render so a long-running program with
+# hundreds of mortality events doesn't push the dashboard payload past
+# practical SSR limits. Coordinators wanting full history can drill into
+# the population's admin page (where the inline event list is unbounded).
+REPRODUCTIVE_ACTIVITY_RESULT_LIMIT = 30
+
+
+def _serialize_breeding_event(e: BreedingEvent) -> dict[str, object]:
+    return {
+        "event_id": e.id,
+        "event_type": e.event_type,
+        "event_date": e.event_date.isoformat() if e.event_date else None,
+        "population": {
+            "id": e.population_id,
+            "species": {
+                "id": e.population.species_id,
+                "scientific_name": e.population.species.scientific_name,
+            },
+            "institution": {
+                "id": e.population.institution_id,
+                "name": e.population.institution.name,
+            },
+        },
+        "count_delta_male": e.count_delta_male,
+        "count_delta_female": e.count_delta_female,
+        "count_delta_unsexed": e.count_delta_unsexed,
+        "notes": e.notes or "",
+    }
+
+
+class ReproductiveActivityView(APIView):
+    """Recent reproductive / demographic events for the coordinator dashboard.
+
+    Returns BreedingEvent rows from the last
+    ``REPRODUCTIVE_ACTIVITY_WINDOW_DAYS`` days (newest first), plus a roll-up
+    by event type — gives coordinators an at-a-glance "what reproduced
+    versus what died" signal alongside the per-row detail.
+
+    Empty payloads are explicitly OK: a brand-new platform with no events
+    logged yet renders the panel with zero counts and an empty results
+    list, not a 5xx.
+    """
+
+    permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
+
+    def get(self, request: Request) -> Response:
+        today = timezone.now().date()
+        window_start = today - timedelta(days=REPRODUCTIVE_ACTIVITY_WINDOW_DAYS)
+
+        qs = (
+            BreedingEvent.objects.select_related(
+                "population",
+                "population__species",
+                "population__institution",
+            )
+            .filter(event_date__gte=window_start)
+            .only(
+                "id",
+                "event_type",
+                "event_date",
+                "count_delta_male",
+                "count_delta_female",
+                "count_delta_unsexed",
+                "notes",
+                "population_id",
+                "population__species_id",
+                "population__institution_id",
+                "population__species__scientific_name",
+                "population__institution__name",
+            )
+            .order_by("-event_date", "-created_at")
+        )
+
+        # Roll-up by event type. Includes every enum value with a zero count
+        # when absent so frontends can render a stable category list without
+        # having to hard-code the enum.
+        by_event_type: dict[str, dict[str, object]] = {
+            str(t): {"count": 0, "recent_species": []} for t, _ in BreedingEvent.EventType.choices
+        }
+        seen_species: dict[str, set[int]] = {
+            str(t): set() for t, _ in BreedingEvent.EventType.choices
+        }
+
+        # Hold a lightweight copy for the roll-up while we walk the queryset
+        # once. The full queryset is materialized into a list at the same
+        # time so we don't issue two queries.
+        events = list(qs)
+        for e in events:
+            bucket = by_event_type[str(e.event_type)]
+            bucket["count"] = int(bucket["count"]) + 1  # type: ignore[arg-type]
+            sp_id = e.population.species_id
+            if sp_id not in seen_species[str(e.event_type)]:
+                seen_species[str(e.event_type)].add(sp_id)
+                # Cap recent_species per bucket — coordinators want the gist,
+                # not every species name in the bucket.
+                recent_list = bucket["recent_species"]
+                assert isinstance(recent_list, list)
+                if len(recent_list) < 5:
+                    recent_list.append(e.population.species.scientific_name)
+
+        results = [
+            _serialize_breeding_event(e) for e in events[:REPRODUCTIVE_ACTIVITY_RESULT_LIMIT]
+        ]
+
+        return Response(
+            {
+                "window_days": REPRODUCTIVE_ACTIVITY_WINDOW_DAYS,
+                "reference_date": today.isoformat(),
+                "total_events": len(events),
+                "result_limit": REPRODUCTIVE_ACTIVITY_RESULT_LIMIT,
+                "by_event_type": by_event_type,
+                "results": results,
+            }
+        )
