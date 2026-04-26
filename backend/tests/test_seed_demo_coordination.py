@@ -17,6 +17,7 @@ from datetime import date
 from io import StringIO
 
 import pytest
+
 from django.core.management import call_command
 
 from populations.management.commands.seed_demo_coordination import DEMO_MARKER
@@ -169,7 +170,10 @@ def test_clear_deletes_only_demo_rows(threatened_species_with_pops):
     _run("--clear")
     # Real row passes through; demo rows recreated, plus the real one.
     assert CoordinatedProgram.objects.filter(pk=real_program.pk).exists()
-    assert CoordinatedProgram.objects.filter(plan_summary__startswith=DEMO_MARKER).count() >= 3
+    assert (
+        CoordinatedProgram.objects.filter(plan_summary__startswith=DEMO_MARKER).count()
+        >= 3
+    )
 
 
 @pytest.mark.django_db
