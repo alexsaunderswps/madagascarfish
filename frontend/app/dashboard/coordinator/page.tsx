@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 
 import CoverageGapPanel from "@/components/coordinator/CoverageGapPanel";
 import OpenRecommendationsPanel from "@/components/coordinator/OpenRecommendationsPanel";
+import ReproductiveActivityPanel from "@/components/coordinator/ReproductiveActivityPanel";
 import SexRatioRiskPanel from "@/components/coordinator/SexRatioRiskPanel";
 import StaleCensusPanel from "@/components/coordinator/StaleCensusPanel";
 import StudbookStatusPanel from "@/components/coordinator/StudbookStatusPanel";
@@ -9,6 +10,7 @@ import TransferActivityPanel from "@/components/coordinator/TransferActivityPane
 import {
   fetchCoverageGap,
   fetchOpenRecommendations,
+  fetchReproductiveActivity,
   fetchSexRatioRisk,
   fetchStaleCensus,
   fetchStudbookStatus,
@@ -134,6 +136,7 @@ export default async function CoordinatorDashboardPage({
     staleCensus,
     transferActivity,
     openRecommendations,
+    reproductiveActivity,
   ] = await Promise.all([
     fetchCoverageGap({ endemicOnly }),
     fetchStudbookStatus(),
@@ -141,6 +144,7 @@ export default async function CoordinatorDashboardPage({
     fetchStaleCensus(),
     fetchTransferActivity(),
     fetchOpenRecommendations(),
+    fetchReproductiveActivity(),
   ]);
 
   return (
@@ -167,6 +171,7 @@ export default async function CoordinatorDashboardPage({
       <StaleCensusPanel data={staleCensus} />
       <TransferActivityPanel data={transferActivity} />
       <OpenRecommendationsPanel data={openRecommendations} />
+      <ReproductiveActivityPanel data={reproductiveActivity} />
     </main>
   );
 }

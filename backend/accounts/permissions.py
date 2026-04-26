@@ -18,6 +18,13 @@ def TierPermission(min_tier: int = 1) -> type[BasePermission]:  # noqa: N802
             if not request.user or not request.user.is_authenticated:
                 # Anonymous users are treated as Tier 1
                 return min_tier <= 1
+            # Deactivated accounts are not authenticated *for our purposes*
+            # even if Django says is_authenticated=True. Without this check,
+            # a session created before deactivation (or a force_authenticate
+            # in tests) keeps tier access alive after the operator account
+            # was disabled. Found by adversarial test of Panel 7.
+            if not request.user.is_active:
+                return False
             return request.user.access_tier >= min_tier
 
         def has_object_permission(self, request: Request, view: APIView, obj: object) -> bool:
@@ -51,6 +58,14 @@ def TierOrServiceTokenPermission(  # noqa: N802
                     if hmac.compare_digest(provided.encode("utf-8"), expected.encode("utf-8")):
                         return True
             if not request.user or not request.user.is_authenticated:
+                return False
+            # See the matching note on _TierPermission: is_authenticated is
+            # True for any concrete user record, including deactivated ones.
+            # We need to gate explicitly on is_active or a deactivated
+            # operator with a live session continues to bypass the tier
+            # check. The service-token branch above is checked first and
+            # is unaffected.
+            if not request.user.is_active:
                 return False
             return request.user.access_tier >= min_tier
 

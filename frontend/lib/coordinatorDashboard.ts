@@ -161,6 +161,45 @@ export interface OpenRecommendationsResponse {
   results: OpenRecommendationRow[];
 }
 
+// ---------- Panel 7: Recent reproductive activity (Gate 4 Phase 3) ----------
+
+export type BreedingEventType =
+  | "spawning"
+  | "hatching"
+  | "mortality"
+  | "acquisition"
+  | "disposition"
+  | "other";
+
+export interface BreedingEventRow {
+  event_id: number;
+  event_type: BreedingEventType;
+  event_date: string | null;
+  population: {
+    id: number;
+    species: { id: number; scientific_name: string };
+    institution: { id: number; name: string };
+  };
+  count_delta_male: number | null;
+  count_delta_female: number | null;
+  count_delta_unsexed: number | null;
+  notes: string;
+}
+
+export interface BreedingEventBucket {
+  count: number;
+  recent_species: string[];
+}
+
+export interface ReproductiveActivityResponse {
+  window_days: number;
+  reference_date: string;
+  total_events: number;
+  result_limit: number;
+  by_event_type: Record<BreedingEventType, BreedingEventBucket>;
+  results: BreedingEventRow[];
+}
+
 // ---------- Shared fetch helpers ----------
 
 function coordinatorHeaders(): HeadersInit {
@@ -239,5 +278,11 @@ export function fetchTransferActivity(): Promise<TransferActivityResponse | null
 export function fetchOpenRecommendations(): Promise<OpenRecommendationsResponse | null> {
   return fetchCoordinator<OpenRecommendationsResponse>(
     "/api/v1/coordinator-dashboard/open-recommendations/",
+  );
+}
+
+export function fetchReproductiveActivity(): Promise<ReproductiveActivityResponse | null> {
+  return fetchCoordinator<ReproductiveActivityResponse>(
+    "/api/v1/coordinator-dashboard/reproductive-activity/",
   );
 }
