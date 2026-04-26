@@ -61,47 +61,62 @@ From the UX review:
 - Silhouette **scale bar** — reintroduce alongside calibrated per-species
   SVG story when ready (removed 2026-04-19).
 
-## Conservation status governance spec (follow-up to gate 06)
+## Conservation status governance (follow-up to gate 06)
 
-**Status:** 🟡 Awaiting BA/PM spec. Partial implementation landed in gate 06
-(`ALLOW_IUCN_STATUS_OVERWRITE` setting + mirror in `iucn_sync` + CLAUDE.md
-"Conservation status sourcing" convention). The remaining pieces need
-requirements work before implementation.
+**Status:** 🟢 BA + PM spec complete. Substantial implementation already
+landed; reconciliation pass needed (see "What's still open" below).
 
 **Goal:** guarantee that `Species.iucn_status` is always traceable to an
 authoritative or human-reviewed source, with audit logging and an explicit
 conflict-resolution path when manual assessments disagree with IUCN.
 
-### Remaining scope (needs BA/PM)
+### Existing planning artifacts
 
-- **Audit log infrastructure** — every change to `Species.iucn_status` and to
-  any `ConservationAssessment` row records actor, action, before/after,
-  timestamp. Candidate approaches: `django-simple-history`, `django-auditlog`,
-  or a hand-rolled `AuditEntry` model. Decision needed on scope (which models
-  get tracked) and retention.
-- **Blocking warning on external-source contradiction** — two enforcement
-  points:
-  1. Admin form validator when an operator tries to set
-     `Species.iucn_status` directly (the mirror policy in CLAUDE.md forbids
-     this; we should enforce it in the UI too).
-  2. Pre-publish check in the GBIF / Darwin Core Archive export pipeline
-     (gate 08+) that refuses to publish if the species-level status
-     disagrees with the latest accepted `iucn_official` assessment.
-- **Inverse pending-review signal** — when `iucn_sync` pulls a category that
-  disagrees with an existing `manual_expert` assessment on the same species,
-  flag *that row* as `pending_review` and create an alert for a coordinator,
-  rather than silently accepting the IUCN one alongside it.
-- **Add `manual_expert` source to `ConservationAssessment.Source`** —
-  currently only `iucn_official` and `recommended_revision` exist. Needed so
-  that operator edits have a canonical source tag instead of being untracked
-  `Species.iucn_status` writes.
+- BA assessment: `docs/planning/business-analysis/conservation-status-governance.md`
+- PM gate spec: `docs/planning/specs/gate-06-governance-follow-up.md`
+
+### What's already shipped
+
+A re-audit on 2026-04-26 found these pieces are in code:
+
+- `audit/` Django app (`AuditEntry` model, signal handlers,
+  `audit_actor` thread-local context manager, admin) — wired into
+  `iucn_sync` and `species/admin.py`.
+- `ConservationAssessment.Source.MANUAL_EXPERT` enum value, `created_by`
+  FK, `iucn_assessment_id`, `last_sync_job` FK,
+  `conflict_acknowledged_assessment_ids` JSONField.
+- `ConservationStatusConflict` model with the four resolution outcomes
+  (`accepted_iucn` / `retained_manual` / `reconciled` / `dismissed`).
+- `tests/test_audit_entry.py`, `tests/test_audit_signals.py`,
+  `tests/test_iucn_sync_conflict.py`, `tests/test_iucn_sync_audit.py`,
+  `tests/test_manual_expert_admin.py` — all green on main.
+
+### What's still open
+
+Confirm by walking the gate-06b spec deliverables list against what's in
+the code; suspected remaining items:
+
+- **Pre-publish check on GBIF / Darwin Core Archive export pipeline**
+  (BA Req 3b) — explicitly deferred to gate 08+ when the export pipeline
+  itself is built.
+- **Public badge attribution string** ("Expert review — {assessor}")
+  truncation rules and multi-assessor formatting — open question per the
+  BA, blocking gate 07 polish.
+- **`assessment_id` stability probe** (gate-06b decision 8) — has the
+  IUCN sync been validated against IUCN's `assessment_id` semantics with
+  the composite-key fallback (`iucn_taxon_id`, `year_published`,
+  `category`)? If not, conflict acknowledgement may be brittle.
+- **`conflict_acknowledged_assessment_ids` admin protection** — must be
+  read-only in admin or a coordinator could silently silence future
+  conflicts. Verify the admin registration honors this.
 
 ### Next action
 
-Invoke `@business-analyst` with this scope → then `@product-manager` for
-gate-level breakdown and acceptance criteria. Do **not** implement before
-spec is reviewed — audit infrastructure touches every model and is expensive
-to retrofit if we pick the wrong approach.
+A PM reconciliation pass is needed: walk the gate-06b deliverables list,
+mark already-landed items as done, and re-anchor the remaining work into
+a smaller follow-up gate (or fold into gate 07 polish). Not workshop-
+critical. Defer until after ABQ unless one of the open items above
+becomes a workshop-relevant blocker.
 
 ---
 
