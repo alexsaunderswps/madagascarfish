@@ -48,9 +48,7 @@ COVERAGE_GAP_THREATENED = [
     Species.IUCNStatus.EN,
     Species.IUCNStatus.VU,
 ]
-_SEVERITY_RANK: dict[str, int] = {
-    str(s): i for i, s in enumerate(COVERAGE_GAP_THREATENED)
-}
+_SEVERITY_RANK: dict[str, int] = {str(s): i for i, s in enumerate(COVERAGE_GAP_THREATENED)}
 
 
 class StalePopulationRow(TypedDict):
@@ -113,16 +111,12 @@ class StaleCensusView(APIView):
                         "name": pop.institution.name,
                     },
                     "last_census_date": (
-                        pop.last_census_date.isoformat()
-                        if pop.last_census_date
-                        else None
+                        pop.last_census_date.isoformat() if pop.last_census_date else None
                     ),
                     "most_recent_holding_record_date": (
                         latest_holding.isoformat() if latest_holding else None
                     ),
-                    "effective_last_update": effective.isoformat()
-                    if effective
-                    else None,
+                    "effective_last_update": effective.isoformat() if effective else None,
                     "days_since_update": days_since,
                 }
             )
@@ -176,9 +170,7 @@ class CoverageGapView(APIView):
     permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
 
     def get(self, request: Request) -> Response:
-        endemic_only = self._parse_bool(
-            request.query_params.get("endemic_only"), default=True
-        )
+        endemic_only = self._parse_bool(request.query_params.get("endemic_only"), default=True)
 
         gap_qs = Species.objects.filter(
             iucn_status__in=COVERAGE_GAP_THREATENED,
@@ -376,9 +368,7 @@ class SexRatioRiskView(APIView):
     permission_classes = [TierOrServiceTokenPermission(3, "COORDINATOR_API_TOKEN")]
 
     def get(self, request: Request) -> Response:
-        populations = ExSituPopulation.objects.select_related(
-            "species", "institution"
-        ).only(
+        populations = ExSituPopulation.objects.select_related("species", "institution").only(
             "id",
             "species_id",
             "institution_id",
@@ -394,9 +384,7 @@ class SexRatioRiskView(APIView):
         total_populations = 0
         for pop in populations:
             total_populations += 1
-            reasons = _demographic_risk_reasons(
-                pop.count_male, pop.count_female, pop.count_unsexed
-            )
+            reasons = _demographic_risk_reasons(pop.count_male, pop.count_female, pop.count_unsexed)
             if not reasons:
                 continue
             results.append(
@@ -410,9 +398,7 @@ class SexRatioRiskView(APIView):
                         "id": pop.institution_id,
                         "name": pop.institution.name,
                     },
-                    "mfu": _mfu_string(
-                        pop.count_male, pop.count_female, pop.count_unsexed
-                    ),
+                    "mfu": _mfu_string(pop.count_male, pop.count_female, pop.count_unsexed),
                     "count_total": pop.count_total,
                     "risk_reasons": reasons,
                 }
@@ -522,9 +508,7 @@ class TransferActivityView(APIView):
             "destination_institution__name",
         )
 
-        in_flight_qs = base.filter(status__in=_TRANSFER_IN_FLIGHT).order_by(
-            "proposed_date"
-        )
+        in_flight_qs = base.filter(status__in=_TRANSFER_IN_FLIGHT).order_by("proposed_date")
         recent_qs = base.filter(
             status=Transfer.Status.COMPLETED, actual_date__gte=window_start
         ).order_by("-actual_date")
@@ -599,9 +583,7 @@ class OpenRecommendationsView(APIView):
     def get(self, request: Request) -> Response:
         today = timezone.now().date()
         qs = (
-            BreedingRecommendation.objects.select_related(
-                "species", "target_institution"
-            )
+            BreedingRecommendation.objects.select_related("species", "target_institution")
             .filter(status__in=_OPEN_STATUSES)
             .only(
                 "id",
@@ -770,13 +752,11 @@ class ReproductiveActivityView(APIView):
                     recent_species[key].append(e.population.species.scientific_name)
 
         by_event_type: dict[str, dict[str, object]] = {
-            key: {"count": counts[key], "recent_species": recent_species[key]}
-            for key in counts
+            key: {"count": counts[key], "recent_species": recent_species[key]} for key in counts
         }
 
         results = [
-            _serialize_breeding_event(e)
-            for e in events[:REPRODUCTIVE_ACTIVITY_RESULT_LIMIT]
+            _serialize_breeding_event(e) for e in events[:REPRODUCTIVE_ACTIVITY_RESULT_LIMIT]
         ]
 
         return Response(
