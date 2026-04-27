@@ -47,6 +47,7 @@ export function iucnColor(status: string | null | undefined): string {
 
 export async function fetchLocalities(
   params: Record<string, string | number | undefined> = {},
+  options: { authToken?: string } = {},
 ): Promise<LocalityFeatureCollection | null> {
   const qs = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -56,7 +57,20 @@ export async function fetchLocalities(
     ? `/api/v1/map/localities/?${qs.toString()}`
     : "/api/v1/map/localities/";
   try {
-    return await apiFetch<LocalityFeatureCollection>(path);
+    // Gate 11: when called from a server component with a logged-in user,
+    // pass `authToken` so the backend's tier gate sees Tier 3+ and serves
+    // exact coordinates instead of generalized ones. Anonymous callers
+    // (no token) get the existing public, generalized behavior.
+    //
+    // SECURITY: when an Authorization header is present, force
+    // `revalidate: 0` so the user-specific (potentially exact-coordinate)
+    // response is NEVER stored in Next's shared ISR cache and replayed to
+    // a subsequent anonymous visitor. Anonymous calls keep the default
+    // 1-hour ISR for performance.
+    return await apiFetch<LocalityFeatureCollection>(path, {
+      authToken: options.authToken,
+      revalidate: options.authToken ? 0 : undefined,
+    });
   } catch {
     return null;
   }

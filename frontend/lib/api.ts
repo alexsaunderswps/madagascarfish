@@ -15,9 +15,26 @@ export interface ApiFetchOptions {
   revalidate?: number;
   headers?: HeadersInit;
   signal?: AbortSignal;
+  /**
+   * DRF auth token forwarded as `Authorization: Token <key>` (Gate 11).
+   * Server-only — never pass a token from a client component. Pass
+   * `getServerSession(authOptions)?.drfToken` from a server component or
+   * route handler when a tier-gated read is needed.
+   *
+   * If both `authToken` and an `Authorization` header in `headers` are
+   * given, the explicit header wins (escape hatch for the existing
+   * service-token path that uses `Authorization: Bearer <token>`).
+   */
+  authToken?: string;
 }
 
-function resolveBaseUrl(): string {
+/**
+ * Resolve the Django API base URL from `NEXT_PUBLIC_API_URL`. Strips
+ * trailing slashes for clean concatenation. Exported so other modules
+ * (e.g. `lib/auth.ts`'s NextAuth callbacks that POST to Django) reuse the
+ * same env-var contract without duplicating the resolution logic.
+ */
+export function resolveBaseUrl(): string {
   const base = process.env.NEXT_PUBLIC_API_URL;
   if (!base) {
     throw new Error(
@@ -25,6 +42,21 @@ function resolveBaseUrl(): string {
     );
   }
   return base.replace(/\/$/, "");
+}
+
+function buildHeaders(options: ApiFetchOptions): HeadersInit | undefined {
+  // If a caller has already set an Authorization header explicitly, respect
+  // it — the existing service-token branch (`Bearer <token>`) goes through
+  // here. Otherwise, use the optional `authToken` for the standard DRF
+  // `Token <key>` shape.
+  if (!options.authToken) {
+    return options.headers;
+  }
+  const merged = new Headers(options.headers ?? {});
+  if (!merged.has("Authorization")) {
+    merged.set("Authorization", `Token ${options.authToken}`);
+  }
+  return merged;
 }
 
 export async function apiFetch<T>(
@@ -35,7 +67,7 @@ export async function apiFetch<T>(
   const revalidate = options.revalidate ?? DEFAULT_REVALIDATE;
 
   const response = await fetch(url, {
-    headers: options.headers,
+    headers: buildHeaders(options),
     signal: options.signal,
     next: { revalidate },
   });

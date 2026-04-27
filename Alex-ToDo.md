@@ -13,9 +13,83 @@ round of development. I'll maintain it as items land or become obsolete.
 - **Don't delete completed items** — move them to the "Done" section at
   the bottom with a short note on what it unlocked.
 
-**Last updated:** 2026-04-23 (reference PDFs dropped into `data/reference/`;
-§3 restructured to show which arrived, new §2.7 added with concrete
-EAZA-derived programs to seed).
+**Last updated:** 2026-04-26 (Gate 11 auth MVP foundation landed —
+configuration steps in §1.3 / §1.4 are pre-merge blockers).
+
+---
+
+## 1. Configuration
+
+### 1.3 Generate `NEXTAUTH_SECRET` per environment (Gate 11 dependency)
+
+**Priority:** high. Pre-merge blocker for the auth MVP PR. Without this
+the JWT signing falls back to NextAuth's empty-string default and dev/CI
+will warn but allow it; staging and prod will refuse to issue cookies.
+
+**Steps:**
+
+1. On your laptop, generate three independent values:
+
+   ```bash
+   openssl rand -hex 32  # dev value, paste into frontend/.env.local
+   openssl rand -hex 32  # staging value, paste into Vercel env (staging)
+   openssl rand -hex 32  # prod value, paste into Vercel env (production)
+   ```
+
+   Use a different secret per env. Never reuse.
+
+2. **Dev (`frontend/.env.local`):**
+
+   ```dotenv
+   NEXTAUTH_SECRET=<dev-hex>
+   NEXTAUTH_URL=http://localhost:3000
+   ```
+
+3. **Vercel — staging + production:**
+   - Project Settings → Environment Variables
+   - `NEXTAUTH_SECRET` = `<env-hex>`
+   - `NEXTAUTH_URL` = `https://malagasyfishes.org` (prod) or
+     `https://staging.malagasyfishes.org` (staging)
+   - Scope each value to the matching environment, not "All Environments".
+   - Save, redeploy.
+
+**How to verify:** browse `/login` while logged out, complete a signup
++ verify + login flow on staging — no NextAuth warnings in the Vercel
+function logs, session cookie present in browser dev-tools with
+`HttpOnly; Secure; SameSite=Lax`.
+
+**Rotation runbook:** if the secret leaks, generate a fresh one on the
+affected env, redeploy. Existing sessions are immediately invalidated
+(JWTs signed with the old secret won't decode). Acceptable cost.
+
+### 1.4 Pick an email-deliverability vendor (Gate 11 dependency)
+
+**Priority:** high. Architecture spec Appendix A flags this as blocking
+gate sign-off. Without it, the `/signup → /verify` email loop can't be
+demoed end-to-end on staging.
+
+**Options:**
+
+| Vendor | Pricing (low traffic) | Notes |
+|---|---|---|
+| Mailgun | Free tier 100/day, then ~$1/1k | Battle-tested. Django docs cover SMTP config. |
+| Resend | Free tier 100/day, then ~$1/1k | Modern API, cleanest dashboards. |
+| SendGrid | Free tier 100/day, then $20/mo | Established but the dashboard is worse. |
+
+For workshop scale (10s of signups, not hundreds), the free tiers all
+work. Pick on dashboard preference.
+
+**Steps:**
+
+1. Sign up, verify your sending domain (`malagasyfishes.org`).
+2. Add SPF + DKIM TXT records via your DNS provider.
+3. Add `EMAIL_BACKEND` and vendor SMTP/API credentials to the staging
+   backend `.env`. Specifics depend on vendor — point me at the docs and
+   I'll wire `backend/config/settings/base.py`.
+4. Smoke test: `python manage.py shell -c "from django.core.mail import send_mail; send_mail('test', 'hi', 'noreply@malagasyfishes.org', ['your-personal@example.com'])"`.
+
+**How to verify:** the test email lands in your inbox (not spam) within
+30 seconds.
 
 ---
 
