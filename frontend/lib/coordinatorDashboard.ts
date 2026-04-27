@@ -202,12 +202,32 @@ export interface ReproductiveActivityResponse {
 
 // ---------- Shared fetch helpers ----------
 
-function coordinatorHeaders(): HeadersInit {
-  const token = process.env.COORDINATOR_API_TOKEN;
-  if (!token) {
-    return {};
+/**
+ * Auth source for the coordinator dashboard SSR fetches (Gate 11).
+ *
+ * Resolution order:
+ *   1. `userDrfToken` — the logged-in coordinator's DRF token, pulled from
+ *      the NextAuth session by the page's server component. Sent as
+ *      `Authorization: Token <key>` so the backend evaluates the user's tier.
+ *   2. `process.env.COORDINATOR_API_TOKEN` — service-token bypass. Used when
+ *      no user session is available (anonymous SSR, NextAuth disabled, or
+ *      session retrieval failed). Sent as `Authorization: Bearer <token>`,
+ *      matching the existing `TierOrServiceTokenPermission` branch.
+ *   3. Neither — no Authorization header. The endpoint will 403 and the
+ *      panel renders the existing "token not configured" banner.
+ *
+ * Session-first / service-token-fallback is locked in
+ * `docs/planning/specs/gate-11-auth-mvp.md` §6 and BA Story 5.
+ */
+function coordinatorHeaders(userDrfToken?: string): HeadersInit {
+  if (userDrfToken) {
+    return { Authorization: `Token ${userDrfToken}` };
   }
-  return { Authorization: `Bearer ${token}` };
+  const serviceToken = process.env.COORDINATOR_API_TOKEN;
+  if (serviceToken) {
+    return { Authorization: `Bearer ${serviceToken}` };
+  }
+  return {};
 }
 
 /**
@@ -223,7 +243,7 @@ export function isCoordinatorTokenConfigured(): boolean {
   return Boolean(process.env.COORDINATOR_API_TOKEN);
 }
 
-async function fetchCoordinator<T>(path: string): Promise<T | null> {
+async function fetchCoordinator<T>(path: string, userDrfToken?: string): Promise<T | null> {
   try {
     // revalidate: 0 bypasses Next.js's fetch cache for these responses.
     // Coordinator panels surface population-level detail at an identifiable
@@ -231,7 +251,7 @@ async function fetchCoordinator<T>(path: string): Promise<T | null> {
     // 1h via apiFetch) would let the same payload be replayed to subsequent
     // SSR requests without re-authenticating upstream. Hit Django every time.
     return await apiFetch<T>(path, {
-      headers: coordinatorHeaders(),
+      headers: coordinatorHeaders(userDrfToken),
       revalidate: 0,
     });
   } catch {
@@ -240,7 +260,7 @@ async function fetchCoordinator<T>(path: string): Promise<T | null> {
 }
 
 export function fetchCoverageGap(
-  options: { endemicOnly?: boolean } = {},
+  options: { endemicOnly?: boolean; authToken?: string } = {},
 ): Promise<CoverageGapResponse | null> {
   const params = new URLSearchParams();
   if (options.endemicOnly === false) {
@@ -248,41 +268,66 @@ export function fetchCoverageGap(
   }
   const qs = params.toString();
   const path = `/api/v1/coordinator-dashboard/coverage-gap/${qs ? `?${qs}` : ""}`;
-  return fetchCoordinator<CoverageGapResponse>(path);
+  return fetchCoordinator<CoverageGapResponse>(path, options.authToken);
 }
 
-export function fetchStudbookStatus(): Promise<StudbookStatusResponse | null> {
+// All seven coordinator fetchers take the same options shape so the next
+// person adding one doesn't have to remember which is positional vs
+// object. Match `apiFetch`'s style.
+export interface CoordinatorFetchOptions {
+  authToken?: string;
+}
+
+export function fetchStudbookStatus(
+  options: CoordinatorFetchOptions = {},
+): Promise<StudbookStatusResponse | null> {
   return fetchCoordinator<StudbookStatusResponse>(
     "/api/v1/coordinator-dashboard/studbook-status/",
+    options.authToken,
   );
 }
 
-export function fetchSexRatioRisk(): Promise<SexRatioRiskResponse | null> {
+export function fetchSexRatioRisk(
+  options: CoordinatorFetchOptions = {},
+): Promise<SexRatioRiskResponse | null> {
   return fetchCoordinator<SexRatioRiskResponse>(
     "/api/v1/coordinator-dashboard/sex-ratio-risk/",
+    options.authToken,
   );
 }
 
-export function fetchStaleCensus(): Promise<StaleCensusResponse | null> {
+export function fetchStaleCensus(
+  options: CoordinatorFetchOptions = {},
+): Promise<StaleCensusResponse | null> {
   return fetchCoordinator<StaleCensusResponse>(
     "/api/v1/coordinator-dashboard/stale-census/",
+    options.authToken,
   );
 }
 
-export function fetchTransferActivity(): Promise<TransferActivityResponse | null> {
+export function fetchTransferActivity(
+  options: CoordinatorFetchOptions = {},
+): Promise<TransferActivityResponse | null> {
   return fetchCoordinator<TransferActivityResponse>(
     "/api/v1/coordinator-dashboard/transfer-activity/",
+    options.authToken,
   );
 }
 
-export function fetchOpenRecommendations(): Promise<OpenRecommendationsResponse | null> {
+export function fetchOpenRecommendations(
+  options: CoordinatorFetchOptions = {},
+): Promise<OpenRecommendationsResponse | null> {
   return fetchCoordinator<OpenRecommendationsResponse>(
     "/api/v1/coordinator-dashboard/open-recommendations/",
+    options.authToken,
   );
 }
 
-export function fetchReproductiveActivity(): Promise<ReproductiveActivityResponse | null> {
+export function fetchReproductiveActivity(
+  options: CoordinatorFetchOptions = {},
+): Promise<ReproductiveActivityResponse | null> {
   return fetchCoordinator<ReproductiveActivityResponse>(
     "/api/v1/coordinator-dashboard/reproductive-activity/",
+    options.authToken,
   );
 }

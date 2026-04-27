@@ -1,11 +1,17 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 
 import EmptyState from "@/components/EmptyState";
 import MapListView from "@/components/MapListView";
 import MapViewToggle, { type MapView } from "@/components/MapViewToggle";
+import { getServerDrfToken } from "@/lib/auth";
 import { fetchLocalities } from "@/lib/mapLocalities";
 
-export const revalidate = 3600;
+// Gate 11: must render dynamically because the page now reads the session
+// to decide whether to forward Authorization on the locality fetch. ISR
+// would cache one user's response (potentially exact coordinates) and
+// replay it to anonymous visitors. The fetch-level revalidate=0 in
+// `fetchLocalities` is defense-in-depth; this is the primary gate.
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Distribution Map — Madagascar Freshwater Fish",
@@ -13,7 +19,7 @@ export const metadata = {
     "Locality records for endemic freshwater fish across Madagascar, color-coded by IUCN Red List category. Exact coordinates for threatened species are generalized per GBIF sensitive-species guidance.",
 };
 
-const MapClient = dynamic(() => import("@/components/MapClient"), {
+const MapClient = nextDynamic(() => import("@/components/MapClient"), {
   ssr: false,
   loading: () => (
     <div
@@ -47,7 +53,16 @@ export default async function MapPage({
   const viewParam = Array.isArray(viewRaw) ? viewRaw[0] : viewRaw;
   const view: MapView = viewParam === "list" ? "list" : "map";
 
-  const data = await fetchLocalities(speciesId ? { species_id: speciesId } : {});
+  // Gate 11: forward the logged-in user's DRF token so the backend's
+  // SpeciesLocality serializer can serve exact coordinates to Tier 3+
+  // visitors. Anonymous SSR sends nothing and gets the existing
+  // generalized-coordinate behavior. The fetcher itself sets revalidate=0
+  // when a token is present, so authenticated responses are never cached.
+  const authToken = await getServerDrfToken();
+  const data = await fetchLocalities(
+    speciesId ? { species_id: speciesId } : {},
+    { authToken },
+  );
 
   if (!data) {
     return (

@@ -7,6 +7,7 @@ import SexRatioRiskPanel from "@/components/coordinator/SexRatioRiskPanel";
 import StaleCensusPanel from "@/components/coordinator/StaleCensusPanel";
 import StudbookStatusPanel from "@/components/coordinator/StudbookStatusPanel";
 import TransferActivityPanel from "@/components/coordinator/TransferActivityPanel";
+import { getServerDrfToken } from "@/lib/auth";
 import {
   fetchCoverageGap,
   fetchOpenRecommendations,
@@ -127,7 +128,15 @@ export default async function CoordinatorDashboardPage({
 }: PageProps) {
   const params = (await searchParams) ?? {};
   const endemicOnly = params.endemic_only !== "false";
-  const tokenConfigured = isCoordinatorTokenConfigured();
+
+  // Gate 11: read the user's DRF token via the JWT-only accessor and pass
+  // it to each panel fetcher. Anonymous SSR (no session) leaves authToken
+  // undefined, which falls back to COORDINATOR_API_TOKEN in
+  // `coordinatorHeaders()` — preserving the existing service-token render
+  // path during rollout. See `lib/auth.ts` for the token-leak rationale.
+  const userToken = await getServerDrfToken();
+
+  const tokenConfigured = isCoordinatorTokenConfigured() || Boolean(userToken);
 
   const [
     coverage,
@@ -138,13 +147,13 @@ export default async function CoordinatorDashboardPage({
     openRecommendations,
     reproductiveActivity,
   ] = await Promise.all([
-    fetchCoverageGap({ endemicOnly }),
-    fetchStudbookStatus(),
-    fetchSexRatioRisk(),
-    fetchStaleCensus(),
-    fetchTransferActivity(),
-    fetchOpenRecommendations(),
-    fetchReproductiveActivity(),
+    fetchCoverageGap({ endemicOnly, authToken: userToken }),
+    fetchStudbookStatus({ authToken: userToken }),
+    fetchSexRatioRisk({ authToken: userToken }),
+    fetchStaleCensus({ authToken: userToken }),
+    fetchTransferActivity({ authToken: userToken }),
+    fetchOpenRecommendations({ authToken: userToken }),
+    fetchReproductiveActivity({ authToken: userToken }),
   ]);
 
   return (
