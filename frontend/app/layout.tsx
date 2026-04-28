@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Spectral } from "next/font/google";
+import AuthSessionProvider from "@/components/AuthSessionProvider";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
@@ -43,11 +44,13 @@ export default function RootLayout({
       className={`${spectral.variable} ${plexSans.variable} ${plexMono.variable}`}
     >
       <body className="flex min-h-screen flex-col bg-white text-slate-900 antialiased">
-        <SiteHeader />
-        <div id="main-content" className="flex-1">
-          {children}
-        </div>
-        <SiteFooter />
+        <AuthSessionProvider>
+          <SiteHeader />
+          <div id="main-content" className="flex-1">
+            {children}
+          </div>
+          <SiteFooter />
+        </AuthSessionProvider>
       </body>
     </html>
   );

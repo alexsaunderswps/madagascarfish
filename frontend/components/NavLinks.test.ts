@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isActive, mostSpecificActiveHref } from "./NavLinks";
+import { authNavItems, isActive, mostSpecificActiveHref } from "./NavLinks";
 
 describe("isActive", () => {
   it("marks the exact match as active, with or without trailing slash", () => {
@@ -49,5 +49,28 @@ describe("mostSpecificActiveHref", () => {
     expect(mostSpecificActiveHref("/dashboard/coordinator", links)).toBe(
       "/dashboard/coordinator/",
     );
+  });
+});
+
+describe("authNavItems", () => {
+  it("renders nothing when the feature flag is off (Story 3 AC-3.3)", () => {
+    expect(authNavItems(false, false)).toEqual([]);
+    expect(authNavItems(false, true)).toEqual([]);
+  });
+
+  it("renders Sign in + Sign up when authVisible and not authenticated", () => {
+    const items = authNavItems(true, false);
+    expect(items).toEqual([
+      { kind: "link", href: "/login", label: "Sign in" },
+      { kind: "link", href: "/signup", label: "Sign up" },
+    ]);
+  });
+
+  it("renders Account + Sign out when authVisible and authenticated", () => {
+    const items = authNavItems(true, true);
+    expect(items).toEqual([
+      { kind: "link", href: "/account", label: "Account" },
+      { kind: "logout", href: "#logout", label: "Sign out" },
+    ]);
   });
 });

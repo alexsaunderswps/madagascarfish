@@ -1,7 +1,16 @@
 import Link from "next/link";
+
 import NavLinks from "./NavLinks";
 
+/**
+ * Server-rendered, static. Auth state is resolved client-side in `NavLinks`
+ * via `useSession()` so the public surface stays fully cacheable (ISR) —
+ * reading the session cookie here would force every page that consumes the
+ * root layout into dynamic rendering.
+ */
 export default function SiteHeader() {
+  const authVisible = process.env.NEXT_PUBLIC_FEATURE_AUTH === "true";
+
   return (
     <header
       style={{
@@ -43,7 +52,7 @@ export default function SiteHeader() {
           Madagascar Freshwater Fish
         </Link>
         <nav aria-label="Primary">
-          <NavLinks />
+          <NavLinks authVisible={authVisible} />
         </nav>
       </div>
     </header>

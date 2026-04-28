@@ -1,31 +1,60 @@
+import { getToken } from "next-auth/jwt";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Gate 11 middleware skeleton.
+ * Gate 11 middleware — auth guards for protected routes.
  *
- * Today: pass-through (no redirects). The matcher is set up to evaluate
- * the routes that will eventually require auth (`/account`, `/dashboard/coordinator`),
- * so that when C8 wires in `NEXT_PUBLIC_FEATURE_AUTH` and the session check,
- * no route additions are needed — only the function body changes.
+ * Behavior:
+ *   1. If `NEXT_PUBLIC_FEATURE_AUTH` is not "true", pass through unchanged.
+ *      This preserves the rollback property — flipping the flag off in
+ *      Vercel env immediately restores the pre-Gate-11 behavior with no
+ *      code revert.
+ *   2. `/account/*`: requires a valid NextAuth session. No session →
+ *      redirect to `/login?callbackUrl=<original-path>`. The callbackUrl
+ *      is always a same-origin path, which `safeRedirectTarget` accepts.
+ *   3. `/dashboard/coordinator/*`: requires either a session OR the
+ *      service token (`COORDINATOR_API_TOKEN`). If neither is present,
+ *      redirect to `/login?callbackUrl=…`. If either is present, let SSR
+ *      run and let the API decide tier — the architecture pattern.
  *
- * When the flag flips ON in C8, this file will:
- *   1. Read `NEXT_PUBLIC_FEATURE_AUTH`. If false, pass through unchanged.
- *   2. For protected paths, fetch the JWT via `getToken({ req })` from
- *      `next-auth/jwt`. If absent, redirect to `/login?callbackUrl=…`.
- *   3. For public paths, pass through.
- *
- * The `callbackUrl` value is validated against an allow-list before the
- * redirect lands; see `frontend/lib/auth-allowlist.ts` (added in C5).
+ * The matcher in `config` keeps middleware off the public surface.
  */
-export function middleware(_request: NextRequest): NextResponse {
+export async function middleware(request: NextRequest): Promise<NextResponse> {
+  const flagOn = process.env.NEXT_PUBLIC_FEATURE_AUTH === "true";
+  if (!flagOn) {
+    return NextResponse.next();
+  }
+
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+  const path = request.nextUrl.pathname;
+
+  if (path.startsWith("/account")) {
+    if (!token) {
+      return redirectToLogin(request, path);
+    }
+    return NextResponse.next();
+  }
+
+  if (path.startsWith("/dashboard/coordinator")) {
+    const hasServiceToken = Boolean(process.env.COORDINATOR_API_TOKEN);
+    if (!token && !hasServiceToken) {
+      return redirectToLogin(request, path);
+    }
+    return NextResponse.next();
+  }
+
   return NextResponse.next();
 }
 
-// Routes that will require auth once the flag flips. Listing them here now
-// ensures the matcher doesn't change shape between C1 and C8.
+function redirectToLogin(request: NextRequest, originalPath: string): NextResponse {
+  const url = new URL("/login", request.url);
+  url.searchParams.set("callbackUrl", originalPath);
+  return NextResponse.redirect(url);
+}
+
 export const config = {
-  matcher: [
-    "/account/:path*",
-    "/dashboard/coordinator/:path*",
-  ],
+  matcher: ["/account/:path*", "/dashboard/coordinator/:path*"],
 };
