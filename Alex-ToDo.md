@@ -13,83 +13,15 @@ round of development. I'll maintain it as items land or become obsolete.
 - **Don't delete completed items** — move them to the "Done" section at
   the bottom with a short note on what it unlocked.
 
-**Last updated:** 2026-04-26 (Gate 11 auth MVP foundation landed —
-configuration steps in §1.3 / §1.4 are pre-merge blockers).
+**Last updated:** 2026-04-28 (NEXTAUTH_SECRET and Resend SMTP both wired
+on dev + prod — §1.3 and §1.4 archived to Done).
 
 ---
 
 ## 1. Configuration
 
-### 1.3 Generate `NEXTAUTH_SECRET` per environment (Gate 11 dependency)
-
-**Priority:** high. Pre-merge blocker for the auth MVP PR. Without this
-the JWT signing falls back to NextAuth's empty-string default and dev/CI
-will warn but allow it; staging and prod will refuse to issue cookies.
-
-**Steps:**
-
-1. On your laptop, generate three independent values:
-
-   ```bash
-   openssl rand -hex 32  # dev value, paste into frontend/.env.local
-   openssl rand -hex 32  # staging value, paste into Vercel env (staging)
-   openssl rand -hex 32  # prod value, paste into Vercel env (production)
-   ```
-
-   Use a different secret per env. Never reuse.
-
-2. **Dev (`frontend/.env.local`):**
-
-   ```dotenv
-   NEXTAUTH_SECRET=<dev-hex>
-   NEXTAUTH_URL=http://localhost:3000
-   ```
-
-3. **Vercel — staging + production:**
-   - Project Settings → Environment Variables
-   - `NEXTAUTH_SECRET` = `<env-hex>`
-   - `NEXTAUTH_URL` = `https://malagasyfishes.org` (prod) or
-     `https://staging.malagasyfishes.org` (staging)
-   - Scope each value to the matching environment, not "All Environments".
-   - Save, redeploy.
-
-**How to verify:** browse `/login` while logged out, complete a signup
-+ verify + login flow on staging — no NextAuth warnings in the Vercel
-function logs, session cookie present in browser dev-tools with
-`HttpOnly; Secure; SameSite=Lax`.
-
-**Rotation runbook:** if the secret leaks, generate a fresh one on the
-affected env, redeploy. Existing sessions are immediately invalidated
-(JWTs signed with the old secret won't decode). Acceptable cost.
-
-### 1.4 Pick an email-deliverability vendor (Gate 11 dependency)
-
-**Priority:** high. Architecture spec Appendix A flags this as blocking
-gate sign-off. Without it, the `/signup → /verify` email loop can't be
-demoed end-to-end on staging.
-
-**Options:**
-
-| Vendor | Pricing (low traffic) | Notes |
-|---|---|---|
-| Mailgun | Free tier 100/day, then ~$1/1k | Battle-tested. Django docs cover SMTP config. |
-| Resend | Free tier 100/day, then ~$1/1k | Modern API, cleanest dashboards. |
-| SendGrid | Free tier 100/day, then $20/mo | Established but the dashboard is worse. |
-
-For workshop scale (10s of signups, not hundreds), the free tiers all
-work. Pick on dashboard preference.
-
-**Steps:**
-
-1. Sign up, verify your sending domain (`malagasyfishes.org`).
-2. Add SPF + DKIM TXT records via your DNS provider.
-3. Add `EMAIL_BACKEND` and vendor SMTP/API credentials to the staging
-   backend `.env`. Specifics depend on vendor — point me at the docs and
-   I'll wire `backend/config/settings/base.py`.
-4. Smoke test: `python manage.py shell -c "from django.core.mail import send_mail; send_mail('test', 'hi', 'noreply@malagasyfishes.org', ['your-personal@example.com'])"`.
-
-**How to verify:** the test email lands in your inbox (not spam) within
-30 seconds.
+_§1.3 (NEXTAUTH_SECRET) and §1.4 (email vendor — Resend) are complete as
+of 2026-04-28. Runbooks moved to Done._
 
 ---
 
@@ -602,6 +534,98 @@ Listing these so you know they're not on your plate.
 Completed items are archived here. We keep the full how-to for each so
 there's a runbook to refer back to when something needs to be re-done
 (e.g. secret rotation). Newest at the top.
+
+### 1.4 Pick an email-deliverability vendor — DONE
+
+**Completed:** 2026-04-28. Vendor: **Resend** (SMTP).
+**Unlocks:** Django `send_mail` reaches real inboxes from staging — the
+`/signup → /verify` email loop is now end-to-end on
+`api.malagasyfishes.org`. PR #122 wired the SMTP env-var reads in
+`backend/config/settings/base.py` and refreshed
+`deploy/staging/.env.example` to mirror what's on the Hetzner box.
+
+**Resend SMTP credentials on Hetzner staging `.env`:**
+
+```dotenv
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.resend.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=resend
+EMAIL_HOST_PASSWORD=<Resend API key, re_...>
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=noreply@malagasyfishes.org
+```
+
+`EMAIL_HOST_USER` is the literal string `resend` — that's Resend's
+convention. The API key is the password.
+
+**Smoke-test command** (run on the Hetzner box):
+
+```bash
+ssh deploy@46.224.196.197
+docker compose -f /home/deploy/madagascarfish/deploy/staging/docker-compose.yml \
+  exec -T web python manage.py shell -c \
+  "from django.core.mail import send_mail; send_mail('Resend test', 'hello', 'noreply@malagasyfishes.org', ['alekseisaunders@gmail.com'])"
+```
+
+Expect inbox delivery within ~30s. Spam landing → re-check SPF/DKIM in
+DNS. SMTP auth failure → `EMAIL_HOST_PASSWORD` doesn't match the live
+Resend API key.
+
+**Rotation runbook:** mint a new Resend API key in the Resend dashboard,
+update `EMAIL_HOST_PASSWORD` on the Hetzner `.env`, then
+`docker compose up -d --force-recreate web`. Old key can be deleted
+once the new one is live.
+
+**Domain notes:** `malagasyfishes.org` is verified in Resend with DKIM
++ SPF records on Cloudflare. If the sending domain ever changes, the
+DNS records have to be regenerated in the Resend dashboard.
+
+### 1.3 Generate `NEXTAUTH_SECRET` per environment — DONE
+
+**Completed:** 2026-04-28.
+**Unlocks:** NextAuth JWT signing on dev + prod. Cookies issue cleanly
+with `HttpOnly; Secure; SameSite=Lax`; no warnings in Vercel function
+logs. Staging frontend wiring deferred (no `staging` git branch yet —
+see §1.4 of the Gate 11 auth handover for context).
+
+**Runbook (rotation):**
+
+1. Generate fresh values on your laptop:
+
+   ```bash
+   openssl rand -hex 32  # one per environment
+   ```
+
+   Use a different secret per env. Never reuse.
+
+2. **Dev (`frontend/.env.local`):**
+
+   ```dotenv
+   NEXTAUTH_SECRET=<dev-hex>
+   NEXTAUTH_URL=http://localhost:3000
+   ```
+
+3. **Vercel — production:**
+   - Project Settings → Environment Variables
+   - `NEXTAUTH_SECRET` = `<prod-hex>`, scope to **Production**
+   - `NEXTAUTH_URL` = `https://malagasyfishes.org`, scope to **Production**
+   - Save, redeploy.
+
+4. **Vercel — staging:** not configured. The architecture spec called for
+   a `staging` git branch with `staging.malagasyfishes.org` as a Vercel
+   alias, but the staging frontend was never wired. Today
+   `staging.malagasyfishes.org` is unused (the backend lives at
+   `api.malagasyfishes.org`). Generate a third secret only when the
+   staging frontend is actually stood up.
+
+**Verification:** browse `/login` while logged out, complete a signup
++ verify + login flow on prod — no NextAuth warnings in Vercel logs,
+session cookie present in browser dev-tools with the expected flags.
+
+**On a leak:** generate a fresh secret on the affected env, paste into
+Vercel env vars, redeploy. Existing sessions are immediately invalidated
+(JWTs signed with the old secret won't decode). Acceptable cost.
 
 ### 1.2 Verify the revalidate webhook is configured — DONE
 
