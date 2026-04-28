@@ -90,6 +90,15 @@ const CONFIG_ERROR_STYLE: CSSProperties = {
 };
 
 function ConfigErrorBanner() {
+  // Operator hint — appears in Vercel function logs when the user-facing
+  // banner is rendered. Points whoever is debugging to OPERATIONS.md §11.2
+  // (the COORDINATOR_API_TOKEN runbook). The user-visible copy stays
+  // operator-jargon-free.
+  console.warn(
+    "[coordinator-dashboard] ConfigErrorBanner rendered — neither a user " +
+      "session nor COORDINATOR_API_TOKEN was available. See OPERATIONS.md " +
+      "§11.2 to wire the service token, or have the user sign in as Tier 3+.",
+  );
   return (
     <div role="alert" style={CONFIG_ERROR_STYLE}>
       <strong>Coordinator data is temporarily unavailable.</strong> The

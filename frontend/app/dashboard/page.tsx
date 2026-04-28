@@ -179,18 +179,7 @@ export default async function DashboardPage() {
     );
   }
 
-  const { species_counts, ex_situ_coverage, field_programs, last_updated } = data;
-  // The `coordination` block is part of the v2 dashboard payload. Fall back
-  // to a zero shape when an older deployment of the backend (still serving
-  // v1) is upstream — keeps the page rendering instead of crashing during
-  // prerender or SSR. Remove the fallback once every environment is on v2.
-  const coordination = data.coordination ?? {
-    active_programs_total: 0,
-    active_programs_by_type: { ssp: 0, eep: 0, cares: 0, independent: 0, other: 0 },
-    transfer_window_days: 90,
-    transfers_in_flight: 0,
-    transfers_recent_completed: 0,
-  };
+  const { species_counts, ex_situ_coverage, field_programs, coordination, last_updated } = data;
   const programByType = coordination.active_programs_by_type;
   const formalPrograms =
     (programByType.ssp ?? 0) + (programByType.eep ?? 0) + (programByType.cares ?? 0);
