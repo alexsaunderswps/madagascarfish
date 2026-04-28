@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { resolveBaseUrl } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { getServerDrfToken } from "@/lib/auth";
 
 import LogoutButton from "./LogoutButton";
@@ -37,23 +37,23 @@ export default async function AccountPage() {
     redirect("/login?callbackUrl=/account");
   }
 
+  // Use apiFetch with the session token rather than a raw fetch — keeps
+  // this page's auth-forwarding pattern aligned with the rest of the
+  // codebase, so future tier-restricted pages copying from /account
+  // pick up the canonical pattern. revalidate:0 (Gate 11 cache-poisoning
+  // rule: any authToken'd fetch must bypass Next's shared fetch cache).
   let me: MeResponse | null = null;
   let transientError = false;
   try {
-    const response = await fetch(`${resolveBaseUrl()}/api/v1/auth/me/`, {
-      headers: { Authorization: `Token ${drfToken}` },
-      cache: "no-store",
+    me = await apiFetch<MeResponse>("/api/v1/auth/me/", {
+      authToken: drfToken,
+      revalidate: 0,
     });
-    if (response.status === 401) {
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
       // Stale or revoked token; force re-login.
       redirect("/login?callbackUrl=/account");
     }
-    if (response.ok) {
-      me = (await response.json()) as MeResponse;
-    } else {
-      transientError = true;
-    }
-  } catch {
     transientError = true;
   }
 

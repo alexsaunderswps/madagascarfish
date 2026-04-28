@@ -266,8 +266,16 @@ async function fetchCoordinator<T>(path: string, userDrfToken?: string): Promise
   }
 }
 
+// All seven coordinator fetchers take the same options shape so the next
+// person adding one doesn't have to remember which is positional vs
+// object. Match `apiFetch`'s style. Declared above the first fetcher
+// (fetchCoverageGap) so the base type is visible before any extension.
+export interface CoordinatorFetchOptions {
+  authToken?: string;
+}
+
 export function fetchCoverageGap(
-  options: { endemicOnly?: boolean; authToken?: string } = {},
+  options: CoordinatorFetchOptions & { endemicOnly?: boolean } = {},
 ): Promise<CoverageGapResponse | null> {
   const params = new URLSearchParams();
   if (options.endemicOnly === false) {
@@ -276,13 +284,6 @@ export function fetchCoverageGap(
   const qs = params.toString();
   const path = `/api/v1/coordinator-dashboard/coverage-gap/${qs ? `?${qs}` : ""}`;
   return fetchCoordinator<CoverageGapResponse>(path, options.authToken);
-}
-
-// All seven coordinator fetchers take the same options shape so the next
-// person adding one doesn't have to remember which is positional vs
-// object. Match `apiFetch`'s style.
-export interface CoordinatorFetchOptions {
-  authToken?: string;
 }
 
 export function fetchStudbookStatus(
