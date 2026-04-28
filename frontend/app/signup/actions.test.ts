@@ -89,6 +89,48 @@ describe("registerAction", () => {
     expect(result).toEqual({ ok: true });
   });
 
+  it("masks ALL email-field 400 errors regardless of message text (enumeration resistance)", async () => {
+    // Hardened against future Django wording changes — any non-empty email
+    // error array collapses to the success-shaped interstitial. Was a
+    // brittle exact-string match before security review M1.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({ email: ["Email domain is not allowed."] }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    const result = await registerAction(VALID_INPUT);
+    expect(result).toEqual({ ok: true });
+  });
+
+  it("surfaces password errors even when an email error is also present", async () => {
+    // Mixed-error case: silence the email signal, but still tell the user
+    // their password is weak — that's actionable feedback that doesn't
+    // reveal account existence.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            email: ["An account with this email already exists."],
+            password: ["This password is too short."],
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    const result = await registerAction(VALID_INPUT);
+    expect(result).toEqual({
+      ok: false,
+      errors: { password: "This password is too short." },
+    });
+  });
+
   it("surfaces password validation errors so the form can render them", async () => {
     vi.stubGlobal(
       "fetch",
@@ -113,27 +155,6 @@ describe("registerAction", () => {
         password:
           "This password is too short. It must contain at least 12 characters.",
       },
-    });
-  });
-
-  it("treats a non-duplicate email validation error as a surfaced field error", async () => {
-    // E.g. some future change adds an "Email is on a banned domain" check — not
-    // the duplicate-email message, so the user should see it.
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({ email: ["Email domain is not allowed."] }),
-          { status: 400, headers: { "Content-Type": "application/json" } },
-        ),
-      ),
-    );
-
-    const result = await registerAction(VALID_INPUT);
-
-    expect(result).toEqual({
-      ok: false,
-      errors: { email: "Email domain is not allowed." },
     });
   });
 

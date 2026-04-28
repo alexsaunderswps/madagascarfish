@@ -36,8 +36,6 @@ interface DjangoFieldErrors {
   non_field_errors?: string[];
 }
 
-const DUPLICATE_EMAIL_MESSAGE = "An account with this email already exists.";
-
 export async function registerAction(input: {
   email: string;
   name: string;
@@ -85,18 +83,18 @@ export async function registerAction(input: {
       };
     }
 
-    if (
-      Array.isArray(body.email) &&
-      body.email.length === 1 &&
-      body.email[0] === DUPLICATE_EMAIL_MESSAGE
-    ) {
-      return { ok: true };
-    }
-
+    // Enumeration resistance (Story 1 AC-1.1): silence ALL email-field
+    // errors. The most common is "An account with this email already
+    // exists.", which directly leaks account existence. Banned-domain or
+    // format-policy errors also reveal platform internals. The browser's
+    // type=email + required already catches malformed input before submit,
+    // so any email error reaching here would have to come from Django,
+    // and the safer default is the "Check your email" interstitial.
+    //
+    // Other field errors (name, password) DO surface — Django's password
+    // validators (length, common-password, similarity) produce actionable
+    // feedback that doesn't reveal account existence.
     const errors: SignupFieldErrors = {};
-    if (Array.isArray(body.email) && body.email.length > 0) {
-      errors.email = body.email[0];
-    }
     if (Array.isArray(body.name) && body.name.length > 0) {
       errors.name = body.name[0];
     }
@@ -107,7 +105,10 @@ export async function registerAction(input: {
       errors.form = body.non_field_errors[0];
     }
     if (Object.keys(errors).length === 0) {
-      errors.form = body.detail ?? "Sign-up failed. Please check your details.";
+      // Either the only error was on the email field (silenced above) or
+      // Django returned an unrecognized 400 shape. Both collapse to the
+      // success-shaped interstitial — no information leak either way.
+      return { ok: true };
     }
     return { ok: false, errors };
   }

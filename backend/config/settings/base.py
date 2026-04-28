@@ -169,6 +169,15 @@ SPECTACULAR_SETTINGS = {
 # stdout, which is fine for CI but a leak vector if enabled live.
 ALLOW_TEST_HELPERS = env.bool("ALLOW_TEST_HELPERS", default=False)
 
+# When True, /auth/login/ rate-limiting reads the client IP from the
+# X-Forwarded-For header instead of REMOTE_ADDR. Only enable in deployments
+# where Django sits behind a trusted reverse proxy that sets the header
+# (Hetzner: Caddy → Django on a private docker network). In any deployment
+# where the WSGI port is reachable directly, leaving this False is critical
+# — otherwise an attacker can spoof XFF and rotate the asserted IP per
+# request, bypassing the per-IP rate limit entirely.
+TRUST_X_FORWARDED_FOR = env.bool("TRUST_X_FORWARDED_FOR", default=False)
+
 # Email
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@malagasyfishes.org")
