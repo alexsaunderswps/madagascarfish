@@ -58,7 +58,8 @@ export default function StaleCensusPanel({ data }: Props) {
         caption="Populations overdue for a census update."
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Unable to load stale-census data.
+          Census timestamps are temporarily unavailable. Overdue
+          populations will reappear once the coordination API is reachable.
         </p>
       </PanelShell>
     );
@@ -70,12 +71,12 @@ export default function StaleCensusPanel({ data }: Props) {
     <PanelShell
       eyebrow="Panel 4"
       title={`Stale census — ${total_stale} of ${total_populations} populations`}
-      caption={`Populations with no census signal (last_census_date or a holding record) in the past ${threshold_months} months, or never censused at all.`}
+      caption={`Populations whose last census record — or any holding update — is more than ${threshold_months} months old, plus any population that has never been censused. A current count is the prerequisite for every other coordination decision.`}
     >
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          All populations are within the {threshold_months}-month census
-          window.
+          Every tracked population has been censused within the last{" "}
+          {threshold_months} months.
         </p>
       ) : (
         <div style={{ overflowX: "auto" }}>

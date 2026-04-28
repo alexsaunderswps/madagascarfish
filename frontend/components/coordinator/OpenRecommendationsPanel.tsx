@@ -111,10 +111,12 @@ export default function OpenRecommendationsPanel({ data }: Props) {
       <PanelShell
         eyebrow="Panel 6"
         title="Open breeding recommendations"
-        caption="Coordinator to-do list."
+        caption="Coordinator action items."
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Unable to load recommendations.
+          Open recommendations are temporarily unavailable. Breed, hold,
+          and transfer items will reappear once the coordination API is
+          reachable.
         </p>
       </PanelShell>
     );
@@ -126,12 +128,13 @@ export default function OpenRecommendationsPanel({ data }: Props) {
     <PanelShell
       eyebrow="Panel 6"
       title={`Open breeding recommendations — ${total_open}${overdue_count > 0 ? ` (${overdue_count} overdue)` : ""}`}
-      caption="Non-terminal breeding / hold / transfer recommendations sorted by priority. Critical and High at the top; completed recs are archived."
+      caption="Active breed, hold, and transfer items issued by coordinators, sorted by priority. Critical and high-priority rows surface first; completed and cancelled items are archived elsewhere."
     >
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          No open recommendations. Either the plan is fully addressed or
-          coordinators haven&rsquo;t logged any yet.
+          No open recommendations on file. Either the breeding plan is
+          fully addressed or coordinators have not yet logged any items
+          for the current period.
         </p>
       ) : (
         <div style={{ overflowX: "auto" }}>

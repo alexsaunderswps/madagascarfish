@@ -143,7 +143,9 @@ export default function ReproductiveActivityPanel({ data }: Props) {
         caption="Per-population event ledger."
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Unable to load reproductive activity.
+          Breeding event records are temporarily unavailable. Recent
+          spawnings, hatchings, and other population-level events will
+          reappear once the coordination API is reachable.
         </p>
       </PanelShell>
     );
@@ -155,13 +157,15 @@ export default function ReproductiveActivityPanel({ data }: Props) {
     <PanelShell
       eyebrow="Panel 7"
       title={`Recent reproductive activity — ${total_events} event${total_events === 1 ? "" : "s"}`}
-      caption={`BreedingEvent rows from the last ${window_days} days, newest first. Spawning, hatching, mortality, and acquisition signals across all populations. Showing up to ${result_limit} rows; full per-population history lives on the population's admin page.`}
+      caption={`Population-level events recorded in the last ${window_days} days, newest first: spawning, hatching, mortality, acquisition, and disposition. Up to ${result_limit} rows are listed here; a population's full event history is on its admin page.`}
     >
       {total_events === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          No events logged in the last {window_days} days. Coordinators can
-          add spawning, hatching, mortality, and acquisition events from a
-          population&rsquo;s admin page.
+          No events have been logged in the last {window_days} days.
+          Coordinators can record spawning, hatching, mortality, and
+          acquisition events from a population&rsquo;s admin page; an
+          empty ledger here usually means events are happening but are
+          not being logged in the registry.
         </p>
       ) : (
         <>

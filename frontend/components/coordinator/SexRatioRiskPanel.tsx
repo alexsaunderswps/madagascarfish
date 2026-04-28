@@ -66,7 +66,8 @@ export default function SexRatioRiskPanel({ data }: Props) {
         caption="Populations with demographic imbalance."
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Unable to load sex-ratio data.
+          Demographic data is temporarily unavailable. Once the coordination
+          API is reachable again, populations with imbalance will appear here.
         </p>
       </PanelShell>
     );
@@ -78,11 +79,11 @@ export default function SexRatioRiskPanel({ data }: Props) {
     <PanelShell
       eyebrow="Panel 3"
       title={`Sex-ratio risk — ${total_at_risk} of ${total_populations} populations`}
-      caption="M.F.U counts in the canonical males.females.unsexed convention. Flagged when skew exceeds 1:4, one sex is absent, or unsexed fraction exceeds 50%."
+      caption="Captive populations whose sex composition limits breeding potential. M.F.U is the standard zoo notation: males.females.unsexed. A population is flagged when one sex is absent, when the male-to-female ratio exceeds 4:1, or when more than half the animals are unsexed."
     >
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          No populations currently flagged.
+          No populations are currently flagged for sex-ratio risk.
         </p>
       ) : (
         <div style={{ overflowX: "auto" }}>

@@ -7,10 +7,13 @@ import { fetchDashboard } from "@/lib/dashboard";
 import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
 import {
   EMPTY_PAGE,
+  IUCN_LABELS,
   PAGE_SIZE,
   fetchSpeciesListSafe,
   parseDensity,
   parseSpeciesFilterState,
+  type IucnStatus,
+  type SpeciesFilterState,
 } from "@/lib/species";
 
 export const revalidate = 3600;
@@ -38,6 +41,37 @@ function hasAnyFilter(searchParams: Record<string, string | string[] | undefined
     const val = Array.isArray(v) ? v[0] : v;
     return val != null && val !== "";
   });
+}
+
+/**
+ * Build a human-readable summary of the filters that produced an empty
+ * directory result. Matches the conservation-writer voice rule that empty
+ * states should name the constraint, not just say "no results".
+ */
+function describeActiveFilters(state: SpeciesFilterState): string[] {
+  const parts: string[] = [];
+  if (state.search) parts.push(`search "${state.search}"`);
+  if (state.iucn_status && state.iucn_status.length > 0) {
+    const labels = state.iucn_status.map(
+      (s) => IUCN_LABELS[s as IucnStatus] ?? s,
+    );
+    parts.push(`IUCN ${labels.join(" / ")}`);
+  }
+  if (state.family) parts.push(`family ${state.family}`);
+  if (state.taxonomic_status === "undescribed_morphospecies") {
+    parts.push("undescribed morphospecies only");
+  } else if (state.taxonomic_status === "described") {
+    parts.push("described species only");
+  }
+  if (state.has_cares === "true") parts.push("CARES priority");
+  if (state.shoal_priority === "true") parts.push("SHOAL priority");
+  if (state.has_captive_population === "true") {
+    parts.push("with a captive population");
+  } else if (state.has_captive_population === "false") {
+    parts.push("without a captive population");
+  }
+  if (state.include_introduced === "true") parts.push("including introduced");
+  return parts;
 }
 
 export default async function SpeciesDirectoryPage({
@@ -76,6 +110,7 @@ export default async function SpeciesDirectoryPage({
 
   const counts = dashboard?.species_counts;
   const filtered = hasAnyFilter(searchParams);
+  const filterSummary = filtered ? describeActiveFilters(state) : [];
 
   // Density controls grid gap + card padding. "comfortable" ≈ current default,
   // "compact" tightens both so researchers can scan more rows in a viewport.
@@ -133,16 +168,23 @@ export default async function SpeciesDirectoryPage({
             backendUnavailable ? (
               <EmptyState
                 title="Species directory temporarily unavailable"
-                body="The species data service is unreachable. Try again in a moment."
+                body="The species data service is unreachable right now. The registry is unchanged — try again in a moment."
                 primaryAction={{ href: "/species/", label: "Try again" }}
               />
             ) : (
               <EmptyState
-                title="No species match the current filters"
+                title="No species match these filters"
                 body={
-                  filtered
-                    ? "Clear one or more filters to widen the search, or browse the full directory."
-                    : "No species are currently listed."
+                  filtered ? (
+                    <>
+                      Active filters: {filterSummary.join(", ")}. Of{" "}
+                      {counts?.total ?? "the"} species in the registry, none
+                      currently match. Clear one or more filters to widen the
+                      search.
+                    </>
+                  ) : (
+                    "No species are currently listed."
+                  )
                 }
                 primaryAction={
                   filtered ? { href: "/species/", label: "Clear filters" } : undefined

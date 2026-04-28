@@ -45,10 +45,11 @@ export default function SignupForm() {
         role="status"
         className="rounded border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900"
       >
-        <p className="font-medium">Check your email.</p>
+        <p className="font-medium">Check your email to finish signing up.</p>
         <p className="mt-2">
-          If an account can be created with that address, we&rsquo;ve sent a
-          verification link. The link is valid for 48 hours.
+          If an account can be created with that address, a verification link
+          is on its way. The link is valid for 48 hours. If nothing arrives,
+          check your spam folder, then try registering again.
         </p>
       </div>
     );
@@ -122,8 +123,8 @@ export default function SignupForm() {
           className={FIELD_STYLE}
         />
         <p id="signup-password-hint" className="mt-1 text-xs text-slate-500">
-          At least 12 characters. Avoid common passwords and information from
-          your email or name.
+          At least 12 characters. Avoid common passwords and anything close
+          to your email or name.
         </p>
         {errors.password ? (
           <p id="signup-password-error" className="mt-1 text-sm text-red-700">
