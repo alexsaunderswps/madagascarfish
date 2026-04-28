@@ -397,7 +397,7 @@ aggregator yet.
 
 ## 11. Shared Secrets (Vercel ↔ Django)
 
-Two separate shared secrets bridge the Next.js frontend (Vercel,
+Two shared secrets bridge the Next.js frontend (Vercel,
 `malagasyfishes.org`) and the Django backend (Hetzner staging). Both
 **must match exactly** across the two environments, and both default to
 blank — blank disables the feature with the safer posture.
@@ -406,6 +406,9 @@ blank — blank disables the feature with the safer posture.
 |---|---|---|---|
 | Next.js revalidate webhook | `NEXT_REVALIDATE_URL` + `NEXT_REVALIDATE_SECRET` | `REVALIDATE_SECRET` | Admin save → public page refresh |
 | Coordinator dashboard auth | `COORDINATOR_API_TOKEN` | `COORDINATOR_API_TOKEN` | SSR fetch of Tier 3+ panels |
+
+Plus three frontend-only NextAuth secrets that don't have Django
+counterparts — see §11.3.
 
 ### 11.1 Next.js cache revalidation (ISR webhook)
 
@@ -499,6 +502,49 @@ Open `/dashboard/coordinator` — all four panels (coverage gap, studbook,
 sex-ratio, stale census) should render data. Every panel in fallback
 state ⇒ Vercel env is unset or doesn't match the backend value. Check
 the Vercel deployment's Functions log for an upstream 403.
+
+### 11.3 NextAuth secrets (Gate 11)
+
+NextAuth lives **only on the frontend**. There are no Django-side
+counterparts to keep in sync — all three of these secrets are
+Vercel-only.
+
+| Setting | Where | What it does |
+|---|---|---|
+| `NEXTAUTH_SECRET` | Vercel env (per-environment scope) | JWT signing key. Different value per env. Required. |
+| `NEXTAUTH_URL` | Vercel env (per-environment scope) | Canonical frontend URL. Required. |
+| `NEXT_PUBLIC_FEATURE_AUTH` | Vercel env (per-environment scope) | `"true"` to expose auth nav + middleware redirects. Default unset / `"false"`. |
+
+**Configuring / rotating `NEXTAUTH_SECRET`:**
+
+```bash
+# 1. Generate a fresh secret on your laptop
+openssl rand -hex 32  # one per environment — never reuse across envs
+
+# 2. Vercel — Project Settings → Environment Variables:
+#    NEXTAUTH_SECRET = <hex>, scope to the matching environment (Production, Preview, Development)
+#    NEXTAUTH_URL    = https://malagasyfishes.org (Production)
+#                      http://localhost:3000      (Development; lives in frontend/.env.local)
+# 3. Save, redeploy.
+```
+
+**Rotation cadence:** annual for `NEXTAUTH_SECRET` under normal
+operation. On suspected leak: rotate immediately. Rotating invalidates
+every existing session (JWTs signed with the old secret can't decode);
+acceptable cost.
+
+**Vercel preview deploys stay anonymous (architecture §9).** The session
+cookie is scoped to `.malagasyfishes.org` (or whatever the Vercel project
+is configured for); `*.vercel.app` preview origins can't read it. This
+is intentional — UAT for authenticated flows happens on the production
+domain, not preview URLs. Don't try to make preview authenticated; that
+path leads to cross-origin cookie hacks that bypass `Secure; SameSite=Lax`.
+
+**Verifying:** browse `/login` while signed out, sign in, reload — the
+header should show "Account / Sign out" instead of "Sign in / Sign up".
+In browser DevTools, the session cookie should be `__Secure-next-auth.session-token`
+with `HttpOnly`, `Secure`, `SameSite=Lax`. No NextAuth warnings should
+appear in Vercel's function logs.
 
 ---
 

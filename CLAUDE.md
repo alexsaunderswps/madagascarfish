@@ -96,6 +96,59 @@ No foot-guns: if you find yourself reaching for `species.iucn_status = "..."`
 outside the mirror path, stop and route through a `ConservationAssessment`
 instead.
 
+### Auth (Gate 11)
+
+NextAuth v4 with the Credentials provider, against Django's existing
+`/api/v1/auth/*` endpoints. Behind `NEXT_PUBLIC_FEATURE_AUTH` so the entire
+auth surface can be hidden from the public site by flipping one Vercel env
+var. Specs: `docs/planning/architecture/auth-c-d.md`,
+`docs/planning/specs/gate-11-auth-mvp.md`. Handover:
+`docs/handover/auth-gate-11-foundation.md`.
+
+Where the moving parts live:
+- `frontend/lib/auth.ts` — `authOptions`, JWT/session callbacks, the 5-min
+  `/me/` tier refresh, `getServerDrfToken()`, `getServerTier()`.
+- `frontend/app/api/auth/[...nextauth]/route.ts` — NextAuth handler.
+- `frontend/middleware.ts` — flag-gated redirects for `/account` and
+  `/dashboard/coordinator`.
+- `frontend/app/{login,signup,verify,account}/` — the four auth pages.
+- `frontend/components/AuthSessionProvider.tsx` — client island wrapping
+  `<SessionProvider>` so `useSession()` works in `NavLinks` without
+  pulling the layout into dynamic rendering.
+
+Three rules that govern the auth code:
+
+1. **The DRF token never reaches the browser.** It lives only on the
+   server-side JWT. The session callback in `lib/auth.ts` projects ONLY
+   `tier` onto `Session`. Anything you put on `Session` becomes
+   browser-readable via NextAuth's `/api/auth/session` endpoint. Server
+   components that need the DRF token call `getServerDrfToken()`, which
+   reads the JWT directly via `cookies()` + `decodeJwt`.
+
+2. **SSR forwards tokens via `apiFetch({ authToken })`.** Pass
+   `getServerDrfToken()` as `authToken`; the helper sets
+   `Authorization: Token <key>`. An explicit `Authorization` header in
+   `headers` wins (escape hatch for the existing service-token
+   `Bearer …` path).
+
+3. **Session-first, service-token-fallback for the coordinator dashboard.**
+   `frontend/lib/coordinatorDashboard.ts::coordinatorHeaders()` resolves
+   in order: session-token → `COORDINATOR_API_TOKEN` → no-Authorization.
+   The service token is an emergency fallback, not the default. Do not
+   re-invert that order without changing the architecture spec.
+
+Cache-poisoning rule: any fetch that uses `authToken` MUST pass
+`revalidate: 0` (or be on a `force-dynamic` page). Tier-aware responses
+must never enter Next's shared ISR cache, since the cache key isn't
+authentication-aware. The map page sets `force-dynamic` and the locality
+fetcher passes `revalidate: 0` whenever a token is present —
+defense-in-depth.
+
+Logout is dual-fire: client triggers `djangoLogoutAction()` (POSTs to
+Django `/auth/logout/`, deletes the DRF Token row) AND `signOut()` (clears
+the NextAuth cookie). A logout that only clears the cookie is a bug per
+BA cross-cutting; both calls must run.
+
 ## Active Initiatives
 
 Multi-gate initiatives have their own planning hub under `docs/planning/<initiative>/README.md`. Read the hub first in any new session touching that work — it holds the locked-in decisions, gate split, and open questions so sessions can resume without backtracking.
