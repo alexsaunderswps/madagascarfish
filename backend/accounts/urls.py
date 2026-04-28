@@ -10,4 +10,10 @@ urlpatterns = [
     path("login/", views.login, name="login"),
     path("logout/", views.logout, name="logout"),
     path("me/", views.me, name="me"),
+    # Test helper — gated by settings.ALLOW_TEST_HELPERS, returns 404 in prod.
+    path(
+        "_test/verification-token/",
+        views._test_verification_token,
+        name="test-verification-token",
+    ),
 ]

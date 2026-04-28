@@ -132,3 +132,73 @@ def test_get_verification_token_normalizes_email_case_and_whitespace() -> None:
     call_command("get_verification_token", "--email=  Pending@Example.COM  ", stdout=out)
     # If lookup fails, this raises — passing means the email was normalized.
     assert out.getvalue().strip()
+
+
+# --- /api/v1/auth/_test/verification-token/ HTTP endpoint ---
+
+
+_TEST_ENDPOINT = "/api/v1/auth/_test/verification-token/"
+
+
+@pytest.mark.django_db
+@override_settings(ALLOW_TEST_HELPERS=False)
+def test_test_endpoint_returns_404_when_flag_off() -> None:
+    from rest_framework.test import APIClient
+
+    User.objects.create_user(
+        email="pending@example.com", password="x" * 12, name="P", is_active=False
+    )
+    client = APIClient()
+    response = client.get(f"{_TEST_ENDPOINT}?email=pending@example.com")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+@override_settings(ALLOW_TEST_HELPERS=True)
+def test_test_endpoint_returns_token_for_pending_user() -> None:
+    from rest_framework.test import APIClient
+
+    user = User.objects.create_user(
+        email="pending@example.com",
+        password="long-strong-password-12",
+        name="Pending",
+        is_active=False,
+    )
+    client = APIClient()
+    response = client.get(f"{_TEST_ENDPOINT}?email=pending@example.com")
+    assert response.status_code == 200
+    token = response.json()["token"]
+    assert TimestampSigner().unsign(token) == str(user.pk)
+
+
+@pytest.mark.django_db
+@override_settings(ALLOW_TEST_HELPERS=True)
+def test_test_endpoint_returns_404_for_missing_email() -> None:
+    from rest_framework.test import APIClient
+
+    response = APIClient().get(f"{_TEST_ENDPOINT}?email=missing@example.com")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+@override_settings(ALLOW_TEST_HELPERS=True)
+def test_test_endpoint_returns_404_for_already_active_user() -> None:
+    from rest_framework.test import APIClient
+
+    User.objects.create_user(
+        email="done@example.com",
+        password="long-strong-password-12",
+        name="Done",
+        is_active=True,
+    )
+    response = APIClient().get(f"{_TEST_ENDPOINT}?email=done@example.com")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+@override_settings(ALLOW_TEST_HELPERS=True)
+def test_test_endpoint_returns_404_when_email_query_param_blank() -> None:
+    from rest_framework.test import APIClient
+
+    response = APIClient().get(_TEST_ENDPOINT)
+    assert response.status_code == 404
