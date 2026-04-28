@@ -248,6 +248,50 @@ class TestLogin:
         )
         assert resp.status_code == 429
 
+    def test_login_rate_limit_blocks_on_fifth_attempt_not_sixth(
+        self, api_client: APIClient, active_user: User
+    ) -> None:
+        """The 5th attempt itself should be 429 — not the 6th. Tightens the
+        boundary post-security-review H1; older `> N` logic silently
+        allowed an extra attempt."""
+        for attempt in range(1, 5):  # attempts 1..4 should all be 401
+            resp = api_client.post(
+                "/api/v1/auth/login/",
+                {"email": active_user.email, "password": "wrongpassword12"},
+            )
+            assert resp.status_code == 401, (
+                f"attempt {attempt} should be allowed-but-rejected (401), got {resp.status_code}"
+            )
+        # The 5th attempt is the threshold — should be 429.
+        resp = api_client.post(
+            "/api/v1/auth/login/",
+            {"email": active_user.email, "password": "wrongpassword12"},
+        )
+        assert resp.status_code == 429
+
+    def test_login_rate_limit_ignores_xff_when_not_trusted(
+        self, api_client: APIClient, active_user: User
+    ) -> None:
+        """Default-deny posture: when TRUST_X_FORWARDED_FOR is False (the
+        default for dev/test), an attacker spoofing X-Forwarded-For with a
+        rotating IP must NOT bypass the per-IP rate limit. The limiter
+        should fall through to REMOTE_ADDR regardless of the header.
+        Closes security review H2."""
+        from django.test import override_settings
+
+        with override_settings(TRUST_X_FORWARDED_FOR=False):
+            for i in range(5):
+                resp = api_client.post(
+                    "/api/v1/auth/login/",
+                    {"email": active_user.email, "password": "wrongpassword12"},
+                    HTTP_X_FORWARDED_FOR=f"10.0.0.{i}",  # would-be spoofed IP
+                )
+                # First 4 attempts are 401; 5th hits the threshold.
+                expected = 401 if i < 4 else 429
+                assert resp.status_code == expected, (
+                    f"attempt {i + 1} (XFF spoofed): expected {expected}, got {resp.status_code}"
+                )
+
     def test_login_no_enumeration(self, api_client: APIClient) -> None:
         """Non-existent and wrong-password both return same generic message."""
         resp1 = api_client.post(

@@ -37,19 +37,33 @@ def _get_rate_limit_key(ip: str) -> str:
 def _check_and_record_rate_limit(ip: str) -> bool:
     """Atomically check and increment the login attempt counter.
 
-    Returns True if the IP is rate-limited (at or over the threshold).
+    Returns True if the IP is rate-limited (at or over the threshold). The
+    counter increments BEFORE the comparison, so the Nth attempt is
+    blocked when count reaches RATE_LIMIT_MAX_ATTEMPTS — `>=` not `>`.
+    Anything looser would mean the spec ("5 failed attempts per window")
+    silently allows 6.
     """
     key = _get_rate_limit_key(ip)
     # cache.add only sets if key is missing, establishing the TTL window
     cache.add(key, 0, timeout=RATE_LIMIT_WINDOW_SECONDS)
     count = cache.incr(key)
-    return count > RATE_LIMIT_MAX_ATTEMPTS
+    return count >= RATE_LIMIT_MAX_ATTEMPTS
 
 
 def _get_client_ip(request: Request) -> str:
-    xff = request.META.get("HTTP_X_FORWARDED_FOR")
-    if xff:
-        return xff.split(",")[0].strip()
+    """Resolve the requesting client's IP for rate-limiting.
+
+    Trusts ``X-Forwarded-For`` only when ``settings.TRUST_X_FORWARDED_FOR``
+    is True — i.e., when Django sits behind a known reverse proxy (Hetzner
+    runs Caddy in front of Django). When False (the default, including
+    dev and CI), reads ``REMOTE_ADDR`` directly. An attacker who can hit
+    Django at the WSGI port can otherwise spoof XFF and rotate the
+    asserted IP per request, bypassing the per-IP rate limit entirely.
+    """
+    if getattr(settings, "TRUST_X_FORWARDED_FOR", False):
+        xff = request.META.get("HTTP_X_FORWARDED_FOR")
+        if xff:
+            return xff.split(",")[0].strip()
     return request.META.get("REMOTE_ADDR", "0.0.0.0")
 
 
