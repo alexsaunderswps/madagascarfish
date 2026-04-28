@@ -10,9 +10,11 @@ Covers:
 - Events with all count_delta_* = None serialize without crashing
 - Tier 4 user with institution=NULL gets 200 (Tier 3+ gate)
 - Inactive coordinator gets 403 via real credential-based auth
-- BUG (xfail): TierOrServiceTokenPermission does not check is_active —
-  force_authenticate with an inactive user bypasses is_active and gets 200.
-  The permission class needs an explicit is_active guard.
+- Inactive coordinator gets 403 via force_authenticate too — regression
+  guard for the explicit ``is_active`` check in
+  ``TierOrServiceTokenPermission``. Without it, a deactivated user
+  whose session bypasses ``EmailBackend.authenticate`` could keep tier
+  access. See ``test_permission_class_checks_is_active_directly``.
 - SQL injection via Authorization header does not grant access
 - result_limit=30 returns the MOST RECENT 30 events, not the oldest
 """
@@ -433,12 +435,17 @@ class TestTier4NullInstitution:
 
 @pytest.mark.django_db
 class TestInactiveUser:
-    """is_active=False users must not be able to obtain a valid auth token
-    and therefore cannot reach the endpoint.
+    """``is_active=False`` users must not be able to reach the endpoint by
+    any path.
 
-    The is_active gate lives in EmailBackend.authenticate(), not in
-    TierOrServiceTokenPermission. The permission class currently has no
-    explicit is_active check — see the xfail test below for the gap.
+    Two complementary gates: ``EmailBackend.authenticate()`` rejects an
+    inactive user's login attempt (so they can't get a fresh token), AND
+    ``TierOrServiceTokenPermission`` checks ``request.user.is_active``
+    explicitly (so a deactivated user with a force-authenticated session,
+    a remembered token, or any other path that skipped the auth backend
+    still gets a 403). The permission-class check is the regression guard
+    for the latter; see ``test_permission_class_checks_is_active_directly``
+    below.
     """
 
     def test_inactive_user_cannot_obtain_token(
