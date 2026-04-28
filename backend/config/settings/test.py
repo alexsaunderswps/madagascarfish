@@ -15,3 +15,7 @@ CACHES = {
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]
+
+# Enable seed_test_users / get_verification_token in test runs and CI.
+# Never set in prod settings.
+ALLOW_TEST_HELPERS = True

@@ -16,6 +16,10 @@ CORS_ALLOWED_ORIGINS = [
 # (see audit.signals.species_capture_pre_save). Off in prod.
 AUDIT_STRICT_CONTEXT = True
 
+# Enable seed_test_users / get_verification_token in local dev — they're
+# guarded server-side (DEBUG-style toggle). NEVER set in prod.
+ALLOW_TEST_HELPERS = True
+
 # Add browsable API in dev
 REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = [  # noqa: F405
     "rest_framework.renderers.JSONRenderer",

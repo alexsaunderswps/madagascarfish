@@ -163,6 +163,12 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
 }
 
+# Test helpers — when True, dev/CI-only management commands
+# (seed_test_users, get_verification_token) are runnable. NEVER set in prod.
+# These commands print active credentials and signed verification tokens to
+# stdout, which is fine for CI but a leak vector if enabled live.
+ALLOW_TEST_HELPERS = env.bool("ALLOW_TEST_HELPERS", default=False)
+
 # Email
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@malagasyfishes.org")
