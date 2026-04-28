@@ -221,12 +221,19 @@ export interface ReproductiveActivityResponse {
  */
 function coordinatorHeaders(userDrfToken?: string): HeadersInit {
   if (userDrfToken) {
+    // Server-side log — appears in Vercel function logs. Confirms the
+    // session-first path is being taken and not silently falling back to
+    // the service token. Token value is never logged. See OPERATIONS.md
+    // §11.4 for the cookie-domain verification flow this supports.
+    console.log("[coordinator-auth] path=session");
     return { Authorization: `Token ${userDrfToken}` };
   }
   const serviceToken = process.env.COORDINATOR_API_TOKEN;
   if (serviceToken) {
+    console.log("[coordinator-auth] path=service-token-fallback");
     return { Authorization: `Bearer ${serviceToken}` };
   }
+  console.log("[coordinator-auth] path=none");
   return {};
 }
 
