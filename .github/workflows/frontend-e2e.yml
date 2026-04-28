@@ -79,7 +79,11 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run Playwright against preview
-        run: pnpm e2e
+        # Explicit spec list — the auth.spec.ts loop needs a working
+        # backend and runs in frontend-auth-e2e.yml against a local stack.
+        # Listing specs here avoids picking it up against the unreachable
+        # preview API.
+        run: pnpm exec playwright test e2e/smoke.spec.ts e2e/dashboard.spec.ts e2e/map.spec.ts
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.preview.outputs.url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}

@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
+from django.http import Http404
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -176,3 +177,29 @@ def logout(request: Request) -> Response:
 def me(request: Request) -> Response:
     serializer = UserProfileSerializer(request.user)
     return Response(serializer.data)
+
+
+# --- Test-only helpers (Gate 11 C9) ---
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def _test_verification_token(request: Request) -> Response:
+    """Return the verification token for a pending user.
+
+    Test helper for the Playwright e2e — bypasses the real email vendor.
+    Returns 404 unless ``settings.ALLOW_TEST_HELPERS`` is True (the prod
+    posture). Also returns 404 for missing-or-already-active users so an
+    attacker who probes this endpoint in a misconfigured deploy cannot
+    enumerate accounts.
+    """
+    if not getattr(settings, "ALLOW_TEST_HELPERS", False):
+        raise Http404()
+    email = request.query_params.get("email", "").strip().lower()
+    if not email:
+        raise Http404()
+    try:
+        user = User.objects.get(email=email, is_active=False)
+    except User.DoesNotExist as exc:
+        raise Http404() from exc
+    return Response({"token": signer.sign(str(user.pk))})

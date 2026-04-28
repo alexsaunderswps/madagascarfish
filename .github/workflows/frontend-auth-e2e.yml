@@ -1,0 +1,174 @@
+name: Frontend Auth E2E
+
+# Local-stack Playwright run for the Gate 11 auth flow:
+# Postgres + Redis as services → Django on :8000 → Next.js on :3000 →
+# Playwright runs frontend/e2e/auth.spec.ts. The frontend-e2e workflow
+# (which targets the Vercel preview against an unreachable API) is
+# anonymous-only; this workflow exists for the auth half.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - "backend/**"
+      - ".github/workflows/frontend-auth-e2e.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - "backend/**"
+      - ".github/workflows/frontend-auth-e2e.yml"
+
+env:
+  DJANGO_SETTINGS_MODULE: config.settings.dev
+  DATABASE_URL: postgis://postgres:postgres@localhost:5432/test_mffcp
+  REDIS_URL: redis://localhost:6379/0
+  DJANGO_SECRET_KEY: ci-only-not-a-real-secret
+  DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+  ALLOW_TEST_HELPERS: "true"
+  # Frontend
+  PLAYWRIGHT_BASE_URL: http://localhost:3000
+  E2E_BACKEND_URL: http://localhost:8000
+  NEXT_PUBLIC_API_URL: http://localhost:8000
+  NEXT_PUBLIC_FEATURE_AUTH: "true"
+  NEXTAUTH_URL: http://localhost:3000
+  # Deterministic CI-only secret — ephemeral runner, no real session value.
+  NEXTAUTH_SECRET: ci-only-nextauth-secret-deterministic-32
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: test_mffcp
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Backend ---
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install GIS system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdal-bin libgdal-dev libgeos-dev libproj-dev
+
+      - name: Install Python dependencies
+        working-directory: backend
+        run: |
+          pip install -r ../requirements.txt
+          pip install "GDAL==$(gdal-config --version)"
+
+      - name: Run Django migrations
+        working-directory: backend
+        run: python manage.py migrate --noinput
+
+      - name: Seed e2e users
+        working-directory: backend
+        run: python manage.py seed_test_users
+
+      - name: Start Django (background)
+        working-directory: backend
+        run: |
+          python manage.py runserver 0.0.0.0:8000 --noreload &> ../django.log &
+          echo "DJANGO_PID=$!" >> "$GITHUB_ENV"
+
+      - name: Wait for Django
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/api/v1/schema/ -o /dev/null; then
+              echo "Django ready"
+              exit 0
+            fi
+            echo "attempt ${i}/30: Django not ready yet"
+            sleep 2
+          done
+          echo "Django did not become ready" >&2
+          tail -50 django.log >&2 || true
+          exit 1
+
+      # --- Frontend ---
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Start Next.js (dev mode, background)
+        working-directory: frontend
+        run: |
+          pnpm dev &> ../next.log &
+          echo "NEXT_PID=$!" >> "$GITHUB_ENV"
+
+      - name: Wait for Next.js
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:3000/ -o /dev/null; then
+              echo "Next.js ready"
+              exit 0
+            fi
+            echo "attempt ${i}/60: Next.js not ready yet"
+            sleep 2
+          done
+          echo "Next.js did not become ready" >&2
+          tail -50 next.log >&2 || true
+          exit 1
+
+      - name: Run Playwright auth spec
+        working-directory: frontend
+        run: pnpm exec playwright test e2e/auth.spec.ts
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-auth-report
+          path: frontend/playwright-report/
+          retention-days: 7
+
+      - name: Upload server logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-logs
+          path: |
+            django.log
+            next.log
+          retention-days: 7
