@@ -76,7 +76,6 @@ const TIER_NOTE_STYLE: CSSProperties = {
   fontSize: 12,
   color: "var(--ink-3)",
   marginTop: 8,
-  fontStyle: "italic",
 };
 
 const CONFIG_ERROR_STYLE: CSSProperties = {
@@ -93,32 +92,11 @@ const CONFIG_ERROR_STYLE: CSSProperties = {
 function ConfigErrorBanner() {
   return (
     <div role="alert" style={CONFIG_ERROR_STYLE}>
-      <strong>Coordinator token not configured.</strong> The
-      <code
-        style={{
-          margin: "0 4px",
-          padding: "1px 4px",
-          background: "var(--bg-sunken)",
-          borderRadius: 2,
-          fontSize: 12,
-        }}
-      >
-        COORDINATOR_API_TOKEN
-      </code>
-      env var is missing on this deployment, so the dashboard can&apos;t
-      authenticate to the API. Panels below will show empty. See{" "}
-      <code
-        style={{
-          margin: "0 2px",
-          padding: "1px 4px",
-          background: "var(--bg-sunken)",
-          borderRadius: 2,
-          fontSize: 12,
-        }}
-      >
-        OPERATIONS.md §11.2
-      </code>{" "}
-      for the setup steps.
+      <strong>Coordinator data is temporarily unavailable.</strong> The
+      dashboard can&rsquo;t reach the coordination API on this deployment,
+      so the panels below will render empty. Sign in with a Tier 3+ account
+      to use your own credentials, or contact the platform team if the
+      service-level fallback should be configured here.
     </div>
   );
 }
@@ -159,16 +137,17 @@ export default async function CoordinatorDashboardPage({
   return (
     <main style={PAGE_WRAPPER}>
       <header style={HEADER_STYLE}>
-        <p style={EYEBROW_STYLE}>Gate 3 · Ex-situ coordinator view</p>
+        <p style={EYEBROW_STYLE}>Ex-situ coordination</p>
         <h1 style={TITLE_STYLE}>Coordinator Dashboard</h1>
         <p style={DESC_STYLE}>
-          Triage view for ex-situ coordinators — where are the gaps, which
-          populations are at demographic risk, and whose census is overdue.
-          Source of truth is the registry; this view is a read-only summary.
+          A triage view for ex-situ coordinators: where coverage is missing,
+          which captive populations are at demographic risk, and whose
+          census is overdue. The registry is the source of truth — this
+          page is a read-only summary computed from it.
         </p>
         <p style={TIER_NOTE_STYLE}>
-          Contains population-level detail. Tier 3+ audience; served via
-          server-side token.
+          Population-level detail. Visible to Tier 3+ accounts (Conservation
+          Coordinator and above).
         </p>
       </header>
 

@@ -53,8 +53,8 @@ export default function CoverageGapPanel({ data }: Props) {
         caption="Threatened species with no ex-situ backstop."
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Unable to load coverage data. Check the coordinator token
-          configuration.
+          Coverage data is temporarily unavailable. The view will populate
+          once the coordination API is reachable again.
         </p>
       </PanelShell>
     );
@@ -66,7 +66,7 @@ export default function CoverageGapPanel({ data }: Props) {
     <PanelShell
       eyebrow="Panel 1"
       title={`Coverage gap — ${total} ${endemic_only ? "endemic " : ""}species`}
-      caption="Critically Endangered, Endangered, and Vulnerable species with no ex-situ population on record. The highest-signal triage list for coordinators."
+      caption="Critically Endangered, Endangered, and Vulnerable species with no ex-situ population on record. The first list a coordinator should triage: each row is a species that has no captive safety net at all."
     >
       <nav style={TOGGLE_ROW_STYLE} aria-label="Endemic filter">
         <Link
@@ -90,8 +90,9 @@ export default function CoverageGapPanel({ data }: Props) {
 
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          No gaps at this filter. Either coverage is complete or no species
-          match.
+          No threatened species are missing ex-situ coverage at this filter.
+          Either every threatened species in scope has a captive population
+          on record, or the filter has narrowed the list to zero.
         </p>
       ) : (
         <CoverageGapTable rows={results} endemicOnly={endemic_only} />
@@ -101,7 +102,7 @@ export default function CoverageGapPanel({ data }: Props) {
         <div>
           <strong>Data Deficient</strong> —{" "}
           {data_deficient.total > 0
-            ? `${data_deficient.total} species (${data_deficient.endemic_count} endemic) need assessment.`
+            ? `${data_deficient.total} species (${data_deficient.endemic_count} endemic) need a current Red List assessment before their conservation status can be acted on.`
             : "No DD species in the registry."}
         </div>
         {data_deficient.total > 0 ? (

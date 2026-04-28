@@ -111,7 +111,7 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="scientific or common name…"
+          placeholder="Scientific or common name…"
           className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
         />
         <span className="mt-1 block text-xs text-slate-500">Press Enter to search.</span>
@@ -179,11 +179,16 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
 
       <fieldset className="space-y-1">
         <legend className="text-sm font-medium text-slate-700">Priority listings</legend>
+        <p className="pb-1 text-xs text-slate-500">
+          Conservation-priority lists maintained alongside the IUCN Red
+          List, not in place of it.
+        </p>
         <div className="flex flex-wrap gap-2 text-xs">
           <button
             type="button"
             onClick={toggleCares}
             aria-pressed={initial.has_cares === "true"}
+            title="CARES — hobbyist-led priority list for freshwater fish whose wild populations need ex-situ backup. Distinct from IUCN."
             className={`rounded border px-2 py-0.5 font-semibold ${
               initial.has_cares === "true"
                 ? "border-sky-600 bg-sky-600 text-white"
@@ -196,6 +201,7 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
             type="button"
             onClick={toggleShoal}
             aria-pressed={initial.shoal_priority === "true"}
+            title="SHOAL 1,000 Fishes Blueprint — global priority list for freshwater fish conservation."
             className={`rounded border px-2 py-0.5 font-semibold ${
               initial.shoal_priority === "true"
                 ? "border-sky-600 bg-sky-600 text-white"
@@ -244,8 +250,9 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
             className="mt-0.5"
           />
           <span>
-            Show introduced (exotic) species — e.g. <em>Oreochromis</em> spp.
-            Hidden by default so the directory reads as Madagascar&rsquo;s native fauna.
+            Show introduced (non-native) species — for example,{" "}
+            <em>Oreochromis</em> spp. Hidden by default so the directory
+            reads as Madagascar&rsquo;s native fauna.
           </span>
         </label>
       </fieldset>

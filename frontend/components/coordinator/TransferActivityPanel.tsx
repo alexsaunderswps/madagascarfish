@@ -174,7 +174,9 @@ export default function TransferActivityPanel({ data }: Props) {
         caption="Animal movement between institutions."
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Unable to load transfer data.
+          Transfer records are temporarily unavailable. Proposed, in-transit,
+          and recently completed moves will reappear once the coordination
+          API is reachable.
         </p>
       </PanelShell>
     );
@@ -186,19 +188,19 @@ export default function TransferActivityPanel({ data }: Props) {
     <PanelShell
       eyebrow="Panel 5"
       title={`Transfer activity — ${in_flight.length} in flight, ${recent_completed.length} recent`}
-      caption={`Proposed, approved, and in-transit moves (any date) plus completed moves in the last ${window_days} days. Oldest-proposed first — stuck transfers float to the top.`}
+      caption={`Proposed, approved, and in-transit moves between institutions, plus moves completed in the last ${window_days} days. In-flight transfers are sorted oldest-proposed first, so anything stuck in coordination floats to the top.`}
     >
       <h3 style={SECTION_TITLE_STYLE}>In flight</h3>
       <TransferTable
         rows={in_flight}
-        emptyMessage="Nothing currently proposed, approved, or in transit."
+        emptyMessage="No transfers are currently proposed, approved, or in transit."
         showActual={false}
       />
 
       <h3 style={SECTION_TITLE_STYLE}>Recently completed</h3>
       <TransferTable
         rows={recent_completed}
-        emptyMessage={`No completed transfers in the last ${window_days} days.`}
+        emptyMessage={`No transfers have been completed in the last ${window_days} days.`}
         showActual={true}
       />
     </PanelShell>

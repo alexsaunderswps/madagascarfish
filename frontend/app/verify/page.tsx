@@ -68,11 +68,11 @@ export default async function VerifyPage({ searchParams }: PageProps) {
           role="status"
           className="rounded border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900"
         >
-          <p className="font-medium">No verification token in this link.</p>
+          <p className="font-medium">This link is missing its verification token.</p>
           <p className="mt-2">
-            Open the link from your verification email — it should include a
-            <code className="px-1">?token=…</code> portion. If the email link
-            is broken, you can{" "}
+            Open the link directly from your verification email — the URL
+            should end with <code className="px-1">?token=…</code>. If your
+            email client truncated the link, you can{" "}
             <Link href="/signup" className="text-sky-700 hover:underline">
               register again
             </Link>{" "}
@@ -86,14 +86,14 @@ export default async function VerifyPage({ searchParams }: PageProps) {
           role="status"
           className="rounded border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900"
         >
-          <p className="font-medium">This link is no longer valid.</p>
+          <p className="font-medium">This verification link is no longer valid.</p>
           <p className="mt-2">
-            Verification links expire after 48 hours. To finish creating your
-            account, please{" "}
+            Links expire 48 hours after sign-up, and each link can only be
+            used once. To finish creating your account,{" "}
             <Link href="/signup" className="text-sky-700 hover:underline">
               register again
             </Link>{" "}
-            — we&rsquo;ll send a new link to your email.
+            and we&rsquo;ll send a new link to your email.
           </p>
         </div>
       ) : null}
@@ -105,8 +105,13 @@ export default async function VerifyPage({ searchParams }: PageProps) {
         >
           <p className="font-medium">We couldn&rsquo;t verify your account just now.</p>
           <p className="mt-2">
-            The server is unavailable. Please try the link again in a moment.
-            If the problem persists, contact the platform team.
+            The verification service is temporarily unreachable. Try the link
+            again in a few minutes. If it keeps failing, the platform team
+            can verify your account manually — contact details are on the{" "}
+            <Link href="/about/" className="text-sky-700 hover:underline">
+              About page
+            </Link>
+            .
           </p>
         </div>
       ) : null}

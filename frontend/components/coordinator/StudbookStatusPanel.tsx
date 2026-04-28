@@ -37,6 +37,13 @@ const TILE_LABEL_STYLE: CSSProperties = {
   textTransform: "uppercase",
 };
 
+const TILE_HINT_STYLE: CSSProperties = {
+  margin: "4px 0 0",
+  fontSize: 11,
+  color: "var(--ink-3)",
+  lineHeight: 1.35,
+};
+
 const SPECIES_LIST_STYLE: CSSProperties = {
   margin: 0,
   padding: 0,
@@ -67,6 +74,15 @@ const BUCKET_LABELS: Record<string, string> = {
   no_captive_population: "No captive population",
 };
 
+const BUCKET_HINTS: Record<string, string> = {
+  studbook_managed:
+    "Coordinated program with pedigree records and transfer plans.",
+  breeding_not_studbook:
+    "Breeding observed, but no formal studbook — pedigree is not tracked.",
+  holdings_only: "Held in captivity, no breeding recorded.",
+  no_captive_population: "No institution has registered holdings.",
+};
+
 export default function StudbookStatusPanel({ data }: Props) {
   if (!data) {
     return (
@@ -76,7 +92,8 @@ export default function StudbookStatusPanel({ data }: Props) {
         caption="Per-species program classification."
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Unable to load studbook data.
+          Studbook status is temporarily unavailable. The view will populate
+          once the coordination API is reachable again.
         </p>
       </PanelShell>
     );
@@ -94,13 +111,14 @@ export default function StudbookStatusPanel({ data }: Props) {
     <PanelShell
       eyebrow="Panel 2"
       title="Studbook status"
-      caption="Species counts across four coordinator-relevant buckets. The breeding-not-studbook row catches ad-hoc populations that aren't part of a coordinated program — a fragility the three-bucket view hides."
+      caption="Where each species sits on the captive-management spectrum, from formally managed studbooks down to no holdings at all. The breeding-not-studbook row matters: it surfaces ad-hoc populations that are reproducing but whose pedigree isn't tracked — a fragility that gets hidden when those species are lumped in with studbook programs."
     >
       <div style={BUCKET_GRID_STYLE}>
         {order.map((key) => (
           <div key={key} style={TILE_STYLE}>
             <p style={TILE_COUNT_STYLE}>{buckets[key].count}</p>
             <p style={TILE_LABEL_STYLE}>{BUCKET_LABELS[key]}</p>
+            <p style={TILE_HINT_STYLE}>{BUCKET_HINTS[key]}</p>
           </div>
         ))}
       </div>

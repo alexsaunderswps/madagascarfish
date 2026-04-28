@@ -26,6 +26,14 @@ const TIER_LABELS: Record<number, string> = {
   5: "Administrator",
 };
 
+const TIER_DESCRIPTIONS: Record<number, string> = {
+  1: "Public profiles, the distribution map, and the conservation dashboard.",
+  2: "Adds occurrence datasets, published field-program summaries, and observation submission.",
+  3: "Adds exact locality coordinates for sensitive species, breeding recommendations, and transfer coordination.",
+  4: "Adds population genetics, studbook-level data, and per-institution captive inventory.",
+  5: "Full system access, including user management and data import.",
+};
+
 function tierBadge(tier: number): string {
   const label = TIER_LABELS[tier] ?? "Member";
   return `${label} · Tier ${tier}`;
@@ -57,6 +65,8 @@ export default async function AccountPage() {
     transientError = true;
   }
 
+  const tierDescription = me ? TIER_DESCRIPTIONS[me.access_tier] : null;
+
   return (
     <main className="mx-auto max-w-md px-6 py-16">
       <header className="mb-8">
@@ -84,10 +94,21 @@ export default async function AccountPage() {
             <dt className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Access tier
             </dt>
-            <dd className="mt-1">
+            <dd className="mt-1 space-y-2">
               <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">
                 {tierBadge(me.access_tier)}
               </span>
+              {tierDescription ? (
+                <p className="text-xs leading-relaxed text-slate-600">
+                  {tierDescription}
+                </p>
+              ) : null}
+              {me.access_tier < 3 ? (
+                <p className="text-xs leading-relaxed text-slate-500">
+                  Higher tiers are assigned by the platform operator on
+                  request, for staff at partner organizations.
+                </p>
+              ) : null}
             </dd>
           </div>
         </dl>
@@ -98,8 +119,9 @@ export default async function AccountPage() {
           role="alert"
           className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
         >
-          We couldn&rsquo;t load your profile just now. Please refresh in a
-          moment. If the problem persists, contact the platform team.
+          Your profile is temporarily unavailable. Refresh in a moment;
+          your sign-in is still active. If the problem persists, the
+          platform team&rsquo;s contact details are on the About page.
         </p>
       ) : null}
 

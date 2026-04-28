@@ -36,7 +36,7 @@ const MapClient = nextDynamic(() => import("@/components/MapClient"), {
         fontSize: 14,
       }}
     >
-      Loading map…
+      Loading distribution map…
     </div>
   ),
 });
@@ -74,8 +74,8 @@ export default async function MapPage({
         }}
       >
         <EmptyState
-          title="Map data temporarily unavailable"
-          body="The locality data service is unreachable. Try again in a moment, or browse the species directory for profile and conservation details."
+          title="Distribution map temporarily unavailable"
+          body="The locality data service is unreachable right now. Try again in a moment, or use the species directory for profiles, conservation status, and other details that don't depend on the map."
           primaryAction={{ href: "/map/", label: "Try again" }}
           secondaryAction={{ href: "/species/", label: "Browse all species" }}
         />
@@ -96,8 +96,8 @@ export default async function MapPage({
           title="No locality records to map"
           body={
             speciesId
-              ? "No public locality records are available for this species. Exact coordinates for threatened species are restricted to coordinator-tier accounts; the species profile still lists conservation status and other details."
-              : "No locality records are currently published. The species directory lists every species in the registry, whether or not their localities are mapped."
+              ? "No public locality records are available for this species. Exact coordinates for threatened species are restricted to coordinator-tier accounts; the species profile still shows conservation status, taxonomy, and other details that don't depend on locality data."
+              : "No locality records are currently published. The species directory still lists every species in the registry, whether or not their localities have been mapped."
           }
           primaryAction={{ href: "/species/", label: "Browse all species" }}
         />
@@ -211,7 +211,10 @@ export default async function MapPage({
           borderBottom: "1px solid var(--rule)",
         }}
       >
-        For keyboard and screen-reader access, switch to the list view using the toggle above.
+        Markers are color-coded by IUCN Red List category. Coordinates for
+        threatened species are generalized per GBIF sensitive-species
+        guidance. For keyboard and screen-reader access, use the list view
+        toggle above.
       </p>
       {view === "list" ? (
         <MapListView data={data} />

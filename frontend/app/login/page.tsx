@@ -23,9 +23,10 @@ export default async function LoginPage({ searchParams }: PageProps) {
         </p>
         <h1 className="mt-2 font-serif text-3xl text-slate-900">Sign in</h1>
         <p className="mt-3 text-sm text-slate-600">
-          Sign in to your account to access tier-restricted features.{" "}
-          Anonymous browsing of species, the map, and public dashboards
-          remains available without an account.
+          Sign in unlocks tier-restricted views — exact locality coordinates
+          for sensitive species, the coordinator dashboard, and partner-only
+          data. Species profiles, the public map, and the conservation
+          dashboard are open without an account.
         </p>
       </header>
 
@@ -34,7 +35,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
           role="status"
           className="mb-6 rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
         >
-          Account verified. You can now sign in.
+          Email verified. Sign in to continue.
         </div>
       ) : null}
 

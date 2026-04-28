@@ -19,9 +19,11 @@ export default function SignupPage() {
           Create an account
         </h1>
         <p className="mt-3 text-sm text-slate-600">
-          Researchers join as Tier 2, which unlocks occurrence datasets and
-          observation submission. Anonymous browsing of species, the map, and
-          public dashboards remains available without an account.
+          New accounts start as Tier 2 (Registered Researcher), which adds
+          access to occurrence datasets and observation submission. Higher
+          tiers — for ex-situ coordinators and program managers — are
+          assigned by the platform operator on request. Public profiles, the
+          map, and the conservation dashboard remain open without an account.
         </p>
       </header>
 
