@@ -546,6 +546,103 @@ In browser DevTools, the session cookie should be `__Secure-next-auth.session-to
 with `HttpOnly`, `Secure`, `SameSite=Lax`. No NextAuth warnings should
 appear in Vercel's function logs.
 
+**Preview env vars.** Add `NEXTAUTH_SECRET` (a fresh `openssl rand -hex 32`
+value, distinct from prod) and `NEXTAUTH_URL` (literal placeholder like
+`https://preview.placeholder`, OR `https://${VERCEL_URL}` to use Vercel's
+dynamic preview hostname) to the **Preview** environment scope. These
+silence `[next-auth][error][NO_SECRET]` 500s on `/api/auth/session` from
+the client-side `useSession()` poll. Real auth flows still don't complete
+on preview because the prod cookie domain (`.malagasyfishes.org`) doesn't
+match `*.vercel.app` — which is the architecture's intent.
+
+### 11.4 Verifying the coordinator-dashboard auth path (cookie-domain check)
+
+`getServerDrfToken()` reads the NextAuth session cookie via `next/headers`,
+decodes the JWT with `NEXTAUTH_SECRET`, and pulls out the user's DRF token.
+If anything in that chain fails — wrong cookie name, mismatched domain,
+secret rotation that didn't redeploy — the helper returns `undefined` and
+the coordinator-dashboard SSR **silently falls back** to
+`COORDINATOR_API_TOKEN`.
+
+The dashboard still renders. Tier 3+ data still shows. But every signed-in
+user is anonymously bypassing tier — the audit trail no longer reflects
+who fetched what, and the architectural goal of Gate 11 ("no service tokens
+mailed around") is silently undermined.
+
+This runbook walks through the verification we ran on 2026-04-28 to
+confirm the path is healthy. Re-run after any change touching `authOptions`
+in `frontend/lib/auth.ts`, after rotating `NEXTAUTH_SECRET`, or any time
+you suspect Tier 3+ users might be on the service-token path without
+realizing it.
+
+**The diagnostic mechanism.** `coordinatorHeaders()` in
+`frontend/lib/coordinatorDashboard.ts` emits one of three server-side
+console logs on every panel fetch:
+
+- `[coordinator-auth] path=session` — DRF token from the user's session.
+  This is the goal.
+- `[coordinator-auth] path=service-token-fallback` — `COORDINATOR_API_TOKEN`
+  from Vercel env. Indicates session resolution failed.
+- `[coordinator-auth] path=none` — neither was available. Endpoints will
+  403 and panels render the "token not configured" banner.
+
+Vercel surfaces server-side `console.log` in Project → Logs. The token
+value is never logged.
+
+**The check:**
+
+1. Have a real Tier 3+ user account on production. If you don't have one,
+   sign up via `/signup`, verify via the email link, then in Django admin
+   on `api.malagasyfishes.org/admin/` set `access_tier = 3` on the user.
+2. Sign in to `https://malagasyfishes.org/login` with that account.
+3. Confirm the session cookie in DevTools → Application → Cookies →
+   `https://malagasyfishes.org`. Expect `__Secure-next-auth.session-token`
+   with `HttpOnly`, `Secure`, `SameSite=Lax`, `Domain` either blank
+   (defaults to host) or matching `malagasyfishes.org`.
+4. Navigate to `https://malagasyfishes.org/dashboard/coordinator`. Wait
+   for all panels to render.
+5. In Vercel → Logs (filter to last few minutes, environment = production),
+   grep for `[coordinator-auth]`. You should see multiple `path=session`
+   lines — one per panel fetch — clustered around the request timestamp.
+
+**Pass:** every recent `[coordinator-auth]` log shows `path=session`.
+
+**Fail:** any `path=service-token-fallback` or `path=none` for a request
+made by a signed-in user. The fix is in
+`frontend/lib/auth.ts` `authOptions`:
+
+```ts
+cookies: {
+  sessionToken: {
+    name: process.env.NODE_ENV === "production"
+      ? "__Secure-next-auth.session-token"
+      : "next-auth.session-token",
+    options: {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      domain: process.env.NODE_ENV === "production"
+        ? ".malagasyfishes.org"
+        : undefined,
+    },
+  },
+},
+```
+
+The leading-dot domain (`.malagasyfishes.org`) makes the cookie readable
+from both apex and `www`. Don't speculatively apply this — verify the
+failure mode first; the wrong domain configuration breaks things in
+different ways.
+
+**Cross-check via `COORDINATOR_API_TOKEN` blank.** Indirect proof if you
+want a second signal: temporarily blank `COORDINATOR_API_TOKEN` in Vercel
+prod env, redeploy, sign in as Tier 3, hit the dashboard. If panels still
+render → session path works. If they show "Unable to load…" → service
+token was masking a session-resolution failure. **Restore the token after
+the test** — anonymous SSR (page-render before any user signs in) and
+the public coordination summary tiles depend on it.
+
 ---
 
 ## 12. Common Failure Modes and Fixes
