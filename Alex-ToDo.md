@@ -13,24 +13,78 @@ round of development. I'll maintain it as items land or become obsolete.
 - **Don't delete completed items** — move them to the "Done" section at
   the bottom with a short note on what it unlocked.
 
-**Last updated:** 2026-04-28 (NEXTAUTH_SECRET and Resend SMTP both wired
-on dev + prod — §1.3 and §1.4 archived to Done).
+**Last updated:** 2026-04-28 (Gate 11 fully shipped + verified on prod;
+auth flag flipped on; security review fixes landed; cookie-domain
+verified; copy voice pass + post-audit cleanups done. Ten configuration
+sub-items archived to Done across two sessions today. **Critical path
+to ABQ is now §2.1 + §2.7 — both yours, both demo-blocking.**)
 
 ---
 
 ## 1. Configuration
 
-_§1.3 (NEXTAUTH_SECRET) and §1.4 (email vendor — Resend) are complete as
-of 2026-04-28. Runbooks moved to Done._
+_§1.1–1.4 + §1.6–1.9 are complete as of 2026-04-28. Runbooks in Done.
+One follow-up below._
+
+### 1.5 Decide whether to keep the `[coordinator-auth]` diagnostic logs after the soak
+
+**Priority:** low. **When:** after 2026-05-12 (the scheduled soak-check
+agent runs that day).
+
+**What it is:** PR #130 added three `console.log("[coordinator-auth]
+path=…")` lines to `frontend/lib/coordinatorDashboard.ts::coordinatorHeaders()`
+that record which auth path was taken on every coordinator-dashboard
+SSR fetch. They're informational, never log token values, and were
+load-bearing for the cookie-domain verification on 2026-04-28.
+
+**The decision:** once the 2026-05-12 soak-check agent confirms three
+weeks of clean `path=session` lines on prod, the diagnostic value drops
+sharply. Two options:
+
+- **Keep them long-term** (the code-quality reviewer's default: "safe to
+  leave on permanently"). One-line operator signal whenever the
+  fallback path is hit. Cost is ~3 log lines per coordinator-dashboard
+  request — ignorable.
+- **Strip them** and rely on the `ConfigErrorBanner` ops warn (PR #136)
+  + the OPERATIONS.md §11.4 runbook for future verification.
+
+**How to verify:** the 2026-05-12 agent will open a PR to
+`docs/handover/auth-soak-check-2026-05-12.md` summarizing the path
+distribution. Read that PR's findings, then ping me with "keep" or
+"strip" — either is a 5-minute change.
 
 ---
 
 ## 2. Data entry (your domain judgment)
 
+> **Pre-ABQ critical path (in this order):**
+>
+> 1. **§2.7 EAZA EEPs first.** ~30 minutes of admin clicking, two real
+>    program rows, immediately moves Panel 2 buckets off zero. Smallest
+>    investment, biggest visible-progress signal. Also gives you a
+>    rehearsal lap on the admin UI before doing the bulk CARES entry.
+> 2. **§2.1 CARES population data next.** This is the bulk of the work
+>    and the load-bearing demo content. If you have a CSV, use the
+>    `seed_populations` command path (POPULATION_DATA_GUIDE §9) — the
+>    manual admin path adds up fast at scale.
+> 3. **§2.4 CoordinatedProgram CARES rows alongside §2.1.** One row per
+>    species (not per keeper) so Panel 2 surfaces "CARES priority" at
+>    program level. Five minutes per species, can be batched after a
+>    few keepers' worth of populations are in.
+> 4. **§4.1 demo dry-run** in the week before ABQ.
+>
+> Everything else (§2.3 / §2.5 / §2.6 / §2.8 / §2.9 / §2.10) is real
+> work but not workshop-critical — chip away post-ABQ or between the
+> above when you need a break from CARES entry.
+
 ### 2.1 Enter real CARES population data
 
-**Priority:** high. The coordinator dashboard is a read-only view over
-this data — without it, ABQ is a demo of empty panels.
+### 2.1 Enter real CARES population data
+
+**Priority:** **HIGHEST — blocks ABQ demo narrative.** The coordinator
+dashboard is a read-only view over this data — without it, ABQ is a
+demo of empty panels. Step 2 of the critical path above; do §2.7 first
+for the warm-up lap.
 
 **Workflow overview:** Each CARES hobbyist keeper becomes one `Institution`
 row. Each population they hold becomes one `ExSituPopulation` row linking
@@ -225,9 +279,12 @@ that match your mental model.
 
 ### 2.7 Seed real EAZA EEPs from the April 2026 programme overview
 
-**Priority:** medium-high for ABQ. These are **real, public** program
+**Priority:** **HIGH — start here.** These are **real, public** program
 entries — not demo data — and they make Panel 2 and Panel 5 feel
-meaningfully populated even before CARES data lands.
+meaningfully populated even before CARES data lands. Step 1 of the
+critical path above. ~30 minutes of admin clicking; smallest
+investment for the biggest immediately-visible dashboard win, and a
+useful rehearsal lap on the admin UI before §2.1's bulk entry.
 
 **Source:** `data/reference/April_2026_8e69dc12b4.pdf` (EAZA Ex-situ
 Programme overview, April 2026, rows 31 and 36 on page 1). These are
@@ -510,6 +567,69 @@ this" framing matters more than discoverability.
 on a short branch; can put it back after the workshop. Keeping it
 visible is the default.
 
+**Update 2026-04-28:** with `NEXT_PUBLIC_FEATURE_AUTH=true` now flipped
+on, the nav also shows Sign in / Sign up to anonymous visitors. Same
+question applies — keep or hide for ABQ. Default is keep.
+
+### 4.3 Audit test-data hygiene before the demo
+
+**Priority:** medium, do in the week before ABQ.
+
+**What to check:**
+
+1. **Seeded e2e users.** The Playwright workflow (`frontend-auth-e2e.yml`)
+   creates `researcher-e2e@example.com` (Tier 2), `coordinator-e2e@example.com`
+   (Tier 3, member of "E2E Test Zoo"), and `admin-e2e@example.com` (Tier 5)
+   via the `seed_test_users` management command. **These exist on prod
+   too** if the Hetzner deploy ever ran the seed. Audit:
+   `<https://api.malagasyfishes.org/admin/accounts/user/?q=e2e>` —
+   if any rows turn up, decide whether to leave them (harmless test
+   accounts with predictable passwords) or delete (cleaner
+   demo-state).
+2. **The "E2E Test Zoo" institution.** Check
+   `<https://api.malagasyfishes.org/admin/populations/institution/?q=E2E>`.
+   If present in prod and you don't want it visible during the demo
+   (it'd appear in any institution-level panel that lists test rows),
+   delete it.
+3. **Your real-name Tier 3 user from the cookie-domain check.** You
+   created a Tier 3 account on prod on 2026-04-28 to verify the
+   session-based SSR forwarding (`[coordinator-auth] path=session`).
+   Decide: leave it (you'll demo from this account at ABQ), rename it
+   for clarity, or remove and re-create later.
+
+**How to verify:** Django admin user list shows only the accounts you
+intend to demo from. Coordinator dashboard panels don't show
+"E2E Test Zoo" rows.
+
+### 4.4 Post-ABQ — fix top nav responsive wrap (deferred)
+
+**Priority:** post-workshop polish, not a blocker. Diagnosed by
+ux-reviewer 2026-04-28.
+
+**What's wrong:** when the viewport is narrower than ~960px (most
+tablets, all phones), nav items in `frontend/components/NavLinks.tsx`
+wrap to a second row that renders **outside** the fixed-height header
+band in `frontend/components/SiteHeader.tsx` (`height: 72`). Items are
+still in the DOM and tab-focusable, just visually clipped behind the
+sticky-header backdrop and the page content scrolling under it.
+Accessibility smell on top of the layout bug.
+
+**Why deferred:** ABQ demo runs on a projector at desktop width
+(≥1280px), where all 7 items fit comfortably. The realistic phone
+scenario is "stakeholder pulls site up at the coffee break" — fix it
+in the polish window after the workshop.
+
+**Heads up during the demo:** don't whip out your phone mid-demo and
+scroll the nav.
+
+**When you pick this up post-ABQ:** ux-reviewer enumerated 7 patterns
+(hamburger, overflow-into-More dropdown, horizontal scroll, hide-by-
+priority, multi-row auto-grow header, icon-only collapse, two-tier
+nav). Quick win is changing `height: 72` to `min-height: 72` in
+`SiteHeader.tsx` — honest visual, eats some vertical space, no JS
+changes. Pick a real pattern based on whether mobile is a real
+persona for the platform or a courtesy.
+
 ---
 
 ## 5. Things I explicitly haven't asked you to do
@@ -534,6 +654,108 @@ Listing these so you know they're not on your plate.
 Completed items are archived here. We keep the full how-to for each so
 there's a runbook to refer back to when something needs to be re-done
 (e.g. secret rotation). Newest at the top.
+
+### 1.9 Verify the cookie-domain check on production — DONE
+
+**Completed:** 2026-04-28.
+**Unlocks:** confirms Tier 3+ users on prod actually use their session
+token for SSR fetches, not the `COORDINATOR_API_TOKEN` fallback.
+Without this check, the architectural goal of Gate 11 ("no service
+tokens mailed around") could be silently undermined — every signed-in
+user would be anonymously bypassing tier without anyone realizing.
+
+**The verification:** signed in as the production Tier 3 user, hit
+`/dashboard/coordinator`, and read Vercel function logs for the
+`[coordinator-auth]` lines (PR #130 instrumentation in
+`frontend/lib/coordinatorDashboard.ts::coordinatorHeaders()`).
+Result: every recent line showed `path=session`. No
+`path=service-token-fallback` or `path=none` regressions.
+
+**Soak follow-up:** scheduled remote agent fires on 2026-05-12 to
+re-run the same check and post a summary PR to
+`docs/handover/auth-soak-check-2026-05-12.md`. See §1.5 active item
+for the post-soak diagnostic-log retention decision.
+
+**Full runbook:** `OPERATIONS.md §11.4`.
+
+### 1.8 Set Preview-scope `NEXTAUTH_SECRET` + `NEXTAUTH_URL` in Vercel — DONE
+
+**Completed:** 2026-04-28.
+**Unlocks:** preview deploys (`*.vercel.app` PR previews) no longer
+emit `[next-auth][error][NO_SECRET]` 500s on `/api/auth/session` from
+the client-side `useSession()` poll. Real auth flows still don't
+complete on preview because of the cookie-domain mismatch
+(architecture §9) — that's intentional. These env vars exist solely
+to silence the error.
+
+**Values used:**
+- `NEXTAUTH_SECRET` (Preview scope) = fresh `openssl rand -hex 32`,
+  distinct from the prod secret.
+- `NEXTAUTH_URL` (Preview scope) = placeholder string OR
+  `https://${VERCEL_URL}` to use Vercel's dynamic preview hostname
+  (either silences the error equally well).
+
+**On rotation:** mint a new hex, paste into Preview scope, save. No
+redeploy needed on already-running previews — but the next preview
+build will pick it up.
+
+### 1.7 Flip `NEXT_PUBLIC_FEATURE_AUTH=true` in Vercel prod — DONE
+
+**Completed:** 2026-04-28.
+**Unlocks:** Gate 11 auth surface is now live on prod. Login / Sign up
+nav appears for anonymous visitors; Account / Sign out for signed-in.
+Middleware redirects on `/account`. `/dashboard/coordinator` continues
+to render via the service-token fallback for anonymous SSR (no
+behavior regression).
+
+**Runbook (rollback if regression):**
+
+1. Vercel → Settings → Environment Variables → edit `NEXT_PUBLIC_FEATURE_AUTH`.
+2. Change value to `false` (or delete the row).
+3. Save → redeploy.
+
+After rollback: nav loses Login/Sign-up/Account/Sign-out; middleware
+becomes pass-through; `/login` `/signup` `/verify` `/account` URLs
+still resolve for UAT but aren't advertised. Anonymous public surface
+is unchanged.
+
+**On re-enable:** set value back to `true`, redeploy. No state migration
+required — flag is purely a UI gate.
+
+### 1.6 Add `TRUST_X_FORWARDED_FOR=True` to Hetzner staging `.env` — DONE
+
+**Completed:** 2026-04-28.
+**Unlocks:** the per-IP rate limiter on `/api/v1/auth/login/` now sees
+the real client IP (forwarded by Caddy) instead of Caddy's container
+IP. Without this, the limiter would either rate-limit the proxy itself
+(blocking everyone) or — if Caddy's IP varied — fail to throttle at
+all. The `>=5` boundary fix (PR #132) is dependent on this env var to
+function correctly behind the reverse proxy.
+
+**Runbook (re-do or rotation):**
+
+```bash
+ssh deploy@46.224.196.197
+cd /home/deploy/madagascarfish/deploy/staging
+nano .env
+# Add or update:
+TRUST_X_FORWARDED_FOR=True
+docker compose up -d --force-recreate web
+```
+
+**Verification:** from your laptop, run 5 failed login attempts in a
+row to a non-existent account; expect `401 401 401 401 429`. The
+window resets after 15 minutes.
+
+```bash
+for i in 1 2 3 4 5; do curl -s -o /dev/null -w "attempt $i: %{http_code}\n" -X POST https://api.malagasyfishes.org/api/v1/auth/login/ -H "Content-Type: application/json" -d '{"email":"nope@example.com","password":"wrong"}'; done
+```
+
+**On adding a non-Caddy backend:** if Django ever gets exposed
+directly (no trusted reverse proxy in front), set this back to
+`False` — otherwise an attacker can spoof XFF and rotate the asserted
+IP per request to bypass the rate limit. The setting is in
+`backend/config/settings/base.py`; default is `False`.
 
 ### 1.4 Pick an email-deliverability vendor — DONE
 
