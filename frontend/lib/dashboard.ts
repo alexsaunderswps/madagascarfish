@@ -19,10 +19,13 @@ export interface DashboardResponse {
     planned: number;
     completed: number;
   };
-  // Optional during the v1 → v2 rollout: backend deployments that haven't
-  // picked up the new payload shape will omit this block. The /dashboard/
-  // page page falls back to a zero shape when undefined.
-  coordination?: {
+  // Coordination summary — added in PR #118 (v2 dashboard payload). The
+  // only deployed backend (Hetzner staging at api.malagasyfishes.org)
+  // serves it unconditionally as of 2026-04-28; verified via curl. If a
+  // future deployment topology adds a backend that's behind on the
+  // payload version, restore the optional `?` and add the zero-fallback
+  // back to /dashboard/page.tsx.
+  coordination: {
     active_programs_total: number;
     active_programs_by_type: Record<string, number>;
     transfer_window_days: number;
