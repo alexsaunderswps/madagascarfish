@@ -7,9 +7,9 @@
  * CARES and SHOAL are inlined into the metadata row as colored labels rather
  * than stacked as right-column chips — matches the 2026-04-20 review.
  *
- * Silhouette column renders a neutral placeholder fish when the species has
- * no SVG of its own. Once the S11–S13 genus cascade lands, that column will
- * prefer a genus-authored SVG before falling back. Basin is a Gate 2 field —
+ * Silhouette column prefers a species-authored SVG, falls back to the genus
+ * silhouette via the `genusSilhouettes` lookup, and finally to a neutral
+ * placeholder fish when neither is present. Basin is a Gate 2 field —
  * rendered only when populated.
  */
 

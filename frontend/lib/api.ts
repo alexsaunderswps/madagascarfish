@@ -17,9 +17,16 @@ export interface ApiFetchOptions {
   signal?: AbortSignal;
   /**
    * DRF auth token forwarded as `Authorization: Token <key>` (Gate 11).
-   * Server-only — never pass a token from a client component. Pass
-   * `getServerSession(authOptions)?.drfToken` from a server component or
-   * route handler when a tier-gated read is needed.
+   * Server-only — never pass a token from a client component. Use
+   * `getServerDrfToken()` from `@/lib/auth` to read the token from the
+   * session cookie inside a server component or route handler.
+   *
+   * NOTE: do NOT try to read `drfToken` off the NextAuth Session object.
+   * The session callback in `lib/auth.ts` deliberately omits `drfToken`
+   * because anything on `Session` is browser-readable via
+   * `/api/auth/session`. `getServerDrfToken()` reads the JWT directly
+   * via `next/headers` + `decodeJwt`, never crossing the session-
+   * serialization path.
    *
    * If both `authToken` and an `Authorization` header in `headers` are
    * given, the explicit header wins (escape hatch for the existing
