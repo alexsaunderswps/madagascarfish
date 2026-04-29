@@ -2,13 +2,23 @@ import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
 
+import type { Locale } from "@/i18n/routing";
 import { fetchDashboard } from "@/lib/dashboard";
+import { buildAlternates } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "About — Madagascar Freshwater Fish Conservation Platform",
-  description:
-    "About the Madagascar Freshwater Fish Conservation Platform: mission, data sources, ownership, and citations.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "About — Madagascar Freshwater Fish Conservation Platform",
+    description:
+      "About the Madagascar Freshwater Fish Conservation Platform: mission, data sources, ownership, and citations.",
+    alternates: buildAlternates("/about", locale),
+  };
+}
 
 export const revalidate = 3600;
 

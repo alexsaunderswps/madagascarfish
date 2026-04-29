@@ -1,10 +1,14 @@
+import type { Metadata } from "next";
+
 import DirectoryDensityControl from "@/components/DirectoryDensityControl";
 import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
 import SpeciesCard from "@/components/SpeciesCard";
 import SpeciesFilters from "@/components/SpeciesFilters";
+import type { Locale } from "@/i18n/routing";
 import { fetchDashboard } from "@/lib/dashboard";
 import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
+import { buildAlternates } from "@/lib/seo";
 import {
   EMPTY_PAGE,
   IUCN_LABELS,
@@ -18,11 +22,19 @@ import {
 
 export const revalidate = 3600;
 
-export const metadata = {
-  title: "Species Directory — Madagascar Freshwater Fish",
-  description:
-    "Browse endemic freshwater fish species of Madagascar. Filter by IUCN Red List category, family, and captive-population coverage.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Species Directory — Madagascar Freshwater Fish",
+    description:
+      "Browse endemic freshwater fish species of Madagascar. Filter by IUCN Red List category, family, and captive-population coverage.",
+    alternates: buildAlternates("/species", locale),
+  };
+}
 
 function hasAnyFilter(searchParams: Record<string, string | string[] | undefined>): boolean {
   const keys = [

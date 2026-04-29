@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import IucnChart from "@/components/IucnChart";
 import LastSyncStrip from "@/components/LastSyncStrip";
+import type { Locale } from "@/i18n/routing";
 import { fetchDashboard } from "@/lib/dashboard";
+import { buildAlternates } from "@/lib/seo";
 import { fetchSiteMapAsset } from "@/lib/siteMapAssets";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    alternates: buildAlternates("/", locale),
+  };
+}
 
 const COVERAGE_GAP_HREF =
   "/species/?iucn_status=CR,EN,VU&has_captive_population=false";

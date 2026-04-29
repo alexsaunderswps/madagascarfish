@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import LocaleSwitcher from "./LocaleSwitcher";
 import NavLinks from "./NavLinks";
 
 /**
@@ -51,9 +52,12 @@ export default function SiteHeader() {
         >
           Madagascar Freshwater Fish
         </Link>
-        <nav aria-label="Primary">
-          <NavLinks authVisible={authVisible} />
-        </nav>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <nav aria-label="Primary">
+            <NavLinks authVisible={authVisible} />
+          </nav>
+          <LocaleSwitcher />
+        </div>
       </div>
     </header>
   );

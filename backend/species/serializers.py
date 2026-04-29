@@ -4,6 +4,7 @@ from django.db import models as db_models
 from rest_framework import serializers
 
 from accounts.serializer_mixins import TierAwareSerializerMixin
+from i18n.serializers import TranslationActualLocaleMixin
 from species.models import CommonName, ConservationAssessment, Genus, Species
 
 
@@ -98,7 +99,11 @@ class _FieldProgramBriefSerializer(serializers.Serializer):
     status = serializers.CharField()
 
 
-class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSerializer):
+class SpeciesDetailSerializer(
+    TranslationActualLocaleMixin,
+    TierAwareSerializerMixin,
+    serializers.ModelSerializer,
+):
     common_names = CommonNameSerializer(many=True, read_only=True)
     genus_fk = GenusBriefSerializer(read_only=True)
     conservation_assessments = serializers.SerializerMethodField()
@@ -113,6 +118,16 @@ class SpeciesDetailSerializer(TierAwareSerializerMixin, serializers.ModelSeriali
     # Populated by the SpeciesViewSet queryset annotation. Matches the list
     # endpoint so profile pages can surface a count without a second fetch.
     locality_count = serializers.IntegerField(read_only=True, default=0)
+
+    # Gate L1 i18n. Each entry produces a sibling `<field>_locale_actual`
+    # key in the response so the frontend knows when fallback English is
+    # being shown for a non-English request. Architect doc §4.
+    translatable_fields = (
+        "description",
+        "ecology_notes",
+        "distribution_narrative",
+        "morphology",
+    )
 
     class Meta:
         model = Species

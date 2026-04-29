@@ -6,7 +6,9 @@ import IucnBadge from "@/components/IucnBadge";
 import ProfileCommonNames from "@/components/ProfileCommonNames";
 import ProfileDistribution from "@/components/ProfileDistribution";
 import SpeciesSilhouette from "@/components/SpeciesSilhouette";
+import type { Locale } from "@/i18n/routing";
 import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
+import { buildAlternates } from "@/lib/seo";
 import { IUCN_LABELS, type IucnStatus } from "@/lib/species";
 import {
   displayScientificName,
@@ -74,16 +76,20 @@ function statusEyebrowLabel(status: IucnStatus | null): string {
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: { id: string; locale: Locale };
 }) {
   const result = await fetchSpeciesDetail(params.id);
   if (result.kind !== "ok") {
-    return { title: "Species not found — Madagascar Freshwater Fish" };
+    return {
+      title: "Species not found — Madagascar Freshwater Fish",
+      alternates: buildAlternates(`/species/${params.id}`, params.locale),
+    };
   }
   const name = displayScientificName(result.data);
   return {
     title: `${name} — Madagascar Freshwater Fish`,
     description: result.data.description?.slice(0, 160) ?? `Species profile for ${name}.`,
+    alternates: buildAlternates(`/species/${params.id}`, params.locale),
   };
 }
 

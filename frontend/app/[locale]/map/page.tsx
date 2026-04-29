@@ -1,10 +1,13 @@
+import type { Metadata } from "next";
 import nextDynamic from "next/dynamic";
 
 import EmptyState from "@/components/EmptyState";
 import MapListView from "@/components/MapListView";
 import MapViewToggle, { type MapView } from "@/components/MapViewToggle";
+import type { Locale } from "@/i18n/routing";
 import { getServerDrfToken } from "@/lib/auth";
 import { fetchLocalities } from "@/lib/mapLocalities";
+import { buildAlternates } from "@/lib/seo";
 
 // Gate 11: must render dynamically because the page now reads the session
 // to decide whether to forward Authorization on the locality fetch. ISR
@@ -13,11 +16,19 @@ import { fetchLocalities } from "@/lib/mapLocalities";
 // `fetchLocalities` is defense-in-depth; this is the primary gate.
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Distribution Map — Madagascar Freshwater Fish",
-  description:
-    "Locality records for endemic freshwater fish across Madagascar, color-coded by IUCN Red List category. Exact coordinates for threatened species are generalized per GBIF sensitive-species guidance.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Distribution Map — Madagascar Freshwater Fish",
+    description:
+      "Locality records for endemic freshwater fish across Madagascar, color-coded by IUCN Red List category. Exact coordinates for threatened species are generalized per GBIF sensitive-species guidance.",
+    alternates: buildAlternates("/map", locale),
+  };
+}
 
 const MapClient = nextDynamic(() => import("@/components/MapClient"), {
   ssr: false,

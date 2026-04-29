@@ -33,6 +33,18 @@ export interface ApiFetchOptions {
    * service-token path that uses `Authorization: Bearer <token>`).
    */
   authToken?: string;
+  /**
+   * Active locale (e.g. "en", "fr", "de", "es") forwarded as
+   * `Accept-Language: <locale>` so Django's `LocaleMiddleware` resolves
+   * the right language and modeltranslation returns the requested
+   * locale's columns. Source on the server side from
+   * `next-intl`'s `getLocale()` inside the page that invokes the
+   * fetcher (Gate L1 i18n architect doc §9 R6 / S3).
+   *
+   * If both `locale` and an `Accept-Language` header in `headers` are
+   * given, the explicit header wins.
+   */
+  locale?: string;
 }
 
 /**
@@ -52,16 +64,20 @@ export function resolveBaseUrl(): string {
 }
 
 function buildHeaders(options: ApiFetchOptions): HeadersInit | undefined {
-  // If a caller has already set an Authorization header explicitly, respect
-  // it — the existing service-token branch (`Bearer <token>`) goes through
-  // here. Otherwise, use the optional `authToken` for the standard DRF
-  // `Token <key>` shape.
-  if (!options.authToken) {
+  // Fast path: nothing to add, return whatever the caller provided
+  // (possibly undefined).
+  if (!options.authToken && !options.locale) {
     return options.headers;
   }
+  // Compose. Explicit headers in `options.headers` always win — that's
+  // the escape hatch for the service-token path (`Bearer <token>`) and
+  // for tests that pin Accept-Language explicitly.
   const merged = new Headers(options.headers ?? {});
-  if (!merged.has("Authorization")) {
+  if (options.authToken && !merged.has("Authorization")) {
     merged.set("Authorization", `Token ${options.authToken}`);
+  }
+  if (options.locale && !merged.has("Accept-Language")) {
+    merged.set("Accept-Language", options.locale);
   }
   return merged;
 }

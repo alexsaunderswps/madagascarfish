@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "integration",
     "audit",
     "husbandry",
+    "i18n",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
