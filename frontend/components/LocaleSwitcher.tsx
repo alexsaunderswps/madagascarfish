@@ -1,10 +1,9 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
 
-import { routing, type Locale } from "@/i18n/routing";
+import { routing, usePathname, useRouter, type Locale } from "@/i18n/routing";
 
 /**
  * Header dropdown to switch the active locale. Flag-gated by
@@ -15,6 +14,13 @@ import { routing, type Locale } from "@/i18n/routing";
  * Switching locales navigates to the equivalent URL on the new
  * locale, preserving the path. Default locale (en) lives at root
  * (`/species/123`); other locales prefix (`/fr/species/123`).
+ *
+ * Uses the locale-aware router and pathname helpers from
+ * `@/i18n/routing` (NOT next/navigation) so:
+ *   1. switching to a different locale updates the NEXT_LOCALE
+ *      cookie so middleware doesn't bounce the user back.
+ *   2. the destination URL is computed correctly per locale prefix
+ *      mode (default = no prefix, others = /<locale>/...).
  */
 
 const LABELS: Record<Locale, string> = {
@@ -36,31 +42,12 @@ function isLocaleEnabled(locale: Locale): boolean {
   return PER_LOCALE_FLAG_ENV[locale] === "true";
 }
 
-/**
- * Strip the leading locale segment (if any) from a path so we can
- * re-prefix with the target locale. `/fr/species/123` → `/species/123`;
- * `/species/123` → `/species/123` (already unprefixed for default).
- */
-function stripLocale(pathname: string): string {
-  for (const locale of routing.locales) {
-    if (locale === routing.defaultLocale) continue;
-    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
-      const stripped = pathname.slice(`/${locale}`.length);
-      return stripped === "" ? "/" : stripped;
-    }
-  }
-  return pathname;
-}
-
-function buildLocalizedPath(pathname: string, target: Locale): string {
-  const base = stripLocale(pathname);
-  if (target === routing.defaultLocale) return base;
-  return base === "/" ? `/${target}` : `/${target}${base}`;
-}
-
 export default function LocaleSwitcher() {
   const flagOn = process.env.NEXT_PUBLIC_FEATURE_I18N === "true";
   const currentLocale = useLocale() as Locale;
+  // pathname from @/i18n/routing returns the de-localized path
+  // (`/species` even when the URL is `/fr/species`), which is what
+  // router.replace expects when paired with a `locale` option.
   const pathname = usePathname();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -74,9 +61,11 @@ export default function LocaleSwitcher() {
   function onChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const target = event.target.value as Locale;
     if (target === currentLocale) return;
-    const dest = buildLocalizedPath(pathname || "/", target);
     startTransition(() => {
-      router.push(dest);
+      // The locale-aware router handles cookie update + locale prefix
+      // construction. Pass the de-localized pathname; router computes
+      // the right destination based on `routing.localePrefix`.
+      router.replace(pathname, { locale: target });
     });
   }
 
