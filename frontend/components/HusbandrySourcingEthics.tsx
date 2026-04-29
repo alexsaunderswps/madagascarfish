@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 /**
  * Sourcing ethics block for species husbandry pages.

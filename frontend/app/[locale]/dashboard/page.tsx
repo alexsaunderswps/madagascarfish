@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import type { CSSProperties } from "react";
 
 import IucnChart from "@/components/IucnChart";

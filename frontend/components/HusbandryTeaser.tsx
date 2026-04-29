@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 import { teaserPresentation, teaserSentence, type TeaserContext } from "@/lib/husbandry";
 

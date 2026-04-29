@@ -13,7 +13,7 @@
  * rendered only when populated.
  */
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { type SpeciesListItem } from "@/lib/species";
 import IucnBadge from "./IucnBadge";
 

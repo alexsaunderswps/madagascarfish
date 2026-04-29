@@ -1,8 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+// Import Link AND usePathname from @/i18n/routing so locale-aware
+// navigation works AND the active-pill highlight matches against the
+// de-localized path (`/dashboard/` even when URL is `/fr/dashboard/`).
+import { Link, usePathname } from "@/i18n/routing";
 import { signOut, useSession } from "next-auth/react";
 
 import { djangoLogoutAction } from "@/app/[locale]/account/actions";

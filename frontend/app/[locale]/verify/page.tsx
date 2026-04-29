@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { redirect } from "next/navigation";
 
 import { resolveBaseUrl } from "@/lib/api";

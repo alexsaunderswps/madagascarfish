@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useMemo, useState, type CSSProperties } from "react";
 
 import type { LocalityFeature, LocalityFeatureCollection } from "@/lib/mapLocalities";

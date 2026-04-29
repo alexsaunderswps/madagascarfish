@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 /**
  * Gate 09 placeholder for the Gate 10 husbandry contribute form.
