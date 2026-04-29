@@ -8,5 +8,6 @@ class FieldProgramAdmin(admin.ModelAdmin):
     list_display = ["name", "lead_institution", "status", "region", "start_date"]
     list_filter = ["status", "lead_institution"]
     search_fields = ["name", "description", "region"]
+    ordering = ["name"]
     list_select_related = ["lead_institution"]
-    filter_horizontal = ["focal_species", "partner_institutions"]
+    autocomplete_fields = ["lead_institution", "focal_species", "partner_institutions"]

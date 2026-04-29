@@ -49,6 +49,7 @@ class InstitutionAdmin(admin.ModelAdmin):
         "aza_member",
     ]
     search_fields = ["name", "city", "country"]
+    ordering = ["name"]
     actions = [revalidate_public_pages]
 
     def save_model(
@@ -74,6 +75,7 @@ class ExSituPopulationAdmin(admin.ModelAdmin):
     ]
     list_filter = ["breeding_status", "studbook_managed", "institution"]
     search_fields = ["species__scientific_name", "institution__name"]
+    autocomplete_fields = ["species", "institution"]
     list_select_related = ["species", "institution"]
     inlines = [HoldingRecordInline]
     actions = [revalidate_public_pages]

@@ -281,12 +281,13 @@ class SpeciesAdmin(admin.ModelAdmin):
         "location_sensitivity",
         "genus_fk",
     ]
-    raw_id_fields = ["genus_fk"]
+    autocomplete_fields = ["genus_fk"]
     search_fields = [
         "scientific_name",
         "provisional_name",
         "common_names__name",
     ]
+    ordering = ["scientific_name"]
     list_select_related = ["taxon", "genus_fk"]
     # iucn_status is a denormalized mirror (see CLAUDE.md "Conservation status
     # sourcing"). Editing it here would bypass the audit trail and the
@@ -386,6 +387,7 @@ class ConservationAssessmentAdmin(admin.ModelAdmin):
     ]
     list_filter = ["source", "review_status", "category"]
     search_fields = ["species__scientific_name", "notes", "criteria"]
+    autocomplete_fields = ["species"]
     list_select_related = ["species", "flagged_by", "created_by"]
     readonly_fields = [
         "flagged_by",
@@ -471,7 +473,7 @@ class SpeciesLocalityAdmin(GISModelAdmin):
         "created_at",
         "updated_at",
     ]
-    raw_id_fields = ["species", "drainage_basin"]
+    autocomplete_fields = ["species", "drainage_basin"]
     actions = [revalidate_public_pages]
 
     def get_readonly_fields(
@@ -490,6 +492,7 @@ class WatershedAdmin(admin.ModelAdmin):
     list_display = ["name", "pfafstetter_level", "pfafstetter_code", "area_sq_km"]
     list_filter = ["pfafstetter_level"]
     search_fields = ["name"]
+    ordering = ["name"]
     readonly_fields = ["hybas_id", "geometry", "created_at"]
 
 
@@ -498,6 +501,7 @@ class ProtectedAreaAdmin(admin.ModelAdmin):
     list_display = ["name", "designation", "iucn_category", "status", "area_km2"]
     list_filter = ["designation", "iucn_category", "status"]
     search_fields = ["name"]
+    ordering = ["name"]
     readonly_fields = ["wdpa_id", "geometry", "created_at"]
 
 

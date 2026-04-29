@@ -20,6 +20,7 @@ class UserAdmin(BaseUserAdmin):
     ]
     list_filter = ["access_tier", "is_active", "institution"]
     search_fields = ["email", "name"]
+    autocomplete_fields = ["institution"]
     readonly_fields = ["date_joined", "last_login"]
     ordering = ["email"]
     fieldsets = [
