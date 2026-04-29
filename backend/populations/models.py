@@ -36,6 +36,7 @@ class Institution(models.Model):
 
     class Meta:
         db_table = "populations_institution"
+        ordering = ["name"]
 
     def __str__(self) -> str:
         return self.name
@@ -71,6 +72,7 @@ class ExSituPopulation(models.Model):
 
     class Meta:
         db_table = "populations_exsitupopulation"
+        ordering = ["species__scientific_name", "institution__name"]
         constraints = [
             models.UniqueConstraint(
                 fields=["species", "institution"],

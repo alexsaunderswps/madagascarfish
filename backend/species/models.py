@@ -267,6 +267,7 @@ class Species(models.Model):
     class Meta:
         db_table = "species_species"
         verbose_name_plural = "species"
+        ordering = ["scientific_name"]
 
     def save(self, *args: object, **kwargs: object) -> None:
         if self.silhouette_svg:
@@ -505,6 +506,7 @@ class Watershed(models.Model):
 
     class Meta:
         db_table = "species_watershed"
+        ordering = ["name"]
 
     def __str__(self) -> str:
         return self.name
@@ -523,6 +525,7 @@ class ProtectedArea(models.Model):
 
     class Meta:
         db_table = "species_protectedarea"
+        ordering = ["name"]
 
     def __str__(self) -> str:
         return self.name

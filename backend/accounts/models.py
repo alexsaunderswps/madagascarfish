@@ -66,6 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = "accounts_user"
+        ordering = ["email"]
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(access_tier__gte=1) & models.Q(access_tier__lte=5),
