@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Spectral } from "next/font/google";
 import { notFound } from "next/navigation";
 import AuthSessionProvider from "@/components/AuthSessionProvider";
@@ -56,13 +56,19 @@ export default async function LocaleLayout({
   // for so server components rendered statically pick the right messages.
   setRequestLocale(locale);
 
+  // Load this locale's catalog so client islands (NavLinks,
+  // LocaleSwitcher) get a populated provider. Server components use
+  // getTranslations() directly and don't need this — but client
+  // components consume from the provider context.
+  const messages = await getMessages();
+
   return (
     <html
       lang={locale}
       className={`${spectral.variable} ${plexSans.variable} ${plexMono.variable}`}
     >
       <body className="flex min-h-screen flex-col bg-white text-slate-900 antialiased">
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>
           <AuthSessionProvider>
             <SiteHeader />
             <div id="main-content" className="flex-1">
