@@ -156,8 +156,12 @@ class CoordinatedProgramAdmin(admin.ModelAdmin):
     ]
     list_filter = ["program_type", "status"]
     search_fields = ["name", "species__scientific_name"]
-    autocomplete_fields = ["species", "coordinating_institution", "studbook_keeper"]
-    filter_horizontal = ["enrolled_institutions"]
+    autocomplete_fields = [
+        "species",
+        "coordinating_institution",
+        "studbook_keeper",
+        "enrolled_institutions",
+    ]
     list_select_related = ["species", "coordinating_institution", "studbook_keeper"]
     readonly_fields = ["created_at", "updated_at"]
     fieldsets = (
