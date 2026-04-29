@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 
@@ -9,6 +10,7 @@ const BUTTON_STYLE =
   "inline-flex justify-center rounded border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60";
 
 export default function LogoutButton() {
+  const t = useTranslations("account");
   const [busy, setBusy] = useState(false);
 
   async function handleClick() {
@@ -27,7 +29,7 @@ export default function LogoutButton() {
       disabled={busy}
       className={BUTTON_STYLE}
     >
-      {busy ? "Signing out…" : "Sign out"}
+      {busy ? t("signingOut") : t("signOut")}
     </button>
   );
 }

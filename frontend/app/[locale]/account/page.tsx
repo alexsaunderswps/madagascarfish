@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { ApiError, apiFetch } from "@/lib/api";
@@ -5,10 +6,13 @@ import { getServerDrfToken } from "@/lib/auth";
 
 import LogoutButton from "./LogoutButton";
 
-export const metadata = {
-  title: "Account — Madagascar Freshwater Fish",
-  description: "Your account profile and access tier.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("account");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -16,27 +20,6 @@ interface MeResponse {
   email: string;
   name: string;
   access_tier: number;
-}
-
-const TIER_LABELS: Record<number, string> = {
-  1: "Public",
-  2: "Researcher",
-  3: "Conservation Coordinator",
-  4: "Program Manager",
-  5: "Administrator",
-};
-
-const TIER_DESCRIPTIONS: Record<number, string> = {
-  1: "Public profiles, the distribution map, and the conservation dashboard.",
-  2: "Adds occurrence datasets, published field-program summaries, and observation submission.",
-  3: "Adds exact locality coordinates for sensitive species, breeding recommendations, and transfer coordination.",
-  4: "Adds population genetics, studbook-level data, and per-institution captive inventory.",
-  5: "Full system access, including user management and data import.",
-};
-
-function tierBadge(tier: number): string {
-  const label = TIER_LABELS[tier] ?? "Member";
-  return `${label} · Tier ${tier}`;
 }
 
 export default async function AccountPage() {
@@ -65,38 +48,55 @@ export default async function AccountPage() {
     transientError = true;
   }
 
-  const tierDescription = me ? TIER_DESCRIPTIONS[me.access_tier] : null;
+  const [t, tAuth] = await Promise.all([
+    getTranslations("account"),
+    getTranslations("auth"),
+  ]);
+
+  const tierLabel = me
+    ? // The catalog has tier strings keyed "1"..."5"; fall back to "Member".
+      // next-intl's t("tiers.X") throws on missing key, so we look up via
+      // try/catch behavior — simpler: pre-list valid keys.
+      ["1", "2", "3", "4", "5"].includes(String(me.access_tier))
+      ? t(`tiers.${me.access_tier}`)
+      : t("tiers.fallback")
+    : null;
+
+  const tierDescription =
+    me && ["1", "2", "3", "4", "5"].includes(String(me.access_tier))
+      ? t(`tierDescriptions.${me.access_tier}`)
+      : null;
 
   return (
     <main className="mx-auto max-w-md px-6 py-16">
       <header className="mb-8">
         <p className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-          Account
+          {tAuth("accountEyebrow")}
         </p>
-        <h1 className="mt-2 font-serif text-3xl text-slate-900">Your profile</h1>
+        <h1 className="mt-2 font-serif text-3xl text-slate-900">{t("title")}</h1>
       </header>
 
       {me ? (
         <dl className="space-y-4 rounded border border-slate-200 bg-white p-4 text-sm">
           <div>
             <dt className="text-xs font-medium uppercase tracking-wider text-slate-500">
-              Name
+              {t("nameLabel")}
             </dt>
             <dd className="mt-1 text-slate-900">{me.name}</dd>
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wider text-slate-500">
-              Email
+              {t("emailLabel")}
             </dt>
             <dd className="mt-1 text-slate-900">{me.email}</dd>
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wider text-slate-500">
-              Access tier
+              {t("tierLabel")}
             </dt>
             <dd className="mt-1 space-y-2">
               <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-800">
-                {tierBadge(me.access_tier)}
+                {t("tierBadge", { label: tierLabel ?? "", tier: me.access_tier })}
               </span>
               {tierDescription ? (
                 <p className="text-xs leading-relaxed text-slate-600">
@@ -105,8 +105,7 @@ export default async function AccountPage() {
               ) : null}
               {me.access_tier < 3 ? (
                 <p className="text-xs leading-relaxed text-slate-500">
-                  Higher tiers are assigned by the platform operator on
-                  request, for staff at partner organizations.
+                  {t("tierUpgradeHint")}
                 </p>
               ) : null}
             </dd>
@@ -119,9 +118,7 @@ export default async function AccountPage() {
           role="alert"
           className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
         >
-          Your profile is temporarily unavailable. Refresh in a moment;
-          your sign-in is still active. If the problem persists, the
-          platform team&rsquo;s contact details are on the About page.
+          {t("transientError")}
         </p>
       ) : null}
 
