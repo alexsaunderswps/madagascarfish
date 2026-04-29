@@ -165,6 +165,16 @@
   "map": {
     "title": "Distribution Map",
     "subtitle": "Locality records for endemic freshwater fish",
+    "metaTitle": "Distribution Map — Madagascar Freshwater Fish",
+    "metaDescription": "Locality records for endemic freshwater fish across Madagascar, color-coded by IUCN Red List category. Exact coordinates for threatened species are generalized per GBIF sensitive-species guidance.",
+    "loading": "Loading distribution map…",
+    "eyebrow": "Distribution Map",
+    "recordCount": "{count, plural, one {# locality record} other {# locality records}}",
+    "filteredTo": "Filtered to <em>{name}</em>",
+    "filterFallbackName": "species #{id}",
+    "clearFilter": "Clear",
+    "clearFilterAriaLabel": "Clear species filter and show all locality records",
+    "keyboardHint": "Markers are color-coded by IUCN Red List category. Coordinates for threatened species are generalized per GBIF sensitive-species guidance. For keyboard and screen-reader access, use the list view toggle above.",
     "view": {
       "label": "View",
       "map": "Map",
@@ -185,6 +195,18 @@
     "emptyState": {
       "title": "No locality records to show",
       "subtitle": "Try adjusting filters or zooming out."
+    },
+    "emptyStateBackendDown": {
+      "title": "Distribution map temporarily unavailable",
+      "body": "The locality data service is unreachable right now. Try again in a moment, or use the species directory for profiles, conservation status, and other details that don't depend on the map.",
+      "tryAgain": "Try again",
+      "browseAll": "Browse all species"
+    },
+    "emptyStateNoRecords": {
+      "title": "No locality records to map",
+      "bodyForSpecies": "No public locality records are available for this species. Exact coordinates for threatened species are restricted to coordinator-tier accounts; the species profile still shows conservation status, taxonomy, and other details that don't depend on locality data.",
+      "bodyAll": "No locality records are currently published. The species directory still lists every species in the registry, whether or not their localities have been mapped.",
+      "browseAll": "Browse all species"
     }
   },
   "about": {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import nextDynamic from "next/dynamic";
 
 import EmptyState from "@/components/EmptyState";
@@ -22,16 +23,21 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "map" });
   return {
-    title: "Distribution Map — Madagascar Freshwater Fish",
-    description:
-      "Locality records for endemic freshwater fish across Madagascar, color-coded by IUCN Red List category. Exact coordinates for threatened species are generalized per GBIF sensitive-species guidance.",
+    title: t("metaTitle"),
+    description: t("metaDescription"),
     alternates: buildAlternates("/map", locale),
   };
 }
 
 const MapClient = nextDynamic(() => import("@/components/MapClient"), {
   ssr: false,
+  // Loading-state copy intentionally hardcoded English. next/dynamic's
+  // loading is rendered before the route's i18n provider is available
+  // and the spinner is on screen for ~1s in dev — translating it would
+  // require a server-component wrapper. Acceptable visual tradeoff for
+  // L1; revisit if it becomes a polish item.
   loading: () => (
     <div
       role="status"
@@ -70,10 +76,13 @@ export default async function MapPage({
   // generalized-coordinate behavior. The fetcher itself sets revalidate=0
   // when a token is present, so authenticated responses are never cached.
   const authToken = await getServerDrfToken();
-  const data = await fetchLocalities(
-    speciesId ? { species_id: speciesId } : {},
-    { authToken },
-  );
+  const [data, t] = await Promise.all([
+    fetchLocalities(
+      speciesId ? { species_id: speciesId } : {},
+      { authToken },
+    ),
+    getTranslations("map"),
+  ]);
 
   if (!data) {
     return (
@@ -85,10 +94,10 @@ export default async function MapPage({
         }}
       >
         <EmptyState
-          title="Distribution map temporarily unavailable"
-          body="The locality data service is unreachable right now. Try again in a moment, or use the species directory for profiles, conservation status, and other details that don't depend on the map."
-          primaryAction={{ href: "/map/", label: "Try again" }}
-          secondaryAction={{ href: "/species/", label: "Browse all species" }}
+          title={t("emptyStateBackendDown.title")}
+          body={t("emptyStateBackendDown.body")}
+          primaryAction={{ href: "/map/", label: t("emptyStateBackendDown.tryAgain") }}
+          secondaryAction={{ href: "/species/", label: t("emptyStateBackendDown.browseAll") }}
         />
       </main>
     );
@@ -104,13 +113,13 @@ export default async function MapPage({
         }}
       >
         <EmptyState
-          title="No locality records to map"
+          title={t("emptyStateNoRecords.title")}
           body={
             speciesId
-              ? "No public locality records are available for this species. Exact coordinates for threatened species are restricted to coordinator-tier accounts; the species profile still shows conservation status, taxonomy, and other details that don't depend on locality data."
-              : "No locality records are currently published. The species directory still lists every species in the registry, whether or not their localities have been mapped."
+              ? t("emptyStateNoRecords.bodyForSpecies")
+              : t("emptyStateNoRecords.bodyAll")
           }
-          primaryAction={{ href: "/species/", label: "Browse all species" }}
+          primaryAction={{ href: "/species/", label: t("emptyStateNoRecords.browseAll") }}
         />
       </main>
     );
@@ -128,7 +137,7 @@ export default async function MapPage({
 
   return (
     <main>
-      <h1 className="sr-only">Distribution Map</h1>
+      <h1 className="sr-only">{t("title")}</h1>
       <div
         style={{
           display: "flex",
@@ -160,7 +169,7 @@ export default async function MapPage({
               color: "var(--ink-3)",
             }}
           >
-            Distribution Map
+            {t("eyebrow")}
           </p>
           <span
             style={{
@@ -169,7 +178,7 @@ export default async function MapPage({
               fontVariantNumeric: "tabular-nums",
             }}
           >
-            {count.toLocaleString()} locality record{count === 1 ? "" : "s"}
+            {t("recordCount", { count })}
           </span>
           {speciesId ? (
             <span
@@ -188,14 +197,16 @@ export default async function MapPage({
               }}
             >
               <span>
-                Filtered to{" "}
-                <em style={{ fontWeight: 600, fontStyle: "normal" }}>
-                  {filterSpeciesName ?? `species #${speciesId}`}
-                </em>
+                {t.rich("filteredTo", {
+                  name: filterSpeciesName ?? t("filterFallbackName", { id: speciesId }),
+                  em: (chunks) => (
+                    <em style={{ fontWeight: 600, fontStyle: "normal" }}>{chunks}</em>
+                  ),
+                })}
               </span>
               <a
                 href={clearHref}
-                aria-label="Clear species filter and show all locality records"
+                aria-label={t("clearFilterAriaLabel")}
                 style={{
                   fontWeight: 600,
                   color: "var(--accent-2)",
@@ -204,7 +215,7 @@ export default async function MapPage({
                     "1px solid color-mix(in oklab, var(--accent-2) 35%, transparent)",
                 }}
               >
-                Clear
+                {t("clearFilter")}
               </a>
             </span>
           ) : null}
@@ -222,10 +233,7 @@ export default async function MapPage({
           borderBottom: "1px solid var(--rule)",
         }}
       >
-        Markers are color-coded by IUCN Red List category. Coordinates for
-        threatened species are generalized per GBIF sensitive-species
-        guidance. For keyboard and screen-reader access, use the list view
-        toggle above.
+        {t("keyboardHint")}
       </p>
       {view === "list" ? (
         <MapListView data={data} />
