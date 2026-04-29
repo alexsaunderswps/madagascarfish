@@ -1,5 +1,6 @@
-import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/routing";
 import { teaserPresentation, teaserSentence, type TeaserContext } from "@/lib/husbandry";
 
 /**
@@ -14,6 +15,12 @@ import { teaserPresentation, teaserSentence, type TeaserContext } from "@/lib/hu
  *   - no background fill, no icon, no h2 size/weight change
  *
  * Copy lives in docs/planning/copy/husbandry-platform-copy.md §2.
+ *
+ * Note: chipText and sentence still come from teaserSentence/
+ * teaserPresentation in lib/husbandry, which are L1-acceptable English.
+ * Localizing those helpers is L4 polish — they currently render
+ * "A CARES priority species — hobbyist breeders…" style sentences in
+ * English regardless of locale.
  */
 export default function HusbandryTeaser({
   speciesId,
@@ -22,6 +29,7 @@ export default function HusbandryTeaser({
   speciesId: number;
   ctx: TeaserContext;
 }) {
+  const t = useTranslations("species.profile.husbandryTeaser");
   const presentation = teaserPresentation(ctx);
   if (!presentation.render) return null;
 
@@ -55,7 +63,7 @@ export default function HusbandryTeaser({
         id="husbandry-teaser-heading"
         className="font-serif text-xl text-slate-900"
       >
-        Keeping this species
+        {t("heading")}
       </h2>
       <p className="mt-2 text-sm text-slate-700">{sentence}</p>
       <p className="mt-2 text-sm">
@@ -63,7 +71,7 @@ export default function HusbandryTeaser({
           href={`/species/${speciesId}/husbandry/`}
           className="text-sky-700 hover:underline"
         >
-          See husbandry guidance <span aria-hidden="true">→</span>
+          {t("seeGuidancePrefix")} <span aria-hidden="true">{t("arrow")}</span>
         </Link>
       </p>
     </section>

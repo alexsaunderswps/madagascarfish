@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/routing";
+import { getTranslations } from "next-intl/server";
 
 /**
  * Gate 09 placeholder for the Gate 10 husbandry contribute form.
@@ -7,33 +8,33 @@ import { Link } from "@/i18n/routing";
  * route renders a "coming soon" message with the mailto fallback. The demo
  * requires the CTA to be **present** as a visible frame — not functional.
  */
-export const metadata = {
-  title: "Contribute husbandry updates — Madagascar Freshwater Fish",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("contribute.husbandry");
+  return { title: t("metaTitle") };
+}
 
-export default function ContributeHusbandryStub({
+export default async function ContributeHusbandryStub({
   searchParams,
 }: {
   searchParams: { species?: string };
 }) {
   const speciesId = searchParams.species;
+  const t = await getTranslations("contribute.husbandry");
+  const subject = speciesId
+    ? t("subjectForSpecies", { speciesId })
+    : t("subjectGeneric");
   return (
     <main className="mx-auto max-w-2xl px-6 py-16">
-      <h1 className="font-serif text-2xl text-slate-900">Contribute husbandry updates</h1>
+      <h1 className="font-serif text-2xl text-slate-900">{t("title")}</h1>
       <p className="mt-4 text-slate-700">
-        The contribution form is not yet live. In the meantime, please email{" "}
+        {t("bodyPrefix")}
         <a
-          href={`mailto:alex.saunders@wildlifeprotectionsolutions.org?subject=${encodeURIComponent(
-            speciesId
-              ? `Husbandry update — species ${speciesId}`
-              : "Husbandry update",
-          )}`}
+          href={`mailto:alex.saunders@wildlifeprotectionsolutions.org?subject=${encodeURIComponent(subject)}`}
           className="text-sky-700 hover:underline"
         >
           alex.saunders@wildlifeprotectionsolutions.org
-        </a>{" "}
-        with your corrections or additional content. Reference the species URL
-        so we can route the update to the right record.
+        </a>
+        {t("bodySuffix")}
       </p>
       {speciesId ? (
         <p className="mt-6 text-sm">
@@ -41,7 +42,7 @@ export default function ContributeHusbandryStub({
             href={`/species/${speciesId}/husbandry/`}
             className="text-sky-700 hover:underline"
           >
-            ← Back to husbandry page
+            {t("backToHusbandry")}
           </Link>
         </p>
       ) : null}

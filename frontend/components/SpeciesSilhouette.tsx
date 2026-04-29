@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 /**
  * Empty-state silhouette shown when a species has no photograph.
  *
@@ -35,6 +37,7 @@ export default function SpeciesSilhouette({
   svgCredit,
   className,
 }: SpeciesSilhouetteProps) {
+  const t = useTranslations("species.profile.silhouette");
   const hasCustom = typeof customSvg === "string" && customSvg.trim().length > 0;
   // Generic fallback is intentionally disabled (2026-04-19) — render nothing
   // when no custom SVG is set. Alex is authoring per-species silhouettes; the
@@ -44,8 +47,8 @@ export default function SpeciesSilhouette({
   const hasLength = maxLengthCm != null && maxLengthCm > 0;
 
   const altText = hasLength
-    ? `Illustrative silhouette of ${scientificName}, approximately ${maxLengthCm} cm in length.`
-    : `Illustrative silhouette of ${scientificName}.`;
+    ? t("altWithLength", { name: scientificName, cm: maxLengthCm! })
+    : t("altNoLength", { name: scientificName });
 
   return (
     <figure
@@ -59,19 +62,21 @@ export default function SpeciesSilhouette({
         <CustomSilhouette svg={customSvg as string} widthPx={CUSTOM_SVG_WIDTH_PX} />
       </div>
       <figcaption className="mt-3 text-center text-xs text-slate-500">
-        Illustrative silhouette
-        {hasLength ? <> (approx. {maxLengthCm}&nbsp;cm at maximum recorded length)</> : null}
-        {svgCredit ? <> — genus silhouette, {svgCredit}</> : null}
-        .{" "}
+        {t("captionPrefix")}
+        {hasLength ? t("captionLength", { cm: maxLengthCm! }) : null}
+        {svgCredit ? t("captionCredit", { credit: svgCredit }) : null}
+        {t("captionTrailingPrefix")}
         <span className="text-slate-400">
-          Photographs of this species are welcome —{" "}
-          <a
-            href="/contribute/husbandry/"
-            className="underline underline-offset-2 hover:text-slate-700"
-          >
-            contribute
-          </a>
-          .
+          {t.rich("contributePrompt", {
+            link: (chunks) => (
+              <a
+                href="/contribute/husbandry/"
+                className="underline underline-offset-2 hover:text-slate-700"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
         </span>
       </figcaption>
     </figure>
@@ -89,4 +94,3 @@ function CustomSilhouette({ svg, widthPx }: { svg: string; widthPx: number }) {
     />
   );
 }
-
