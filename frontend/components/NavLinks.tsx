@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
-import { djangoLogoutAction } from "@/app/account/actions";
+import { djangoLogoutAction } from "@/app/[locale]/account/actions";
 
 export interface NavLink {
   href: string;

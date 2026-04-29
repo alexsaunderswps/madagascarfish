@@ -151,7 +151,7 @@ describe("SpeciesCard — null iucn_status label (PR #32)", () => {
 describe("Dashboard page — CHART_CAPTION label (FE-07-7 AC)", () => {
   it("chart caption uses 'Not yet assessed' for the NE bucket", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/dashboard/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/dashboard/page.tsx"),
       "utf-8",
     );
     // Spec: "Chart axis labels use expanded form" and "Not yet assessed" is the NE label
@@ -167,7 +167,7 @@ describe("Dashboard page — CHART_CAPTION label (FE-07-7 AC)", () => {
 describe("Dashboard page — coverage-gap deep-link (FE-07-7 AC)", () => {
   it("COVERAGE_GAP_HREF points to the correct filter URL", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/dashboard/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/dashboard/page.tsx"),
       "utf-8",
     );
     // AC: "coverage-gap stat is clicked → /species/?iucn_status=CR,EN,VU&has_captive_population=false"
@@ -435,7 +435,7 @@ describe("warm-cache.sh — existence and required paths (FE-07-11 AC)", () => {
 describe("About page — live species count or '~79' fallback (FE-07-8 AC)", () => {
   it("About page source contains ~79 fallback when count is unavailable", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/about/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/about/page.tsx"),
       "utf-8",
     );
     // AC: "About page renders live species count or '~79' fallback"
@@ -444,7 +444,7 @@ describe("About page — live species count or '~79' fallback (FE-07-8 AC)", () 
 
   it("About page reads live count from dashboard when available", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/about/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/about/page.tsx"),
       "utf-8",
     );
     // Must read from dashboard data (not hardcoded always)
@@ -504,7 +504,7 @@ describe("fetchSpeciesDetail — 404 vs other errors (FE-07-10 AC)", () => {
 describe("Species profile page — 404 handling (FE-07-10 AC)", () => {
   it("profile page source calls notFound() when result is not_found", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
     // AC: "/species/9999/ → themed 404 with 'browse all species' link"
@@ -521,7 +521,7 @@ describe("Species profile page — 404 handling (FE-07-10 AC)", () => {
 describe("Species profile — 'View on Map' visibility (FE-07-3 AC)", () => {
   it("'View on Map' is rendered inside a has_localities conditional (not always present)", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
     // AC: "'View on Map' is absent (not disabled) when has_localities === false"
@@ -540,7 +540,7 @@ describe("Species profile — 'View on Map' visibility (FE-07-3 AC)", () => {
 
   it("'View on Map' is absent when has_localities is falsy (source shows ternary/conditional)", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
     // The conditional must resolve to null when false — check for ternary or && pattern
@@ -558,7 +558,7 @@ describe("Species profile — 'View on Map' visibility (FE-07-3 AC)", () => {
 describe("Species profile — zero captive populations (FE-07-3 AC)", () => {
   it("renders 'no captive population' text (not error) when institutions_holding === 0", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
     // AC: "ex_situ_summary.institutions_holding === 0 → 'No captive population is currently tracked'"
@@ -573,7 +573,7 @@ describe("Species profile — zero captive populations (FE-07-3 AC)", () => {
 describe("Species profile — field programs empty state (FE-07-10 AC)", () => {
   it("uses EmptyState component for zero field programs (not hidden section)", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
     // AC: "species has zero linked field programs → Field Programs section shows EmptyState"
@@ -590,7 +590,7 @@ describe("Species profile — field programs empty state (FE-07-10 AC)", () => {
 describe("Map page — ?view=list direct load (FE-07-5 AC)", () => {
   it("map page source reads view from searchParams and maps 'list' → list mode", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/map/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/map/page.tsx"),
       "utf-8",
     );
     // AC: "when ?view=list is present → page loads directly into list view"
@@ -602,7 +602,7 @@ describe("Map page — ?view=list direct load (FE-07-5 AC)", () => {
 
   it("map page renders MapListView when view is 'list'", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/map/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/map/page.tsx"),
       "utf-8",
     );
     // The list branch renders MapListView component

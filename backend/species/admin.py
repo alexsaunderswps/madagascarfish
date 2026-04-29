@@ -7,6 +7,7 @@ from django.db import transaction
 from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
+from modeltranslation.admin import TabbedTranslationAdmin
 
 from audit.context import audit_actor
 from audit.models import AuditEntry
@@ -258,7 +259,7 @@ class SiteMapAssetAdmin(admin.ModelAdmin):
 
 
 @admin.register(Species)
-class SpeciesAdmin(admin.ModelAdmin):
+class SpeciesAdmin(TabbedTranslationAdmin):
     form = SpeciesAdminForm
     list_display = [
         "scientific_name",
@@ -431,7 +432,7 @@ class ConservationAssessmentAdmin(admin.ModelAdmin):
 
 
 @admin.register(Taxon)
-class TaxonAdmin(admin.ModelAdmin):
+class TaxonAdmin(TabbedTranslationAdmin):
     list_display = ["name", "rank", "parent"]
     list_filter = ["rank"]
     search_fields = ["name"]

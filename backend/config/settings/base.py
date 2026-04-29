@@ -14,6 +14,10 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 INSTALLED_APPS = [
+    # modeltranslation must come before django.contrib.admin so its
+    # TranslationAdmin classes can be picked up by the admin autodiscover
+    # cycle. See django-modeltranslation docs §"Installation."
+    "modeltranslation",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -141,6 +145,20 @@ LANGUAGES = [
     ("es", "Español"),
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
+
+# django-modeltranslation. Default language must match LANGUAGE_CODE's root
+# (en). Fallback chain: any locale with no value falls back to English.
+# See backend/species/translation.py for registered models/fields.
+MODELTRANSLATION_DEFAULT_LANGUAGE = "en"
+MODELTRANSLATION_LANGUAGES = ("en", "fr", "de", "es")
+MODELTRANSLATION_FALLBACK_LANGUAGES = {"default": ("en",)}
+
+# Gate L3 toggle (architect doc §4 / B2). When True, the
+# `<field>_locale_actual` serializer mixin gates per-locale content on
+# `TranslationStatus.status == human_approved`. Stays False through L1
+# (no review pipeline running yet); flips True in L3 once the side-by-
+# side admin UI ships.
+I18N_ENFORCE_REVIEW_GATE = env.bool("I18N_ENFORCE_REVIEW_GATE", default=False)
 
 # Static files
 STATIC_URL = "static/"

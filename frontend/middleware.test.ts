@@ -19,7 +19,21 @@ function req(path: string): NextRequest {
   return new NextRequest(new URL(`http://localhost:3000${path}`));
 }
 
-describe("middleware /dashboard/coordinator gate", () => {
+/**
+ * Composed middleware (next-intl + auth gate). For let-through, the
+ * response carries either `x-middleware-next: 1` (no rewrite needed) or
+ * `x-middleware-rewrite` (next-intl rewrote `/path` → `/<locale>/path`
+ * for App Router matching). Either is a valid pass-through; tests
+ * accept both.
+ */
+function isPassThrough(res: Response): boolean {
+  return (
+    res.headers.get("x-middleware-next") === "1" ||
+    res.headers.get("x-middleware-rewrite") !== null
+  );
+}
+
+describe("middleware /dashboard/coordinator gate (default locale)", () => {
   beforeEach(() => {
     process.env.NEXTAUTH_SECRET = "test-secret";
     getTokenMock.mockReset();
@@ -71,8 +85,7 @@ describe("middleware /dashboard/coordinator gate", () => {
     process.env.NEXT_PUBLIC_FEATURE_AUTH = "true";
     getTokenMock.mockResolvedValue({ tier: 3 });
     const res = await middleware(req("/dashboard/coordinator/"));
-    // NextResponse.next() returns a response with x-middleware-next header.
-    expect(res.headers.get("x-middleware-next")).toBe("1");
+    expect(isPassThrough(res)).toBe(true);
   });
 
   it("ignores COORDINATOR_API_TOKEN — service token must not bypass middleware", async () => {
@@ -90,7 +103,7 @@ describe("middleware /dashboard/coordinator gate", () => {
   });
 });
 
-describe("middleware /account gate", () => {
+describe("middleware /account gate (default locale)", () => {
   beforeEach(() => {
     process.env.NEXTAUTH_SECRET = "test-secret";
     getTokenMock.mockReset();
@@ -104,7 +117,7 @@ describe("middleware /account gate", () => {
     process.env.NEXT_PUBLIC_FEATURE_AUTH = "false";
     getTokenMock.mockResolvedValue(null);
     const res = await middleware(req("/account"));
-    expect(res.headers.get("x-middleware-next")).toBe("1");
+    expect(isPassThrough(res)).toBe(true);
   });
 
   it("redirects anonymous to /login when flag is on", async () => {
@@ -121,6 +134,98 @@ describe("middleware /account gate", () => {
     process.env.NEXT_PUBLIC_FEATURE_AUTH = "true";
     getTokenMock.mockResolvedValue({ tier: 1 });
     const res = await middleware(req("/account"));
-    expect(res.headers.get("x-middleware-next")).toBe("1");
+    expect(isPassThrough(res)).toBe(true);
+  });
+});
+
+// A3 — Architect doc §9 R1. Composed-middleware × locale prefix
+// regression suite. Auth gate must catch protected routes under every
+// supported locale and must construct locale-aware redirect URLs so the
+// user lands on /<locale>/login (not /login) when their browse
+// language is non-default.
+describe("middleware /account gate (locale-prefixed)", () => {
+  beforeEach(() => {
+    process.env.NEXTAUTH_SECRET = "test-secret";
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "true";
+    getTokenMock.mockReset();
+  });
+
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = ORIGINAL_FLAG;
+  });
+
+  it("/fr/account anonymous → /fr/login?callbackUrl=/fr/account", async () => {
+    getTokenMock.mockResolvedValue(null);
+    const res = await middleware(req("/fr/account"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe(
+      "http://localhost:3000/fr/login?callbackUrl=%2Ffr%2Faccount",
+    );
+  });
+
+  it("/de/account anonymous → /de/login?callbackUrl=/de/account", async () => {
+    getTokenMock.mockResolvedValue(null);
+    const res = await middleware(req("/de/account"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe(
+      "http://localhost:3000/de/login?callbackUrl=%2Fde%2Faccount",
+    );
+  });
+
+  it("/es/account Tier 1 → through (account is tier-agnostic)", async () => {
+    getTokenMock.mockResolvedValue({ tier: 1 });
+    const res = await middleware(req("/es/account"));
+    expect(isPassThrough(res)).toBe(true);
+  });
+
+  it("/fr/account with auth flag off passes through (route not gated)", async () => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "false";
+    getTokenMock.mockResolvedValue(null);
+    const res = await middleware(req("/fr/account"));
+    expect(isPassThrough(res)).toBe(true);
+  });
+});
+
+describe("middleware /dashboard/coordinator gate (locale-prefixed)", () => {
+  beforeEach(() => {
+    process.env.NEXTAUTH_SECRET = "test-secret";
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "true";
+    getTokenMock.mockReset();
+  });
+
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = ORIGINAL_FLAG;
+  });
+
+  it("/de/dashboard/coordinator Tier 2 → /de/login?callbackUrl=/de/dashboard/coordinator", async () => {
+    getTokenMock.mockResolvedValue({ tier: 2 });
+    const res = await middleware(req("/de/dashboard/coordinator"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe(
+      "http://localhost:3000/de/login?callbackUrl=%2Fde%2Fdashboard%2Fcoordinator",
+    );
+  });
+
+  it("/fr/dashboard/coordinator Tier 3 → through", async () => {
+    getTokenMock.mockResolvedValue({ tier: 3 });
+    const res = await middleware(req("/fr/dashboard/coordinator"));
+    expect(isPassThrough(res)).toBe(true);
+  });
+
+  it("/es/dashboard/coordinator anonymous, flag off → /es (locale-aware home)", async () => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "false";
+    getTokenMock.mockResolvedValue(null);
+    const res = await middleware(req("/es/dashboard/coordinator"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3000/es");
+  });
+
+  it("/fr/dashboard/coordinator Tier 1 → /fr/login (locale-aware login redirect)", async () => {
+    getTokenMock.mockResolvedValue({ tier: 1 });
+    const res = await middleware(req("/fr/dashboard/coordinator"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe(
+      "http://localhost:3000/fr/login?callbackUrl=%2Ffr%2Fdashboard%2Fcoordinator",
+    );
   });
 });
