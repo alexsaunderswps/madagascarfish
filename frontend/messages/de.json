@@ -707,6 +707,99 @@
       "backToHusbandry": "← Back to husbandry page"
     }
   },
+  "husbandry": {
+    "metaTitleTemplate": "Keeping {name} — Madagascar Freshwater Fish",
+    "metaTitleNotFound": "Husbandry not found — Madagascar Freshwater Fish",
+    "metaDescriptionFallback": "Husbandry and breeding guidance for {name}.",
+    "errorState": {
+      "title": "Husbandry guidance temporarily unavailable",
+      "body": "The husbandry data service is unreachable. Try again in a moment.",
+      "backToSpecies": "← Back to species"
+    },
+    "backToSpecies": "← Back to ",
+    "pageTitle": "Keeping ",
+    "sections": {
+      "atAGlance": "At a glance",
+      "difficulty": "Difficulty factors",
+      "water": "Water parameters",
+      "waterDisplay": "Water Parameters",
+      "tank": "Tank & system",
+      "tankDisplay": "Tank & System",
+      "diet": "Diet",
+      "behavior": "Behavior",
+      "behaviorDisplay": "Behavior & Social Structure",
+      "breeding": "Breeding",
+      "narrative": "Narrative",
+      "sourcingEthics": "Sourcing ethics",
+      "sourcingNotes": "Sourcing notes",
+      "sourcingNotesHeading": "Sourcing notes for this species",
+      "references": "References"
+    },
+    "yes": "Yes",
+    "glance": {
+      "spawningMode": "Spawning mode",
+      "flow": "Flow preference",
+      "minVolume": "Min tank volume",
+      "sexRatio": "Sex ratio",
+      "liveFoodRequired": "Live food required",
+      "caresRegisteredBreeders": "CARES registered breeders"
+    },
+    "water": {
+      "temperature": "Temperature",
+      "ph": "pH",
+      "hardnessDgh": "Hardness (dGH)",
+      "hardnessDkh": "Hardness (dKH)",
+      "flow": "Flow"
+    },
+    "range": {
+      "between": "{min} – {max} {unit}",
+      "atLeast": "≥ {min} {unit}",
+      "atMost": "≤ {max} {unit}"
+    },
+    "tank": {
+      "minVolume": "Minimum volume",
+      "minVolumeUnit": "{value} L",
+      "minFootprint": "Minimum footprint",
+      "aquascape": "Aquascape",
+      "substrate": "Substrate",
+      "cover": "Cover"
+    },
+    "diet": {
+      "acceptedFoods": "Accepted foods",
+      "liveFoodRequired": "Live food required",
+      "feedingFrequency": "Feeding frequency"
+    },
+    "behavior": {
+      "temperament": "Temperament",
+      "sexRatio": "Sex ratio",
+      "schooling": "Schooling",
+      "communityCompatibility": "Community compatibility"
+    },
+    "breeding": {
+      "spawningMode": "Spawning mode",
+      "triggers": "Triggers",
+      "typicalEggCount": "Typical egg count",
+      "fryCare": "Fry care",
+      "survivalBottlenecks": "Survival bottlenecks"
+    },
+    "review": {
+      "reviewedByPrefix": "Reviewed by ",
+      "unknown": "unknown",
+      "reviewedOn": " on {date}.",
+      "reviewedNoDate": ".",
+      "orcidLabel": "ORCID {orcid}",
+      "stale": "Review pending — content may be out of date."
+    },
+    "contributors": "Contributors:",
+    "contributeUpdates": "Contribute updates",
+    "arrow": "→",
+    "related": {
+      "ariaLabel": "Related species context",
+      "fieldPrograms": "Field programs for this species",
+      "heldAt": "{count, plural, one {Held at # institution.} other {Held at # institutions.}}",
+      "seeCaptiveSummary": "See captive population summary"
+    }
+  },
   "auth": {
     "accountEyebrow": "Account",
     "login": {

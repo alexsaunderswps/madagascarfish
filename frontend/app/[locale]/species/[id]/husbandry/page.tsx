@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/routing";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import HusbandryDifficultyFactors from "@/components/HusbandryDifficultyFactors";
@@ -24,16 +25,20 @@ type PageParams = { id: string };
 /**
  * Format a min/max numeric range like "22 – 26 °C", eliding either side if
  * null. Returns null when both are null, so callers can elide the row.
+ *
+ * Locale-aware: takes the t function for the husbandry namespace so the
+ * three range shapes (between / atLeast / atMost) translate.
  */
 function formatRange(
   min: string | number | null,
   max: string | number | null,
   unit: string,
+  t: (key: string, values?: Record<string, string | number>) => string,
 ): string | null {
   if (min == null && max == null) return null;
-  if (min != null && max != null) return `${min} – ${max} ${unit}`.trim();
-  if (min != null) return `≥ ${min} ${unit}`.trim();
-  return `≤ ${max} ${unit}`.trim();
+  if (min != null && max != null) return t("range.between", { min, max, unit });
+  if (min != null) return t("range.atLeast", { min, unit });
+  return t("range.atMost", { max: max as string | number, unit });
 }
 
 /**
@@ -107,30 +112,32 @@ function hasAnyBreeding(h: SpeciesHusbandry): boolean {
 }
 
 export async function generateMetadata({ params }: { params: PageParams }) {
-  const [speciesResult, husbandryResult] = await Promise.all([
+  const [speciesResult, husbandryResult, t] = await Promise.all([
     fetchSpeciesDetail(params.id),
     fetchSpeciesHusbandry(params.id),
+    getTranslations("husbandry"),
   ]);
 
   if (speciesResult.kind !== "ok" || husbandryResult.kind !== "ok") {
-    return { title: "Husbandry not found — Madagascar Freshwater Fish" };
+    return { title: t("metaTitleNotFound") };
   }
 
   const name = displayScientificName(speciesResult.data);
   const description =
     narrativeExcerpt(husbandryResult.data.narrative) ||
-    `Husbandry and breeding guidance for ${name}.`;
+    t("metaDescriptionFallback", { name });
 
   return {
-    title: `Keeping ${name} — Madagascar Freshwater Fish`,
+    title: t("metaTitleTemplate", { name }),
     description,
   };
 }
 
 export default async function HusbandryPage({ params }: { params: PageParams }) {
-  const [speciesResult, husbandryResult] = await Promise.all([
+  const [speciesResult, husbandryResult, t] = await Promise.all([
     fetchSpeciesDetail(params.id),
     fetchSpeciesHusbandry(params.id),
+    getTranslations("husbandry"),
   ]);
 
   // AC-09.9: 404 when no published husbandry record (or species missing).
@@ -142,16 +149,14 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
     return (
       <main className="mx-auto max-w-2xl px-6 py-24 text-center">
         <h1 className="font-serif text-2xl text-slate-900">
-          Husbandry guidance temporarily unavailable
+          {t("errorState.title")}
         </h1>
-        <p className="mt-4 text-slate-600">
-          The husbandry data service is unreachable. Try again in a moment.
-        </p>
+        <p className="mt-4 text-slate-600">{t("errorState.body")}</p>
         <Link
           href={`/species/${params.id}/`}
           className="mt-6 inline-block rounded border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:border-slate-400"
         >
-          ← Back to species
+          {t("errorState.backToSpecies")}
         </Link>
       </main>
     );
@@ -173,11 +178,11 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
     : null;
   const glanceFlow = h.water_flow || null;
   const glanceMinVolume = h.tank_min_volume_liters
-    ? `${h.tank_min_volume_liters} L`
+    ? t("tank.minVolumeUnit", { value: h.tank_min_volume_liters })
     : null;
   const glanceSexRatio = h.behavior_recommended_sex_ratio || null;
-  const glanceLiveFood = h.diet_live_food_required ? "Yes" : null;
-  const glanceCaresBreeders = h.sourcing_cares_registered_breeders ? "Yes" : null;
+  const glanceLiveFood = h.diet_live_food_required ? t("yes") : null;
+  const glanceCaresBreeders = h.sourcing_cares_registered_breeders ? t("yes") : null;
 
   const hasAnyGlance = Boolean(
     glanceSpawningMode ||
@@ -188,17 +193,19 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       glanceCaresBreeders,
   );
 
-  const tempRange = formatRange(h.water_temp_c_min, h.water_temp_c_max, "°C");
-  const phRange = formatRange(h.water_ph_min, h.water_ph_max, "pH");
+  const tempRange = formatRange(h.water_temp_c_min, h.water_temp_c_max, "°C", t);
+  const phRange = formatRange(h.water_ph_min, h.water_ph_max, "pH", t);
   const dghRange = formatRange(
     h.water_hardness_dgh_min,
     h.water_hardness_dgh_max,
     "°dGH",
+    t,
   );
   const dkhRange = formatRange(
     h.water_hardness_dkh_min,
     h.water_hardness_dkh_max,
     "°dKH",
+    t,
   );
 
   const narrativeParagraphs = h.narrative ? h.narrative : "";
@@ -208,22 +215,22 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
   // already elided below; including it in the TOC would create a dead
   // link, so we mirror the gating exactly.
   const tocItems: HusbandryTocItem[] = [];
-  if (hasAnyGlance) tocItems.push({ id: "at-a-glance-heading", label: "At a glance" });
+  if (hasAnyGlance) tocItems.push({ id: "at-a-glance-heading", label: t("sections.atAGlance") });
   if (collectDifficultyFactors(h).length > 0) {
-    tocItems.push({ id: "difficulty-heading", label: "Difficulty factors" });
+    tocItems.push({ id: "difficulty-heading", label: t("sections.difficulty") });
   }
-  if (showWater) tocItems.push({ id: "water-heading", label: "Water parameters" });
-  if (showTank) tocItems.push({ id: "tank-heading", label: "Tank & system" });
-  if (showDiet) tocItems.push({ id: "diet-heading", label: "Diet" });
-  if (showBehavior) tocItems.push({ id: "behavior-heading", label: "Behavior" });
-  if (showBreeding) tocItems.push({ id: "breeding-heading", label: "Breeding" });
-  if (narrativeParagraphs) tocItems.push({ id: "narrative-heading", label: "Narrative" });
-  tocItems.push({ id: "sourcing-ethics-heading", label: "Sourcing ethics" });
+  if (showWater) tocItems.push({ id: "water-heading", label: t("sections.water") });
+  if (showTank) tocItems.push({ id: "tank-heading", label: t("sections.tank") });
+  if (showDiet) tocItems.push({ id: "diet-heading", label: t("sections.diet") });
+  if (showBehavior) tocItems.push({ id: "behavior-heading", label: t("sections.behavior") });
+  if (showBreeding) tocItems.push({ id: "breeding-heading", label: t("sections.breeding") });
+  if (narrativeParagraphs) tocItems.push({ id: "narrative-heading", label: t("sections.narrative") });
+  tocItems.push({ id: "sourcing-ethics-heading", label: t("sections.sourcingEthics") });
   if (h.sourcing_notes) {
-    tocItems.push({ id: "sourcing-notes-heading", label: "Sourcing notes" });
+    tocItems.push({ id: "sourcing-notes-heading", label: t("sections.sourcingNotes") });
   }
   if (h.sources.length > 0) {
-    tocItems.push({ id: "references-heading", label: "References" });
+    tocItems.push({ id: "references-heading", label: t("sections.references") });
   }
 
   return (
@@ -235,13 +242,13 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
         href={`/species/${sp.id}/`}
         className="block break-words text-sm text-sky-700 hover:underline"
       >
-        ← Back to <span className="italic">{displayName}</span>
+        {t("backToSpecies")}<span className="italic">{displayName}</span>
       </Link>
 
       {/* 2. Page title */}
       <header className="mt-3 border-b border-slate-200 pb-4">
         <h1 className="font-serif text-3xl text-slate-900">
-          Keeping <span className="italic">{displayName}</span>
+          {t("pageTitle")}<span className="italic">{displayName}</span>
         </h1>
       </header>
 
@@ -255,7 +262,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
             id="at-a-glance-heading"
             className="font-serif text-xl text-slate-900"
           >
-            At a glance
+            {t("sections.atAGlance")}
           </h2>
           {/*
             375px viewport (iPhone SE / mini): 2-col grid forced "CARES
@@ -264,13 +271,13 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
             multi-col only when each cell has room for a 2-line label.
           */}
           <dl className="mt-2 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-            <Glance label="Spawning mode" value={glanceSpawningMode} />
-            <Glance label="Flow preference" value={glanceFlow} />
-            <Glance label="Min tank volume" value={glanceMinVolume} />
-            <Glance label="Sex ratio" value={glanceSexRatio} />
-            <Glance label="Live food required" value={glanceLiveFood} />
+            <Glance label={t("glance.spawningMode")} value={glanceSpawningMode} />
+            <Glance label={t("glance.flow")} value={glanceFlow} />
+            <Glance label={t("glance.minVolume")} value={glanceMinVolume} />
+            <Glance label={t("glance.sexRatio")} value={glanceSexRatio} />
+            <Glance label={t("glance.liveFoodRequired")} value={glanceLiveFood} />
             <Glance
-              label="CARES registered breeders"
+              label={t("glance.caresRegisteredBreeders")}
               value={glanceCaresBreeders}
             />
           </dl>
@@ -284,36 +291,36 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       {showWater ? (
         <section aria-labelledby="water-heading" className="mt-8">
           <h2 id="water-heading" className="font-serif text-xl text-slate-900">
-            Water Parameters
+            {t("sections.waterDisplay")}
           </h2>
           <dl className="mt-2 space-y-1 text-sm text-slate-700">
             {tempRange ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Temperature: </dt>
+                <dt className="inline font-medium text-slate-500">{t("water.temperature")}: </dt>
                 <dd className="inline">{tempRange}</dd>
               </div>
             ) : null}
             {phRange ? (
               <div>
-                <dt className="inline font-medium text-slate-500">pH: </dt>
+                <dt className="inline font-medium text-slate-500">{t("water.ph")}: </dt>
                 <dd className="inline">{phRange}</dd>
               </div>
             ) : null}
             {dghRange ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Hardness (dGH): </dt>
+                <dt className="inline font-medium text-slate-500">{t("water.hardnessDgh")}: </dt>
                 <dd className="inline">{dghRange}</dd>
               </div>
             ) : null}
             {dkhRange ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Hardness (dKH): </dt>
+                <dt className="inline font-medium text-slate-500">{t("water.hardnessDkh")}: </dt>
                 <dd className="inline">{dkhRange}</dd>
               </div>
             ) : null}
             {h.water_flow ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Flow: </dt>
+                <dt className="inline font-medium text-slate-500">{t("water.flow")}: </dt>
                 <dd className="inline capitalize">{h.water_flow}</dd>
               </div>
             ) : null}
@@ -330,36 +337,36 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       {showTank ? (
         <section aria-labelledby="tank-heading" className="mt-8">
           <h2 id="tank-heading" className="font-serif text-xl text-slate-900">
-            Tank &amp; System
+            {t("sections.tankDisplay")}
           </h2>
           <dl className="mt-2 space-y-1 text-sm text-slate-700">
             {h.tank_min_volume_liters ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Minimum volume: </dt>
-                <dd className="inline">{h.tank_min_volume_liters} L</dd>
+                <dt className="inline font-medium text-slate-500">{t("tank.minVolume")}: </dt>
+                <dd className="inline">{t("tank.minVolumeUnit", { value: h.tank_min_volume_liters })}</dd>
               </div>
             ) : null}
             {h.tank_min_footprint_cm ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Minimum footprint: </dt>
+                <dt className="inline font-medium text-slate-500">{t("tank.minFootprint")}: </dt>
                 <dd className="inline">{h.tank_min_footprint_cm}</dd>
               </div>
             ) : null}
             {h.tank_aquascape ? (
               <div>
-                <dt className="font-medium text-slate-500">Aquascape</dt>
+                <dt className="font-medium text-slate-500">{t("tank.aquascape")}</dt>
                 <dd className="mt-0.5 whitespace-pre-line">{h.tank_aquascape}</dd>
               </div>
             ) : null}
             {h.tank_substrate ? (
               <div>
-                <dt className="font-medium text-slate-500">Substrate</dt>
+                <dt className="font-medium text-slate-500">{t("tank.substrate")}</dt>
                 <dd className="mt-0.5 whitespace-pre-line">{h.tank_substrate}</dd>
               </div>
             ) : null}
             {h.tank_cover ? (
               <div>
-                <dt className="font-medium text-slate-500">Cover</dt>
+                <dt className="font-medium text-slate-500">{t("tank.cover")}</dt>
                 <dd className="mt-0.5 whitespace-pre-line">{h.tank_cover}</dd>
               </div>
             ) : null}
@@ -376,11 +383,11 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       {showDiet ? (
         <section aria-labelledby="diet-heading" className="mt-8">
           <h2 id="diet-heading" className="font-serif text-xl text-slate-900">
-            Diet
+            {t("sections.diet")}
           </h2>
           {h.diet_accepted_foods && h.diet_accepted_foods.length > 0 ? (
             <div className="mt-2 text-sm text-slate-700">
-              <p className="font-medium text-slate-500">Accepted foods</p>
+              <p className="font-medium text-slate-500">{t("diet.acceptedFoods")}</p>
               <ul className="mt-0.5 list-disc pl-5">
                 {h.diet_accepted_foods.map((food) => (
                   <li key={food}>{food}</li>
@@ -391,13 +398,13 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
           <dl className="mt-2 space-y-1 text-sm text-slate-700">
             {h.diet_live_food_required ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Live food required: </dt>
-                <dd className="inline">Yes</dd>
+                <dt className="inline font-medium text-slate-500">{t("diet.liveFoodRequired")}: </dt>
+                <dd className="inline">{t("yes")}</dd>
               </div>
             ) : null}
             {h.diet_feeding_frequency ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Feeding frequency: </dt>
+                <dt className="inline font-medium text-slate-500">{t("diet.feedingFrequency")}: </dt>
                 <dd className="inline">{h.diet_feeding_frequency}</dd>
               </div>
             ) : null}
@@ -414,30 +421,30 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       {showBehavior ? (
         <section aria-labelledby="behavior-heading" className="mt-8">
           <h2 id="behavior-heading" className="font-serif text-xl text-slate-900">
-            Behavior &amp; Social Structure
+            {t("sections.behaviorDisplay")}
           </h2>
           <dl className="mt-2 space-y-1 text-sm text-slate-700">
             {h.behavior_temperament ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Temperament: </dt>
+                <dt className="inline font-medium text-slate-500">{t("behavior.temperament")}: </dt>
                 <dd className="inline">{h.behavior_temperament}</dd>
               </div>
             ) : null}
             {h.behavior_recommended_sex_ratio ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Sex ratio: </dt>
+                <dt className="inline font-medium text-slate-500">{t("behavior.sexRatio")}: </dt>
                 <dd className="inline">{h.behavior_recommended_sex_ratio}</dd>
               </div>
             ) : null}
             {h.behavior_schooling ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Schooling: </dt>
+                <dt className="inline font-medium text-slate-500">{t("behavior.schooling")}: </dt>
                 <dd className="inline">{h.behavior_schooling}</dd>
               </div>
             ) : null}
             {h.behavior_community_compatibility ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Community compatibility: </dt>
+                <dt className="inline font-medium text-slate-500">{t("behavior.communityCompatibility")}: </dt>
                 <dd className="inline">{h.behavior_community_compatibility}</dd>
               </div>
             ) : null}
@@ -454,12 +461,12 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       {showBreeding ? (
         <section aria-labelledby="breeding-heading" className="mt-8">
           <h2 id="breeding-heading" className="font-serif text-xl text-slate-900">
-            Breeding
+            {t("sections.breeding")}
           </h2>
           <dl className="mt-2 space-y-1 text-sm text-slate-700">
             {h.breeding_spawning_mode ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Spawning mode: </dt>
+                <dt className="inline font-medium text-slate-500">{t("breeding.spawningMode")}: </dt>
                 <dd className="inline capitalize">
                   {h.breeding_spawning_mode.replace(/_/g, " ")}
                 </dd>
@@ -467,25 +474,25 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
             ) : null}
             {h.breeding_triggers ? (
               <div>
-                <dt className="font-medium text-slate-500">Triggers</dt>
+                <dt className="font-medium text-slate-500">{t("breeding.triggers")}</dt>
                 <dd className="mt-0.5 whitespace-pre-line">{h.breeding_triggers}</dd>
               </div>
             ) : null}
             {h.breeding_egg_count_typical ? (
               <div>
-                <dt className="inline font-medium text-slate-500">Typical egg count: </dt>
+                <dt className="inline font-medium text-slate-500">{t("breeding.typicalEggCount")}: </dt>
                 <dd className="inline">{h.breeding_egg_count_typical}</dd>
               </div>
             ) : null}
             {h.breeding_fry_care ? (
               <div>
-                <dt className="font-medium text-slate-500">Fry care</dt>
+                <dt className="font-medium text-slate-500">{t("breeding.fryCare")}</dt>
                 <dd className="mt-0.5 whitespace-pre-line">{h.breeding_fry_care}</dd>
               </div>
             ) : null}
             {h.breeding_survival_bottlenecks ? (
               <div>
-                <dt className="font-medium text-slate-500">Survival bottlenecks</dt>
+                <dt className="font-medium text-slate-500">{t("breeding.survivalBottlenecks")}</dt>
                 <dd className="mt-0.5 whitespace-pre-line">
                   {h.breeding_survival_bottlenecks}
                 </dd>
@@ -504,7 +511,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       {narrativeParagraphs ? (
         <section aria-labelledby="narrative-heading" className="mt-8">
           <h2 id="narrative-heading" className="font-serif text-xl text-slate-900">
-            Narrative
+            {t("sections.narrative")}
           </h2>
           {(() => {
             // For long narratives (> ~400 words), treat the first paragraph
@@ -545,7 +552,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
             id="sourcing-notes-heading"
             className="font-serif text-lg text-slate-900"
           >
-            Sourcing notes for this species
+            {t("sections.sourcingNotesHeading")}
           </h2>
           <p className="mt-2 whitespace-pre-line text-sm text-slate-700">
             {h.sourcing_notes}
@@ -560,7 +567,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
             id="references-heading"
             className="font-serif text-xl text-slate-900"
           >
-            References
+            {t("sections.references")}
           </h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
             {h.sources.map((s, i) => (
@@ -587,11 +594,13 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       {h.last_reviewed_by || h.last_reviewed_at ? (
         <div className="mt-10 text-xs text-slate-500">
           <p className="break-words">
-            Reviewed by{" "}
+            {t("review.reviewedByPrefix")}
             <span className="font-medium text-slate-700">
-              {h.last_reviewed_by?.name ?? "unknown"}
+              {h.last_reviewed_by?.name ?? t("review.unknown")}
             </span>
-            {h.last_reviewed_at ? <> on {h.last_reviewed_at}.</> : "."}
+            {h.last_reviewed_at
+              ? t("review.reviewedOn", { date: h.last_reviewed_at })
+              : t("review.reviewedNoDate")}
           </p>
           {h.last_reviewed_by?.orcid_id ? (
             <p className="mt-0.5 break-all">
@@ -601,14 +610,12 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
                 rel="noopener noreferrer"
                 className="text-sky-700 hover:underline"
               >
-                ORCID {h.last_reviewed_by.orcid_id}
+                {t("review.orcidLabel", { orcid: h.last_reviewed_by.orcid_id })}
               </a>
             </p>
           ) : null}
           {h.review_is_stale ? (
-            <p className="mt-0.5 text-slate-400">
-              Review pending — content may be out of date.
-            </p>
+            <p className="mt-0.5 text-slate-400">{t("review.stale")}</p>
           ) : null}
         </div>
       ) : null}
@@ -616,7 +623,7 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
       {/* 15. Contributors */}
       {h.contributors ? (
         <p className="mt-2 text-xs text-slate-500">
-          Contributors: <span className="text-slate-700">{h.contributors}</span>
+          {t("contributors")} <span className="text-slate-700">{h.contributors}</span>
         </p>
       ) : null}
 
@@ -626,13 +633,13 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
           href={`/contribute/husbandry?species=${sp.id}`}
           className="text-sky-700 hover:underline"
         >
-          Contribute updates <span aria-hidden="true">→</span>
+          {t("contributeUpdates")} <span aria-hidden="true">{t("arrow")}</span>
         </Link>
       </p>
 
       {/* 17. Cross-links back into species context */}
       <nav
-        aria-label="Related species context"
+        aria-label={t("related.ariaLabel")}
         className="mt-8 border-t border-slate-200 pt-4 text-sm"
       >
         <ul className="space-y-1">
@@ -642,24 +649,20 @@ export default async function HusbandryPage({ params }: { params: PageParams }) 
                 href={`/species/${sp.id}/#field-heading`}
                 className="text-sky-700 hover:underline"
               >
-                Field programs for this species{" "}
-                <span aria-hidden="true">→</span>
+                {t("related.fieldPrograms")}{" "}
+                <span aria-hidden="true">{t("arrow")}</span>
               </Link>
             </li>
           ) : null}
           {sp.ex_situ_summary.institutions_holding > 0 ? (
             <li className="text-slate-700">
-              Held at {sp.ex_situ_summary.institutions_holding}{" "}
-              {sp.ex_situ_summary.institutions_holding === 1
-                ? "institution"
-                : "institutions"}
-              .{" "}
+              {t("related.heldAt", { count: sp.ex_situ_summary.institutions_holding })}{" "}
               <Link
                 href={`/species/${sp.id}/#captive-heading`}
                 className="text-sky-700 hover:underline"
               >
-                See captive population summary{" "}
-                <span aria-hidden="true">→</span>
+                {t("related.seeCaptiveSummary")}{" "}
+                <span aria-hidden="true">{t("arrow")}</span>
               </Link>
             </li>
           ) : null}
