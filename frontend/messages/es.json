@@ -412,6 +412,21 @@
       "bodyForSpecies": "No public locality records are available for this species. Exact coordinates for threatened species are restricted to coordinator-tier accounts; the species profile still shows conservation status, taxonomy, and other details that don't depend on locality data.",
       "bodyAll": "No locality records are currently published. The species directory still lists every species in the registry, whether or not their localities have been mapped.",
       "browseAll": "Browse all species"
+    },
+    "list": {
+      "summary": "Showing <strong>{total}</strong> locality records across <strong>{species}</strong> species. Click a column header to sort; use the Locality link in each row to view it on the map.",
+      "caption": "Locality records for Madagascar freshwater fish, one row per marker visible on the map. Columns are sortable; use each row's Locality link to open that locality on the map.",
+      "headers": {
+        "scientificName": "Scientific name",
+        "iucn": "IUCN",
+        "locality": "Locality",
+        "type": "Type",
+        "presence": "Presence",
+        "waterBody": "Water body",
+        "year": "Year",
+        "source": "Source"
+      },
+      "emDash": "—"
     }
   },
   "about": {
