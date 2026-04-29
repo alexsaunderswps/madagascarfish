@@ -1,1 +1,253 @@
-{}
+{
+  "common": {
+    "skipToContent": "Skip to content",
+    "siteTitle": "Madagascar Freshwater Fish",
+    "siteTitleFull": "Madagascar Freshwater Fish Conservation Platform",
+    "siteDescription": "Open-source platform for Madagascar's endemic freshwater fish — species profiles, distribution, and conservation coordination.",
+    "language": "Language",
+    "loading": "Loading…",
+    "back": "Back",
+    "close": "Close",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "tryAgain": "Try again",
+    "comingSoon": "Coming soon",
+    "iucn": {
+      "CR": "Critically Endangered",
+      "EN": "Endangered",
+      "VU": "Vulnerable",
+      "NT": "Near Threatened",
+      "LC": "Least Concern",
+      "DD": "Data Deficient",
+      "NE": "Not yet assessed"
+    },
+    "iucnAbbrev": {
+      "CR": "CR",
+      "EN": "EN",
+      "VU": "VU",
+      "NT": "NT",
+      "LC": "LC",
+      "DD": "DD",
+      "NE": "NE"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "coordinator": "Coordinator",
+    "map": "Map",
+    "speciesDirectory": "Species Directory",
+    "about": "About",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "account": "Account",
+    "signOut": "Sign out"
+  },
+  "home": {
+    "navCards": {
+      "directory": {
+        "eyebrow": "Directory",
+        "title": "Species Directory",
+        "description": "Browse endemic species. Filter by IUCN Red List category, family, or captive-population coverage."
+      },
+      "map": {
+        "eyebrow": "Map",
+        "title": "Distribution Map",
+        "description": "Locality records across Madagascar's freshwater systems, color-coded by IUCN category."
+      },
+      "dashboard": {
+        "eyebrow": "Dashboard",
+        "title": "Conservation Dashboard",
+        "description": "Counts of species assessments, ex-situ coverage, and field programs, refreshed hourly."
+      }
+    },
+    "coverageGap": {
+      "label": "Coverage gap",
+      "linkLabel": "Threatened species without captive populations →"
+    },
+    "iucnChartHeading": "Conservation status of {count} endemic species",
+    "lastSync": "Updated {time} ago"
+  },
+  "species": {
+    "directory": {
+      "title": "Species Directory",
+      "subtitle": "Endemic freshwater fishes of Madagascar",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Scientific or common name",
+        "iucnStatus": "IUCN status",
+        "family": "Family",
+        "endemicStatus": "Endemic status",
+        "caresStatus": "CARES priority",
+        "shoalPriority": "SHOAL priority",
+        "hasCaptivePopulation": "Has captive population",
+        "clearAll": "Clear all filters",
+        "applyFilters": "Apply filters"
+      },
+      "card": {
+        "noCommonName": "No common name recorded",
+        "familyLabel": "Family",
+        "endemicLabel": "Endemic",
+        "basinLabel": "Basin",
+        "viewProfile": "View profile"
+      },
+      "emptyState": {
+        "title": "No species match these filters",
+        "subtitle": "{total} species in the directory total. Try relaxing one filter.",
+        "clearAction": "Clear all filters",
+        "browseAction": "Browse all species"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "pageOf": "Page {current} of {total}"
+      },
+      "density": {
+        "label": "View",
+        "comfortable": "Comfortable",
+        "compact": "Compact"
+      }
+    },
+    "profile": {
+      "scientificName": "Scientific name",
+      "commonNames": "Common names",
+      "noCommonNames": "No common names recorded.",
+      "iucnHeading": "IUCN Red List status",
+      "iucnAssessmentLine": "Assessed {year}. {category}.",
+      "criteriaPrefix": "Criteria",
+      "descriptionHeading": "Description",
+      "ecologyHeading": "Ecology",
+      "distributionHeading": "Distribution",
+      "morphologyHeading": "Morphology",
+      "fallbackBadge": "(English)",
+      "noDataMessage": "Limited public data is available for this species. The most recent IUCN assessment is linked below; additional information will be added as published.",
+      "tabs": {
+        "overview": "Overview",
+        "husbandry": "Husbandry"
+      },
+      "exSitu": {
+        "heading": "Ex-situ population",
+        "institutionsLabel": "Institutions",
+        "individualsLabel": "Individuals",
+        "programsLabel": "Programs"
+      }
+    },
+    "notFound": {
+      "title": "Species not found",
+      "description": "We couldn't find a species with that ID. It may have been merged or removed.",
+      "browseLink": "Browse the species directory →"
+    }
+  },
+  "map": {
+    "title": "Distribution Map",
+    "subtitle": "Locality records for endemic freshwater fish",
+    "view": {
+      "label": "View",
+      "map": "Map",
+      "list": "List"
+    },
+    "legend": {
+      "title": "IUCN Red List category"
+    },
+    "popup": {
+      "scientificNameLabel": "Scientific name",
+      "iucnLabel": "IUCN status",
+      "localityLabel": "Locality",
+      "dateLabel": "Observation date",
+      "citationLabel": "Citation"
+    },
+    "noticeOfflineBasemap": "Using offline basemap — satellite imagery unavailable",
+    "noticeGeneralized": "Coordinates for threatened species are generalized per GBIF sensitive-species guidance. Tier 3+ coordinators see exact coordinates.",
+    "emptyState": {
+      "title": "No locality records to show",
+      "subtitle": "Try adjusting filters or zooming out."
+    }
+  },
+  "about": {
+    "page": {
+      "title": "About the Platform",
+      "missionHeading": "Mission",
+      "dataHeading": "Data sources",
+      "ownershipHeading": "Ownership and governance",
+      "partnersHeading": "Partner organizations",
+      "citationHeading": "How to cite",
+      "githubHeading": "Open source",
+      "contactHeading": "Contact"
+    },
+    "data": {
+      "title": "Data sources and methods",
+      "iucnHeading": "IUCN Red List",
+      "fishbaseHeading": "FishBase",
+      "gbifHeading": "GBIF",
+      "zimsHeading": "ZIMS / Species360",
+      "caresHeading": "CARES priority list",
+      "shoalHeading": "SHOAL"
+    },
+    "glossary": {
+      "title": "Glossary"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "viewerTitle": "Conservation overview",
+    "coordinator": {
+      "title": "Coordinator dashboard",
+      "subtitle": "Tier 3+ coordination view"
+    }
+  },
+  "account": {
+    "title": "Account",
+    "emailLabel": "Email",
+    "tierLabel": "Access tier",
+    "institutionLabel": "Institution",
+    "signOut": "Sign out",
+    "saveChanges": "Save changes"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Sign in to access researcher and coordinator features.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Sign in",
+      "noAccount": "No account?",
+      "signupLink": "Create one",
+      "errorInvalid": "Invalid email or password.",
+      "errorRateLimited": "Too many attempts. Please wait a few minutes and try again."
+    },
+    "signup": {
+      "title": "Create an account",
+      "subtitle": "Verify your email to confirm registration.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "passwordHelp": "At least 12 characters."
+    },
+    "verify": {
+      "title": "Verify your email",
+      "subtitle": "Click the link in the email we sent you to confirm your address.",
+      "resend": "Resend verification email"
+    }
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "subtitle": "An unexpected error occurred while rendering this page.",
+    "tryAgain": "Try again",
+    "homeLink": "Return home",
+    "404": {
+      "title": "Page not found",
+      "subtitle": "The page you're looking for doesn't exist or has been moved.",
+      "homeLink": "Return home"
+    }
+  },
+  "footer": {
+    "platformHeading": "Platform",
+    "dataHeading": "Data",
+    "aboutHeading": "About",
+    "contactHeading": "Contact",
+    "copyrightLine": "Open data, open source. © {year} Madagascar Freshwater Fish.",
+    "githubLabel": "GitHub repository"
+  }
+}

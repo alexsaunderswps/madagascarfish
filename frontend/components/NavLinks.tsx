@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -8,7 +9,8 @@ import { djangoLogoutAction } from "@/app/[locale]/account/actions";
 
 export interface NavLink {
   href: string;
-  label: string;
+  /** i18n key under the `nav` namespace (e.g., "dashboard"). */
+  labelKey: string;
   /**
    * Minimum access tier required to see this link in the nav. Omitted means
    * public (visible to anonymous + all tiers). The route itself is gated
@@ -21,15 +23,16 @@ export interface NavLink {
 export interface AuthNavItem {
   kind: "link" | "logout";
   href: string;
-  label: string;
+  /** i18n key under the `nav` namespace. */
+  labelKey: string;
 }
 
 export const PRIMARY_NAV: NavLink[] = [
-  { href: "/dashboard/", label: "Dashboard" },
-  { href: "/dashboard/coordinator/", label: "Coordinator", minTier: 3 },
-  { href: "/map/", label: "Map" },
-  { href: "/species/", label: "Species Directory" },
-  { href: "/about/", label: "About" },
+  { href: "/dashboard/", labelKey: "dashboard" },
+  { href: "/dashboard/coordinator/", labelKey: "coordinator", minTier: 3 },
+  { href: "/map/", labelKey: "map" },
+  { href: "/species/", labelKey: "speciesDirectory" },
+  { href: "/about/", labelKey: "about" },
 ];
 
 /**
@@ -97,13 +100,13 @@ export function authNavItems(
   if (!authVisible) return [];
   if (!authenticated) {
     return [
-      { kind: "link", href: "/login", label: "Sign in" },
-      { kind: "link", href: "/signup", label: "Sign up" },
+      { kind: "link", href: "/login", labelKey: "signIn" },
+      { kind: "link", href: "/signup", labelKey: "signUp" },
     ];
   }
   return [
-    { kind: "link", href: "/account", label: "Account" },
-    { kind: "logout", href: "#logout", label: "Sign out" },
+    { kind: "link", href: "/account", labelKey: "account" },
+    { kind: "logout", href: "#logout", labelKey: "signOut" },
   ];
 }
 
@@ -142,6 +145,7 @@ export interface NavLinksProps {
 }
 
 export default function NavLinks({ authVisible = false }: NavLinksProps = {}) {
+  const t = useTranslations("nav");
   const pathname = usePathname() ?? "/";
   // Resolve auth state client-side so the server-rendered HTML stays static
   // (preserves ISR for the public surface). During hydration `status` is
@@ -177,7 +181,7 @@ export default function NavLinks({ authVisible = false }: NavLinksProps = {}) {
               aria-current={active ? "page" : undefined}
               style={itemStyle(active)}
             >
-              {link.label}
+              {t(link.labelKey)}
             </Link>
           </li>
         );
@@ -203,7 +207,7 @@ export default function NavLinks({ authVisible = false }: NavLinksProps = {}) {
                   font: "inherit",
                 }}
               >
-                {item.label}
+                {t(item.labelKey)}
               </button>
             </li>
           );
@@ -216,7 +220,7 @@ export default function NavLinks({ authVisible = false }: NavLinksProps = {}) {
               aria-current={active ? "page" : undefined}
               style={itemStyle(active)}
             >
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           </li>
         );

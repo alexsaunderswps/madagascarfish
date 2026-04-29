@@ -32,9 +32,9 @@ describe("isActive", () => {
 
 describe("mostSpecificActiveHref", () => {
   const links = [
-    { href: "/dashboard/", label: "Dashboard" },
-    { href: "/dashboard/coordinator/", label: "Coordinator" },
-    { href: "/species/", label: "Species" },
+    { href: "/dashboard/", labelKey: "dashboard" },
+    { href: "/dashboard/coordinator/", labelKey: "coordinator" },
+    { href: "/species/", labelKey: "speciesDirectory" },
   ];
 
   it("picks the longer href when both match (coordinator wins over dashboard)", () => {
@@ -60,35 +60,35 @@ describe("mostSpecificActiveHref", () => {
 
 describe("visibleNavLinks", () => {
   const links: NavLink[] = [
-    { href: "/dashboard/", label: "Dashboard" },
-    { href: "/dashboard/coordinator/", label: "Coordinator", minTier: 3 },
-    { href: "/map/", label: "Map" },
+    { href: "/dashboard/", labelKey: "dashboard" },
+    { href: "/dashboard/coordinator/", labelKey: "coordinator", minTier: 3 },
+    { href: "/map/", labelKey: "map" },
   ];
 
   it("hides minTier links from anonymous viewers (tier 0)", () => {
-    expect(visibleNavLinks(links, 0).map((l) => l.label)).toEqual([
-      "Dashboard",
-      "Map",
+    expect(visibleNavLinks(links, 0).map((l) => l.labelKey)).toEqual([
+      "dashboard",
+      "map",
     ]);
   });
 
   it("hides Coordinator from Tier 1 (public) and Tier 2 (researcher)", () => {
-    expect(visibleNavLinks(links, 1).map((l) => l.label)).toEqual([
-      "Dashboard",
-      "Map",
+    expect(visibleNavLinks(links, 1).map((l) => l.labelKey)).toEqual([
+      "dashboard",
+      "map",
     ]);
-    expect(visibleNavLinks(links, 2).map((l) => l.label)).toEqual([
-      "Dashboard",
-      "Map",
+    expect(visibleNavLinks(links, 2).map((l) => l.labelKey)).toEqual([
+      "dashboard",
+      "map",
     ]);
   });
 
   it("shows Coordinator at Tier 3+ (Coordinator, Program Manager, Admin)", () => {
     for (const tier of [3, 4, 5]) {
-      expect(visibleNavLinks(links, tier).map((l) => l.label)).toEqual([
-        "Dashboard",
-        "Coordinator",
-        "Map",
+      expect(visibleNavLinks(links, tier).map((l) => l.labelKey)).toEqual([
+        "dashboard",
+        "coordinator",
+        "map",
       ]);
     }
   });
@@ -100,19 +100,19 @@ describe("authNavItems", () => {
     expect(authNavItems(false, true)).toEqual([]);
   });
 
-  it("renders Sign in + Sign up when authVisible and not authenticated", () => {
+  it("returns labelKey strings (translated by the rendering layer)", () => {
     const items = authNavItems(true, false);
     expect(items).toEqual([
-      { kind: "link", href: "/login", label: "Sign in" },
-      { kind: "link", href: "/signup", label: "Sign up" },
+      { kind: "link", href: "/login", labelKey: "signIn" },
+      { kind: "link", href: "/signup", labelKey: "signUp" },
     ]);
   });
 
-  it("renders Account + Sign out when authVisible and authenticated", () => {
+  it("returns labelKey strings for authenticated users", () => {
     const items = authNavItems(true, true);
     expect(items).toEqual([
-      { kind: "link", href: "/account", label: "Account" },
-      { kind: "logout", href: "#logout", label: "Sign out" },
+      { kind: "link", href: "/account", labelKey: "account" },
+      { kind: "logout", href: "#logout", labelKey: "signOut" },
     ]);
   });
 });

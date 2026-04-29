@@ -50,22 +50,25 @@ describe("NavLinks — PRIMARY_NAV order (FE-07-8 AC)", () => {
 
   it("labels match the spec labels (not implementation-invented names)", async () => {
     const { PRIMARY_NAV } = await import("../components/NavLinks");
-    const labels = PRIMARY_NAV.map((l) => l.label);
-    // Spec: the four locked Gate 07 labels must exist and remain in order.
-    // Gate 4 added a "Coordinator" link between Dashboard and Map; the
-    // indexOf-based ordering assertion above already allows that interleaving,
-    // so this test just verifies the four spec labels still appear (no rename).
-    expect(labels).toContain("Dashboard");
-    expect(labels).toContain("Map");
-    expect(labels).toContain("Species Directory");
-    expect(labels).toContain("About");
-    expect(labels.indexOf("Dashboard")).toBeLessThan(labels.indexOf("Map"));
-    expect(labels.indexOf("Map")).toBeLessThan(
-      labels.indexOf("Species Directory"),
-    );
-    expect(labels.indexOf("Species Directory")).toBeLessThan(
-      labels.indexOf("About"),
-    );
+    // Gate L1 i18n: PRIMARY_NAV now carries `labelKey` (i18n key under
+    // the `nav` namespace) rather than literal strings. Verify the four
+    // spec keys are still present in order; the literal strings are
+    // verified in the en.json catalog parity check (npm run i18n:check).
+    const keys = PRIMARY_NAV.map((l) => l.labelKey);
+    expect(keys).toContain("dashboard");
+    expect(keys).toContain("map");
+    expect(keys).toContain("speciesDirectory");
+    expect(keys).toContain("about");
+    expect(keys.indexOf("dashboard")).toBeLessThan(keys.indexOf("map"));
+    expect(keys.indexOf("map")).toBeLessThan(keys.indexOf("speciesDirectory"));
+    expect(keys.indexOf("speciesDirectory")).toBeLessThan(keys.indexOf("about"));
+
+    // Verify the actual English labels live in the catalog as expected.
+    const enMessages = await import("../messages/en.json");
+    expect(enMessages.default.nav.dashboard).toBe("Dashboard");
+    expect(enMessages.default.nav.map).toBe("Map");
+    expect(enMessages.default.nav.speciesDirectory).toBe("Species Directory");
+    expect(enMessages.default.nav.about).toBe("About");
   });
 });
 

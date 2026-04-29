@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
 import IucnChart from "@/components/IucnChart";
@@ -24,33 +25,14 @@ const COVERAGE_GAP_HREF =
 
 interface NavCard {
   href: string;
-  eyebrow: string;
-  title: string;
-  description: string;
+  /** i18n key under `home.navCards.<key>` */
+  key: "directory" | "map" | "dashboard";
 }
 
 const NAV_CARDS: NavCard[] = [
-  {
-    href: "/species/",
-    eyebrow: "Directory",
-    title: "Species Directory",
-    description:
-      "Browse endemic species. Filter by IUCN Red List category, family, or captive-population coverage.",
-  },
-  {
-    href: "/map/",
-    eyebrow: "Map",
-    title: "Distribution Map",
-    description:
-      "Locality records across Madagascar's freshwater systems, color-coded by IUCN category.",
-  },
-  {
-    href: "/dashboard/",
-    eyebrow: "Dashboard",
-    title: "Conservation Dashboard",
-    description:
-      "Counts of species assessments, ex-situ coverage, and field programs, refreshed hourly.",
-  },
+  { href: "/species/", key: "directory" },
+  { href: "/map/", key: "map" },
+  { href: "/dashboard/", key: "dashboard" },
 ];
 
 const EYEBROW_STYLE = {
@@ -75,9 +57,10 @@ const SECTION_H2_STYLE = {
 };
 
 export default async function HomePage() {
-  const [dashboard, heroAsset] = await Promise.all([
+  const [dashboard, heroAsset, t] = await Promise.all([
     fetchDashboard(),
     fetchSiteMapAsset("hero_thumb"),
+    getTranslations("home"),
   ]);
 
   const gap = dashboard?.ex_situ_coverage;
@@ -297,7 +280,7 @@ export default async function HomePage() {
                     textDecoration: "none",
                   }}
                 >
-                  <span style={EYEBROW_STYLE}>{card.eyebrow}</span>
+                  <span style={EYEBROW_STYLE}>{t(`navCards.${card.key}.eyebrow`)}</span>
                   <span
                     style={{
                       fontFamily: "var(--serif)",
@@ -307,7 +290,7 @@ export default async function HomePage() {
                       letterSpacing: "-0.01em",
                     }}
                   >
-                    {card.title}
+                    {t(`navCards.${card.key}.title`)}
                   </span>
                   <span
                     style={{
@@ -316,7 +299,7 @@ export default async function HomePage() {
                       color: "var(--ink-2)",
                     }}
                   >
-                    {card.description}
+                    {t(`navCards.${card.key}.description`)}
                   </span>
                   <span
                     style={{
