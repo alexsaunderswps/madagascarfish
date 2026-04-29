@@ -46,6 +46,10 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # Gate L1 — i18n. Sits between SessionMiddleware and CommonMiddleware per
+    # Django docs so request.LANGUAGE_CODE is set before view dispatch and
+    # CommonMiddleware can patch the Vary: Accept-Language header on responses.
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -124,6 +128,19 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
+# Gate L1 — i18n. Languages enumerated here drive LocaleMiddleware's
+# Accept-Language negotiation and `django-modeltranslation`'s registered
+# locales (see docs/planning/i18n/README.md D3). Values must stay in sync
+# with frontend/messages/<code>.json keys and modeltranslation registrations
+# in backend/<app>/translation.py.
+LANGUAGES = [
+    ("en", "English"),
+    ("fr", "Français"),
+    ("de", "Deutsch"),
+    ("es", "Español"),
+]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # Static files
 STATIC_URL = "static/"

@@ -6,7 +6,7 @@ import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
 
 const spectral = Spectral({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-spectral",
@@ -14,14 +14,14 @@ const spectral = Spectral({
 });
 
 const plexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
   variable: "--font-plex-sans",
   display: "swap",
 });
 
 const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500"],
   variable: "--font-plex-mono",
   display: "swap",
