@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/routing";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import EmptyState from "@/components/EmptyState";
@@ -9,7 +10,7 @@ import SpeciesSilhouette from "@/components/SpeciesSilhouette";
 import type { Locale } from "@/i18n/routing";
 import { fetchGenusSilhouette } from "@/lib/genusSilhouette";
 import { buildAlternates } from "@/lib/seo";
-import { IUCN_LABELS, type IucnStatus } from "@/lib/species";
+import { type IucnStatus } from "@/lib/species";
 import {
   displayScientificName,
   fetchSpeciesDetail,
@@ -44,18 +45,6 @@ function countPopulatedFields(sp: SpeciesDetail): number {
   return candidates.filter((v) => v != null && v !== "" && v !== 0).length;
 }
 
-// IUCN category short descriptions, paraphrased from the Red List
-// categorical definitions. Drives the Conservation Status panel body copy.
-const IUCN_DESCRIPTIONS: Record<IucnStatus, string> = {
-  CR: "Faces an extremely high risk of extinction in the wild. Populations have collapsed or occupy a very narrow range, and urgent intervention is required.",
-  EN: "Faces a very high risk of extinction in the wild. Populations are fragmented or declining steeply enough to threaten persistence.",
-  VU: "Faces a high risk of extinction in the wild. Threats are significant enough that decline is likely without conservation action.",
-  NT: "Close to qualifying for a threatened category, or likely to qualify in the near future without continued monitoring.",
-  LC: "Widespread and abundant. Does not currently qualify for a threatened category.",
-  DD: "Inadequate information is available to make a direct or indirect assessment of extinction risk.",
-  NE: "Has not yet been evaluated against IUCN Red List criteria.",
-};
-
 // Hero tint gradient (left→right, fading ~8% IUCN color into page bg).
 // Matches the Claude Design prototype: `${c.bg}14 0%, transparent 60%`.
 const STATUS_COLOR_VAR: Record<IucnStatus, string> = {
@@ -68,27 +57,28 @@ const STATUS_COLOR_VAR: Record<IucnStatus, string> = {
   NE: "--iucn-ne",
 };
 
-function statusEyebrowLabel(status: IucnStatus | null): string {
-  if (!status) return "NOT YET ASSESSED";
-  return IUCN_LABELS[status].toUpperCase();
-}
-
 export async function generateMetadata({
   params,
 }: {
   params: { id: string; locale: Locale };
 }) {
   const result = await fetchSpeciesDetail(params.id);
+  const t = await getTranslations({
+    locale: params.locale,
+    namespace: "species.profile",
+  });
   if (result.kind !== "ok") {
     return {
-      title: "Species not found — Madagascar Freshwater Fish",
+      title: t("metaTitleNotFound"),
       alternates: buildAlternates(`/species/${params.id}`, params.locale),
     };
   }
   const name = displayScientificName(result.data);
   return {
-    title: `${name} — Madagascar Freshwater Fish`,
-    description: result.data.description?.slice(0, 160) ?? `Species profile for ${name}.`,
+    title: t("metaTitleTemplate", { name }),
+    description:
+      result.data.description?.slice(0, 160) ??
+      t("metaDescriptionFallback", { name }),
     alternates: buildAlternates(`/species/${params.id}`, params.locale),
   };
 }
@@ -101,16 +91,20 @@ export default async function SpeciesProfilePage({
   searchParams: SearchParams;
 }) {
   const result = await fetchSpeciesDetail(params.id);
+  const [t, tCommon] = await Promise.all([
+    getTranslations("species.profile"),
+    getTranslations("common"),
+  ]);
+
   if (result.kind === "not_found") notFound();
   if (result.kind === "error") {
     return (
       <main style={{ maxWidth: 720, margin: "0 auto", padding: "96px 24px", textAlign: "center" }}>
         <h1 style={{ fontFamily: "var(--serif)", fontSize: 24, color: "var(--ink)" }}>
-          Species profile temporarily unavailable
+          {t("errorState.title")}
         </h1>
         <p style={{ marginTop: 16, color: "var(--ink-2)" }}>
-          The species data service is unreachable. Try again in a moment, or
-          return to the directory.
+          {t("errorState.body")}
         </p>
         <Link
           href="/species"
@@ -124,7 +118,7 @@ export default async function SpeciesProfilePage({
             fontSize: 13,
           }}
         >
-          ← All species
+          {t("errorState.backToDirectory")}
         </Link>
       </main>
     );
@@ -165,6 +159,9 @@ export default async function SpeciesProfilePage({
   const iucnUrl = iucnRedListUrl(sp.iucn_taxon_id);
   const fishbaseUrl = fishbaseGenusSpeciesUrl(sp);
 
+  // endemic_status enum values from the API: endemic, native, introduced.
+  // We surface only "endemic" specifically capitalized; other values get
+  // capitalized as-is (rare on the public directory).
   const endemicLabel =
     sp.endemic_status.charAt(0).toUpperCase() + sp.endemic_status.slice(1);
   const primaryCommon = sp.common_names[0];
@@ -173,26 +170,50 @@ export default async function SpeciesProfilePage({
       ? sp.primary_basin
       : null;
   const statusColorVar = STATUS_COLOR_VAR[sp.iucn_status ?? "NE"];
-  const statusEyebrow = statusEyebrowLabel(sp.iucn_status);
-  const caresShort = sp.cares_status ? `CARES ${sp.cares_status}` : null;
+  const statusEyebrow = sp.iucn_status
+    ? tCommon(`iucn.${sp.iucn_status}`).toUpperCase()
+    : tCommon("iucn.NE").toUpperCase();
+  const caresShort = sp.cares_status
+    ? t("pills.caresPrefix", { status: sp.cares_status })
+    : null;
 
   const { institutions_holding, total_individuals, breeding_programs } =
     sp.ex_situ_summary;
   const exSituEmpty =
     institutions_holding === 0 && total_individuals === 0 && breeding_programs === 0;
 
-  const habitatLabel = sp.habitat_type || "—";
-  const statusDescriptor = undescribed ? "Undescribed morphospecies" : "Described";
+  const habitatLabel = sp.habitat_type || t("stats.emDash");
+  const statusDescriptor = undescribed
+    ? t("stats.statusUndescribed")
+    : t("stats.statusDescribed");
   // Summary-box Distribution line reflects how the species relates to
-  // Madagascar rather than a generic "on record" phrase. Endemic = only
-  // found here; native = occurs here naturally but not restricted;
-  // introduced = non-native (rare on the public directory by default).
+  // Madagascar rather than a generic "on record" phrase.
   const distributionSummary =
     sp.endemic_status === "endemic"
-      ? "Endemic to Madagascar"
+      ? t("summary.endemicToMadagascar")
       : sp.endemic_status === "introduced"
-        ? "Introduced to Madagascar"
-        : "Native to Madagascar";
+        ? t("summary.introducedToMadagascar")
+        : t("summary.nativeToMadagascar");
+
+  // Keeping-this-species note: 4 variants depending on CARES + SHOAL priority.
+  let keepingNote: string;
+  if (caresShort && sp.shoal_priority) {
+    keepingNote = t("keeping.noteCaresAndShoal");
+  } else if (caresShort) {
+    keepingNote = t("keeping.noteCares");
+  } else if (sp.shoal_priority) {
+    keepingNote = t("keeping.noteShoal");
+  } else {
+    keepingNote = t("keeping.noteGeneric");
+  }
+
+  // Captive-population empty body: threatened (CR/EN/VU) gets a
+  // call-to-action prompting institutional outreach; non-threatened
+  // species get a neutral note.
+  const captiveEmptyBody =
+    sp.iucn_status && ["CR", "EN", "VU"].includes(sp.iucn_status)
+      ? t("captive.noneTrackedThreatened")
+      : t("captive.noneTrackedNonThreatened");
 
   return (
     <main>
@@ -225,7 +246,7 @@ export default async function SpeciesProfilePage({
         <div style={{ ...containerStyle, padding: "24px 28px 40px", position: "relative" }}>
           {/* Breadcrumb */}
           <nav
-            aria-label="Breadcrumb"
+            aria-label={t("breadcrumb.ariaLabel")}
             style={{
               display: "flex",
               alignItems: "center",
@@ -235,7 +256,7 @@ export default async function SpeciesProfilePage({
             }}
           >
             <Link href={backHref} style={breadcrumbBackStyle}>
-              ← All species
+              {t("breadcrumb.back")}
             </Link>
             {sp.family ? (
               <>
@@ -316,10 +337,10 @@ export default async function SpeciesProfilePage({
                       marginRight: 8,
                     }}
                   >
-                    Provisional Name
+                    {t("provisionalPill")}
                   </span>
                   <span style={{ color: "var(--ink-2)" }}>
-                    Undescribed morphospecies — formal description pending.
+                    {t("provisionalNote")}
                   </span>
                 </p>
               ) : null}
@@ -342,7 +363,7 @@ export default async function SpeciesProfilePage({
                       marginLeft: 6,
                     }}
                   >
-                    ({primaryCommon.language})
+                    {t("primaryCommonLanguage", { language: primaryCommon.language })}
                   </span>
                 </p>
               ) : null}
@@ -362,13 +383,15 @@ export default async function SpeciesProfilePage({
                   criteria={acceptedIucn?.criteria}
                 />
                 {sp.family ? <BasinPill>{sp.family}</BasinPill> : null}
-                {basinLabel ? <BasinPill>{basinLabel} basin</BasinPill> : null}
+                {basinLabel ? (
+                  <BasinPill>{t("pills.basinSuffix", { basin: basinLabel })}</BasinPill>
+                ) : null}
                 <BasinPill>{endemicLabel}</BasinPill>
                 {caresShort ? (
                   <BasinPill tone="highlight">{caresShort}</BasinPill>
                 ) : null}
                 {sp.shoal_priority ? (
-                  <BasinPill tone="accent">SHOAL priority</BasinPill>
+                  <BasinPill tone="accent">{t("pills.shoalPriority")}</BasinPill>
                 ) : null}
               </div>
             </div>
@@ -398,58 +421,68 @@ export default async function SpeciesProfilePage({
       <div style={{ ...containerStyle, padding: "32px 28px 48px" }}>
         {/* Three summary boxes: Distribution · Ex-situ · Husbandry */}
         <section
-          aria-label="Profile summary"
+          aria-label={t("summaryAriaLabel")}
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
             gap: 12,
           }}
         >
-          <SummaryBox title="Distribution">
+          <SummaryBox title={t("summary.distributionTitle")}>
             <p style={summaryValueStyle}>{distributionSummary}</p>
             {sp.has_localities ? (
               <>
-                <p style={summarySubStyle}>{`Mapped at ${sp.locality_count} ${sp.locality_count === 1 ? "locality" : "localities"}`}</p>
-                <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>View on Map →</Link>
+                <p style={summarySubStyle}>
+                  {t("summary.mappedAt", { count: sp.locality_count })}
+                </p>
+                <Link href={`/map?species_id=${sp.id}`} style={summaryLinkStyle}>
+                  {t("summary.viewOnMap")}
+                </Link>
               </>
             ) : (
-              <p style={summaryMutedStyle}>No locality records mapped.</p>
+              <p style={summaryMutedStyle}>{t("summary.noLocalitiesMapped")}</p>
             )}
           </SummaryBox>
 
-          <SummaryBox title="Ex-situ Coverage">
+          <SummaryBox title={t("summary.exSituTitle")}>
             {exSituEmpty ? (
-              <p style={summaryMutedStyle}>No captive population tracked.</p>
+              <p style={summaryMutedStyle}>{t("summary.noCaptiveTracked")}</p>
             ) : (
               <>
                 <p style={summaryValueStyle}>
-                  {institutions_holding} institution
-                  {institutions_holding === 1 ? "" : "s"}
+                  {t("summary.institutionsCount", { count: institutions_holding })}
                 </p>
                 <p style={summarySubStyle}>
-                  {total_individuals || "—"} individuals ·{" "}
-                  {breeding_programs || 0} breeding
+                  {total_individuals
+                    ? t("summary.exSituSubline", {
+                        individuals: total_individuals,
+                        programs: breeding_programs || 0,
+                      })
+                    : t("summary.exSituSublineEmDash", {
+                        programs: breeding_programs || 0,
+                      })}
                 </p>
               </>
             )}
           </SummaryBox>
 
-          <SummaryBox title="Husbandry">
+          <SummaryBox title={t("summary.husbandryTitle")}>
             {sp.has_husbandry ? (
               <>
                 <p style={summaryValueStyle}>
-                  {sp.difficulty_factor_count} difficulty factor
-                  {sp.difficulty_factor_count === 1 ? "" : "s"}
+                  {t("summary.husbandryDifficulty", {
+                    count: sp.difficulty_factor_count,
+                  })}
                 </p>
                 <Link
                   href={`/species/${sp.id}/husbandry/`}
                   style={summaryLinkStyle}
                 >
-                  See guidance →
+                  {t("summary.seeGuidance")}
                 </Link>
               </>
             ) : (
-              <p style={summaryMutedStyle}>No husbandry guidance yet.</p>
+              <p style={summaryMutedStyle}>{t("summary.noHusbandryYet")}</p>
             )}
           </SummaryBox>
         </section>
@@ -466,8 +499,7 @@ export default async function SpeciesProfilePage({
               borderRadius: "var(--radius)",
             }}
           >
-            Limited public data is available for this species. Additional
-            information will be added as it is published.
+            {t("sparseDataNote")}
           </p>
         ) : null}
 
@@ -479,7 +511,7 @@ export default async function SpeciesProfilePage({
         sp.max_length_cm ||
         basinLabel ? (
           <section id="description" style={{ marginTop: 48 }}>
-            <p style={eyebrowStyle}>Description &amp; Ecology</p>
+            <p style={eyebrowStyle}>{t("descriptionEcology.eyebrow")}</p>
             {sp.description ? (
               <p
                 style={{
@@ -500,7 +532,7 @@ export default async function SpeciesProfilePage({
             {sp.morphology ? (
               <p style={{ ...paragraphStyle, maxWidth: 640 }}>
                 <strong style={{ color: "var(--ink)", fontWeight: 600 }}>
-                  Morphology.
+                  {t("descriptionEcology.morphologyInline")}
                 </strong>{" "}
                 {sp.morphology}
               </p>
@@ -515,19 +547,23 @@ export default async function SpeciesProfilePage({
               }}
             >
               <DtDd
-                label="Max length"
-                value={sp.max_length_cm ? `${sp.max_length_cm} cm` : "—"}
+                label={t("stats.maxLength")}
+                value={
+                  sp.max_length_cm
+                    ? t("stats.maxLengthValue", { cm: sp.max_length_cm })
+                    : t("stats.emDash")
+                }
               />
-              <DtDd label="Habitat" value={habitatLabel} />
-              <DtDd label="Basin" value={basinLabel || "—"} />
-              <DtDd label="Status" value={statusDescriptor} />
+              <DtDd label={t("stats.habitat")} value={habitatLabel} />
+              <DtDd label={t("stats.basin")} value={basinLabel || t("stats.emDash")} />
+              <DtDd label={t("stats.status")} value={statusDescriptor} />
             </dl>
           </section>
         ) : null}
 
         {/* Distribution + Common Names — paired two-column */}
         <section
-          aria-label="Distribution and common names"
+          aria-label={t("distributionAndCommonNamesAriaLabel")}
           style={{
             marginTop: 48,
             display: "grid",
@@ -542,7 +578,7 @@ export default async function SpeciesProfilePage({
 
         {/* Keeping this species · Conservation Status — paired two-column */}
         <section
-          aria-label="Husbandry and conservation status"
+          aria-label={t("husbandryAndStatusAriaLabel")}
           style={{
             marginTop: 48,
             display: "grid",
@@ -563,9 +599,9 @@ export default async function SpeciesProfilePage({
                 backgroundColor: "var(--bg-raised)",
               }}
             >
-              <p style={eyebrowStyle}>Husbandry</p>
+              <p style={eyebrowStyle}>{t("keeping.eyebrow")}</p>
               <h2 id="husbandry-teaser-heading" style={h2Style}>
-                Keeping this species
+                {t("keeping.title")}
               </h2>
               {caresShort || sp.shoal_priority ? (
                 <div
@@ -580,25 +616,17 @@ export default async function SpeciesProfilePage({
                     <BasinPill tone="highlight">{caresShort}</BasinPill>
                   ) : null}
                   {sp.shoal_priority ? (
-                    <BasinPill tone="accent">SHOAL priority</BasinPill>
+                    <BasinPill tone="accent">{t("keeping.shoalPriorityPill")}</BasinPill>
                   ) : null}
                 </div>
               ) : null}
-              <p style={{ ...paragraphStyle, maxWidth: 560 }}>
-                {caresShort && sp.shoal_priority
-                  ? "A CARES and SHOAL priority species — hobbyist breeders play a direct conservation role."
-                  : caresShort
-                    ? "A CARES priority species — hobbyist breeders play a direct conservation role."
-                    : sp.shoal_priority
-                      ? "A SHOAL 1,000 Fishes priority species."
-                      : "Husbandry guidance is available for this species."}
-              </p>
+              <p style={{ ...paragraphStyle, maxWidth: 560 }}>{keepingNote}</p>
               <p style={{ marginTop: 10, fontSize: 14 }}>
                 <Link
                   href={`/species/${sp.id}/husbandry/`}
                   style={refLinkStyle}
                 >
-                  See husbandry guidance →
+                  {t("keeping.seeGuidance")}
                 </Link>
               </p>
             </div>
@@ -613,8 +641,8 @@ export default async function SpeciesProfilePage({
 
         {/* Captive population summary — ex-situ stewardship */}
         <section id="captive" style={{ marginTop: 48 }}>
-          <p style={eyebrowStyle}>Ex-situ Stewardship</p>
-          <h2 style={h2Style}>Captive population summary</h2>
+          <p style={eyebrowStyle}>{t("captive.eyebrow")}</p>
+          <h2 style={h2Style}>{t("captive.title")}</h2>
           {exSituEmpty ? (
             <div
               className="card"
@@ -637,7 +665,7 @@ export default async function SpeciesProfilePage({
                   color: "var(--ink)",
                 }}
               >
-                No captive population is currently tracked.
+                {t("captive.noneTracked")}
               </p>
               <p
                 style={{
@@ -647,9 +675,7 @@ export default async function SpeciesProfilePage({
                   lineHeight: 1.55,
                 }}
               >
-                {sp.iucn_status && ["CR", "EN", "VU"].includes(sp.iucn_status)
-                  ? "This species is threatened and has no ex-situ safety net. Contact the registry to register a holding."
-                  : "No institution has registered holdings for this species."}
+                {captiveEmptyBody}
               </p>
             </div>
           ) : (
@@ -661,13 +687,13 @@ export default async function SpeciesProfilePage({
                 gap: 16,
               }}
             >
-              <StatTile label="Institutions" value={institutions_holding} />
+              <StatTile label={t("captive.institutionsLabel")} value={institutions_holding} />
               <StatTile
-                label="Individuals"
+                label={t("captive.individualsLabel")}
                 value={total_individuals.toLocaleString()}
               />
               <StatTile
-                label="Active breeding programs"
+                label={t("captive.breedingProgramsLabel")}
                 value={breeding_programs}
               />
             </div>
@@ -677,15 +703,15 @@ export default async function SpeciesProfilePage({
         {/* Field Programs — sits under Captive population */}
         <section aria-labelledby="field-heading" style={{ marginTop: 48 }}>
           <p id="field-heading" style={eyebrowStyle}>
-            Field Programs
+            {t("field.eyebrow")}
           </p>
-          <h2 style={h2Style}>In-situ linkages</h2>
+          <h2 style={h2Style}>{t("field.title")}</h2>
           {sp.field_programs.length === 0 ? (
             <div style={{ marginTop: 16 }}>
               <EmptyState
                 variant="inline"
-                title="No linked field programs"
-                body="No field programs are currently linked to this species."
+                title={t("field.emptyTitle")}
+                body={t("field.emptyBody")}
               />
             </div>
           ) : (
@@ -712,7 +738,7 @@ export default async function SpeciesProfilePage({
 
         {iucnUrl || fishbaseUrl ? (
           <section id="refs" style={{ marginTop: 48 }}>
-            <p style={eyebrowStyle}>External References</p>
+            <p style={eyebrowStyle}>{t("external.eyebrow")}</p>
             <ul
               style={{
                 marginTop: 12,
@@ -731,7 +757,7 @@ export default async function SpeciesProfilePage({
                     rel="noopener noreferrer"
                     style={refLinkStyle}
                   >
-                    IUCN Red List assessment →
+                    {t("external.iucnLink")}
                   </a>
                 </li>
               ) : null}
@@ -743,7 +769,7 @@ export default async function SpeciesProfilePage({
                     rel="noopener noreferrer"
                     style={refLinkStyle}
                   >
-                    FishBase species summary →
+                    {t("external.fishbaseLink")}
                   </a>
                 </li>
               ) : null}
@@ -922,7 +948,7 @@ function DlRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ConservationStatusPanel({
+async function ConservationStatusPanel({
   status,
   assessment,
   iucnUrl,
@@ -939,8 +965,12 @@ function ConservationStatusPanel({
 }) {
   const key: IucnStatus = status ?? "NE";
   const colorVar = STATUS_COLOR_VAR[key];
-  const label = IUCN_LABELS[key];
-  const description = IUCN_DESCRIPTIONS[key];
+  const [t, tCommon] = await Promise.all([
+    getTranslations("species.profile"),
+    getTranslations("common"),
+  ]);
+  const label = tCommon(`iucn.${key}`);
+  const description = t(`iucnDescriptions.${key}`);
 
   return (
     <div
@@ -954,8 +984,8 @@ function ConservationStatusPanel({
         position: "relative",
       }}
     >
-      <p style={eyebrowStyle}>Red List Status</p>
-      <h2 style={h2Style}>Conservation Status</h2>
+      <p style={eyebrowStyle}>{t("conservation.eyebrow")}</p>
+      <h2 style={h2Style}>{t("conservation.title")}</h2>
 
       <div
         style={{
@@ -1003,13 +1033,13 @@ function ConservationStatusPanel({
           }}
         >
           {assessment.criteria ? (
-            <DlRow label="Criteria" value={assessment.criteria} />
+            <DlRow label={t("conservation.criteriaLabel")} value={assessment.criteria} />
           ) : null}
           {assessment.assessor ? (
-            <DlRow label="Assessor" value={assessment.assessor} />
+            <DlRow label={t("conservation.assessorLabel")} value={assessment.assessor} />
           ) : null}
           {assessment.assessment_date ? (
-            <DlRow label="Assessed" value={assessment.assessment_date} />
+            <DlRow label={t("conservation.assessedLabel")} value={assessment.assessment_date} />
           ) : null}
         </dl>
       ) : null}
@@ -1022,7 +1052,7 @@ function ConservationStatusPanel({
             rel="noopener noreferrer"
             style={refLinkStyle}
           >
-            View Red List assessment →
+            {t("conservation.viewIucnAssessment")}
           </a>
         </p>
       ) : null}

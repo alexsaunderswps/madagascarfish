@@ -133,28 +133,111 @@
       }
     },
     "profile": {
-      "scientificName": "Scientific name",
-      "commonNames": "Common names",
-      "noCommonNames": "No common names recorded.",
-      "iucnHeading": "IUCN Red List status",
-      "iucnAssessmentLine": "Assessed {year}. {category}.",
-      "criteriaPrefix": "Criteria",
-      "descriptionHeading": "Description",
-      "ecologyHeading": "Ecology",
-      "distributionHeading": "Distribution",
-      "morphologyHeading": "Morphology",
-      "fallbackBadge": "(English)",
-      "noDataMessage": "Limited public data is available for this species. The most recent IUCN assessment is linked below; additional information will be added as published.",
-      "tabs": {
-        "overview": "Overview",
-        "husbandry": "Husbandry"
+      "metaTitleTemplate": "{name} — Madagascar Freshwater Fish",
+      "metaDescriptionFallback": "Species profile for {name}.",
+      "metaTitleNotFound": "Species not found — Madagascar Freshwater Fish",
+      "errorState": {
+        "title": "Species profile temporarily unavailable",
+        "body": "The species data service is unreachable. Try again in a moment, or return to the directory.",
+        "backToDirectory": "← All species"
       },
-      "exSitu": {
-        "heading": "Ex-situ population",
+      "breadcrumb": {
+        "ariaLabel": "Breadcrumb",
+        "back": "← All species"
+      },
+      "provisionalPill": "Provisional Name",
+      "provisionalNote": "Undescribed morphospecies — formal description pending.",
+      "summaryAriaLabel": "Profile summary",
+      "summary": {
+        "distributionTitle": "Distribution",
+        "exSituTitle": "Ex-situ Coverage",
+        "husbandryTitle": "Husbandry",
+        "endemicToMadagascar": "Endemic to Madagascar",
+        "introducedToMadagascar": "Introduced to Madagascar",
+        "nativeToMadagascar": "Native to Madagascar",
+        "mappedAt": "{count, plural, one {Mapped at # locality} other {Mapped at # localities}}",
+        "viewOnMap": "View on Map →",
+        "noLocalitiesMapped": "No locality records mapped.",
+        "noCaptiveTracked": "No captive population tracked.",
+        "institutionsCount": "{count, plural, one {# institution} other {# institutions}}",
+        "exSituSubline": "{individuals} individuals · {programs} breeding",
+        "exSituSublineEmDash": "— individuals · {programs} breeding",
+        "husbandryDifficulty": "{count, plural, one {# difficulty factor} other {# difficulty factors}}",
+        "seeGuidance": "See guidance →",
+        "noHusbandryYet": "No husbandry guidance yet."
+      },
+      "sparseDataNote": "Limited public data is available for this species. Additional information will be added as it is published.",
+      "descriptionEcology": {
+        "eyebrow": "Description & Ecology",
+        "morphologyInline": "Morphology."
+      },
+      "stats": {
+        "maxLength": "Max length",
+        "maxLengthValue": "{cm} cm",
+        "habitat": "Habitat",
+        "basin": "Basin",
+        "status": "Status",
+        "statusUndescribed": "Undescribed morphospecies",
+        "statusDescribed": "Described",
+        "emDash": "—"
+      },
+      "distributionAndCommonNamesAriaLabel": "Distribution and common names",
+      "husbandryAndStatusAriaLabel": "Husbandry and conservation status",
+      "keeping": {
+        "eyebrow": "Husbandry",
+        "title": "Keeping this species",
+        "shoalPriorityPill": "SHOAL priority",
+        "noteCaresAndShoal": "A CARES and SHOAL priority species — hobbyist breeders play a direct conservation role.",
+        "noteCares": "A CARES priority species — hobbyist breeders play a direct conservation role.",
+        "noteShoal": "A SHOAL 1,000 Fishes priority species.",
+        "noteGeneric": "Husbandry guidance is available for this species.",
+        "seeGuidance": "See husbandry guidance →"
+      },
+      "conservation": {
+        "eyebrow": "Red List Status",
+        "title": "Conservation Status",
+        "criteriaLabel": "Criteria",
+        "assessorLabel": "Assessor",
+        "assessedLabel": "Assessed",
+        "viewIucnAssessment": "View Red List assessment →"
+      },
+      "iucnDescriptions": {
+        "CR": "Faces an extremely high risk of extinction in the wild. Populations have collapsed or occupy a very narrow range, and urgent intervention is required.",
+        "EN": "Faces a very high risk of extinction in the wild. Populations are fragmented or declining steeply enough to threaten persistence.",
+        "VU": "Faces a high risk of extinction in the wild. Threats are significant enough that decline is likely without conservation action.",
+        "NT": "Close to qualifying for a threatened category, or likely to qualify in the near future without continued monitoring.",
+        "LC": "Widespread and abundant. Does not currently qualify for a threatened category.",
+        "DD": "Inadequate information is available to make a direct or indirect assessment of extinction risk.",
+        "NE": "Has not yet been evaluated against IUCN Red List criteria."
+      },
+      "captive": {
+        "eyebrow": "Ex-situ Stewardship",
+        "title": "Captive population summary",
+        "noneTracked": "No captive population is currently tracked.",
+        "noneTrackedThreatened": "This species is threatened and has no ex-situ safety net. Contact the registry to register a holding.",
+        "noneTrackedNonThreatened": "No institution has registered holdings for this species.",
         "institutionsLabel": "Institutions",
         "individualsLabel": "Individuals",
-        "programsLabel": "Programs"
-      }
+        "breedingProgramsLabel": "Active breeding programs"
+      },
+      "field": {
+        "eyebrow": "Field Programs",
+        "title": "In-situ linkages",
+        "emptyTitle": "No linked field programs",
+        "emptyBody": "No field programs are currently linked to this species."
+      },
+      "external": {
+        "eyebrow": "External References",
+        "iucnLink": "IUCN Red List assessment →",
+        "fishbaseLink": "FishBase species summary →"
+      },
+      "pills": {
+        "basinSuffix": "{basin} basin",
+        "shoalPriority": "SHOAL priority",
+        "caresPrefix": "CARES {status}"
+      },
+      "primaryCommonLanguage": "({language})",
+      "fallbackBadge": "(English)"
     },
     "notFound": {
       "title": "Species not found",

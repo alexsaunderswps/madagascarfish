@@ -544,23 +544,31 @@ describe("Species profile page — 404 handling (FE-07-10 AC)", () => {
 // ============================================================
 
 describe("Species profile — 'View on Map' visibility (FE-07-3 AC)", () => {
+  // Gate L1 i18n: "View on Map" copy moved into messages/en.json
+  // (species.profile.summary.viewOnMap). The page source now references
+  // that key via t("summary.viewOnMap"); the literal text only appears
+  // in the catalog. These tests verify the *behaviour* (conditional on
+  // has_localities) by reading both surfaces.
   it("'View on Map' is rendered inside a has_localities conditional (not always present)", () => {
     const src = readFileSync(
       resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
-    // AC: "'View on Map' is absent (not disabled) when has_localities === false"
-    // UX 3.8: must be conditionally rendered, not a disabled-with-tooltip
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    // The catalog still carries the exact literal string.
+    expect(enMessages).toContain("View on Map");
+    // The page source still gates the link on has_localities and renders
+    // the corresponding translation key inside that branch.
     expect(src).toContain("has_localities");
-    expect(src).toContain("View on Map");
-    // Both must appear in the same file; the conditional renders the link
-    // Source inspection confirms sp.has_localities ? (<Link...>View on Map) : null
+    expect(src).toContain('summary.viewOnMap');
     const hasLocalitiesIdx = src.indexOf("has_localities");
-    const viewOnMapIdx = src.indexOf("View on Map");
+    const viewOnMapKeyIdx = src.indexOf("summary.viewOnMap");
     expect(hasLocalitiesIdx).not.toBe(-1);
-    expect(viewOnMapIdx).not.toBe(-1);
-    // has_localities check comes before "View on Map" in the source
-    expect(hasLocalitiesIdx).toBeLessThan(viewOnMapIdx);
+    expect(viewOnMapKeyIdx).not.toBe(-1);
+    expect(hasLocalitiesIdx).toBeLessThan(viewOnMapKeyIdx);
   });
 
   it("'View on Map' is absent when has_localities is falsy (source shows ternary/conditional)", () => {
@@ -568,11 +576,12 @@ describe("Species profile — 'View on Map' visibility (FE-07-3 AC)", () => {
       resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
-    // The conditional must resolve to null when false — check for ternary or && pattern
-    // Pattern: {sp.has_localities ? (<Link...>View on Map...) : null}
-    expect(src).toMatch(/has_localities[\s\S]{0,300}View on Map/);
-    // Must NOT be inside a disabled= prop (i.e. not always shown as disabled)
-    expect(src).not.toMatch(/disabled[^=].*View on Map|View on Map.*disabled/);
+    // The conditional must wrap the View-on-Map translation key, not be
+    // a disabled-with-tooltip (UX 3.8). After i18n the link's content is
+    // t("summary.viewOnMap"), so we look for the key inside the
+    // has_localities branch.
+    expect(src).toMatch(/has_localities[\s\S]{0,400}summary\.viewOnMap/);
+    expect(src).not.toMatch(/disabled[^=].*summary\.viewOnMap|summary\.viewOnMap.*disabled/);
   });
 });
 
@@ -582,12 +591,21 @@ describe("Species profile — 'View on Map' visibility (FE-07-3 AC)", () => {
 
 describe("Species profile — zero captive populations (FE-07-3 AC)", () => {
   it("renders 'no captive population' text (not error) when institutions_holding === 0", () => {
+    // Gate L1 i18n: empty-state copy moved into messages/en.json under
+    // species.profile.captive.noneTracked. Verify both that the literal
+    // copy still exists in the catalog and that the page source
+    // references the matching key inside an exSituEmpty conditional.
     const src = readFileSync(
       resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
-    // AC: "ex_situ_summary.institutions_holding === 0 → 'No captive population is currently tracked'"
-    expect(src).toContain("No captive population is currently tracked");
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    expect(enMessages).toContain("No captive population is currently tracked");
+    expect(src).toContain("captive.noneTracked");
+    expect(src).toContain("exSituEmpty");
   });
 });
 
