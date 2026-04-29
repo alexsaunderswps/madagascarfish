@@ -13,11 +13,15 @@ round of development. I'll maintain it as items land or become obsolete.
 - **Don't delete completed items** — move them to the "Done" section at
   the bottom with a short note on what it unlocked.
 
-**Last updated:** 2026-04-28 (Gate 11 fully shipped + verified on prod;
-auth flag flipped on; security review fixes landed; cookie-domain
-verified; copy voice pass + post-audit cleanups done. Ten configuration
-sub-items archived to Done across two sessions today. **Critical path
-to ABQ is now §2.1 + §2.7 — both yours, both demo-blocking.**)
+**Last updated:** 2026-04-29 (coordinator-dashboard tier-gate hardening
+landed: middleware now requires session + tier ≥ 3 unconditionally,
+service-token route bypass removed, page server component re-checks
+tier, Coordinator nav link auto-hides for anonymous + Tier 1/2.
+Admin data-entry UX cleanup landed: ExSituPopulation / Species /
+ConservationAssessment / SpeciesLocality / User / FieldProgram all
+have searchable autocomplete on FK fields. **Critical path to ABQ
+is still §2.7 + §2.1 — but see §2.1 update on realistic CARES data
+scope.**)
 
 ---
 
@@ -47,6 +51,15 @@ sharply. Two options:
   request — ignorable.
 - **Strip them** and rely on the `ConfigErrorBanner` ops warn (PR #136)
   + the OPERATIONS.md §11.4 runbook for future verification.
+
+**Update 2026-04-29:** the tier-gate hardening narrowed the soak-check
+target. Browsers can no longer reach the SSR layer anonymously
+(middleware redirects pre-render), so `path=none` is unreachable from
+user traffic — only `path=session` and `path=service-token-fallback`
+remain. The fallback path still fires on internal server-side calls
+that don't carry a session cookie. The diagnostic logs are still
+valid, just less broad in scope. Lean toward "strip" if the soak run
+shows nothing surprising.
 
 **How to verify:** the 2026-05-12 agent will open a PR to
 `docs/handover/auth-soak-check-2026-05-12.md` summarizing the path
@@ -79,12 +92,22 @@ distribution. Read that PR's findings, then ping me with "keep" or
 
 ### 2.1 Enter real CARES population data
 
-### 2.1 Enter real CARES population data
-
 **Priority:** **HIGHEST — blocks ABQ demo narrative.** The coordinator
 dashboard is a read-only view over this data — without it, ABQ is a
 demo of empty panels. Step 2 of the critical path above; do §2.7 first
 for the warm-up lap.
+
+**Update 2026-04-29:** realistic CARES data scope is "a few keepers
+with a few cichlid species, almost no other captive populations" —
+considerably thinner than the original §2.1 framing assumed. That
+means §2.7 (EAZA EEPs) carries more of the demo narrative weight than
+originally planned, and Panel 2 buckets will be lopsided toward
+cichlids. Two implications: (1) prioritize getting §2.7 in even more
+than before, since it's the ABQ visual-content backstop; (2) the
+"Coordinator triage view" framing may need to lean on the
+_structural_ story (programs, recommendations, transfer lifecycle)
+rather than population breadth. Worth thinking about for the §4.1 dry
+run.
 
 **Workflow overview:** Each CARES hobbyist keeper becomes one `Institution`
 row. Each population they hold becomes one `ExSituPopulation` row linking
@@ -570,6 +593,14 @@ visible is the default.
 **Update 2026-04-28:** with `NEXT_PUBLIC_FEATURE_AUTH=true` now flipped
 on, the nav also shows Sign in / Sign up to anonymous visitors. Same
 question applies — keep or hide for ABQ. Default is keep.
+
+**Update 2026-04-29:** mostly self-resolves now that the Coordinator
+nav link auto-hides for anonymous + Tier 1/2 viewers (see latest
+tier-gate fix). Anyone visiting without a Tier 3+ session never sees
+the link. Remaining open question is narrower: while you're demoing
+_signed in as Tier 3+_, the link IS visible — does that matter for
+the "invited to see this" framing with attendees looking over your
+shoulder? Default still: keep.
 
 ### 4.3 Audit test-data hygiene before the demo
 

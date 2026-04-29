@@ -92,21 +92,21 @@ const CONFIG_ERROR_STYLE: CSSProperties = {
 
 function ConfigErrorBanner() {
   // Operator hint — appears in Vercel function logs when the user-facing
-  // banner is rendered. Points whoever is debugging to OPERATIONS.md §11.2
-  // (the COORDINATOR_API_TOKEN runbook). The user-visible copy stays
-  // operator-jargon-free.
+  // banner is rendered. Reachable only post-tier-gate, so the visitor is
+  // already Tier 3+; the banner means their DRF token couldn't be read
+  // from the JWT AND no COORDINATOR_API_TOKEN is configured as a server
+  // fallback. See OPERATIONS.md §11.2.
   console.warn(
-    "[coordinator-dashboard] ConfigErrorBanner rendered — neither a user " +
-      "session nor COORDINATOR_API_TOKEN was available. See OPERATIONS.md " +
-      "§11.2 to wire the service token, or have the user sign in as Tier 3+.",
+    "[coordinator-dashboard] ConfigErrorBanner rendered — the viewer's " +
+      "session token did not reach the coordination API and " +
+      "COORDINATOR_API_TOKEN is not configured. See OPERATIONS.md §11.2.",
   );
   return (
     <div role="alert" style={CONFIG_ERROR_STYLE}>
       <strong>Coordinator data is temporarily unavailable.</strong> The
-      dashboard can&rsquo;t reach the coordination API on this deployment,
-      so the panels below will render empty. Sign in with a Tier 3+ account
-      to use your own credentials, or contact the platform team if the
-      service-level fallback should be configured here.
+      panels below couldn&rsquo;t reach the coordination API. Try
+      refreshing the page; if the issue persists, contact the platform
+      team.
     </div>
   );
 }
