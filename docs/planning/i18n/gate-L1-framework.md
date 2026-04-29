@@ -1,14 +1,16 @@
 # Gate L1 — i18n Framework
 
-**Status:** Spec (PM)
-**Target:** May 8, 2026
+**Status:** Spec (PM, architect-revised 2026-04-29)
+**Target:** May 8, 2026 (architect estimate: ~8–8.5 working days from May 1 start, ~1 week slack)
 **Branch (when cut):** `gate/L1-i18n-framework`
-**Spec branch:** `docs/i18n-planning`
-**Inputs:** `docs/planning/i18n/README.md` (D1–D11)
+**Spec branches:** `docs/i18n-planning` (original), `docs/i18n-architecture` (revisions A1–A4, B1–B2)
+**Inputs:** `docs/planning/i18n/README.md` (D1–D18), `docs/planning/architecture/i18n-architecture.md`
 
 L1 establishes the multilingual plumbing. After L1, the public site looks identical to today (English only, no visible locale switcher unless `NEXT_PUBLIC_FEATURE_I18N=1`), but every layer needed to ship French in L2 is in place: routing, middleware, translatable model fields, message catalogs extracted from the source, fonts widened, and a working locale switcher behind the flag.
 
 **No translations are produced in L1.** L1 produces empty French/German/Spanish message catalogs and empty `_fr` / `_de` / `_es` fields. L2 is the first gate that translates anything.
+
+> **Architecture revisions (2026-04-29).** The architecture review (`docs/planning/architecture/i18n-architecture.md` §11) added four items to L1 (A1–A4) and clarified two L3 deferrals (B1–B2). Inline edits below carry the story-level updates; §A1–A4 / §B1–B2 below summarizes the net deltas. The story acceptance criteria are authoritative; the architecture doc is the technical reference.
 
 ---
 
@@ -78,12 +80,16 @@ As an API consumer, I want endpoints to return localized content based on `Accep
 - Verify that `LocaleMiddleware` from S1 is correctly setting the active language for DRF requests (it should — DRF runs through Django middleware).
 - Translatable fields on Species, Taxon, etc. return the active-language value automatically via modeltranslation's `LANGUAGE_CODE`-aware getters. No serializer changes required for the read path *if* modeltranslation is configured correctly.
 - Add a fallback indicator: when a translatable field falls back to English because the requested locale's value is empty or below `human_approved` (L3 work), the serializer adds a sibling `<field>_locale_actual` key with the locale that was actually returned. Frontend uses this to render the "(English)" badge per D6.
+- Implement as a `TranslationActualLocaleMixin` on the relevant serializers (architecture doc §4 has the implementation pattern). In L1 the mixin checks "column populated/empty" only; the gating against `TranslationStatus.status == human_approved` is L3, controlled by an `I18N_ENFORCE_REVIEW_GATE` setting that is `False` in L1, `True` in L3.
 - Note: in L1, no field has any non-English content yet, so the fallback indicator will always read `"en"`. The wiring is what L1 delivers; the data follows in L2/L3.
+- **A2 — `apiFetch` Accept-Language threading (architect addition).** The frontend `apiFetch` helper (`frontend/lib/api.ts`) must accept an optional `locale` parameter and forward it as `Accept-Language` on every request. The locale comes from `next-intl`'s server-side `getLocale()` call inside the page that invokes the fetcher. Without this, Django can't serve locale-aware content even when modeltranslation is wired correctly (see architecture doc §9 R6). Also update the small set of callers that originate locale-bearing requests so they thread the locale through.
 
 **Acceptance:**
 - `GET /api/v1/species/123/` with `Accept-Language: fr` returns the same payload shape as today plus `*_locale_actual` keys reading `"en"` (because no FR content exists yet).
 - `?lang=fr` query parameter overrides `Accept-Language`. Same payload result.
-- Existing API contract tests still pass — no breaking field changes.
+- `apiFetch({ locale: "fr" })` sets `Accept-Language: fr` on the outgoing request; an explicit `Accept-Language` in `headers` wins (escape hatch).
+- The page-level callers under `frontend/app/[locale]/...` pass `getLocale()` into their `apiFetch` calls.
+- Existing API contract tests still pass — no breaking field changes (the `*_locale_actual` keys are JSON-additive; OpenAPI schema regen via `npm run gen:types` updates the committed `lib/api-types.ts` in the same PR).
 
 #### S4 — Translation status model (foundation for L3 review UI)
 
@@ -108,6 +114,8 @@ As a reviewer, I want every translatable field/locale combo to track its review 
   - Unique together: `(content_type, object_id, field, locale)`.
   - `__str__` returns a human-readable label.
 - Register in admin with read-only mode for L1. The L3 spec wires the side-by-side editor.
+- **B1 — Signal handlers explicitly excluded from L1 (architect deferral).** Auto-creating / auto-invalidating `TranslationStatus` rows in response to translatable-field saves is L3 work, not L1. In L1, rows can only be created/edited manually through admin; this is acceptable because no `_fr` / `_de` / `_es` columns receive writes in L1 (catalogs are byte-identical English placeholders, no MT pipeline yet). See architecture doc §5 for the L3 signal design.
+- Add the recommended indexes from architecture doc §5: composite index on `(content_type, object_id)` plus a covering index on `(locale, status)` for the L3 admin filter UI.
 - No frontend exposure in L1.
 
 **Acceptance:**
@@ -115,6 +123,7 @@ As a reviewer, I want every translatable field/locale combo to track its review 
 - Creating a `TranslationStatus` row through admin works.
 - Unique constraint prevents duplicates.
 - A unit test creates rows for one species + one field + three locales and queries them.
+- The two indexes are present and used by `EXPLAIN` for the typical L3 query patterns (`WHERE status = 'mt_draft' AND locale = 'fr'`).
 
 ### Frontend foundation
 
@@ -129,7 +138,9 @@ As a visitor, I want the site to recognize URL locale prefixes (`/fr/`, `/de/`, 
 - Install `next-intl@^3` in `frontend/package.json`.
 - Add `frontend/i18n.ts` (or `frontend/lib/i18n.ts`) with `getRequestConfig` returning the active locale's messages.
 - Add `frontend/middleware.ts` integration: `next-intl` middleware composed with the existing auth middleware (do not replace it). Locale prefix mode: `as-needed`. Default locale: `en`. Locales list: `[en, fr, de, es]`.
-- Restructure `frontend/app/` to nest under `frontend/app/[locale]/...` per the next-intl App Router guide. The non-prefixed root `/` continues to resolve to the English locale through middleware rewriting; existing URLs like `/species/123` are not broken.
+- **A3 — Composed middleware refactor (architect addition).** Implement the composition pattern from architecture doc §9 R1: `next-intl` middleware runs first to handle locale negotiation; the existing auth gate runs second against the (post-rewrite) path. Refactor the existing logic in `frontend/middleware.ts` into an `authGate(req)` helper called from the composed entry point. Update the matcher to accept optional locale segments: `"/((?:fr|de|es)/)?account/:path*"` and `"/((?:fr|de|es)/)?dashboard/coordinator/:path*"`.
+- **A3 — Locale-aware redirects.** Update `redirectToLogin` (currently `frontend/middleware.ts`) and the auth-flag-off `/` fallback to construct locale-aware paths: `/fr/login?callbackUrl=/fr/account` instead of `/login?callbackUrl=/account` when the original path has a locale prefix. The `callbackUrl` must preserve the locale.
+- Restructure `frontend/app/` to nest under `frontend/app/[locale]/...` per the next-intl App Router guide. The non-prefixed root `/` continues to resolve to the English locale through middleware rewriting; existing URLs like `/species/123` are not broken. `globals.css` stays at `frontend/app/globals.css`; `layout.tsx` becomes the `[locale]` layout while a new minimal root layout handles `<html>`.
 - Set `<html lang={locale}>` in the root layout dynamically.
 - No translated content yet — every locale renders the English message catalog (S6).
 
@@ -138,6 +149,7 @@ As a visitor, I want the site to recognize URL locale prefixes (`/fr/`, `/de/`, 
 - `/fr/species/123` works and renders the same English content (because no FR translations exist) but `<html lang>` reads `fr`.
 - `/de/species/123`, `/es/species/123` likewise.
 - Existing tests continue to pass after the route restructure.
+- **Eight new middleware test cases in `frontend/middleware.test.ts`** covering locale × auth scenarios from architecture doc §9 R1: `/fr/account` anonymous redirects to `/fr/login?callbackUrl=/fr/account`; `/de/dashboard/coordinator` Tier 2 redirects to `/de/login?callbackUrl=/de/dashboard/coordinator`; `/es/account` Tier 1 with flag on passes through; etc. Without these, the auth gate breaks silently in production under locale prefixes.
 
 #### S6 — Message catalogs scaffolded with EN baseline
 
@@ -189,19 +201,23 @@ As a visitor whose preferred language is French, German, or Spanish, I want a vi
 
 As a search engine, I want each page to declare its alternate locales so that I can index the right URL per audience.
 
-- Update `generateMetadata()` in shared layouts and per-route where present.
+- Create a shared `frontend/lib/seo.ts` helper (architect's pick — see architecture doc §2) called from each page's `generateMetadata()`. Helper produces the `alternates.languages` map plus `canonical` URL for the active locale.
 - For every page, emit:
+  - `<link rel="canonical" href="https://.../<locale-prefix>/path">`
   - `<link rel="alternate" hreflang="en" href="https://.../path">`
   - `<link rel="alternate" hreflang="fr" href="https://.../fr/path">`
   - `<link rel="alternate" hreflang="de" href="https://.../de/path">`
   - `<link rel="alternate" hreflang="es" href="https://.../es/path">`
   - `<link rel="alternate" hreflang="x-default" href="https://.../path">`
 - `<title>`, `<meta description>`, `og:title`, `og:description` come from the message catalogs (so they translate when L2 ships).
+- **A1 — Sitemap and `robots.txt` (architect addition).** Add `frontend/app/sitemap.ts` (Next.js sitemap convention) emitting all public URLs with cross-locale `xhtml:link` annotations per architecture doc §7. Add `frontend/app/robots.ts` declaring `Sitemap: https://<host>/sitemap.xml`. Lands ahead of any locale flip so search engines see the alternate-URL pattern from day one. ~half-day add.
 
 **Acceptance:**
-- View-source on any page shows all five `hreflang` links.
+- View-source on any page shows all five `hreflang` links plus a `<link rel="canonical">` pointing at the active locale's URL.
 - Title / description in `<head>` are catalog-driven, not hardcoded.
 - Lighthouse SEO score does not regress.
+- `https://<host>/sitemap.xml` returns valid XML with `xhtml:link` alternate annotations for all four locales per public URL.
+- `https://<host>/robots.txt` returns a valid robots file referencing the sitemap.
 
 #### S9 — Fonts widened to `latin-ext`
 
@@ -253,11 +269,13 @@ As a maintainer, I want CI to verify every locale loads every key page so that L
   - Asserts the `hreflang` tags exist.
   - Asserts the locale switcher is present.
   - For non-English locales, asserts that fallback English content renders (since L1 produces no translations).
+- **A4 — Locale-aware caching test (architect addition).** Add a back-to-back-request test: hit `/` with `Accept-Language: fr`, immediately hit `/` with `Accept-Language: en`, assert each gets its expected locale. Catches Vercel cache-key misconfiguration where a French response could leak into an English visitor's render. See architecture doc §1 for the cache-key pattern this verifies.
 - Run in CI on every PR.
 
 **Acceptance:**
 - All twenty smoke checks (5 pages × 4 locales) pass green.
 - Fails if any page returns a 5xx in any locale.
+- The cache-key contamination test (A4) passes — back-to-back requests with different `Accept-Language` headers each render the expected locale.
 
 #### S12 — Documentation update
 
@@ -283,8 +301,11 @@ The following are explicitly **not** L1 work; they are L2/L3:
 - DeepL client wiring (L3 — no MT calls happen in L1).
 - The side-by-side admin review screen (L3).
 - Conservation-writer agent invocation in CI or via management command (L3+).
+- **B1 — `TranslationStatus` signal handlers** (architect deferral). Auto-creating / auto-invalidating rows on translatable-field saves is L3 work; L1 leaves the model in admin-edit-only mode. See architecture doc §5.
+- **B2 — `human_approved` review-gate enforcement** (architect deferral). The `<field>_locale_actual` mixin in S3 checks "column populated/empty" only in L1; the gating against `TranslationStatus.status == human_approved` is L3, controlled by the `I18N_ENFORCE_REVIEW_GATE` setting that flips True in L3.
 - Translating Django admin custom labels with `gettext_lazy` (L4 — most of admin gets this for free; we do the custom labels at the point we're translating the coordinator dashboard).
 - Translating transactional emails (L4).
+- **Localized search across translatable fields** (Q-NEW2, L3+). `SpeciesViewSet.search_fields` only references locale-agnostic columns today; localizing search affects rank stability and is a separate UX call. Architecture doc §12 Q-NEW2.
 
 ## 3. Verification gates
 
@@ -296,8 +317,19 @@ After implementation, before merging to main:
 
 ## 4. Definition of done
 
-- All twelve stories complete with their acceptance criteria green.
-- CI passes including the new smoke tests and the `i18n:check` script.
+- All twelve stories complete with their acceptance criteria green, including the architect's A1–A4 additions and B1–B2 deferrals.
+- CI passes including the new smoke tests, the cache-key contamination test (A4), the eight middleware × locale test cases (A3), and the `i18n:check` script.
 - Flag is OFF in production (`NEXT_PUBLIC_FEATURE_I18N` not set or `=0`); site behavior identical to pre-L1 for public visitors.
 - `gate/L1-i18n-framework` branch merged to main behind the flag.
 - `docs/planning/i18n/README.md` Gate L1 row updated to ✅.
+
+## 5. Implementation order (architect-recommended)
+
+Per architecture doc §8, the dependency-ordered sequence is:
+
+- **Wave 1 (day 1–2, parallel):** S1 (Django locale middleware), S9 (latin-ext fonts), S10 (feature flag wiring). All XS/S complexity, no inter-dependencies, no merge conflicts.
+- **Wave 2 (day 2–4, parallel):** S2 (modeltranslation registration), S5 (next-intl + composed middleware + `[locale]` restructure). Backend × frontend parallel; S5 is the critical-path frontend invasion.
+- **Wave 3 (day 4–6, parallel):** S3 (DRF locale + `apiFetch` Accept-Language), S4 (TranslationStatus model), S6 (message catalogs — bottleneck, splittable across namespaces), S7 (locale switcher), S8 (hreflang + sitemap + robots.txt). S8 lands after S6's first pass since it consumes catalog keys.
+- **Wave 4 (day 6–7, sequential):** S11 (e2e smoke tests including A4 cache-key test), S12 (docs).
+
+Total estimated effort: ~8–8.5 working days. Target ship: May 8 (with ~1 week slack from a May 1 start).

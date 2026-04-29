@@ -212,10 +212,24 @@ The architecture agent is invoked after this hub merges to `main`. It produces `
 
 ---
 
+## L3+ future-work parking lot (architect-surfaced)
+
+Carried forward from `docs/planning/architecture/i18n-architecture.md` §12–13. Each item is real work that does not block L1; agents picking up L3+ should consult the architecture doc for context.
+
+- **Localized search across translatable fields (Q-NEW2, L3+).** `SpeciesViewSet.search_fields` references locale-agnostic columns today. When French content lands in L3, a French-speaking user searching `"rouge"` should match against `description_fr`. This is a UX call (rank stability, fallback behavior, multilingual term overlap) handled in L3 or later.
+- **Glossary directory for the conservation-writer agent (L3 prereq).** `.claude/agents/conservation-writer.md` references `docs/planning/i18n/glossaries/`. L3 must create that directory and seed it with empty per-locale glossary files before the writer agent is invoked against MT drafts. Otherwise the agent fails on missing inputs.
+- **DeepL availability fallback (L3).** Pipeline must handle DeepL request failures gracefully: mark the `TranslationStatus` row as `mt_draft` with `notes` populated, retry job picks it up next pass. Architecture doc §13.6.
+- **Account-page locale field (L4).** When `User.locale` is added in L4, the account-page profile editor must surface it so users can self-serve. The L4 spec describes the email work but not the corresponding UI. Architecture doc §13.7.
+- **`Taxon` admin TranslationAdmin inheritance (cosmetic, L1 implementer note).** S2 registers `Taxon.common_family_name` as translatable. The current `Taxon` admin class needs to inherit `TranslationAdmin` (or `TabbedTranslationAdmin`) for the locale tabs to render correctly. Architecture doc §12 Q-NEW1.
+- **`force-dynamic` × locale render cost (L4 monitor).** Every protected route runs `next-intl` middleware *plus* the auth gate; `force-dynamic` pages bypass the locale-aware ISR cache entirely. Acceptable in L1; if perf regresses post-L1, the fix is to push heavy data fetches into route handlers that *do* cache per locale. Architecture doc §13.1–13.2.
+- **`*_locale_actual` keys are permanent (architectural commitment).** Once shipped, removing them is a breaking API change. Architecture doc §13.4.
+
+---
+
 ## How to pick this up in a new session
 
 1. Read this file.
 2. Read the gate spec you're working in (`gate-L1-framework.md`, `gate-L2-french-ui.md`, etc.).
-3. Read the architect's response if it has landed.
+3. Read `docs/planning/architecture/i18n-architecture.md` — it contains the technical depth and resolved D12–D18 patterns.
 4. Check `git branch` — i18n work happens on `gate/L<n>-i18n-*` branches, never on `main`.
-5. If the decisions above (D1–D11) seem wrong for what you're being asked to do, stop and ask — don't override them silently.
+5. If the decisions above (D1–D18) seem wrong for what you're being asked to do, stop and ask — don't override them silently.
