@@ -124,7 +124,7 @@ Each gate is its own short-lived branch off main, merged behind the flag when co
 
 | Gate | Scope                                                 | Branch                                | Target  |
 | ---- | ----------------------------------------------------- | ------------------------------------- | ------- |
-| L1   | Framework: routing, middleware, modeltranslation, switcher, fonts, message catalog extraction (EN baseline) | `gate/L1-i18n-framework`              | May 8   |
+| L1   | Framework: routing, middleware, modeltranslation, switcher, fonts, message catalog extraction (EN baseline) — **✅ shipped 2026-04-29 (PR #140 + Wave 4)** | `gate/L1-i18n-framework`              | May 8   |
 | L2   | French UI translation (chrome only, all surfaces)     | `gate/L2-i18n-french-ui`              | May 15  |
 | L3   | French content (species, About, glossaries) + MT pipeline + admin review UI | `gate/L3-i18n-french-content`         | May 22  |
 | L4   | French polish + admin / coordinator surfaces + emails + flag-flip prep | `gate/L4-i18n-french-staff`           | May 29  |

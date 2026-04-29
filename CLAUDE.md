@@ -149,6 +149,92 @@ Django `/auth/logout/`, deletes the DRF Token row) AND `signOut()` (clears
 the NextAuth cookie). A logout that only clears the cookie is a bug per
 BA cross-cutting; both calls must run.
 
+### i18n (Gate L1)
+
+Multilingual platform shipped behind `NEXT_PUBLIC_FEATURE_I18N`. Four
+locales: `en` (default, at `/`), `fr`, `de`, `es` (path-prefixed at
+`/fr/`, `/de/`, `/es/`). next-intl v3 with `localePrefix: "as-needed"`.
+English baseline content is live; French/German/Spanish ship as
+byte-identical English placeholder catalogs ready for L2 / L5 / L6
+translation.
+
+Specs: `docs/planning/i18n/README.md` (locked decisions D1–D18),
+`docs/planning/i18n/gate-L1-framework.md` (12 user stories),
+`docs/planning/architecture/i18n-architecture.md` (technical depth).
+
+Where the moving parts live:
+- `frontend/i18n/routing.ts` — `routing` config plus `Link`,
+  `useRouter`, `usePathname`, `redirect` from `createNavigation`. Use
+  these in client components, NOT next/navigation's raw exports —
+  they preserve locale on internal navigation and update the
+  `NEXT_LOCALE` cookie on locale switch.
+- `frontend/i18n/request.ts` — `getRequestConfig` resolves the active
+  locale's messages from `frontend/messages/<locale>.json`.
+- `frontend/middleware.ts` — composed middleware: next-intl runs first
+  for locale negotiation, then the auth gate runs against the
+  post-rewrite path.
+- `frontend/messages/{en,fr,de,es}.json` — message catalogs. en.json
+  is the source of truth; the others are byte-identical placeholders
+  in L1 and get translated in L2/L5/L6.
+- `frontend/components/LocaleSwitcher.tsx` — flag-gated header
+  dropdown.
+- `frontend/lib/seo.ts` + `frontend/app/sitemap.ts` +
+  `frontend/app/robots.ts` — locale-aware metadata, hreflang tags,
+  cross-locale `xhtml:link` annotations.
+- `backend/<app>/translation.py` — `django-modeltranslation`
+  registrations. Currently wired on `Species` (description,
+  ecology_notes, distribution_narrative, morphology) and `Taxon`
+  (common_family_name).
+- `backend/i18n/models.py::TranslationStatus` — per-(model, id, field,
+  locale) review-pipeline state. Read-only admin in L1; the L3
+  side-by-side review screen reads/writes via this model.
+
+Five rules that govern i18n code:
+
+1. **Never use `next/link` for internal links.** Always import
+   `{ Link }` from `@/i18n/routing`. Plain `next/link` strips the
+   active locale on navigation. Same goes for `useRouter` and
+   `usePathname` — use the locale-aware versions.
+
+2. **No hardcoded English in `frontend/app/` or `frontend/components/`.**
+   Every visible string goes through `t()` (server: `getTranslations`;
+   client / either: `useTranslations`). `pnpm i18n:check` verifies
+   key parity across locales in CI; add new keys to en.json AND
+   each placeholder catalog or the check fails.
+
+3. **Server-action error strings, `lib/husbandry` helpers, and
+   Django-side error messages are L4 polish, not L1 work.** Three
+   pockets ship in L1 producing English regardless of locale; they
+   need symbolic-token plumbing or backend gettext wiring. Do not
+   route around — let them land in L4.
+
+4. **`Species.iucn_status` mirror policy still applies (see "Conservation
+   status sourcing").** Modeltranslation's `description_<locale>`
+   columns are independent from the IUCN mirror; conservation-status
+   editing must still go through `ConservationAssessment`.
+
+5. **Locale + auth = double-cache hazard.** Any tier-aware fetch
+   already needs `revalidate: 0` per the auth rules above. Locale
+   adds another dimension: `next-intl` middleware patches
+   `Vary: Accept-Language` so per-locale variants don't collide.
+   If you add a route that does both auth-gated fetches and
+   locale-aware rendering, the existing `revalidate: 0` discipline
+   covers it; just don't introduce locale-aware caching that ignores
+   `Accept-Language`.
+
+The `NEXT_PUBLIC_FEATURE_I18N` flag and per-locale flags
+(`NEXT_PUBLIC_FEATURE_I18N_FR/DE/ES`) gate the `<LocaleSwitcher />`
+visibility and the per-locale entries in the dropdown. The locale
+prefix routes (`/fr/...` etc.) work regardless — they're served by
+next-intl middleware. This is intentional in L1: the catalogs are
+English placeholders, so visible French URLs don't leak unfinished
+translations. L2 flips `..._FR=true` after French content is human-
+approved through the L3 review pipeline.
+
+DeepL API key for the L3 MT pipeline lives in root `.env` as
+`DEEPL_API_KEY` (free tier keys end in `:fx`, paid don't). Not used
+in L1.
+
 ## Active Initiatives
 
 Multi-gate initiatives have their own planning hub under `docs/planning/<initiative>/README.md`. Read the hub first in any new session touching that work — it holds the locked-in decisions, gate split, and open questions so sessions can resume without backtracking.

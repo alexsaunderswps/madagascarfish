@@ -53,3 +53,4 @@ data/reference/source/
 data/reference/*.pdf
 data/reference/*.csv
 .claude/scheduled_tasks.lock
+test-results/
