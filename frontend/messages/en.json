@@ -278,22 +278,41 @@
     }
   },
   "errors": {
-    "title": "Something went wrong",
-    "subtitle": "An unexpected error occurred while rendering this page.",
+    "title": "This page could not be loaded",
+    "subtitle": "An unexpected error interrupted rendering. Try again in a moment, or return to the home page.",
+    "ariaLabel": "Page temporarily unavailable",
     "tryAgain": "Try again",
     "homeLink": "Return home",
-    "404": {
+    "notFound": {
+      "metaTitle": "Page not found — Madagascar Freshwater Fish",
       "title": "Page not found",
-      "subtitle": "The page you're looking for doesn't exist or has been moved.",
-      "homeLink": "Return home"
+      "body": "This address does not match any page on the platform. The link may be out of date, or the page may have moved.",
+      "homeLink": "Return home",
+      "browseAll": "Browse all species",
+      "directoryHintPrefix": "Looking for a specific species?",
+      "directoryHintLink": "Try the directory search."
     }
   },
   "footer": {
     "platformHeading": "Platform",
     "dataHeading": "Data",
     "aboutHeading": "About",
-    "contactHeading": "Contact",
-    "copyrightLine": "Open data, open source. © {year} Madagascar Freshwater Fish.",
-    "githubLabel": "GitHub repository"
+    "contributeHeading": "Contribute",
+    "platformLinks": {
+      "speciesDirectory": "Species Directory",
+      "distributionMap": "Distribution Map",
+      "conservationDashboard": "Conservation Dashboard"
+    },
+    "aboutLinks": {
+      "aboutThePlatform": "About the Platform",
+      "dataSources": "Data Sources",
+      "glossary": "Glossary"
+    },
+    "contributeLinks": {
+      "husbandryReports": "Husbandry Reports",
+      "github": "GitHub"
+    },
+    "license": "Madagascar Freshwater Fish Conservation Platform — Apache-2.0",
+    "dataNote": "Data mirrored from IUCN, FishBase, GBIF, ZIMS, SHOAL, and CARES."
   }
 }
