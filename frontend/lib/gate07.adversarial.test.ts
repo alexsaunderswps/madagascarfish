@@ -169,8 +169,15 @@ describe("Dashboard page — CHART_CAPTION label (FE-07-7 AC)", () => {
   it("chart caption uses 'Not yet assessed' for the NE bucket", () => {
     // Gate L1 i18n: chart caption moved into messages/en.json under
     // dashboard.iucnChartCaption. Verify that the rendered surface
-    // (page source + catalog) carries the correct phrasing and never
-    // the deprecated "Not Evaluated".
+    // (page source + catalog) carries the correct phrasing AND that
+    // the dashboard page source itself never re-introduces the
+    // deprecated "Not Evaluated" phrasing.
+    //
+    // Note: the glossary catalog (about.glossary.entries.notEvaluated.*)
+    // legitimately references "Not Evaluated" as the deprecated IUCN
+    // abbreviation it documents. That's why the negative-match check
+    // is scoped to the dashboard page source only, not the whole
+    // en.json catalog.
     const src = readFileSync(
       resolve(FRONTEND_ROOT, "app/[locale]/dashboard/page.tsx"),
       "utf-8",
@@ -181,7 +188,7 @@ describe("Dashboard page — CHART_CAPTION label (FE-07-7 AC)", () => {
     );
     const combined = `${src}\n${enMessages}`;
     expect(combined).toContain("Not yet assessed");
-    expect(combined).not.toMatch(/Not Evaluated/i);
+    expect(src).not.toMatch(/Not Evaluated/i);
   });
 });
 
