@@ -143,17 +143,63 @@ Gate L3 translates the full species corpus, not a priority subset.
 
 ---
 
-## Open questions for the architecture review
+## Resolved decisions for the architecture review
 
-The architecture agent should resolve or surface:
+These supplement D1–D11. They were resolved with Alex on 2026-04-29 after walking through the open questions. The architecture agent **verifies the implementation patterns and produces technical depth**; it does not re-litigate the choices.
 
-1. **Locale-aware caching.** The auth gate enforces `revalidate: 0` for tier-aware fetches because Next's ISR cache key isn't authentication-aware. Same problem applies to locale: the cache key needs to include the active locale, or every locale-aware fetch needs `revalidate: 0`. Confirm `next-intl` middleware sets the cache key correctly, or document the discipline.
-2. **`hreflang` and canonical strategy.** Per-page `<link rel="alternate" hreflang="...">` for all four locales plus `x-default`. Confirm the implementation pattern in App Router (per-route `generateMetadata`, or a shared layout-level helper).
-3. **DRF locale resolution.** Settle: middleware-based (`Accept-Language`-driven, sets `request.LANGUAGE_CODE`, serializers read from active language) vs. explicit serializer context. The first is more idiomatic Django and what we want.
-4. **Modeltranslation migration shape.** Adding `description_fr`, `description_de`, `description_es` to `Species` is one migration with `null=True` on the new fields. Confirm the data migration approach: copy existing `description` into `description_en` to make English a peer of the others, or keep `description` as the de facto English column and let modeltranslation alias it. Each has tradeoffs for admin and API; the architect picks.
-5. **Translation pipeline storage.** A separate `TranslationStatus` model keyed by `(content_type, object_id, field, locale)`, or a status field per `_fr`, `_de`, `_es` on each translated model? The first is more flexible; the second is closer to the data. Architect picks.
-6. **Email localization.** Django can render templates in a locale via `translation.override(locale)`. Confirm the trigger: locale stored on `User`, locale passed at send time, or both?
-7. **SEO sitemap.** Sitemap needs per-locale entries with cross-locale `xhtml:link` tags. Confirm where the sitemap is generated and how it integrates with `next-intl`.
+### D12 — Locale-aware caching follows the auth-tier pattern
+
+- The cache key for any cacheable response must include the active locale; locale-aware fetches must pass `revalidate: 0` (or sit on `force-dynamic` pages) — same defense-in-depth pattern the auth gate uses for tier-aware fetches per `CLAUDE.md`.
+- This is invisible plumbing, not user-facing. The user-facing locale switcher is story S7 in Gate L1 (`<LocaleSwitcher />` in the header).
+- **Architect's job:** confirm `next-intl` middleware emits the right `Vary` header / cache key on Vercel; document the discipline in the L1 spec where the auth `revalidate: 0` rule is also documented; flag any route that already caches and would need an audit.
+
+### D13 — `hreflang` via shared `generateMetadata` helper
+
+- Every page emits `hreflang` for all four locales plus `x-default` (per S8).
+- Implementation: a shared helper called from each page's `generateMetadata()`, not duplicated per route.
+- Canonical URLs paired with the helper so `<link rel="canonical">` always points at the correct locale-specific URL.
+- **Architect's job:** pick the helper's location (e.g., `frontend/lib/seo.ts` or `frontend/lib/metadata.ts`), confirm that the existing metadata in `frontend/app/layout.tsx` and any per-route `generateMetadata` overrides compose cleanly with it.
+
+### D14 — DRF locale resolution via Django's `LocaleMiddleware`
+
+- `Accept-Language` header (set by the frontend from the URL prefix) drives `request.LANGUAGE_CODE`; modeltranslation reads from the active language automatically.
+- `?lang=fr` query parameter override is supported (S3) but not required for normal use.
+- **Architect's job:** confirm interaction with the auth middleware (`TokenAuthentication`, `SessionAuthentication`), document any required `MIDDLEWARE` ordering, verify the existing service-token / session-token paths still work under the new middleware stack.
+
+### D15 — Modeltranslation: keep `description` as the implicit English column
+
+- No rename of existing columns. Modeltranslation aliases the unsuffixed column to the default language (`en`) — `Species.description` continues to be the English value, with new `description_fr`, `description_de`, `description_es` siblings.
+- Existing English content is preserved on the existing column with no data migration beyond schema additions.
+- **Architect's job:** confirm migration shape (one `AddField` per new column per registered model, all `null=True, blank=True`); confirm modeltranslation's admin integration shows the four-locale tabs as expected; flag any DRF serializer that explicitly references `description` to ensure the active-language read continues to work.
+
+### D16 — `TranslationStatus` as a separate model
+
+- One row per `(content_type, object_id, field, locale)`, per S4.
+- Flexible across models, normalized, queryable for the L3 admin filter UI ("show me everything in `mt_draft` for French species descriptions").
+- **Architect's job:** index strategy (composite index on `(content_type, object_id)` plus a covering index for status filters), query patterns for the side-by-side admin review screen in Gate L3, signal/hook strategy for keeping `TranslationStatus` rows in sync when a translatable field is edited directly.
+
+### D17 — Email localization: per-User locale + send-time override
+
+- Add a `User.locale` field (CharField, choices = LANGUAGES, default `"en"`) in Gate L4 when emails are first localized.
+- Email-sending helpers accept an optional `locale=` kwarg that overrides the user's stored preference (useful for password-reset flows where the user is identified by email before their stored locale is loaded, or for transactional emails sent from a context that already knows the right locale).
+- **Architect's job:** design the helper signature (`send_translated_email(user_or_email, template, context, locale=None)` or similar); pick where Django's `translation.override(locale)` wraps the template render; confirm the existing email sender is compatible.
+
+### D18 — Sitemap with cross-locale `xhtml:link` annotations
+
+- Single sitemap with each URL's locale variants annotated via `<xhtml:link rel="alternate" hreflang="...">`.
+- Modern Google-recommended pattern; expresses the relationship between locale variants better than per-locale sitemaps.
+- **Architect's job:** identify the existing sitemap generator (Django's `django.contrib.sitemaps`, a Next.js-side route, or absent); if absent, propose where the sitemap lives; confirm the `xhtml:link` annotations are emitted correctly per URL.
+
+---
+
+## Architecture agent next steps
+
+The architecture agent is invoked after this hub merges to `main`. It produces `docs/planning/architecture/i18n-architecture.md` on a `docs/i18n-architecture` branch covering:
+
+- The eight resolved decisions above, with the technical detail each "Architect's job" line calls out.
+- Any new questions / risks that surface from grounding the plan in the current codebase (`frontend/middleware.ts`, `backend/config/settings/base.py`, the existing serializers, etc.).
+- A concrete implementation order for Gate L1's twelve stories — which story unblocks which, where the parallelizable work is.
+- Any required updates to `gate-L1-framework.md` based on what the architect surfaces.
 
 ---
 
