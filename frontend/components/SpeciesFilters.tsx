@@ -11,13 +11,18 @@
  *
  * Search still requires Enter/submit so the user can type freely without
  * thrashing the route on every keystroke.
+ *
+ * Routing uses the locale-aware router from @/i18n/routing so filter
+ * navigation preserves the active locale (a user filtering on
+ * /fr/species/ stays on /fr/species/?...).
  */
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { useRouter } from "@/i18n/routing";
 import {
-  IUCN_LABELS,
   IUCN_STATUSES,
   KNOWN_FAMILIES,
   type IucnStatus,
@@ -29,6 +34,8 @@ function toggle<T>(arr: T[], value: T): T[] {
 }
 
 export default function SpeciesFilters({ initial }: { initial: SpeciesFilterState }) {
+  const t = useTranslations("species.directory.filters");
+  const tCommon = useTranslations("common.iucn");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(initial.search ?? "");
@@ -99,26 +106,34 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
 
   const iucnSet = new Set(initial.iucn_status ?? []);
 
+  // Captive-population options. Translated labels resolved at render
+  // time; the wire values stay as-is for URL stability.
+  const captiveOptions: ReadonlyArray<{ v: "" | "true" | "false"; label: string }> = [
+    { v: "", label: t("captiveAny") },
+    { v: "true", label: t("captiveHas") },
+    { v: "false", label: t("captiveNone") },
+  ];
+
   return (
     <form
       onSubmit={onSearchSubmit}
-      aria-label="Species filters"
+      aria-label={t("ariaLabel")}
       className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
     >
       <label className="block text-sm">
-        <span className="mb-1 block font-medium text-slate-700">Search</span>
+        <span className="mb-1 block font-medium text-slate-700">{t("search")}</span>
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Scientific or common name…"
+          placeholder={t("searchPlaceholder")}
           className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
         />
-        <span className="mt-1 block text-xs text-slate-500">Press Enter to search.</span>
+        <span className="mt-1 block text-xs text-slate-500">{t("searchHint")}</span>
       </label>
 
       <fieldset className="space-y-1">
-        <legend className="text-sm font-medium text-slate-700">IUCN status</legend>
+        <legend className="text-sm font-medium text-slate-700">{t("iucnStatus")}</legend>
         <div className="flex flex-wrap gap-2 text-xs">
           {IUCN_STATUSES.map((s) => {
             const active = iucnSet.has(s);
@@ -128,7 +143,7 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
                 type="button"
                 onClick={() => toggleIucn(s)}
                 aria-pressed={active}
-                title={IUCN_LABELS[s]}
+                title={tCommon(s)}
                 className={`rounded border px-2 py-0.5 font-semibold ${
                   active
                     ? "border-sky-600 bg-sky-600 text-white"
@@ -141,21 +156,18 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
           })}
         </div>
         {iucnSet.has("NE") ? (
-          <p className="pt-1 text-xs text-slate-500">
-            NE (&ldquo;Not yet assessed&rdquo;) includes undescribed
-            morphospecies that have not been assessed by the IUCN Red List.
-          </p>
+          <p className="pt-1 text-xs text-slate-500">{t("iucnNeNote")}</p>
         ) : null}
       </fieldset>
 
       <label className="block text-sm">
-        <span className="mb-1 block font-medium text-slate-700">Family</span>
+        <span className="mb-1 block font-medium text-slate-700">{t("family")}</span>
         <select
           value={initial.family ?? ""}
           onChange={(e) => setFamily(e.target.value)}
           className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
         >
-          <option value="">Any family</option>
+          <option value="">{t("anyFamily")}</option>
           {KNOWN_FAMILIES.map((f) => (
             <option key={f} value={f}>
               {f}
@@ -165,66 +177,59 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
       </label>
 
       <label className="block text-sm">
-        <span className="mb-1 block font-medium text-slate-700">Taxonomic status</span>
+        <span className="mb-1 block font-medium text-slate-700">{t("taxonomicStatus")}</span>
         <select
           value={initial.taxonomic_status ?? ""}
           onChange={(e) => setTaxStatus(e.target.value)}
           className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
         >
-          <option value="">Any</option>
-          <option value="described">Described</option>
-          <option value="undescribed_morphospecies">Undescribed morphospecies</option>
+          <option value="">{t("anyTaxonomicStatus")}</option>
+          <option value="described">{t("described")}</option>
+          <option value="undescribed_morphospecies">{t("undescribedMorphospecies")}</option>
         </select>
       </label>
 
       <fieldset className="space-y-1">
-        <legend className="text-sm font-medium text-slate-700">Priority listings</legend>
-        <p className="pb-1 text-xs text-slate-500">
-          Conservation-priority lists maintained alongside the IUCN Red
-          List, not in place of it.
-        </p>
+        <legend className="text-sm font-medium text-slate-700">{t("priorityListings")}</legend>
+        <p className="pb-1 text-xs text-slate-500">{t("priorityListingsHint")}</p>
         <div className="flex flex-wrap gap-2 text-xs">
           <button
             type="button"
             onClick={toggleCares}
             aria-pressed={initial.has_cares === "true"}
-            title="CARES — hobbyist-led priority list for freshwater fish whose wild populations need ex-situ backup. Distinct from IUCN."
+            title={t("caresTooltip")}
             className={`rounded border px-2 py-0.5 font-semibold ${
               initial.has_cares === "true"
                 ? "border-sky-600 bg-sky-600 text-white"
                 : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
             }`}
           >
-            CARES
+            {t("caresLabel")}
           </button>
           <button
             type="button"
             onClick={toggleShoal}
             aria-pressed={initial.shoal_priority === "true"}
-            title="SHOAL 1,000 Fishes Blueprint — global priority list for freshwater fish conservation."
+            title={t("shoalTooltip")}
             className={`rounded border px-2 py-0.5 font-semibold ${
               initial.shoal_priority === "true"
                 ? "border-sky-600 bg-sky-600 text-white"
                 : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
             }`}
           >
-            SHOAL 1,000
+            {t("shoalLabel")}
           </button>
         </div>
       </fieldset>
 
       <fieldset className="space-y-1">
-        <legend className="text-sm font-medium text-slate-700">Captive population</legend>
+        <legend className="text-sm font-medium text-slate-700">
+          {t("captivePopulationLegend")}
+        </legend>
         <div className="flex gap-2 text-xs">
-          {(
-            [
-              { v: "", label: "Any" },
-              { v: "true", label: "Has captive pop." },
-              { v: "false", label: "None tracked" },
-            ] as const
-          ).map((opt) => (
+          {captiveOptions.map((opt) => (
             <button
-              key={opt.label}
+              key={opt.v || "any"}
               type="button"
               onClick={() => setCaptive(opt.v)}
               aria-pressed={(initial.has_captive_population ?? "") === opt.v}
@@ -241,7 +246,7 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
       </fieldset>
 
       <fieldset className="space-y-1">
-        <legend className="text-sm font-medium text-slate-700">Introduced species</legend>
+        <legend className="text-sm font-medium text-slate-700">{t("introducedLegend")}</legend>
         <label className="flex items-start gap-2 text-xs text-slate-700">
           <input
             type="checkbox"
@@ -250,9 +255,8 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
             className="mt-0.5"
           />
           <span>
-            Show introduced (non-native) species — for example,{" "}
-            <em>Oreochromis</em> spp. Hidden by default so the directory
-            reads as Madagascar&rsquo;s native fauna.
+            {t("introducedDescriptionPrefix")}{" "}
+            <em>Oreochromis</em> {t("introducedDescriptionSuffix")}
           </span>
         </label>
       </fieldset>
@@ -263,16 +267,16 @@ export default function SpeciesFilters({ initial }: { initial: SpeciesFilterStat
           onClick={onClear}
           className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:border-slate-400"
         >
-          Clear filters
+          {t("clearFilters")}
         </button>
       </div>
 
       <details className="text-xs text-slate-600">
-        <summary className="cursor-pointer font-medium">IUCN legend</summary>
+        <summary className="cursor-pointer font-medium">{t("iucnLegendSummary")}</summary>
         <ul className="mt-2 space-y-1">
           {IUCN_STATUSES.map((s) => (
             <li key={s}>
-              <span className="font-semibold">{s}</span> — {IUCN_LABELS[s]}
+              <span className="font-semibold">{s}</span> — {tCommon(s)}
             </li>
           ))}
         </ul>

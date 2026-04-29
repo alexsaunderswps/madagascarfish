@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+
+import { Link } from "@/i18n/routing";
 
 const baseLinkStyle = {
   display: "inline-flex",
@@ -25,7 +27,7 @@ const disabledStyle = {
   cursor: "not-allowed",
 } as const;
 
-export default function Pagination({
+export default async function Pagination({
   page,
   totalCount,
   pageSize,
@@ -52,9 +54,11 @@ export default function Pagination({
     return qs ? `/species/?${qs}` : "/species/";
   };
 
+  const t = await getTranslations("species.directory.pagination");
+
   return (
     <nav
-      aria-label="Pagination"
+      aria-label={t("ariaLabel")}
       style={{
         marginTop: 24,
         display: "flex",
@@ -65,25 +69,25 @@ export default function Pagination({
       }}
     >
       <div style={{ color: "var(--ink-2)" }}>
-        Page {page} of {totalPages} — {totalCount} total
+        {t("pageOf", { current: page, total: totalPages, totalCount })}
       </div>
       <div style={{ display: "flex", gap: 8 }}>
         {page > 1 ? (
           <Link href={buildHref(page - 1)} style={baseLinkStyle}>
-            ← Previous
+            {t("previous")}
           </Link>
         ) : (
           <span aria-disabled="true" style={disabledStyle}>
-            ← Previous
+            {t("previous")}
           </span>
         )}
         {page < totalPages ? (
           <Link href={buildHref(page + 1)} style={baseLinkStyle}>
-            Next →
+            {t("next")}
           </Link>
         ) : (
           <span aria-disabled="true" style={disabledStyle}>
-            Next →
+            {t("next")}
           </span>
         )}
       </div>

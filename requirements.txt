@@ -38,6 +38,11 @@ drf-spectacular>=0.27,<1
 # Models
 django-mptt>=0.16,<1
 
+# i18n — Gate L1+. Adds language-suffixed columns to translatable fields
+# (description_fr, description_de, description_es, ...). See
+# docs/planning/i18n/README.md D3.
+django-modeltranslation>=0.19,<1
+
 # HTTP client (IUCN and future external APIs)
 requests>=2.32,<3
 

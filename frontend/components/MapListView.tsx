@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useMemo, useState, type CSSProperties } from "react";
 
+import { Link } from "@/i18n/routing";
 import type { LocalityFeature, LocalityFeatureCollection } from "@/lib/mapLocalities";
 import { iucnColor } from "@/lib/mapLocalities";
 
@@ -133,6 +134,7 @@ export default function MapListView({
 }: {
   data: LocalityFeatureCollection;
 }) {
+  const t = useTranslations("map.list");
   const features = data.features;
   const totalFeatures = features.length;
   const speciesCount = new Set(features.map((f) => f.properties.species_id)).size;
@@ -167,16 +169,15 @@ export default function MapListView({
       }}
     >
       <p style={{ margin: "0 0 20px", fontSize: 13, color: "var(--ink-2)" }}>
-        Showing{" "}
-        <strong style={{ color: "var(--ink)", fontVariantNumeric: "tabular-nums" }}>
-          {totalFeatures}
-        </strong>{" "}
-        locality records across{" "}
-        <strong style={{ color: "var(--ink)", fontVariantNumeric: "tabular-nums" }}>
-          {speciesCount}
-        </strong>{" "}
-        species. Click a column header to sort; use the Locality link in each
-        row to view it on the map.
+        {t.rich("summary", {
+          total: totalFeatures,
+          species: speciesCount,
+          strong: (chunks) => (
+            <strong style={{ color: "var(--ink)", fontVariantNumeric: "tabular-nums" }}>
+              {chunks}
+            </strong>
+          ),
+        })}
       </p>
       <div
         style={{
@@ -194,21 +195,17 @@ export default function MapListView({
             fontSize: 13,
           }}
         >
-          <caption className="sr-only">
-            Locality records for Madagascar freshwater fish, one row per marker
-            visible on the map. Columns are sortable; use each row&rsquo;s
-            Locality link to open that locality on the map.
-          </caption>
+          <caption className="sr-only">{t("caption")}</caption>
           <thead style={{ backgroundColor: "var(--bg-sunken)" }}>
             <tr>
-              <SortHeader label="Scientific name" sortKey="scientific_name" activeKey={sortKey} dir={sortDir} onSort={onSort} />
-              <SortHeader label="IUCN" sortKey="iucn_status" activeKey={sortKey} dir={sortDir} onSort={onSort} />
-              <SortHeader label="Locality" sortKey="locality_name" activeKey={sortKey} dir={sortDir} onSort={onSort} />
-              <SortHeader label="Type" sortKey="locality_type" activeKey={sortKey} dir={sortDir} onSort={onSort} />
-              <SortHeader label="Presence" sortKey="presence_status" activeKey={sortKey} dir={sortDir} onSort={onSort} />
-              <SortHeader label="Water body" sortKey="water_body" activeKey={sortKey} dir={sortDir} onSort={onSort} />
-              <SortHeader label="Year" sortKey="year_collected" activeKey={sortKey} dir={sortDir} onSort={onSort} />
-              <th scope="col" style={TH_STYLE}>Source</th>
+              <SortHeader label={t("headers.scientificName")} sortKey="scientific_name" activeKey={sortKey} dir={sortDir} onSort={onSort} />
+              <SortHeader label={t("headers.iucn")} sortKey="iucn_status" activeKey={sortKey} dir={sortDir} onSort={onSort} />
+              <SortHeader label={t("headers.locality")} sortKey="locality_name" activeKey={sortKey} dir={sortDir} onSort={onSort} />
+              <SortHeader label={t("headers.type")} sortKey="locality_type" activeKey={sortKey} dir={sortDir} onSort={onSort} />
+              <SortHeader label={t("headers.presence")} sortKey="presence_status" activeKey={sortKey} dir={sortDir} onSort={onSort} />
+              <SortHeader label={t("headers.waterBody")} sortKey="water_body" activeKey={sortKey} dir={sortDir} onSort={onSort} />
+              <SortHeader label={t("headers.year")} sortKey="year_collected" activeKey={sortKey} dir={sortDir} onSort={onSort} />
+              <th scope="col" style={TH_STYLE}>{t("headers.source")}</th>
             </tr>
           </thead>
           <tbody>
@@ -249,13 +246,13 @@ export default function MapListView({
                           {p.iucn_status}
                         </span>
                       ) : (
-                        <span style={{ color: "var(--ink-3)" }}>—</span>
+                        <span style={{ color: "var(--ink-3)" }}>{t("emDash")}</span>
                       )}
                     </Link>
                   </td>
                   <td style={TD_STYLE}>
                     <Link href={mapHref} style={CELL_LINK_STYLE}>
-                      {p.locality_name || "—"}
+                      {p.locality_name || t("emDash")}
                     </Link>
                   </td>
                   <td style={{ ...TD_STYLE, textTransform: "capitalize" }}>
@@ -271,7 +268,7 @@ export default function MapListView({
                   <td style={TD_STYLE}>
                     <Link href={mapHref} style={CELL_LINK_STYLE}>
                       {p.water_body || (
-                        <span style={{ color: "var(--ink-3)" }}>—</span>
+                        <span style={{ color: "var(--ink-3)" }}>{t("emDash")}</span>
                       )}
                       {p.water_body_type ? (
                         <span
@@ -288,11 +285,11 @@ export default function MapListView({
                   </td>
                   <td style={{ ...TD_STYLE, fontVariantNumeric: "tabular-nums" }}>
                     <Link href={mapHref} style={CELL_LINK_STYLE}>
-                      {p.year_collected ?? "—"}
+                      {p.year_collected ?? t("emDash")}
                     </Link>
                   </td>
                   <td style={{ ...TD_STYLE, fontSize: 12, color: "var(--ink-3)" }}>
-                    {p.source_citation || "—"}
+                    {p.source_citation || t("emDash")}
                   </td>
                 </tr>
               );

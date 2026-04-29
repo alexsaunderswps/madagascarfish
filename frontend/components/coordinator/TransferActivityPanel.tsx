@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
 import type {
@@ -7,14 +8,6 @@ import type {
 } from "@/lib/coordinatorDashboard";
 
 import PanelShell from "./PanelShell";
-
-const STATUS_LABELS: Record<TransferStatus, string> = {
-  proposed: "Proposed",
-  approved: "Approved",
-  in_transit: "In transit",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
 
 const STATUS_TAG_STYLE: Record<TransferStatus, CSSProperties> = {
   proposed: {
@@ -92,22 +85,34 @@ function formatMfu(row: TransferRow): string | null {
   return `${m}.${f}.${u}`;
 }
 
-function formatDate(date: string | null): string {
-  return date ?? "—";
-}
-
 interface Props {
   data: TransferActivityResponse | null;
+}
+
+interface PanelTranslations {
+  statuses: (status: TransferStatus) => string;
+  table: {
+    species: string;
+    fromTo: string;
+    status: string;
+    proposed: string;
+    completed: string;
+    mfu: string;
+    cites: string;
+  };
+  emDash: string;
 }
 
 function TransferTable({
   rows,
   emptyMessage,
   showActual,
+  tx,
 }: {
   rows: TransferRow[];
   emptyMessage: string;
   showActual: boolean;
+  tx: PanelTranslations;
 }) {
   if (rows.length === 0) {
     return (
@@ -121,17 +126,18 @@ function TransferTable({
       <table style={TABLE_STYLE}>
         <thead>
           <tr>
-            <th style={TH_STYLE}>Species</th>
-            <th style={TH_STYLE}>From → To</th>
-            <th style={TH_STYLE}>Status</th>
-            <th style={TH_STYLE}>{showActual ? "Completed" : "Proposed"}</th>
-            <th style={TH_STYLE}>M.F.U</th>
-            <th style={TH_STYLE}>CITES</th>
+            <th style={TH_STYLE}>{tx.table.species}</th>
+            <th style={TH_STYLE}>{tx.table.fromTo}</th>
+            <th style={TH_STYLE}>{tx.table.status}</th>
+            <th style={TH_STYLE}>{showActual ? tx.table.completed : tx.table.proposed}</th>
+            <th style={TH_STYLE}>{tx.table.mfu}</th>
+            <th style={TH_STYLE}>{tx.table.cites}</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => {
             const mfu = formatMfu(row);
+            const dateValue = showActual ? row.actual_date : row.proposed_date;
             return (
               <tr key={row.transfer_id}>
                 <td style={{ ...TD_STYLE, fontStyle: "italic" }}>
@@ -141,19 +147,15 @@ function TransferTable({
                   {row.source_institution.name} → {row.destination_institution.name}
                 </td>
                 <td style={TD_STYLE}>
-                  <span
-                    style={{ ...BASE_TAG, ...STATUS_TAG_STYLE[row.status] }}
-                  >
-                    {STATUS_LABELS[row.status]}
+                  <span style={{ ...BASE_TAG, ...STATUS_TAG_STYLE[row.status] }}>
+                    {tx.statuses(row.status)}
                   </span>
                 </td>
-                <td style={TD_STYLE}>
-                  {formatDate(showActual ? row.actual_date : row.proposed_date)}
-                </td>
-                <td style={TD_STYLE}>{mfu ?? "—"}</td>
+                <td style={TD_STYLE}>{dateValue ?? tx.emDash}</td>
+                <td style={TD_STYLE}>{mfu ?? tx.emDash}</td>
                 <td style={TD_STYLE}>
                   {row.cites_reference ?? (
-                    <span style={{ color: "var(--ink-3)" }}>—</span>
+                    <span style={{ color: "var(--ink-3)" }}>{tx.emDash}</span>
                   )}
                 </td>
               </tr>
@@ -165,18 +167,32 @@ function TransferTable({
   );
 }
 
-export default function TransferActivityPanel({ data }: Props) {
+export default async function TransferActivityPanel({ data }: Props) {
+  const t = await getTranslations("dashboard.coordinator.panels.transfers");
+
+  const tx: PanelTranslations = {
+    statuses: (status) => t(`statuses.${status}`),
+    table: {
+      species: t("table.species"),
+      fromTo: t("table.fromTo"),
+      status: t("table.status"),
+      proposed: t("table.proposed"),
+      completed: t("table.completed"),
+      mfu: t("table.mfu"),
+      cites: t("table.cites"),
+    },
+    emDash: t("emDash"),
+  };
+
   if (!data) {
     return (
       <PanelShell
-        eyebrow="Panel 5"
-        title="Transfer activity"
-        caption="Animal movement between institutions."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        caption={t("captionShort")}
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Transfer records are temporarily unavailable. Proposed, in-transit,
-          and recently completed moves will reappear once the coordination
-          API is reachable.
+          {t("unavailable")}
         </p>
       </PanelShell>
     );
@@ -186,22 +202,27 @@ export default function TransferActivityPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow="Panel 5"
-      title={`Transfer activity — ${in_flight.length} in flight, ${recent_completed.length} recent`}
-      caption={`Proposed, approved, and in-transit moves between institutions, plus moves completed in the last ${window_days} days. In-flight transfers are sorted oldest-proposed first, so anything stuck in coordination floats to the top.`}
+      eyebrow={t("eyebrow")}
+      title={t("titleWithCount", {
+        inFlight: in_flight.length,
+        recent: recent_completed.length,
+      })}
+      caption={t("captionFull", { windowDays: window_days })}
     >
-      <h3 style={SECTION_TITLE_STYLE}>In flight</h3>
+      <h3 style={SECTION_TITLE_STYLE}>{t("inFlightHeading")}</h3>
       <TransferTable
         rows={in_flight}
-        emptyMessage="No transfers are currently proposed, approved, or in transit."
+        emptyMessage={t("inFlightEmpty")}
         showActual={false}
+        tx={tx}
       />
 
-      <h3 style={SECTION_TITLE_STYLE}>Recently completed</h3>
+      <h3 style={SECTION_TITLE_STYLE}>{t("recentHeading")}</h3>
       <TransferTable
         rows={recent_completed}
-        emptyMessage={`No transfers have been completed in the last ${window_days} days.`}
+        emptyMessage={t("recentEmpty", { windowDays: window_days })}
         showActual={true}
+        tx={tx}
       />
     </PanelShell>
   );

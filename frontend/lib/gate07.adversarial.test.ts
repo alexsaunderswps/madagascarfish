@@ -50,22 +50,25 @@ describe("NavLinks — PRIMARY_NAV order (FE-07-8 AC)", () => {
 
   it("labels match the spec labels (not implementation-invented names)", async () => {
     const { PRIMARY_NAV } = await import("../components/NavLinks");
-    const labels = PRIMARY_NAV.map((l) => l.label);
-    // Spec: the four locked Gate 07 labels must exist and remain in order.
-    // Gate 4 added a "Coordinator" link between Dashboard and Map; the
-    // indexOf-based ordering assertion above already allows that interleaving,
-    // so this test just verifies the four spec labels still appear (no rename).
-    expect(labels).toContain("Dashboard");
-    expect(labels).toContain("Map");
-    expect(labels).toContain("Species Directory");
-    expect(labels).toContain("About");
-    expect(labels.indexOf("Dashboard")).toBeLessThan(labels.indexOf("Map"));
-    expect(labels.indexOf("Map")).toBeLessThan(
-      labels.indexOf("Species Directory"),
-    );
-    expect(labels.indexOf("Species Directory")).toBeLessThan(
-      labels.indexOf("About"),
-    );
+    // Gate L1 i18n: PRIMARY_NAV now carries `labelKey` (i18n key under
+    // the `nav` namespace) rather than literal strings. Verify the four
+    // spec keys are still present in order; the literal strings are
+    // verified in the en.json catalog parity check (npm run i18n:check).
+    const keys = PRIMARY_NAV.map((l) => l.labelKey);
+    expect(keys).toContain("dashboard");
+    expect(keys).toContain("map");
+    expect(keys).toContain("speciesDirectory");
+    expect(keys).toContain("about");
+    expect(keys.indexOf("dashboard")).toBeLessThan(keys.indexOf("map"));
+    expect(keys.indexOf("map")).toBeLessThan(keys.indexOf("speciesDirectory"));
+    expect(keys.indexOf("speciesDirectory")).toBeLessThan(keys.indexOf("about"));
+
+    // Verify the actual English labels live in the catalog as expected.
+    const enMessages = await import("../messages/en.json");
+    expect(enMessages.default.nav.dashboard).toBe("Dashboard");
+    expect(enMessages.default.nav.map).toBe("Map");
+    expect(enMessages.default.nav.speciesDirectory).toBe("Species Directory");
+    expect(enMessages.default.nav.about).toBe("About");
   });
 });
 
@@ -74,16 +77,30 @@ describe("NavLinks — PRIMARY_NAV order (FE-07-8 AC)", () => {
 // ============================================================
 
 describe("SiteFooter — data-sources list (FE-07-8 AC)", () => {
-  it("footer source string includes all six required data sources", () => {
-    // Read the footer source directly since it's a server component (no jsdom)
+  it("footer cites all six required data sources", () => {
+    // Spec: "data-source citation" must list all six: IUCN Red List,
+    // FishBase, GBIF, ZIMS, SHOAL, CARES.
+    //
+    // Gate L1 i18n: external partner-org links (IUCN Red List,
+    // FishBase, GBIF, CARES Preservation) are proper-noun-only and
+    // remain in `SiteFooter.tsx` directly; ZIMS and SHOAL are cited
+    // in the `dataNote` line which now lives in `en.json` so it
+    // translates per locale.
     const footerSrc = readFileSync(
       resolve(FRONTEND_ROOT, "components/SiteFooter.tsx"),
       "utf-8",
     );
-    // Spec: "data-source citation" must list all six: IUCN Red List, FishBase, GBIF, ZIMS, SHOAL, CARES
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    const combined = `${footerSrc}\n${enMessages}`;
     const required = ["IUCN Red List", "FishBase", "GBIF", "ZIMS", "SHOAL", "CARES"];
     for (const source of required) {
-      expect(footerSrc, `Footer is missing required data source: ${source}`).toContain(source);
+      expect(
+        combined,
+        `Footer is missing required data source: ${source}`,
+      ).toContain(source);
     }
   });
 });
@@ -150,12 +167,27 @@ describe("SpeciesCard — null iucn_status label (PR #32)", () => {
 
 describe("Dashboard page — CHART_CAPTION label (FE-07-7 AC)", () => {
   it("chart caption uses 'Not yet assessed' for the NE bucket", () => {
+    // Gate L1 i18n: chart caption moved into messages/en.json under
+    // dashboard.iucnChartCaption. Verify that the rendered surface
+    // (page source + catalog) carries the correct phrasing AND that
+    // the dashboard page source itself never re-introduces the
+    // deprecated "Not Evaluated" phrasing.
+    //
+    // Note: the glossary catalog (about.glossary.entries.notEvaluated.*)
+    // legitimately references "Not Evaluated" as the deprecated IUCN
+    // abbreviation it documents. That's why the negative-match check
+    // is scoped to the dashboard page source only, not the whole
+    // en.json catalog.
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/dashboard/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/dashboard/page.tsx"),
       "utf-8",
     );
-    // Spec: "Chart axis labels use expanded form" and "Not yet assessed" is the NE label
-    expect(src).toContain("Not yet assessed");
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    const combined = `${src}\n${enMessages}`;
+    expect(combined).toContain("Not yet assessed");
     expect(src).not.toMatch(/Not Evaluated/i);
   });
 });
@@ -167,7 +199,7 @@ describe("Dashboard page — CHART_CAPTION label (FE-07-7 AC)", () => {
 describe("Dashboard page — coverage-gap deep-link (FE-07-7 AC)", () => {
   it("COVERAGE_GAP_HREF points to the correct filter URL", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/dashboard/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/dashboard/page.tsx"),
       "utf-8",
     );
     // AC: "coverage-gap stat is clicked → /species/?iucn_status=CR,EN,VU&has_captive_population=false"
@@ -434,17 +466,24 @@ describe("warm-cache.sh — existence and required paths (FE-07-11 AC)", () => {
 
 describe("About page — live species count or '~79' fallback (FE-07-8 AC)", () => {
   it("About page source contains ~79 fallback when count is unavailable", () => {
+    // Gate L1 i18n: the literal "~79" fallback moved into messages/en.json
+    // under about.page.missionFallbackTotal. Page source still references
+    // the t("missionFallbackTotal") branch. Verify both surfaces together.
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/about/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/about/page.tsx"),
       "utf-8",
     );
-    // AC: "About page renders live species count or '~79' fallback"
-    expect(src).toContain("~79");
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    expect(enMessages).toContain("~79");
+    expect(src).toContain("missionFallbackTotal");
   });
 
   it("About page reads live count from dashboard when available", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/about/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/about/page.tsx"),
       "utf-8",
     );
     // Must read from dashboard data (not hardcoded always)
@@ -504,7 +543,7 @@ describe("fetchSpeciesDetail — 404 vs other errors (FE-07-10 AC)", () => {
 describe("Species profile page — 404 handling (FE-07-10 AC)", () => {
   it("profile page source calls notFound() when result is not_found", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
     // AC: "/species/9999/ → themed 404 with 'browse all species' link"
@@ -519,35 +558,44 @@ describe("Species profile page — 404 handling (FE-07-10 AC)", () => {
 // ============================================================
 
 describe("Species profile — 'View on Map' visibility (FE-07-3 AC)", () => {
+  // Gate L1 i18n: "View on Map" copy moved into messages/en.json
+  // (species.profile.summary.viewOnMap). The page source now references
+  // that key via t("summary.viewOnMap"); the literal text only appears
+  // in the catalog. These tests verify the *behaviour* (conditional on
+  // has_localities) by reading both surfaces.
   it("'View on Map' is rendered inside a has_localities conditional (not always present)", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
-    // AC: "'View on Map' is absent (not disabled) when has_localities === false"
-    // UX 3.8: must be conditionally rendered, not a disabled-with-tooltip
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    // The catalog still carries the exact literal string.
+    expect(enMessages).toContain("View on Map");
+    // The page source still gates the link on has_localities and renders
+    // the corresponding translation key inside that branch.
     expect(src).toContain("has_localities");
-    expect(src).toContain("View on Map");
-    // Both must appear in the same file; the conditional renders the link
-    // Source inspection confirms sp.has_localities ? (<Link...>View on Map) : null
+    expect(src).toContain('summary.viewOnMap');
     const hasLocalitiesIdx = src.indexOf("has_localities");
-    const viewOnMapIdx = src.indexOf("View on Map");
+    const viewOnMapKeyIdx = src.indexOf("summary.viewOnMap");
     expect(hasLocalitiesIdx).not.toBe(-1);
-    expect(viewOnMapIdx).not.toBe(-1);
-    // has_localities check comes before "View on Map" in the source
-    expect(hasLocalitiesIdx).toBeLessThan(viewOnMapIdx);
+    expect(viewOnMapKeyIdx).not.toBe(-1);
+    expect(hasLocalitiesIdx).toBeLessThan(viewOnMapKeyIdx);
   });
 
   it("'View on Map' is absent when has_localities is falsy (source shows ternary/conditional)", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
-    // The conditional must resolve to null when false — check for ternary or && pattern
-    // Pattern: {sp.has_localities ? (<Link...>View on Map...) : null}
-    expect(src).toMatch(/has_localities[\s\S]{0,300}View on Map/);
-    // Must NOT be inside a disabled= prop (i.e. not always shown as disabled)
-    expect(src).not.toMatch(/disabled[^=].*View on Map|View on Map.*disabled/);
+    // The conditional must wrap the View-on-Map translation key, not be
+    // a disabled-with-tooltip (UX 3.8). After i18n the link's content is
+    // t("summary.viewOnMap"), so we look for the key inside the
+    // has_localities branch.
+    expect(src).toMatch(/has_localities[\s\S]{0,400}summary\.viewOnMap/);
+    expect(src).not.toMatch(/disabled[^=].*summary\.viewOnMap|summary\.viewOnMap.*disabled/);
   });
 });
 
@@ -557,12 +605,21 @@ describe("Species profile — 'View on Map' visibility (FE-07-3 AC)", () => {
 
 describe("Species profile — zero captive populations (FE-07-3 AC)", () => {
   it("renders 'no captive population' text (not error) when institutions_holding === 0", () => {
+    // Gate L1 i18n: empty-state copy moved into messages/en.json under
+    // species.profile.captive.noneTracked. Verify both that the literal
+    // copy still exists in the catalog and that the page source
+    // references the matching key inside an exSituEmpty conditional.
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
-    // AC: "ex_situ_summary.institutions_holding === 0 → 'No captive population is currently tracked'"
-    expect(src).toContain("No captive population is currently tracked");
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    expect(enMessages).toContain("No captive population is currently tracked");
+    expect(src).toContain("captive.noneTracked");
+    expect(src).toContain("exSituEmpty");
   });
 });
 
@@ -573,7 +630,7 @@ describe("Species profile — zero captive populations (FE-07-3 AC)", () => {
 describe("Species profile — field programs empty state (FE-07-10 AC)", () => {
   it("uses EmptyState component for zero field programs (not hidden section)", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/species/[id]/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/species/[id]/page.tsx"),
       "utf-8",
     );
     // AC: "species has zero linked field programs → Field Programs section shows EmptyState"
@@ -590,7 +647,7 @@ describe("Species profile — field programs empty state (FE-07-10 AC)", () => {
 describe("Map page — ?view=list direct load (FE-07-5 AC)", () => {
   it("map page source reads view from searchParams and maps 'list' → list mode", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/map/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/map/page.tsx"),
       "utf-8",
     );
     // AC: "when ?view=list is present → page loads directly into list view"
@@ -602,7 +659,7 @@ describe("Map page — ?view=list direct load (FE-07-5 AC)", () => {
 
   it("map page renders MapListView when view is 'list'", () => {
     const src = readFileSync(
-      resolve(FRONTEND_ROOT, "app/map/page.tsx"),
+      resolve(FRONTEND_ROOT, "app/[locale]/map/page.tsx"),
       "utf-8",
     );
     // The list branch renders MapListView component

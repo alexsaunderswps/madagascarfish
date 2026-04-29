@@ -1,45 +1,65 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/routing";
 
 const REPO_URL = "https://github.com/alexsaunderswps/madagascarfish";
 
-type FooterColumn = {
-  heading: string;
-  links: Array<{ label: string; href: string; external?: boolean }>;
+type FooterLink = {
+  /** i18n key relative to footer.<columnLinks> */
+  labelKey: string;
+  href: string;
+  external?: boolean;
 };
 
+type FooterColumn = {
+  /** i18n key under footer.* (e.g. "platformHeading") */
+  headingKey: string;
+  /** i18n namespace (relative to "footer") that holds this column's link labels */
+  linksNamespace: string;
+  links: FooterLink[];
+};
+
+// External-link labels (IUCN Red List, FishBase, etc.) are proper nouns
+// and stay untranslated — they're brand names of partner organizations.
+// Internal-link labels live in the footer.<linksNamespace> table.
 const COLUMNS: FooterColumn[] = [
   {
-    heading: "Platform",
+    headingKey: "platformHeading",
+    linksNamespace: "platformLinks",
     links: [
-      { label: "Species Directory", href: "/species/" },
-      { label: "Distribution Map", href: "/map/" },
-      { label: "Conservation Dashboard", href: "/dashboard/" },
+      { labelKey: "speciesDirectory", href: "/species/" },
+      { labelKey: "distributionMap", href: "/map/" },
+      { labelKey: "conservationDashboard", href: "/dashboard/" },
     ],
   },
   {
-    heading: "Data",
+    headingKey: "dataHeading",
+    linksNamespace: "", // proper-noun links below
+    links: [],
+  },
+  {
+    headingKey: "aboutHeading",
+    linksNamespace: "aboutLinks",
     links: [
-      { label: "IUCN Red List", href: "https://www.iucnredlist.org/", external: true },
-      { label: "FishBase", href: "https://www.fishbase.se/", external: true },
-      { label: "GBIF", href: "https://www.gbif.org/", external: true },
-      { label: "CARES Preservation", href: "https://carespreservation.com/", external: true },
+      { labelKey: "aboutThePlatform", href: "/about/" },
+      { labelKey: "dataSources", href: "/about/data/" },
+      { labelKey: "glossary", href: "/about/glossary/" },
     ],
   },
   {
-    heading: "About",
+    headingKey: "contributeHeading",
+    linksNamespace: "contributeLinks",
     links: [
-      { label: "About the Platform", href: "/about/" },
-      { label: "Data Sources", href: "/about/data/" },
-      { label: "Glossary", href: "/about/glossary/" },
+      { labelKey: "husbandryReports", href: "/contribute/husbandry/" },
+      { labelKey: "github", href: REPO_URL, external: true },
     ],
   },
-  {
-    heading: "Contribute",
-    links: [
-      { label: "Husbandry Reports", href: "/contribute/husbandry/" },
-      { label: "GitHub", href: REPO_URL, external: true },
-    ],
-  },
+];
+
+const PROPER_NOUN_DATA_LINKS = [
+  { label: "IUCN Red List", href: "https://www.iucnredlist.org/" },
+  { label: "FishBase", href: "https://www.fishbase.se/" },
+  { label: "GBIF", href: "https://www.gbif.org/" },
+  { label: "CARES Preservation", href: "https://carespreservation.com/" },
 ];
 
 const linkStyle = {
@@ -51,7 +71,9 @@ const linkStyle = {
   transition: "color 120ms ease",
 } as const;
 
-export default function SiteFooter() {
+export default async function SiteFooter() {
+  const t = await getTranslations("footer");
+
   return (
     <footer
       style={{
@@ -75,9 +97,9 @@ export default function SiteFooter() {
           }}
         >
           {COLUMNS.map((col) => (
-            <div key={col.heading}>
+            <div key={col.headingKey}>
               <p className="eyebrow" style={{ marginBottom: 12 }}>
-                {col.heading}
+                {t(col.headingKey)}
               </p>
               <ul
                 style={{
@@ -90,24 +112,37 @@ export default function SiteFooter() {
                   fontSize: 13,
                 }}
               >
-                {col.links.map((link) => (
-                  <li key={link.href}>
-                    {link.external ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={linkStyle}
-                      >
-                        {link.label}
-                      </a>
-                    ) : (
-                      <Link href={link.href} style={linkStyle}>
-                        {link.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
+                {col.linksNamespace === ""
+                  ? PROPER_NOUN_DATA_LINKS.map((link) => (
+                      <li key={link.href}>
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={linkStyle}
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ))
+                  : col.links.map((link) => (
+                      <li key={link.href}>
+                        {link.external ? (
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={linkStyle}
+                          >
+                            {t(`${col.linksNamespace}.${link.labelKey}`)}
+                          </a>
+                        ) : (
+                          <Link href={link.href} style={linkStyle}>
+                            {t(`${col.linksNamespace}.${link.labelKey}`)}
+                          </Link>
+                        )}
+                      </li>
+                    ))}
               </ul>
             </div>
           ))}
@@ -126,12 +161,8 @@ export default function SiteFooter() {
             color: "var(--ink-3)",
           }}
         >
-          <p style={{ margin: 0 }}>
-            Madagascar Freshwater Fish Conservation Platform — Apache-2.0
-          </p>
-          <p style={{ margin: 0, textAlign: "right" }}>
-            Data mirrored from IUCN, FishBase, GBIF, ZIMS, SHOAL, and CARES.
-          </p>
+          <p style={{ margin: 0 }}>{t("license")}</p>
+          <p style={{ margin: 0, textAlign: "right" }}>{t("dataNote")}</p>
         </div>
       </div>
     </footer>

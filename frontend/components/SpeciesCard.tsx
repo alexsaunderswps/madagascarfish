@@ -13,7 +13,9 @@
  * rendered only when populated.
  */
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+
+import { Link } from "@/i18n/routing";
 import { type SpeciesListItem } from "@/lib/species";
 import IucnBadge from "./IucnBadge";
 
@@ -35,14 +37,20 @@ const IUCN_BAR_COLOR: Record<string, string> = {
   NE: "var(--rule-strong)",
 };
 
-const CARES_LABEL: Record<string, string> = {
-  CCR: "CARES CCR",
-  CEN: "CARES CEN",
-  CVU: "CARES CVU",
-  CLC: "CARES CLC",
-  priority: "CARES priority",
-  monitored: "CARES monitored",
-};
+// CARES status enum values that have a dedicated catalog entry. Other
+// values fall back to common.cares.fallback ("CARES {status}").
+const KNOWN_CARES_KEYS = new Set([
+  "CCR",
+  "CEN",
+  "CVU",
+  "CLC",
+  "priority",
+  "monitored",
+]);
+
+// endemic_status enum values from the API. Other values capitalize the
+// raw string (rare).
+const KNOWN_ENDEMIC_KEYS = new Set(["endemic", "native", "introduced"]);
 
 function PlaceholderFish() {
   // Neutral silhouette anchor so every card has a visual; replaced per-card
@@ -73,6 +81,10 @@ export default function SpeciesCard({
   density?: SpeciesCardDensity;
   genusSilhouettes?: Record<string, string>;
 }) {
+  const tCard = useTranslations("species.directory.card");
+  const tCares = useTranslations("common.cares");
+  const tCardEndemic = useTranslations("species.directory.card.endemic");
+
   const genusName = species.genus_fk?.name;
   const genusSvg =
     genusName && species.genus_fk?.has_silhouette
@@ -89,10 +101,14 @@ export default function SpeciesCard({
   const primaryCommon = species.common_names[0]?.name;
   const barColor =
     IUCN_BAR_COLOR[species.iucn_status ?? "NE"] ?? IUCN_BAR_COLOR.NE;
-  const endemicLabel =
-    species.endemic_status.charAt(0).toUpperCase() + species.endemic_status.slice(1);
+  const endemicCode = (species.endemic_status || "").toLowerCase();
+  const endemicLabel = KNOWN_ENDEMIC_KEYS.has(endemicCode)
+    ? tCardEndemic(endemicCode)
+    : species.endemic_status.charAt(0).toUpperCase() + species.endemic_status.slice(1);
   const caresLabel = species.cares_status
-    ? CARES_LABEL[species.cares_status] ?? `CARES ${species.cares_status}`
+    ? KNOWN_CARES_KEYS.has(species.cares_status)
+      ? tCares(species.cares_status)
+      : tCares("fallback", { status: species.cares_status })
     : null;
   // Hide auto-generated "Basin near 16.09°S 49.44°E" placeholders — only show
   // human-curated basin names. These auto-labels are set by the seed pipeline
@@ -235,8 +251,8 @@ export default function SpeciesCard({
           {species.shoal_priority ? (
             <>
               <span aria-hidden="true">·</span>
-              <span style={{ color: "var(--accent)", fontWeight: 600 }}>
-                SHOAL
+              <span style={{ color: "var(--accent)", fontWeight: 600 }} data-testid="shoal-pill">
+                {tCard("shoalPill")}
               </span>
             </>
           ) : null}

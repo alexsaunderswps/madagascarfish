@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { CSSProperties } from "react";
 
 import IucnBadge from "@/components/IucnBadge";
+import { Link } from "@/i18n/routing";
 import type { CoverageGapRow } from "@/lib/coordinatorDashboard";
 import type { IucnStatus } from "@/lib/species";
 
@@ -77,6 +78,7 @@ function directoryHref(endemicOnly: boolean): string {
 }
 
 export default function CoverageGapTable({ rows, endemicOnly }: Props) {
+  const t = useTranslations("dashboard.coordinator.panels.coverage.table");
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? rows : rows.slice(0, DEFAULT_VISIBLE);
   const hiddenCount = rows.length - visible.length;
@@ -87,12 +89,12 @@ export default function CoverageGapTable({ rows, endemicOnly }: Props) {
         <table style={TABLE_STYLE}>
           <thead>
             <tr>
-              <th style={TH_STYLE}>Status</th>
-              <th style={TH_STYLE}>Species</th>
-              <th style={TH_STYLE}>Family</th>
-              <th style={TH_STYLE}>Endemic</th>
-              <th style={TH_STYLE}>Trend</th>
-              <th style={TH_STYLE}>CARES</th>
+              <th style={TH_STYLE}>{t("status")}</th>
+              <th style={TH_STYLE}>{t("species")}</th>
+              <th style={TH_STYLE}>{t("family")}</th>
+              <th style={TH_STYLE}>{t("endemic")}</th>
+              <th style={TH_STYLE}>{t("trend")}</th>
+              <th style={TH_STYLE}>{t("cares")}</th>
             </tr>
           </thead>
           <tbody>
@@ -121,16 +123,16 @@ export default function CoverageGapTable({ rows, endemicOnly }: Props) {
                         fontWeight: 700,
                         letterSpacing: "0.04em",
                       }}
-                      title="SHOAL 1,000 Fishes priority species"
+                      title={t("shoalTitle")}
                     >
-                      SHOAL
+                      {t("shoalLabel")}
                     </span>
                   ) : null}
                 </td>
                 <td style={TD_STYLE}>{row.family}</td>
                 <td style={TD_STYLE}>{row.endemic_status}</td>
-                <td style={TD_STYLE}>{row.population_trend ?? "—"}</td>
-                <td style={TD_STYLE}>{row.cares_status ?? "—"}</td>
+                <td style={TD_STYLE}>{row.population_trend ?? t("emDash")}</td>
+                <td style={TD_STYLE}>{row.cares_status ?? t("emDash")}</td>
               </tr>
             ))}
           </tbody>
@@ -146,7 +148,7 @@ export default function CoverageGapTable({ rows, endemicOnly }: Props) {
             aria-expanded={expanded}
             aria-controls="coverage-gap-table"
           >
-            Show {hiddenCount} more
+            {t("showMore", { count: hiddenCount })}
           </button>
         ) : null}
         {expanded && rows.length > DEFAULT_VISIBLE ? (
@@ -155,11 +157,11 @@ export default function CoverageGapTable({ rows, endemicOnly }: Props) {
             onClick={() => setExpanded(false)}
             style={EXPAND_BUTTON_STYLE}
           >
-            Collapse to top {DEFAULT_VISIBLE}
+            {t("collapse", { limit: DEFAULT_VISIBLE })}
           </button>
         ) : null}
         <Link href={directoryHref(endemicOnly)} style={DIRECTORY_LINK_STYLE}>
-          View all in directory →
+          {t("viewAll")}
         </Link>
       </div>
     </>

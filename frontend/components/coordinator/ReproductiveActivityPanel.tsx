@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
 import type {
@@ -7,15 +8,6 @@ import type {
 } from "@/lib/coordinatorDashboard";
 
 import PanelShell from "./PanelShell";
-
-const EVENT_LABELS: Record<BreedingEventType, string> = {
-  spawning: "Spawning",
-  hatching: "Hatching",
-  mortality: "Mortality",
-  acquisition: "Acquisition",
-  disposition: "Disposition",
-  other: "Other",
-};
 
 // Subtle category coloring — the panel reads as a ledger, not an alarm.
 // Mortality is the only event type where a louder signal is genuinely
@@ -119,7 +111,7 @@ const EVENT_TYPE_ORDER: BreedingEventType[] = [
   "other",
 ];
 
-function formatDelta(row: BreedingEventRow): string {
+function formatDelta(row: BreedingEventRow, emDash: string): string {
   const parts: string[] = [];
   const m = row.count_delta_male;
   const f = row.count_delta_female;
@@ -127,55 +119,52 @@ function formatDelta(row: BreedingEventRow): string {
   if (m != null) parts.push(`${m > 0 ? "+" : ""}${m} M`);
   if (f != null) parts.push(`${f > 0 ? "+" : ""}${f} F`);
   if (u != null) parts.push(`${u > 0 ? "+" : ""}${u} U`);
-  return parts.length > 0 ? parts.join(" · ") : "—";
+  return parts.length > 0 ? parts.join(" · ") : emDash;
 }
 
 interface Props {
   data: ReproductiveActivityResponse | null;
 }
 
-export default function ReproductiveActivityPanel({ data }: Props) {
+export default async function ReproductiveActivityPanel({ data }: Props) {
+  const t = await getTranslations("dashboard.coordinator.panels.reproductive");
+
   if (!data) {
     return (
       <PanelShell
-        eyebrow="Panel 7"
-        title="Recent reproductive activity"
-        caption="Per-population event ledger."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        caption={t("captionShort")}
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Breeding event records are temporarily unavailable. Recent
-          spawnings, hatchings, and other population-level events will
-          reappear once the coordination API is reachable.
+          {t("unavailable")}
         </p>
       </PanelShell>
     );
   }
 
   const { window_days, total_events, result_limit, by_event_type, results } = data;
+  const emDash = t("emDash");
 
   return (
     <PanelShell
-      eyebrow="Panel 7"
-      title={`Recent reproductive activity — ${total_events} event${total_events === 1 ? "" : "s"}`}
-      caption={`Population-level events recorded in the last ${window_days} days, newest first: spawning, hatching, mortality, acquisition, and disposition. Up to ${result_limit} rows are listed here; a population's full event history is on its admin page.`}
+      eyebrow={t("eyebrow")}
+      title={t("titleWithCount", { count: total_events })}
+      caption={t("captionFull", { windowDays: window_days, limit: result_limit })}
     >
       {total_events === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          No events have been logged in the last {window_days} days.
-          Coordinators can record spawning, hatching, mortality, and
-          acquisition events from a population&rsquo;s admin page; an
-          empty ledger here usually means events are happening but are
-          not being logged in the registry.
+          {t("noResults", { windowDays: window_days })}
         </p>
       ) : (
         <>
           <div style={ROLLUP_GRID}>
-            {EVENT_TYPE_ORDER.map((t) => {
-              const bucket = by_event_type[t];
+            {EVENT_TYPE_ORDER.map((evt) => {
+              const bucket = by_event_type[evt];
               if (!bucket || bucket.count === 0) return null;
               return (
-                <div key={t} style={ROLLUP_CELL}>
-                  <p style={ROLLUP_LABEL}>{EVENT_LABELS[t]}</p>
+                <div key={evt} style={ROLLUP_CELL}>
+                  <p style={ROLLUP_LABEL}>{t(`events.${evt}`)}</p>
                   <p style={ROLLUP_COUNT}>{bucket.count}</p>
                   {bucket.recent_species.length > 0 ? (
                     <p
@@ -200,16 +189,16 @@ export default function ReproductiveActivityPanel({ data }: Props) {
             <table style={TABLE_STYLE}>
               <thead>
                 <tr>
-                  <th style={TH_STYLE}>Date</th>
-                  <th style={TH_STYLE}>Event</th>
-                  <th style={TH_STYLE}>Species · institution</th>
-                  <th style={TH_STYLE}>Count Δ</th>
+                  <th style={TH_STYLE}>{t("table.date")}</th>
+                  <th style={TH_STYLE}>{t("table.event")}</th>
+                  <th style={TH_STYLE}>{t("table.speciesInstitution")}</th>
+                  <th style={TH_STYLE}>{t("table.countDelta")}</th>
                 </tr>
               </thead>
               <tbody>
                 {results.map((row) => (
                   <tr key={row.event_id}>
-                    <td style={TD_STYLE}>{row.event_date ?? "—"}</td>
+                    <td style={TD_STYLE}>{row.event_date ?? emDash}</td>
                     <td style={TD_STYLE}>
                       <span
                         style={{
@@ -217,7 +206,7 @@ export default function ReproductiveActivityPanel({ data }: Props) {
                           ...EVENT_TAG_STYLE[row.event_type],
                         }}
                       >
-                        {EVENT_LABELS[row.event_type]}
+                        {t(`events.${row.event_type}`)}
                       </span>
                     </td>
                     <td style={TD_STYLE}>
@@ -237,7 +226,7 @@ export default function ReproductiveActivityPanel({ data }: Props) {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {formatDelta(row)}
+                      {formatDelta(row, emDash)}
                     </td>
                   </tr>
                 ))}

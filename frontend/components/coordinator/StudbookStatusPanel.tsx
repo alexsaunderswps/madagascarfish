@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
 import type { StudbookStatusResponse } from "@/lib/coordinatorDashboard";
@@ -67,33 +68,18 @@ interface Props {
   data: StudbookStatusResponse | null;
 }
 
-const BUCKET_LABELS: Record<string, string> = {
-  studbook_managed: "Studbook-managed",
-  breeding_not_studbook: "Breeding, not studbook",
-  holdings_only: "Holdings only",
-  no_captive_population: "No captive population",
-};
+export default async function StudbookStatusPanel({ data }: Props) {
+  const t = await getTranslations("dashboard.coordinator.panels.studbook");
 
-const BUCKET_HINTS: Record<string, string> = {
-  studbook_managed:
-    "Coordinated program with pedigree records and transfer plans.",
-  breeding_not_studbook:
-    "Breeding observed, but no formal studbook — pedigree is not tracked.",
-  holdings_only: "Held in captivity, no breeding recorded.",
-  no_captive_population: "No institution has registered holdings.",
-};
-
-export default function StudbookStatusPanel({ data }: Props) {
   if (!data) {
     return (
       <PanelShell
-        eyebrow="Panel 2"
-        title="Studbook status"
-        caption="Per-species program classification."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        caption={t("captionShort")}
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Studbook status is temporarily unavailable. The view will populate
-          once the coordination API is reachable again.
+          {t("unavailable")}
         </p>
       </PanelShell>
     );
@@ -109,16 +95,16 @@ export default function StudbookStatusPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow="Panel 2"
-      title="Studbook status"
-      caption="Where each species sits on the captive-management spectrum, from formally managed studbooks down to no holdings at all. The breeding-not-studbook row matters: it surfaces ad-hoc populations that are reproducing but whose pedigree isn't tracked — a fragility that gets hidden when those species are lumped in with studbook programs."
+      eyebrow={t("eyebrow")}
+      title={t("title")}
+      caption={t("captionFull")}
     >
       <div style={BUCKET_GRID_STYLE}>
         {order.map((key) => (
           <div key={key} style={TILE_STYLE}>
             <p style={TILE_COUNT_STYLE}>{buckets[key].count}</p>
-            <p style={TILE_LABEL_STYLE}>{BUCKET_LABELS[key]}</p>
-            <p style={TILE_HINT_STYLE}>{BUCKET_HINTS[key]}</p>
+            <p style={TILE_LABEL_STYLE}>{t(`buckets.${key}.label`)}</p>
+            <p style={TILE_HINT_STYLE}>{t(`buckets.${key}.hint`)}</p>
           </div>
         ))}
       </div>
@@ -132,7 +118,7 @@ export default function StudbookStatusPanel({ data }: Props) {
         }
         return (
           <div key={key} style={{ marginTop: 12 }}>
-            <p style={SUBHEAD_STYLE}>{BUCKET_LABELS[key]}</p>
+            <p style={SUBHEAD_STYLE}>{t(`buckets.${key}.label`)}</p>
             <ul style={SPECIES_LIST_STYLE}>
               {bucket.species.map((sp) => (
                 <li

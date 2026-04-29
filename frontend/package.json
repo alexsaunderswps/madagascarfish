@@ -16,6 +16,7 @@
     "gen:types:check": "openapi-typescript ${NEXT_PUBLIC_API_URL:-http://localhost:8000}/api/v1/schema/ -o /tmp/api-types.generated.ts && diff -u lib/api-types.ts /tmp/api-types.generated.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "i18n:check": "node scripts/check-i18n-keys.mjs",
     "e2e": "playwright test",
     "bake-tiles": "node scripts/bake-esri-tiles.mjs"
   },
@@ -24,6 +25,7 @@
     "leaflet.markercluster": "1.5.3",
     "next": "14.2.15",
     "next-auth": "4.24.10",
+    "next-intl": "^3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-leaflet": "4.2.1",

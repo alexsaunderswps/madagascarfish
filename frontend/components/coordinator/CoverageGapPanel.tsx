@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
 import type { CoverageGapResponse } from "@/lib/coordinatorDashboard";
@@ -44,17 +45,18 @@ interface Props {
   data: CoverageGapResponse | null;
 }
 
-export default function CoverageGapPanel({ data }: Props) {
+export default async function CoverageGapPanel({ data }: Props) {
+  const t = await getTranslations("dashboard.coordinator.panels.coverage");
+
   if (!data) {
     return (
       <PanelShell
-        eyebrow="Panel 1"
-        title="Coverage gap"
-        caption="Threatened species with no ex-situ backstop."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        caption={t("captionShort")}
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Coverage data is temporarily unavailable. The view will populate
-          once the coordination API is reachable again.
+          {t("unavailable")}
         </p>
       </PanelShell>
     );
@@ -64,17 +66,20 @@ export default function CoverageGapPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow="Panel 1"
-      title={`Coverage gap — ${total} ${endemic_only ? "endemic " : ""}species`}
-      caption="Critically Endangered, Endangered, and Vulnerable species with no ex-situ population on record. The first list a coordinator should triage: each row is a species that has no captive safety net at all."
+      eyebrow={t("eyebrow")}
+      title={t("titleWithCount", {
+        total,
+        scope: endemic_only ? t("scopeEndemic") : t("scopeAll"),
+      })}
+      caption={t("captionFull")}
     >
-      <nav style={TOGGLE_ROW_STYLE} aria-label="Endemic filter">
+      <nav style={TOGGLE_ROW_STYLE} aria-label={t("endemicFilterAriaLabel")}>
         <Link
           href="/dashboard/coordinator"
           style={endemic_only ? TOGGLE_ACTIVE_STYLE : TOGGLE_LINK_STYLE}
           aria-current={endemic_only ? "page" : undefined}
         >
-          Endemic only
+          {t("endemicOnly")}
         </Link>
         <span aria-hidden="true" style={{ color: "var(--ink-3)" }}>
           ·
@@ -84,15 +89,13 @@ export default function CoverageGapPanel({ data }: Props) {
           style={!endemic_only ? TOGGLE_ACTIVE_STYLE : TOGGLE_LINK_STYLE}
           aria-current={!endemic_only ? "page" : undefined}
         >
-          All threatened
+          {t("allThreatened")}
         </Link>
       </nav>
 
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          No threatened species are missing ex-situ coverage at this filter.
-          Either every threatened species in scope has a captive population
-          on record, or the filter has narrowed the list to zero.
+          {t("noResults")}
         </p>
       ) : (
         <CoverageGapTable rows={results} endemicOnly={endemic_only} />
@@ -100,10 +103,13 @@ export default function CoverageGapPanel({ data }: Props) {
 
       <div style={DD_CARD_STYLE}>
         <div>
-          <strong>Data Deficient</strong> —{" "}
+          <strong>{t("ddTitle")}</strong> —{" "}
           {data_deficient.total > 0
-            ? `${data_deficient.total} species (${data_deficient.endemic_count} endemic) need a current Red List assessment before their conservation status can be acted on.`
-            : "No DD species in the registry."}
+            ? t("ddBody", {
+                total: data_deficient.total,
+                endemic: data_deficient.endemic_count,
+              })
+            : t("ddNone")}
         </div>
         {data_deficient.total > 0 ? (
           <Link
@@ -115,7 +121,7 @@ export default function CoverageGapPanel({ data }: Props) {
               whiteSpace: "nowrap",
             }}
           >
-            View list →
+            {t("ddViewList")}
           </Link>
         ) : null}
       </div>

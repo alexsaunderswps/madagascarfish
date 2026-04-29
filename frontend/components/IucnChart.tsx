@@ -1,6 +1,7 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
-import { IUCN_LABELS, type IucnStatus } from "@/lib/species";
+import { Link } from "@/i18n/routing";
+import { type IucnStatus } from "@/lib/species";
 
 const BAR_ORDER: IucnStatus[] = ["CR", "EN", "VU", "NT", "LC", "DD", "NE"];
 
@@ -21,6 +22,8 @@ export default function IucnChart({
   counts: Record<string, number>;
   caption: string;
 }) {
+  const t = useTranslations("common.iucnChart");
+  const tIucn = useTranslations("common.iucn");
   const max = Math.max(1, ...BAR_ORDER.map((s) => counts[s] ?? 0));
   return (
     <figure
@@ -37,7 +40,7 @@ export default function IucnChart({
           color: "var(--ink)",
         }}
       >
-        Species by IUCN status
+        {t("title")}
       </h2>
       <ul
         role="list"
@@ -53,12 +56,13 @@ export default function IucnChart({
         {BAR_ORDER.map((status) => {
           const count = counts[status] ?? 0;
           const pct = (count / max) * 100;
-          const label = `${IUCN_LABELS[status]} (${status})`;
+          const iucnLabel = tIucn(status);
+          const label = t("barLabel", { label: iucnLabel, status });
           return (
             <li key={status}>
               <Link
                 href={`/species/?iucn_status=${status}`}
-                aria-label={`${count} species with status ${IUCN_LABELS[status]}`}
+                aria-label={t("barAriaLabel", { count, label: iucnLabel })}
                 style={{
                   display: "grid",
                   gridTemplateColumns: "minmax(13rem, 1fr) 3fr auto",

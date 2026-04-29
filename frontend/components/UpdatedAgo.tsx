@@ -1,20 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-function formatAgo(ms: number): string {
-  if (ms < 0) return "just now";
-  const sec = Math.floor(ms / 1000);
-  if (sec < 60) return "just now";
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min} minute${min === 1 ? "" : "s"} ago`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr} hour${hr === 1 ? "" : "s"} ago`;
-  const day = Math.floor(hr / 24);
-  return `${day} day${day === 1 ? "" : "s"} ago`;
-}
-
 export default function UpdatedAgo({ iso }: { iso: string }) {
+  const t = useTranslations("common.updatedAgo");
   const ts = Date.parse(iso);
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
@@ -23,9 +13,24 @@ export default function UpdatedAgo({ iso }: { iso: string }) {
     return () => clearInterval(id);
   }, []);
   if (Number.isNaN(ts)) return null;
+
+  function formatAgo(ms: number): string {
+    if (ms < 0) return t("justNow");
+    const sec = Math.floor(ms / 1000);
+    if (sec < 60) return t("justNow");
+    const min = Math.floor(sec / 60);
+    if (min < 60) return t("minutes", { count: min });
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return t("hours", { count: hr });
+    const day = Math.floor(hr / 24);
+    return t("days", { count: day });
+  }
+
   return (
     <time dateTime={iso} className="text-xs text-slate-500" title={new Date(ts).toISOString()}>
-      {now === null ? "Updated recently" : `Updated ${formatAgo(now - ts)}`}
+      {now === null
+        ? t("updatedRecently")
+        : t("updatedTemplate", { ago: formatAgo(now - ts) })}
     </time>
   );
 }

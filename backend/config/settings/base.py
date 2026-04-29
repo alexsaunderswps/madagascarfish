@@ -14,6 +14,10 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 INSTALLED_APPS = [
+    # modeltranslation must come before django.contrib.admin so its
+    # TranslationAdmin classes can be picked up by the admin autodiscover
+    # cycle. See django-modeltranslation docs §"Installation."
+    "modeltranslation",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -38,6 +42,7 @@ INSTALLED_APPS = [
     "integration",
     "audit",
     "husbandry",
+    "i18n",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -46,6 +51,10 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # Gate L1 — i18n. Sits between SessionMiddleware and CommonMiddleware per
+    # Django docs so request.LANGUAGE_CODE is set before view dispatch and
+    # CommonMiddleware can patch the Vary: Accept-Language header on responses.
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -124,6 +133,33 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
+# Gate L1 — i18n. Languages enumerated here drive LocaleMiddleware's
+# Accept-Language negotiation and `django-modeltranslation`'s registered
+# locales (see docs/planning/i18n/README.md D3). Values must stay in sync
+# with frontend/messages/<code>.json keys and modeltranslation registrations
+# in backend/<app>/translation.py.
+LANGUAGES = [
+    ("en", "English"),
+    ("fr", "Français"),
+    ("de", "Deutsch"),
+    ("es", "Español"),
+]
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
+# django-modeltranslation. Default language must match LANGUAGE_CODE's root
+# (en). Fallback chain: any locale with no value falls back to English.
+# See backend/species/translation.py for registered models/fields.
+MODELTRANSLATION_DEFAULT_LANGUAGE = "en"
+MODELTRANSLATION_LANGUAGES = ("en", "fr", "de", "es")
+MODELTRANSLATION_FALLBACK_LANGUAGES = {"default": ("en",)}
+
+# Gate L3 toggle (architect doc §4 / B2). When True, the
+# `<field>_locale_actual` serializer mixin gates per-locale content on
+# `TranslationStatus.status == human_approved`. Stays False through L1
+# (no review pipeline running yet); flips True in L3 once the side-by-
+# side admin UI ships.
+I18N_ENFORCE_REVIEW_GATE = env.bool("I18N_ENFORCE_REVIEW_GATE", default=False)
 
 # Static files
 STATIC_URL = "static/"

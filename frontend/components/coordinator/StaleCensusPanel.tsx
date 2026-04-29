@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
 import type { StaleCensusResponse } from "@/lib/coordinatorDashboard";
@@ -39,27 +40,36 @@ interface Props {
   data: StaleCensusResponse | null;
 }
 
-function formatDaysStale(days: number | null): string {
-  if (days === null) {
-    return "Never censused";
-  }
-  if (days < 730) {
-    return `${days} days`;
-  }
-  return `${Math.round(days / 30)} months`;
+interface FormatRangeT {
+  (key: "neverCensused"): string;
+  (key: "daysSuffix" | "monthsSuffix", values: { count: number }): string;
 }
 
-export default function StaleCensusPanel({ data }: Props) {
+function formatDaysStale(
+  days: number | null,
+  t: FormatRangeT,
+): string {
+  if (days === null) {
+    return t("neverCensused");
+  }
+  if (days < 730) {
+    return t("daysSuffix", { count: days });
+  }
+  return t("monthsSuffix", { count: Math.round(days / 30) });
+}
+
+export default async function StaleCensusPanel({ data }: Props) {
+  const t = await getTranslations("dashboard.coordinator.panels.staleCensus");
+
   if (!data) {
     return (
       <PanelShell
-        eyebrow="Panel 4"
-        title="Stale census"
-        caption="Populations overdue for a census update."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        caption={t("captionShort")}
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Census timestamps are temporarily unavailable. Overdue
-          populations will reappear once the coordination API is reachable.
+          {t("unavailable")}
         </p>
       </PanelShell>
     );
@@ -69,24 +79,23 @@ export default function StaleCensusPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow="Panel 4"
-      title={`Stale census — ${total_stale} of ${total_populations} populations`}
-      caption={`Populations whose last census record — or any holding update — is more than ${threshold_months} months old, plus any population that has never been censused. A current count is the prerequisite for every other coordination decision.`}
+      eyebrow={t("eyebrow")}
+      title={t("titleWithCount", { stale: total_stale, total: total_populations })}
+      caption={t("captionFull", { threshold: threshold_months })}
     >
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Every tracked population has been censused within the last{" "}
-          {threshold_months} months.
+          {t("noResults", { threshold: threshold_months })}
         </p>
       ) : (
         <div style={{ overflowX: "auto" }}>
           <table style={TABLE_STYLE}>
             <thead>
               <tr>
-                <th style={TH_STYLE}>Species</th>
-                <th style={TH_STYLE}>Institution</th>
-                <th style={TH_STYLE}>Last signal</th>
-                <th style={TH_STYLE}>Stale for</th>
+                <th style={TH_STYLE}>{t("table.species")}</th>
+                <th style={TH_STYLE}>{t("table.institution")}</th>
+                <th style={TH_STYLE}>{t("table.lastSignal")}</th>
+                <th style={TH_STYLE}>{t("table.staleFor")}</th>
               </tr>
             </thead>
             <tbody>
@@ -98,11 +107,11 @@ export default function StaleCensusPanel({ data }: Props) {
                   <td style={TD_STYLE}>{row.institution.name}</td>
                   <td style={TD_STYLE}>
                     {row.effective_last_update ?? (
-                      <span style={NEVER_TAG_STYLE}>none recorded</span>
+                      <span style={NEVER_TAG_STYLE}>{t("noneRecorded")}</span>
                     )}
                   </td>
                   <td style={TD_STYLE}>
-                    {formatDaysStale(row.days_since_update)}
+                    {formatDaysStale(row.days_since_update, t as FormatRangeT)}
                   </td>
                 </tr>
               ))}

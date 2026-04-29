@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import type { CommonName } from "@/lib/species";
 
 /**
@@ -12,19 +14,23 @@ import type { CommonName } from "@/lib/species";
 
 const LANGUAGE_ORDER: string[] = ["en", "mg", "fr", "de"];
 
-const LANGUAGE_LABELS: Record<string, string> = {
-  en: "English",
-  mg: "Malagasy",
-  fr: "French",
-  de: "German",
-  es: "Spanish",
-  it: "Italian",
-  nl: "Dutch",
-  pt: "Portuguese",
-};
+// Known ISO-639-1 codes whose label lives in the catalog under
+// species.profile.commonNamesPanel.languages.<code>. Unknown codes
+// uppercase the code itself or fall back to the "other" entry.
+const KNOWN_LANGUAGE_CODES = new Set([
+  "en",
+  "mg",
+  "fr",
+  "de",
+  "es",
+  "it",
+  "nl",
+  "pt",
+]);
 
 function groupByLanguage(
   names: readonly CommonName[],
+  languageLabel: (code: string) => string,
 ): Array<{ language: string; label: string; names: string[] }> {
   const buckets = new Map<string, string[]>();
   for (const cn of names) {
@@ -39,7 +45,7 @@ function groupByLanguage(
   for (const code of LANGUAGE_ORDER) {
     const names = buckets.get(code);
     if (names && names.length > 0) {
-      ordered.push({ language: code, label: LANGUAGE_LABELS[code], names });
+      ordered.push({ language: code, label: languageLabel(code), names });
       buckets.delete(code);
     }
   }
@@ -47,7 +53,7 @@ function groupByLanguage(
   for (const [code, names] of buckets) {
     leftover.push({
       language: code,
-      label: LANGUAGE_LABELS[code] ?? (code.toUpperCase() || "Other"),
+      label: languageLabel(code),
       names,
     });
   }
@@ -60,7 +66,14 @@ export default function ProfileCommonNames({
 }: {
   commonNames: readonly CommonName[];
 }) {
-  const grouped = groupByLanguage(commonNames);
+  const t = useTranslations("species.profile.commonNamesPanel");
+  const tLang = useTranslations("species.profile.commonNamesPanel.languages");
+  const languageLabel = (code: string): string => {
+    if (KNOWN_LANGUAGE_CODES.has(code)) return tLang(code);
+    if (code && code !== "other") return code.toUpperCase();
+    return tLang("other");
+  };
+  const grouped = groupByLanguage(commonNames, languageLabel);
 
   return (
     <section
@@ -87,7 +100,7 @@ export default function ProfileCommonNames({
             color: "var(--ink-3)",
           }}
         >
-          Vernacular
+          {t("eyebrow")}
         </p>
         <h2
           id="common-names-heading"
@@ -101,7 +114,7 @@ export default function ProfileCommonNames({
             color: "var(--ink)",
           }}
         >
-          Common names
+          {t("heading")}
         </h2>
       </div>
 
@@ -144,7 +157,7 @@ export default function ProfileCommonNames({
         </dl>
       ) : (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-3)" }}>
-          No common names recorded yet.
+          {t("noNames")}
         </p>
       )}
     </section>
