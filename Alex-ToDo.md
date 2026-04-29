@@ -109,6 +109,12 @@ _structural_ story (programs, recommendations, transfer lifecycle)
 rather than population breadth. Worth thinking about for the §4.1 dry
 run.
 
+**Reduced-scope plan:** see `docs/CARES_REDUCED_SCOPE_PLAN.md` —
+printable runbook covering minimum viable real-data entries (Tier 1 / 2
+/ 3), interaction with the synthetic `seed_demo_coordination` layer,
+panel-by-panel expectations with demo talking points, and the
+honest-vs-padded narrative decision.
+
 **Workflow overview:** Each CARES hobbyist keeper becomes one `Institution`
 row. Each population they hold becomes one `ExSituPopulation` row linking
 species → keeper.

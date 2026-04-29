@@ -3,8 +3,8 @@
 Step-by-step walkthrough for entering the two Madagascar-relevant EAZA
 Ex-situ Programmes (EEPs) into the registry. Closes Alex-ToDo §2.7.
 
-**Where:** https://api.malagasyfishes.org/admin/ — sign in as a Tier 5
-superuser account. Production, not local.
+**Where:** <https://api.malagasyfishes.org/admin/> — sign in as a
+Tier 5 superuser account. Production, not local.
 
 **Time:** ~20-30 minutes of admin clicking. Two institution rows, two
 program rows.
@@ -71,7 +71,8 @@ Do these first — Step 3 references them via autocomplete.
 | `eaza_member` | ✓ checked |
 | `zims_member` | ✓ checked |
 | `aza_member` | unchecked |
-| Save |
+
+Click **Save**.
 
 Notes: Bristol Zoo Project is the post-2022 successor to Bristol Zoo
 Gardens. It coordinates two Madagascar-relevant EEPs in the April 2026
@@ -90,7 +91,8 @@ guide covers only the Bedotiidae one.
 | City | `Kastrup` *(operates as Den Blå Planet, near Copenhagen — or leave blank)* |
 | `eaza_member` | ✓ checked |
 | `zims_member` | ✓ checked |
-| Save |
+
+Click **Save**.
 
 ---
 
@@ -113,7 +115,8 @@ guide covers only the Bedotiidae one.
 | Plan document URL | blank |
 | Start date | blank |
 | Next review date | blank |
-| Save |
+
+Click **Save**.
 
 ### 3b. Madagascar cichlids EEP
 
@@ -132,7 +135,8 @@ guide covers only the Bedotiidae one.
 | Plan document URL | blank |
 | Start date | blank |
 | Next review date | blank |
-| Save |
+
+Click **Save**.
 
 ---
 
@@ -166,7 +170,8 @@ seconds per row once the institutions exist.
 | `breeding_status` | `breeding` if confirmed, otherwise `unknown` |
 | `studbook_managed` | ✓ checked *(EEPs run a studbook by definition)* |
 | `last_census_date` | today's date |
-| Save |
+
+Click **Save**.
 
 ### 5b. Paretroplus menarambo at National Aquarium Denmark
 
