@@ -1,58 +1,58 @@
 {
   "common": {
-    "skipToContent": "Skip to content",
-    "siteTitle": "Madagascar Freshwater Fish",
-    "siteTitleFull": "Madagascar Freshwater Fish Conservation Platform",
-    "siteDescription": "Open-source platform for Madagascar's endemic freshwater fish — species profiles, distribution, and conservation coordination.",
-    "language": "Language",
-    "loading": "Loading…",
-    "back": "Back",
-    "close": "Close",
-    "submit": "Submit",
-    "cancel": "Cancel",
-    "save": "Save",
-    "tryAgain": "Try again",
-    "comingSoon": "Coming soon",
+    "skipToContent": "Aller au contenu",
+    "siteTitle": "Poissons d'eau douce de Madagascar",
+    "siteTitleFull": "Plateforme pour la conservation des poissons d'eau douce de Madagascar",
+    "siteDescription": "Plateforme open source consacrée aux poissons d'eau douce endémiques de Madagascar — fiches d'espèces, répartition et coordination des efforts de conservation.",
+    "language": "Langue",
+    "loading": "Chargement en cours…",
+    "back": "Retour",
+    "close": "Fermer",
+    "submit": "Envoyer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "tryAgain": "Réessayez",
+    "comingSoon": "À venir",
     "iucn": {
-      "CR": "Critically Endangered",
-      "EN": "Endangered",
-      "VU": "Vulnerable",
-      "NT": "Near Threatened",
-      "LC": "Least Concern",
-      "DD": "Data Deficient",
-      "NE": "Not yet assessed"
+      "CR": "En danger critique d'extinction",
+      "EN": "En voie de disparition",
+      "VU": "Vulnérable",
+      "NT": "Quasi menacé",
+      "LC": "Pas menacé",
+      "DD": "Données insuffisantes",
+      "NE": "Pas encore évalué"
     },
     "iucnBadge": {
-      "ariaLabelUnassessed": "IUCN status: Not yet assessed",
-      "ariaLabelTemplate": "IUCN status: {label}",
-      "ariaLabelWithCriteria": "IUCN status: {label}, criteria {criteria}",
-      "titleWithCriteria": "{label} — criteria {criteria}",
+      "ariaLabelUnassessed": "Statut UICN : Pas encore évalué",
+      "ariaLabelTemplate": "Statut UICN : {label}",
+      "ariaLabelWithCriteria": "Statut UICN : {label}, critères {criteria}",
+      "titleWithCriteria": "{label} — critères {criteria}",
       "labelWithStatus": "{status} · {label}"
     },
     "iucnChart": {
-      "title": "Species by IUCN status",
+      "title": "Espèces classées selon le statut de l'UICN",
       "barLabel": "{label} ({status})",
-      "barAriaLabel": "{count} species with status {label}"
+      "barAriaLabel": "{count} espèces classées {label}"
     },
     "updatedAgo": {
-      "justNow": "just now",
-      "minutes": "{count, plural, one {# minute ago} other {# minutes ago}}",
-      "hours": "{count, plural, one {# hour ago} other {# hours ago}}",
-      "days": "{count, plural, one {# day ago} other {# days ago}}",
-      "updatedRecently": "Updated recently",
-      "updatedTemplate": "Updated {ago}"
+      "justNow": "il y a quelques instants",
+      "minutes": "{count, plural, one {il y a # minute} other {il y a # minutes}}",
+      "hours": "{count, plural, one {il y a # heure} other {il y a # heures}}",
+      "days": "{count, plural, one {il y a # jour} other {il y a # jours}}",
+      "updatedRecently": "Mis à jour récemment",
+      "updatedTemplate": "Mise à jour {ago}"
     },
     "lastSync": {
-      "synced": "Last synced {when} — IUCN Red List",
-      "awaiting": "Awaiting first IUCN sync"
+      "synced": "Dernière synchronisation{when}— Liste rouge de l'UICN",
+      "awaiting": "En attente de la première synchronisation avec l'UICN"
     },
     "cares": {
       "CCR": "CARES CCR",
       "CEN": "CARES CEN",
       "CVU": "CARES CVU",
       "CLC": "CARES CLC",
-      "priority": "CARES priority",
-      "monitored": "CARES monitored",
+      "priority": "Priorité CARES",
+      "monitored": "Suivi par CARES",
       "fallback": "CARES {status}"
     },
     "iucnAbbrev": {
@@ -65,365 +65,365 @@
       "NE": "NE"
     },
     "coverageGap": {
-      "eyebrow": "Coverage gap",
-      "body": "<gap>{withoutCaptive}</gap> of <ts>{total}</ts> threatened species have no known captive population.",
-      "seeWhich": "See which species →",
-      "fallback": "Coverage statistics are refreshing. Counts will appear shortly."
+      "eyebrow": "Lacune en matière de couverture",
+      "body": "<gap>{withoutCaptive}</gap> Certaines<ts>{total}</ts> espèces menacées ne comptent aucune population en captivité connue.",
+      "seeWhich": "Découvrez quelles espèces →",
+      "fallback": "Les statistiques de couverture sont en cours d'actualisation. Les chiffres s'afficheront sous peu."
     }
   },
   "nav": {
-    "dashboard": "Dashboard",
-    "coordinator": "Coordinator",
-    "map": "Map",
-    "speciesDirectory": "Species Directory",
-    "about": "About",
-    "signIn": "Sign in",
-    "signUp": "Sign up",
-    "account": "Account",
-    "signOut": "Sign out"
+    "dashboard": "Tableau de bord",
+    "coordinator": "Coordinateur",
+    "map": "Carte",
+    "speciesDirectory": "Répertoire des espèces",
+    "about": "À propos",
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "account": "Compte",
+    "signOut": "Se déconnecter"
   },
   "home": {
     "hero": {
-      "eyebrow": "Madagascar Freshwater Fish Conservation Platform",
-      "title": "A shared record for Madagascar's endemic freshwater fish.",
-      "subtitle": "An open platform that brings together species profiles, ex-situ breeding coordination, and field program tracking for the roughly 79 freshwater fish species found only in Madagascar. Built to complement IUCN, GBIF, FishBase, and ZIMS — not replace them."
+      "eyebrow": "Plateforme pour la conservation des poissons d'eau douce de Madagascar",
+      "title": "Un registre commun des poissons d'eau douce endémiques de Madagascar.",
+      "subtitle": "Une plateforme ouverte qui rassemble les fiches d'espèces, la coordination de la reproduction ex situ et le suivi des programmes de terrain pour les quelque 79 espèces de poissons d'eau douce que l'on trouve uniquement à Madagascar. Conçue pour compléter les initiatives de l'UICN, du GBIF, de FishBase et du ZIMS, et non pour les remplacer."
     },
     "redListSection": {
-      "eyebrow": "Red List breakdown",
-      "title": "Species by Red List category",
-      "chartCaption": "Counts reflect the current mirror of each species' most recent accepted IUCN assessment. Click a bar to open the directory filtered to that category."
+      "eyebrow": "Répartition de la Liste rouge",
+      "title": "Espèces par catégorie de la Liste rouge",
+      "chartCaption": "Les chiffres correspondent à la version actuelle de la dernière évaluation de l'UICN acceptée pour chaque espèce. Cliquez sur une barre pour ouvrir le répertoire filtré selon cette catégorie."
     },
     "exploreSection": {
-      "ariaLabel": "Primary sections",
-      "eyebrow": "Explore",
-      "title": "Where to go next",
-      "openLink": "Open →"
+      "ariaLabel": "Niveaux élémentaires",
+      "eyebrow": "Découvrir",
+      "title": "Où aller ensuite ?",
+      "openLink": "Ouvrir →"
     },
     "navCards": {
       "directory": {
-        "eyebrow": "Directory",
-        "title": "Species Directory",
-        "description": "Browse endemic species. Filter by IUCN Red List category, family, or captive-population coverage."
+        "eyebrow": "Répertoire",
+        "title": "Répertoire des espèces",
+        "description": "Parcourez les espèces endémiques. Filtrez par catégorie de la Liste rouge de l'UICN, par famille ou par couverture des populations en captivité."
       },
       "map": {
-        "eyebrow": "Map",
-        "title": "Distribution Map",
-        "description": "Locality records across Madagascar's freshwater systems, color-coded by IUCN category."
+        "eyebrow": "Carte",
+        "title": "Carte de répartition",
+        "description": "Répertoriage des localités dans les écosystèmes d'eau douce de Madagascar, classées par code couleur selon la catégorie de l'UICN."
       },
       "dashboard": {
-        "eyebrow": "Dashboard",
-        "title": "Conservation Dashboard",
-        "description": "Counts of species assessments, ex-situ coverage, and field programs, refreshed hourly."
+        "eyebrow": "Tableau de bord",
+        "title": "Tableau de bord de la conservation",
+        "description": "Nombre d'évaluations d'espèces, couverture ex situ et programmes de terrain, mis à jour toutes les heures."
       }
     }
   },
   "species": {
     "directory": {
-      "title": "Species Directory",
-      "subtitle": "Endemic freshwater fishes of Madagascar",
-      "metaTitle": "Species Directory — Madagascar Freshwater Fish",
-      "metaDescription": "Browse endemic freshwater fish species of Madagascar. Filter by IUCN Red List category, family, and captive-population coverage.",
-      "headerCounts": "{total} endemic freshwater fish species ({described} described, {undescribed} undescribed)",
-      "headerCountsLoading": "Species count is loading…",
-      "matchCount": "<strong>{count}</strong> {count, plural, one {species matches} other {species match}} the current filters.",
+      "title": "Répertoire des espèces",
+      "subtitle": "Poissons d'eau douce endémiques de Madagascar",
+      "metaTitle": "Répertoire des espèces — Poissons d'eau douce de Madagascar",
+      "metaDescription": "Découvrez les espèces de poissons d'eau douce endémiques de Madagascar. Filtrez les résultats par catégorie de la Liste rouge de l'UICN, par famille et par couverture des populations en captivité.",
+      "headerCounts": "{total} espèces de poissons d'eau douce endémiques ({described}décrites,{undescribed}non décrites)",
+      "headerCountsLoading": "Le décompte des espèces est en cours…",
+      "matchCount": "<strong>{count}</strong> {count, plural, one {espèce correspond} other {espèces correspondent}} aux filtres actuels.",
       "filters": {
-        "ariaLabel": "Species filters",
-        "search": "Search",
-        "searchPlaceholder": "Scientific or common name…",
-        "searchHint": "Press Enter to search.",
-        "iucnStatus": "IUCN status",
-        "iucnNeNote": "NE (\"Not yet assessed\") includes undescribed morphospecies that have not been assessed by the IUCN Red List.",
-        "family": "Family",
-        "anyFamily": "Any family",
-        "taxonomicStatus": "Taxonomic status",
-        "anyTaxonomicStatus": "Any",
-        "described": "Described",
-        "undescribedMorphospecies": "Undescribed morphospecies",
-        "priorityListings": "Priority listings",
-        "priorityListingsHint": "Conservation-priority lists maintained alongside the IUCN Red List, not in place of it.",
+        "ariaLabel": "Filtres par espèce",
+        "search": "Rechercher",
+        "searchPlaceholder": "Nom scientifique ou nom commun…",
+        "searchHint": "Appuyez sur Entrée pour lancer la recherche.",
+        "iucnStatus": "Statut UICN",
+        "iucnNeNote": "NE (« Pas encore évalué ») désigne les morfo-espèces non décrites qui n'ont pas encore fait l'objet d'une évaluation par la Liste rouge de l'UICN.",
+        "family": "Famille",
+        "anyFamily": "Toute famille",
+        "taxonomicStatus": "Statut taxonomique",
+        "anyTaxonomicStatus": "N'importe quel",
+        "described": "Décrite",
+        "undescribedMorphospecies": "Morphospécies non décrites",
+        "priorityListings": "Annonces prioritaires",
+        "priorityListingsHint": "Des listes de priorités en matière de conservation établies parallèlement à la Liste rouge de l'UICN, et non en remplacement de celle-ci.",
         "caresLabel": "CARES",
-        "caresTooltip": "CARES — hobbyist-led priority list for freshwater fish whose wild populations need ex-situ backup. Distinct from IUCN.",
-        "shoalLabel": "SHOAL 1,000",
-        "shoalTooltip": "SHOAL 1,000 Fishes Blueprint — global priority list for freshwater fish conservation.",
-        "captivePopulationLegend": "Captive population",
-        "captiveAny": "Any",
-        "captiveHas": "Has captive pop.",
-        "captiveNone": "None tracked",
-        "introducedLegend": "Introduced species",
-        "introducedDescriptionPrefix": "Show introduced (non-native) species — for example,",
-        "introducedDescriptionSuffix": "spp. Hidden by default so the directory reads as Madagascar's native fauna.",
-        "clearFilters": "Clear filters",
-        "iucnLegendSummary": "IUCN legend"
+        "caresTooltip": "CARES — liste de priorités établie par des amateurs pour les poissons d'eau douce dont les populations sauvages ont besoin d'une sauvegarde ex situ. Distincte de celle de l'UICN.",
+        "shoalLabel": "SHOAL 1 000",
+        "shoalTooltip": "Plan d'action « SHOAL 1 000 Fishes » — liste mondiale des priorités pour la conservation des poissons d'eau douce.",
+        "captivePopulationLegend": "Population captive",
+        "captiveAny": "N'importe quel",
+        "captiveHas": "Possède une population captive.",
+        "captiveNone": "Aucun suivi",
+        "introducedLegend": "Espèces introduites",
+        "introducedDescriptionPrefix": "Présenter des espèces introduites (non indigènes) — par exemple,",
+        "introducedDescriptionSuffix": "spp. Masqué par défaut, de sorte que le répertoire s'intitule « Faune indigène de Madagascar ».",
+        "clearFilters": "Effacer les filtres",
+        "iucnLegendSummary": "Légende de l'UICN"
       },
       "card": {
-        "noCommonName": "No common name recorded",
-        "familyLabel": "Family",
-        "endemicLabel": "Endemic",
-        "basinLabel": "Basin",
-        "basinSuffix": "{basin} basin",
-        "viewProfile": "View profile",
+        "noCommonName": "Aucun nom commun enregistré",
+        "familyLabel": "Famille",
+        "endemicLabel": "Endémique",
+        "basinLabel": "Bassin",
+        "basinSuffix": "{basin} bassin",
+        "viewProfile": "Voir le profil",
         "shoalPill": "SHOAL",
         "endemic": {
-          "endemic": "Endemic",
-          "native": "Native",
-          "introduced": "Introduced"
+          "endemic": "Endémique",
+          "native": "Natif",
+          "introduced": "Présenté"
         }
       },
       "emptyState": {
-        "title": "No species match these filters",
-        "subtitle": "{total} species in the directory total. Try relaxing one filter.",
-        "bodyFiltered": "Active filters: {filters}. Of {total} species in the registry, none currently match. Clear one or more filters to widen the search.",
-        "bodyUnfiltered": "No species are currently listed.",
-        "clearAction": "Clear filters",
-        "browseAction": "Browse all species"
+        "title": "Aucune espèce ne correspond à ces critères",
+        "subtitle": "{total} Nombre total d'espèces dans le répertoire. Essayez de désactiver un filtre.",
+        "bodyFiltered": "Filtres actifs : {filters}. Parmi{total}les espèces répertoriées, aucune ne correspond actuellement. Désactivez un ou plusieurs filtres pour élargir la recherche.",
+        "bodyUnfiltered": "Aucune espèce n'est actuellement répertoriée.",
+        "clearAction": "Effacer les filtres",
+        "browseAction": "Parcourir toutes les espèces"
       },
       "emptyStateBackendDown": {
-        "title": "Species directory temporarily unavailable",
-        "body": "The species data service is unreachable right now. The registry is unchanged — try again in a moment.",
-        "tryAgain": "Try again"
+        "title": "Le répertoire des espèces est temporairement indisponible",
+        "body": "Le service de données sur les espèces est actuellement indisponible. Le registre n'a pas changé — veuillez réessayer dans quelques instants.",
+        "tryAgain": "Réessayez"
       },
       "activeFilters": {
-        "search": "search \"{query}\"",
-        "iucn": "IUCN {labels}",
-        "family": "family {family}",
-        "undescribedMorphospecies": "undescribed morphospecies only",
-        "describedOnly": "described species only",
-        "cares": "CARES priority",
-        "shoal": "SHOAL priority",
-        "withCaptive": "with a captive population",
-        "withoutCaptive": "without a captive population",
-        "includingIntroduced": "including introduced"
+        "search": "rechercher « {query}»",
+        "iucn": "UICN {labels}",
+        "family": "famille {family}",
+        "undescribedMorphospecies": "uniquement les morphospécies non décrites",
+        "describedOnly": "uniquement les espèces décrites",
+        "cares": "Priorité CARES",
+        "shoal": "Priorité SHOAL",
+        "withCaptive": "avec une population captive",
+        "withoutCaptive": "sans population captive",
+        "includingIntroduced": "y compris les espèces introduites"
       },
       "pagination": {
         "ariaLabel": "Pagination",
-        "previous": "← Previous",
-        "next": "Next →",
-        "pageOf": "Page {current} of {total} — {totalCount} total"
+        "previous": "← Précédent",
+        "next": "Suivant →",
+        "pageOf": "Page{current}  sur{total}  —{totalCount}  total"
       },
       "density": {
-        "label": "Density",
-        "ariaLabel": "Directory density",
-        "comfortable": "Comfortable",
+        "label": "Densité",
+        "ariaLabel": "Densité du répertoire",
+        "comfortable": "Confortable",
         "compact": "Compact"
       }
     },
     "profile": {
-      "metaTitleTemplate": "{name} — Madagascar Freshwater Fish",
-      "metaDescriptionFallback": "Species profile for {name}.",
-      "metaTitleNotFound": "Species not found — Madagascar Freshwater Fish",
+      "metaTitleTemplate": "{name} — Poissons d'eau douce de Madagascar",
+      "metaDescriptionFallback": "{name}Fiche descriptive de l'espèce .",
+      "metaTitleNotFound": "Espèce introuvable — Poissons d'eau douce de Madagascar",
       "errorState": {
-        "title": "Species profile temporarily unavailable",
-        "body": "The species data service is unreachable. Try again in a moment, or return to the directory.",
-        "backToDirectory": "← All species"
+        "title": "Fiche d'espèce temporairement indisponible",
+        "body": "Le service de données sur les espèces est inaccessible. Veuillez réessayer dans quelques instants ou revenir à l'annuaire.",
+        "backToDirectory": "← Toutes les espèces"
       },
       "breadcrumb": {
-        "ariaLabel": "Breadcrumb",
-        "back": "← All species"
+        "ariaLabel": "Fil d'Ariane",
+        "back": "← Toutes les espèces"
       },
-      "provisionalPill": "Provisional Name",
-      "provisionalNote": "Undescribed morphospecies — formal description pending.",
-      "summaryAriaLabel": "Profile summary",
+      "provisionalPill": "Nom provisoire",
+      "provisionalNote": "Morphospèce non décrite — description formelle en attente.",
+      "summaryAriaLabel": "Résumé du profil",
       "summary": {
         "distributionTitle": "Distribution",
-        "exSituTitle": "Ex-situ Coverage",
-        "husbandryTitle": "Husbandry",
-        "endemicToMadagascar": "Endemic to Madagascar",
-        "introducedToMadagascar": "Introduced to Madagascar",
-        "nativeToMadagascar": "Native to Madagascar",
-        "mappedAt": "{count, plural, one {Mapped at # locality} other {Mapped at # localities}}",
-        "viewOnMap": "View on Map →",
-        "noLocalitiesMapped": "No locality records mapped.",
-        "noCaptiveTracked": "No captive population tracked.",
+        "exSituTitle": "Couverture ex situ",
+        "husbandryTitle": "Élevage",
+        "endemicToMadagascar": "Endémique à Madagascar",
+        "introducedToMadagascar": "Introduit à Madagascar",
+        "nativeToMadagascar": "Originaire de Madagascar",
+        "mappedAt": "{count, plural, one {Cartographié dans # localité} other {Cartographié dans # localités}}",
+        "viewOnMap": "Voir sur la carte →",
+        "noLocalitiesMapped": "Aucune localité n'a été répertoriée sur la carte.",
+        "noCaptiveTracked": "Aucune population captive n'est suivie.",
         "institutionsCount": "{count, plural, one {# institution} other {# institutions}}",
-        "exSituSubline": "{individuals} individuals · {programs} breeding",
-        "exSituSublineEmDash": "— individuals · {programs} breeding",
-        "husbandryDifficulty": "{count, plural, one {# difficulty factor} other {# difficulty factors}}",
-        "seeGuidance": "See guidance →",
-        "noHusbandryYet": "No husbandry guidance yet."
+        "exSituSubline": "{individuals} individus ·{programs}  élevage",
+        "exSituSublineEmDash": "— particuliers ·{programs}  élevage",
+        "husbandryDifficulty": "{count, plural, one {# facteur de difficulté} other {# facteurs de difficulté}}",
+        "seeGuidance": "Consultez les recommandations →",
+        "noHusbandryYet": "Il n'y a pas encore de conseils d'élevage."
       },
-      "sparseDataNote": "Limited public data is available for this species. Additional information will be added as it is published.",
+      "sparseDataNote": "Il existe peu de données publiques disponibles concernant cette espèce. Des informations supplémentaires seront ajoutées dès leur publication.",
       "descriptionEcology": {
-        "eyebrow": "Description & Ecology",
-        "morphologyInline": "Morphology."
+        "eyebrow": "Description et écologie",
+        "morphologyInline": "Morphologie."
       },
       "stats": {
-        "maxLength": "Max length",
+        "maxLength": "Longueur maximale",
         "maxLengthValue": "{cm} cm",
         "habitat": "Habitat",
-        "basin": "Basin",
-        "status": "Status",
-        "statusUndescribed": "Undescribed morphospecies",
-        "statusDescribed": "Described",
+        "basin": "Bassin",
+        "status": "Statut",
+        "statusUndescribed": "Morphospécies non décrites",
+        "statusDescribed": "Décrite",
         "emDash": "—"
       },
-      "distributionAndCommonNamesAriaLabel": "Distribution and common names",
-      "husbandryAndStatusAriaLabel": "Husbandry and conservation status",
+      "distributionAndCommonNamesAriaLabel": "Répartition et noms communs",
+      "husbandryAndStatusAriaLabel": "Élevage et statut de conservation",
       "keeping": {
-        "eyebrow": "Husbandry",
-        "title": "Keeping this species",
-        "shoalPriorityPill": "SHOAL priority",
-        "noteCaresAndShoal": "A CARES and SHOAL priority species — hobbyist breeders play a direct conservation role.",
-        "noteCares": "A CARES priority species — hobbyist breeders play a direct conservation role.",
-        "noteShoal": "A SHOAL 1,000 Fishes priority species.",
-        "noteGeneric": "Husbandry guidance is available for this species.",
-        "seeGuidance": "See husbandry guidance →"
+        "eyebrow": "Élevage",
+        "title": "Élever cette espèce",
+        "shoalPriorityPill": "Priorité SHOAL",
+        "noteCaresAndShoal": "Une espèce prioritaire selon les programmes CARES et SHOAL — les éleveurs amateurs jouent un rôle direct dans la conservation.",
+        "noteCares": "Une espèce prioritaire du programme CARES — les éleveurs amateurs jouent un rôle direct dans la conservation.",
+        "noteShoal": "Une espèce prioritaire du programme SHOAL 1 000 Fishes.",
+        "noteGeneric": "Des conseils d'élevage sont disponibles pour cette espèce.",
+        "seeGuidance": "Consultez les conseils d'élevage →"
       },
       "conservation": {
-        "eyebrow": "Red List Status",
-        "title": "Conservation Status",
-        "criteriaLabel": "Criteria",
-        "assessorLabel": "Assessor",
-        "assessedLabel": "Assessed",
-        "viewIucnAssessment": "View Red List assessment →"
+        "eyebrow": "Statut sur la Liste rouge",
+        "title": "Statut de conservation",
+        "criteriaLabel": "Critères",
+        "assessorLabel": "évaluateur",
+        "assessedLabel": "Évalué",
+        "viewIucnAssessment": "Consulter l'évaluation de la Liste rouge →"
       },
       "iucnDescriptions": {
-        "CR": "Faces an extremely high risk of extinction in the wild. Populations have collapsed or occupy a very narrow range, and urgent intervention is required.",
-        "EN": "Faces a very high risk of extinction in the wild. Populations are fragmented or declining steeply enough to threaten persistence.",
-        "VU": "Faces a high risk of extinction in the wild. Threats are significant enough that decline is likely without conservation action.",
-        "NT": "Close to qualifying for a threatened category, or likely to qualify in the near future without continued monitoring.",
-        "LC": "Widespread and abundant. Does not currently qualify for a threatened category.",
-        "DD": "Inadequate information is available to make a direct or indirect assessment of extinction risk.",
-        "NE": "Has not yet been evaluated against IUCN Red List criteria."
+        "CR": "Est confrontée à un risque extrêmement élevé d'extinction à l'état sauvage. Les populations se sont effondrées ou occupent une aire de répartition très restreinte, et une intervention urgente s'impose.",
+        "EN": "Est gravement menacée d'extinction à l'état sauvage. Les populations sont fragmentées ou en déclin si rapide qu'elles menacent la survie de l'espèce.",
+        "VU": "Est fortement menacée d'extinction à l'état sauvage. Les menaces sont suffisamment graves pour que son effectif risque de diminuer en l'absence de mesures de conservation.",
+        "NT": "En passe d'être classée dans une catégorie menacée, ou susceptible de l'être dans un avenir proche sans une surveillance continue.",
+        "LC": "Répandue et abondante. Ne remplit pas actuellement les critères pour être classée dans une catégorie de menaces.",
+        "DD": "Les données disponibles sont insuffisantes pour évaluer, directement ou indirectement, le risque d'extinction.",
+        "NE": "N'a pas encore été évalué selon les critères de la Liste rouge de l'UICN."
       },
       "captive": {
-        "eyebrow": "Ex-situ Stewardship",
-        "title": "Captive population summary",
-        "noneTracked": "No captive population is currently tracked.",
-        "noneTrackedThreatened": "This species is threatened and has no ex-situ safety net. Contact the registry to register a holding.",
-        "noneTrackedNonThreatened": "No institution has registered holdings for this species.",
+        "eyebrow": "Gestion ex situ",
+        "title": "Résumé sur les populations en captivité",
+        "noneTracked": "Aucune population captive n'est actuellement suivie.",
+        "noneTrackedThreatened": "Cette espèce est menacée et ne bénéficie d'aucun filet de sécurité ex situ. Veuillez contacter le registre pour y déclarer votre population.",
+        "noneTrackedNonThreatened": "Aucun établissement n'a déclaré de spécimens de cette espèce.",
         "institutionsLabel": "Institutions",
-        "individualsLabel": "Individuals",
-        "breedingProgramsLabel": "Active breeding programs"
+        "individualsLabel": "Particuliers",
+        "breedingProgramsLabel": "Programmes d'élevage en cours"
       },
       "field": {
-        "eyebrow": "Field Programs",
-        "title": "In-situ linkages",
-        "emptyTitle": "No linked field programs",
-        "emptyBody": "No field programs are currently linked to this species."
+        "eyebrow": "Programmes sur le terrain",
+        "title": "Liens in situ",
+        "emptyTitle": "Aucun programme de terrain associé",
+        "emptyBody": "Aucun programme de terrain n'est actuellement associé à cette espèce."
       },
       "external": {
-        "eyebrow": "External References",
-        "iucnLink": "IUCN Red List assessment →",
-        "fishbaseLink": "FishBase species summary →"
+        "eyebrow": "Références externes",
+        "iucnLink": "Évaluation de la Liste rouge de l'UICN →",
+        "fishbaseLink": "Résumé de l'espèce sur FishBase →"
       },
       "pills": {
-        "basinSuffix": "{basin} basin",
-        "shoalPriority": "SHOAL priority",
+        "basinSuffix": "{basin} bassin",
+        "shoalPriority": "Priorité SHOAL",
         "caresPrefix": "CARES {status}"
       },
       "primaryCommonLanguage": "({language})",
-      "fallbackBadge": "(English)",
+      "fallbackBadge": "(Anglais)",
       "husbandryTeaser": {
-        "heading": "Keeping this species",
-        "seeGuidancePrefix": "See husbandry guidance",
+        "heading": "Élever cette espèce",
+        "seeGuidancePrefix": "Consultez les conseils d'élevage",
         "arrow": "→"
       },
       "sourcingEthics": {
-        "heading": "Sourcing ethics",
-        "para1": "Keeping Malagasy freshwater fish in captivity is part of how these species survive. Habitat loss, introduced predators, and altered hydrology have reduced wild populations to the point that some species now depend on coordinated ex-situ (captive) programs for a demographic safety net. That work requires wild-sourced founders and, occasionally, genetic refreshment — it cannot be done from captive stock alone indefinitely.",
-        "para2": "Responsible wild collection happens under permit, by programs working in partnership with Malagasy authorities and in-country researchers, usually tied to a specific institutional or CARES breeding plan. It is documented, reported, and accountable. Rescue collections after habitat-loss events — dam construction, wetland drainage, pollution incidents — have also been a source of founder stock for some of the most imperiled species. This is conservation work, not the aquarium trade.",
-        "para3": "Hobbyists should not collect from the wild on trips or through informal exporters. Instead, source fish from CARES-registered breeders, Citizen Conservation, or partner institutions; document lineage where known; and share surplus fry back into the breeder network so founder genetics are preserved across multiple keepers. A well-distributed captive population is worth more to the species than any single tank of wild-caught fish.",
-        "footerLine": "More on how the platform handles data, sources, and sensitive locations: <dataLink>how we handle the data</dataLink>."
+        "heading": "Éthique de l'approvisionnement",
+        "para1": "L'élevage en captivité des poissons d'eau douce malgaches contribue à la survie de ces espèces. La destruction de leur habitat, l'introduction de prédateurs et les modifications hydrologiques ont réduit les populations sauvages à un point tel que certaines espèces dépendent désormais de programmes ex situ (en captivité) coordonnés pour assurer leur survie démographique. Ce travail nécessite des individus fondateurs issus de la nature et, parfois, un renouvellement génétique — il ne peut se faire indéfiniment à partir uniquement de populations en captivité.",
+        "para2": "La collecte responsable dans la nature s'effectue sous licence, dans le cadre de programmes menés en partenariat avec les autorités malgaches et des chercheurs locaux, et s'inscrit généralement dans un plan d'élevage institutionnel ou du programme CARES. Elle fait l'objet d'un suivi, est documentée et justifiée. Les collectes de sauvetage effectuées à la suite de la destruction d'habitats — construction de barrages, assèchement de zones humides, incidents de pollution — ont également constitué une source de souches fondatrices pour certaines des espèces les plus menacées. Il s'agit là d'un travail de conservation, et non du commerce destiné aux aquariums.",
+        "para3": "Les aquariophiles ne devraient pas prélever d'individus dans la nature lors de leurs voyages ni passer par des exportateurs informels. Ils devraient plutôt se procurer leurs poissons auprès d'éleveurs enregistrés auprès du CARES, de Citizen Conservation ou d'institutions partenaires ; documenter la lignée lorsque celle-ci est connue ; et réintroduire les alevins excédentaires dans le réseau d'éleveurs afin que le patrimoine génétique des fondateurs soit préservé chez plusieurs éleveurs. Une population en captivité bien répartie est plus précieuse pour l'espèce que n'importe quel aquarium contenant des poissons capturés dans la nature.",
+        "footerLine": "Pour en savoir plus sur la manière dont la plateforme traite les données, les sources et les emplacements sensibles : <dataLink>comment nous traitons les données</dataLink>."
       },
       "silhouette": {
-        "altWithLength": "Illustrative silhouette of {name}, approximately {cm} cm in length.",
-        "altNoLength": "Illustrative silhouette of {name}.",
-        "captionPrefix": "Illustrative silhouette",
-        "captionLength": " (approx. {cm} cm at maximum recorded length)",
-        "captionCredit": " — genus silhouette, {credit}",
+        "altWithLength": "Silhouette représentative de {name}, d'environ{cm}  cm de long.",
+        "altNoLength": "Silhouette illustrative de {name}.",
+        "captionPrefix": "Silhouette illustrative",
+        "captionLength": " (environ{cm}  cm pour la longueur maximale enregistrée)",
+        "captionCredit": " — silhouette du genre, {credit}",
         "captionTrailingPrefix": ". ",
-        "contributePrompt": "Photographs of this species are welcome — <link>contribute</link>."
+        "contributePrompt": "Les photos de cette espèce sont les bienvenues — <link>n'hésitez pas à nous les envoyer</link>."
       },
       "commonNamesPanel": {
-        "eyebrow": "Vernacular",
-        "heading": "Common names",
+        "eyebrow": "langue vernaculaire",
+        "heading": "Noms communs",
         "languages": {
-          "en": "English",
-          "mg": "Malagasy",
-          "fr": "French",
-          "de": "German",
-          "es": "Spanish",
-          "it": "Italian",
-          "nl": "Dutch",
-          "pt": "Portuguese",
-          "other": "Other"
+          "en": "Anglais",
+          "mg": "malgache",
+          "fr": "français",
+          "de": "allemand",
+          "es": "Espagnol",
+          "it": "italien",
+          "nl": "néerlandais",
+          "pt": "portugais",
+          "other": "Autres"
         },
-        "noNames": "No common names recorded yet."
+        "noNames": "Aucun nom commun n'a encore été enregistré."
       },
       "distributionPanel": {
         "eyebrow": "Distribution",
-        "heading": "Where it's found",
-        "imageAltFallback": "Distribution overview",
-        "foundInLabel": "Found in",
-        "recordCount": "{count, plural, one {# record} other {# records}}",
-        "noLocalities": "No locality records are currently mapped for this species."
+        "heading": "Où le trouve-t-on ?",
+        "imageAltFallback": "Aperçu de la distribution",
+        "foundInLabel": "Trouvé dans",
+        "recordCount": "{count, plural, one {# relevé} other {# relevés}}",
+        "noLocalities": "Aucune localisation n'est actuellement répertoriée pour cette espèce."
       }
     },
     "notFound": {
-      "title": "Species not found",
-      "description": "We couldn't find a species with that ID. It may have been merged or removed.",
-      "browseLink": "Browse the species directory →"
+      "title": "Espèce introuvable",
+      "description": "Nous n'avons pas trouvé d'espèce correspondant à cet identifiant. Elle a peut-être été fusionnée ou supprimée.",
+      "browseLink": "Parcourir le répertoire des espèces →"
     }
   },
   "map": {
-    "title": "Distribution Map",
-    "subtitle": "Locality records for endemic freshwater fish",
-    "metaTitle": "Distribution Map — Madagascar Freshwater Fish",
-    "metaDescription": "Locality records for endemic freshwater fish across Madagascar, color-coded by IUCN Red List category. Exact coordinates for threatened species are generalized per GBIF sensitive-species guidance.",
-    "loading": "Loading distribution map…",
-    "eyebrow": "Distribution Map",
-    "recordCount": "{count, plural, one {# locality record} other {# locality records}}",
-    "filteredTo": "Filtered to <em>{name}</em>",
-    "filterFallbackName": "species #{id}",
-    "clearFilter": "Clear",
-    "clearFilterAriaLabel": "Clear species filter and show all locality records",
-    "keyboardHint": "Markers are color-coded by IUCN Red List category. Coordinates for threatened species are generalized per GBIF sensitive-species guidance. For keyboard and screen-reader access, use the list view toggle above.",
+    "title": "Carte de répartition",
+    "subtitle": "Données sur la répartition géographique des poissons d'eau douce endémiques",
+    "metaTitle": "Carte de répartition — Poissons d'eau douce de Madagascar",
+    "metaDescription": "Données sur la répartition géographique des poissons d'eau douce endémiques à Madagascar, classées par code couleur selon la catégorie de la Liste rouge de l'UICN. Les coordonnées exactes des espèces menacées ont été généralisées conformément aux recommandations du GBIF concernant les espèces sensibles.",
+    "loading": "Chargement de la carte de répartition…",
+    "eyebrow": "Carte de répartition",
+    "recordCount": "{count, plural, one {# relevé de localité} other {# relevés de localité}}",
+    "filteredTo": "Filtré par <em>{name}</em>",
+    "filterFallbackName": "espèce n°{id}",
+    "clearFilter": "Effacer",
+    "clearFilterAriaLabel": "Vider le filtre par espèce et afficher toutes les observations par localité",
+    "keyboardHint": "Les marqueurs sont classés par couleur selon la catégorie de la Liste rouge de l'UICN. Les coordonnées des espèces menacées ont été généralisées conformément aux recommandations du GBIF concernant les espèces sensibles. Pour faciliter l'accès au clavier et aux lecteurs d'écran, utilisez le bouton de basculement vers l'affichage sous forme de liste situé ci-dessus.",
     "view": {
-      "label": "View",
-      "ariaLabel": "View mode",
-      "map": "Map",
-      "list": "List",
-      "viewAsList": "View as list"
+      "label": "Afficher",
+      "ariaLabel": "Mode d'affichage",
+      "map": "Carte",
+      "list": "Liste",
+      "viewAsList": "Afficher sous forme de liste"
     },
     "legend": {
-      "title": "IUCN Red List category"
+      "title": "Catégorie de la Liste rouge de l'UICN"
     },
     "popup": {
-      "scientificNameLabel": "Scientific name",
-      "iucnLabel": "IUCN status",
-      "localityLabel": "Locality",
-      "dateLabel": "Observation date",
-      "citationLabel": "Citation"
+      "scientificNameLabel": "Nom scientifique",
+      "iucnLabel": "Statut UICN",
+      "localityLabel": "Localité",
+      "dateLabel": "Date d'observation",
+      "citationLabel": "Référence"
     },
-    "noticeOfflineBasemap": "Using offline basemap — satellite imagery unavailable",
-    "noticeGeneralized": "Coordinates for threatened species are generalized per GBIF sensitive-species guidance. Tier 3+ coordinators see exact coordinates.",
+    "noticeOfflineBasemap": "Utilisation d'une carte de base hors ligne — images satellite indisponibles",
+    "noticeGeneralized": "Les coordonnées des espèces menacées sont généralisées conformément aux recommandations du GBIF relatives aux espèces sensibles. Les coordinateurs de niveau 3+ ont accès aux coordonnées exactes.",
     "emptyState": {
-      "title": "No locality records to show",
-      "subtitle": "Try adjusting filters or zooming out."
+      "title": "Aucun enregistrement de localité n'est disponible",
+      "subtitle": "Essayez de modifier les filtres ou de réduire le zoom."
     },
     "emptyStateBackendDown": {
-      "title": "Distribution map temporarily unavailable",
-      "body": "The locality data service is unreachable right now. Try again in a moment, or use the species directory for profiles, conservation status, and other details that don't depend on the map.",
-      "tryAgain": "Try again",
-      "browseAll": "Browse all species"
+      "title": "La carte de répartition est temporairement indisponible",
+      "body": "Le service de données géographiques est actuellement indisponible. Veuillez réessayer dans quelques instants ou consulter le répertoire des espèces pour obtenir des profils, des informations sur le statut de conservation et d'autres détails qui ne dépendent pas de la carte.",
+      "tryAgain": "Réessayez",
+      "browseAll": "Parcourir toutes les espèces"
     },
     "emptyStateNoRecords": {
-      "title": "No locality records to map",
-      "bodyForSpecies": "No public locality records are available for this species. Exact coordinates for threatened species are restricted to coordinator-tier accounts; the species profile still shows conservation status, taxonomy, and other details that don't depend on locality data.",
-      "bodyAll": "No locality records are currently published. The species directory still lists every species in the registry, whether or not their localities have been mapped.",
-      "browseAll": "Browse all species"
+      "title": "Aucune donnée locale à cartographier",
+      "bodyForSpecies": "Il n'existe aucune donnée publique sur les localisations pour cette espèce. Les coordonnées exactes des espèces menacées ne sont accessibles qu'aux comptes de niveau « coordinateur » ; le profil de l'espèce affiche néanmoins son statut de conservation, sa taxonomie et d'autres informations qui ne dépendent pas des données de localisation.",
+      "bodyAll": "Aucune donnée sur la répartition géographique n'est actuellement publiée. Le répertoire des espèces répertorie toujours toutes les espèces inscrites au registre, que leur répartition géographique ait été cartographiée ou non.",
+      "browseAll": "Parcourir toutes les espèces"
     },
     "list": {
-      "summary": "Showing <strong>{total}</strong> locality records across <strong>{species}</strong> species. Click a column header to sort; use the Locality link in each row to view it on the map.",
-      "caption": "Locality records for Madagascar freshwater fish, one row per marker visible on the map. Columns are sortable; use each row's Locality link to open that locality on the map.",
+      "summary": "Affichage<strong>{total}</strong> des données de localisation pour<strong>{species}</strong>toutes les espèces. Cliquez sur l'en-tête d'une colonne pour trier les résultats ; utilisez le lien « Localisation » dans chaque ligne pour afficher la localisation sur la carte.",
+      "caption": "Données sur les localités des poissons d'eau douce de Madagascar, avec une ligne par repère visible sur la carte. Les colonnes peuvent être triées ; cliquez sur le lien « Localité » de chaque ligne pour afficher cette localité sur la carte.",
       "headers": {
-        "scientificName": "Scientific name",
+        "scientificName": "Nom scientifique",
         "iucn": "IUCN",
-        "locality": "Locality",
+        "locality": "Localité",
         "type": "Type",
-        "presence": "Presence",
-        "waterBody": "Water body",
-        "year": "Year",
+        "presence": "Présence",
+        "waterBody": "Plan d'eau",
+        "year": "Année",
         "source": "Source"
       },
       "emDash": "—"
@@ -431,424 +431,424 @@
   },
   "about": {
     "page": {
-      "metaTitle": "About — Madagascar Freshwater Fish Conservation Platform",
-      "metaDescription": "About the Madagascar Freshwater Fish Conservation Platform: mission, data sources, ownership, and citations.",
-      "heroEyebrow": "About",
-      "heroTitle": "A shared record of Madagascar's endemic freshwater fish.",
-      "heroSubtitle": "An open platform for species profiles, ex-situ breeding coordination, and field program tracking — built to complement IUCN, GBIF, FishBase, and ZIMS, not replace them.",
+      "metaTitle": "À propos — Plateforme pour la conservation des poissons d'eau douce de Madagascar",
+      "metaDescription": "À propos de la Plateforme pour la conservation des poissons d'eau douce de Madagascar : mission, sources de données, propriété et références bibliographiques.",
+      "heroEyebrow": "À propos",
+      "heroTitle": "Un répertoire commun des poissons d'eau douce endémiques de Madagascar.",
+      "heroSubtitle": "Une plateforme ouverte dédiée aux fiches d'espèces, à la coordination des programmes d'élevage ex situ et au suivi des programmes de terrain — conçue pour compléter l'UICN, le GBIF, FishBase et le ZIMS, et non pour les remplacer.",
       "missionEyebrow": "Mission",
-      "missionTitle": "Why this platform exists",
-      "missionPara1": "Madagascar's freshwater fish are the most imperiled vertebrate group on the island. Of the {speciesTotal} described and undescribed endemic species in the registry, the majority are assessed as threatened on the IUCN Red List, and a significant share have no known captive population to serve as a demographic safety net. Coordination across the institutions working on these species — zoos, aquariums, academic researchers, hobbyist breeders, and in-country field programs — has historically relied on email threads, personal networks, and one-off spreadsheets.",
-      "missionFallbackTotal": "~79",
-      "missionPara2": "This platform is a single, open record of what is known: which species exist, how they are assessed, where they have been observed, and which institutions hold captive populations. It aggregates from authoritative upstream sources rather than competing with them, and publishes back to them (via Darwin Core Archives) where the data flow is appropriate.",
-      "scopeEyebrow": "Scope",
-      "scopeTitle": "What the platform does",
-      "scopePara1": "Public profiles cover every endemic species in the registry, including undescribed morphospecies that do not yet appear on the IUCN Red List. Conservation status mirrors the most recent accepted assessment; species with no assessment are marked \"not yet assessed\" rather than given a stale category. The distribution map shows locality records generalized per GBIF sensitive-species protocols; exact coordinates for threatened species are restricted to coordinator-tier accounts to protect wild populations.",
-      "scopePara2": "Restricted tiers support ex-situ breeding coordination, transfer recommendations, and studbook-level data for registered partners. Those features are not visible on the public site.",
+      "missionTitle": "Pourquoi cette plateforme existe-t-elle ?",
+      "missionPara1": "Les poissons d'eau douce de Madagascar constituent le groupe de vertébrés le plus menacé de l'île. Parmi les espèces endémiques répertoriées, qu'elles{speciesTotal}soient décrites ou non, la majorité est classée comme menacée sur la Liste rouge de l'UICN, et une part importante d'entre elles ne dispose d'aucune population captive connue pouvant servir de filet de sécurité démographique. La coordination entre les institutions travaillant sur ces espèces — zoos, aquariums, chercheurs universitaires, éleveurs amateurs et programmes de terrain nationaux — s'est historiquement appuyée sur des fils de discussion par e-mail, des réseaux personnels et des tableurs ponctuels.",
+      "missionFallbackTotal": "environ 79",
+      "missionPara2": "Cette plateforme constitue un registre unique et ouvert de l'état actuel des connaissances : quelles espèces existent, comment elles sont évaluées, où elles ont été observées et quelles institutions détiennent des populations en captivité. Elle rassemble des données provenant de sources en amont faisant autorité, sans entrer en concurrence avec elles, et les leur restitue (via les archives Darwin Core) lorsque le flux de données le permet.",
+      "scopeEyebrow": "Champ d'application",
+      "scopeTitle": "Fonctionnalités de la plateforme",
+      "scopePara1": "Les fiches publiques couvrent toutes les espèces endémiques répertoriées dans le registre, y compris les morfo-espèces non décrites qui ne figurent pas encore sur la Liste rouge de l'UICN. Le statut de conservation reflète la dernière évaluation reconnue ; les espèces pour lesquelles aucune évaluation n'a été réalisée sont signalées comme « non encore évaluées » plutôt que classées dans une catégorie obsolète. La carte de répartition présente les données de localisation généralisées conformément aux protocoles du GBIF relatifs aux espèces sensibles ; les coordonnées exactes des espèces menacées sont réservées aux comptes de niveau « coordinateur » afin de protéger les populations sauvages.",
+      "scopePara2": "Les niveaux d'accès restreints permettent de coordonner la reproduction ex situ, de formuler des recommandations de transfert et d'accéder aux données du livre généalogique pour les partenaires enregistrés. Ces fonctionnalités ne sont pas visibles sur le site public.",
       "provenanceEyebrow": "Provenance",
-      "provenanceTitle": "Data sources",
-      "provenancePara1": "Species and assessment data are pulled from the IUCN Red List and FishBase. Occurrence records follow the Darwin Core standard and can be published to GBIF. Captive-population figures are entered by partner institutions and, where available, reconciled with ZIMS (Species360). Priority lists from SHOAL (1,000 Fishes Blueprint) and CARES inform filtering and sort order but do not override IUCN categories.",
-      "provenancePara2": "For a fuller account of provenance, the mirror policy for IUCN status, coordinate generalization, and known limitations, see <dataLink>how we handle the data</dataLink>.",
-      "provenancePara3": "Definitions of IUCN categories, CARES, Darwin Core, and other terminology used across the site are collected in the <glossaryLink>glossary</glossaryLink>.",
-      "stewardshipEyebrow": "Stewardship",
-      "stewardshipTitle": "Ownership",
-      "stewardshipBody": "Maintained by Aleksei Saunders (Wildlife Protection Solutions). Long-term stewardship is under discussion with partner organizations. Source code: <repoLink>github.com/alexsaunderswps/madagascarfish</repoLink>. Licensed Apache-2.0.",
-      "referencesEyebrow": "References",
-      "referencesTitle": "Citations",
-      "citation1Prefix": "Leiss L, Rauhaus A, Rakotoarison A, Fusari C, Vences M, Ziegler T. Review of threatened Malagasy freshwater fishes in zoos and aquaria: The necessity of an ex situ conservation network — A call for action. ",
-      "citation1Journal": "Zoo Biol.",
-      "citation1Suffix": " 2022 May;41(3):244–262. ",
+      "provenanceTitle": "Sources des données",
+      "provenancePara1": "Les données relatives aux espèces et aux évaluations sont extraites de la Liste rouge de l'UICN et de FishBase. Les données de présence respectent la norme Darwin Core et peuvent être publiées sur le GBIF. Les chiffres concernant les populations en captivité sont saisis par les institutions partenaires et, lorsqu'ils sont disponibles, recoupés avec ZIMS (Species360). Les listes de priorités issues de SHOAL (1,000 Fishes Blueprint) et de CARES servent à définir les critères de filtrage et l'ordre de tri, mais ne prévalent pas sur les catégories de l'UICN.",
+      "provenancePara2": "Pour plus de détails sur la provenance des données, la politique de mise à jour du statut UICN, la généralisation des coordonnées et les limites connues, consultez <dataLink>la section consacrée au traitement des données</dataLink>.",
+      "provenancePara3": "Les définitions des catégories de l'UICN, de CARES, de Darwin Core et d'autres termes utilisés sur le site sont regroupées dans le <glossaryLink>glossaire</glossaryLink>.",
+      "stewardshipEyebrow": "Gestion responsable",
+      "stewardshipTitle": "Propriété",
+      "stewardshipBody": "Maintenu par Aleksei Saunders (Wildlife Protection Solutions). La gestion à long terme fait actuellement l'objet de discussions avec des organisations partenaires. Code source : <repoLink>github.com/alexsaunderswps/madagascarfish</repoLink>. Sous licence Apache-2.0.",
+      "referencesEyebrow": "Références",
+      "referencesTitle": "Références",
+      "citation1Prefix": "Leiss L, Rauhaus A, Rakotoarison A, Fusari C, Vences M, Ziegler T. État des lieux des poissons d'eau douce malgaches menacés dans les zoos et les aquariums : la nécessité d'un réseau de conservation ex situ — Un appel à l'action. ",
+      "citation1Journal": "Biologie des zoos.",
+      "citation1Suffix": " Mai 2022 ; 41(3) : 244-262. ",
       "citation1DoiText": "doi:10.1002/zoo.21661",
-      "citation1End": ". PMID: 34870879; PMCID: PMC9299897.",
-      "citation2": "IUCN. Red List of Threatened Species. Version consulted at build time; category and criteria mirrored from the most recent accepted assessment per species.",
-      "citation3": "SHOAL. 1,000 Fishes Blueprint — global conservation priorities for freshwater fishes.",
-      "citation4": "GBIF. Darwin Core Archive standard and sensitive-species coordinate-generalization guidance.",
-      "staffSignIn": "Staff sign-in"
+      "citation1End": ". PMID : 34870879 ; PMCID : PMC9299897.",
+      "citation2": "UICN. Liste rouge des espèces menacées. Version consultée au moment de la compilation ; catégorie et critères repris de la dernière évaluation validée pour chaque espèce.",
+      "citation3": "SHOAL. Plan d'action « 1 000 poissons » — priorités mondiales en matière de conservation des poissons d'eau douce.",
+      "citation4": "GBIF. Norme « Darwin Core Archive » et recommandations relatives à la généralisation des coordonnées pour les espèces sensibles.",
+      "staffSignIn": "Connexion du personnel"
     },
     "data": {
-      "metaTitle": "How we handle the data — Madagascar Freshwater Fish Conservation Platform",
-      "metaDescription": "Where the platform's species data comes from, how conservation status is mirrored from IUCN, how sensitive locations are generalized, and the limitations we are honest about.",
-      "backToAbout": "← About",
-      "title": "How we handle the data",
-      "intro": "The platform aggregates from authoritative upstream sources and tries to be explicit about provenance, limitations, and what is deliberately not public. This page explains how.",
+      "metaTitle": "Comment nous traitons les données — Plateforme pour la conservation des poissons d'eau douce de Madagascar",
+      "metaDescription": "D'où proviennent les données sur les espèces de la plateforme, comment le statut de conservation de l'UICN est pris en compte, comment les sites sensibles sont généralisés, et quelles sont les limites que nous reconnaissons ouvertement.",
+      "backToAbout": "← À propos",
+      "title": "Comment nous traitons les données",
+      "intro": "La plateforme rassemble des informations provenant de sources fiables en amont et s'efforce d'indiquer clairement leur provenance, leurs limites et ce qui n'est délibérément pas rendu public. Cette page explique comment.",
       "sources": {
         "eyebrow": "Sources",
-        "title": "Where species data comes from",
-        "lead": "The registry combines records from several upstream sources, each authoritative for a different slice of the picture:",
-        "iucnPrefix": "IUCN Red List",
-        "iucnBody": " — the source of record for conservation assessments (category, criteria, assessment date, assessors).",
+        "title": "D'où proviennent les données sur les espèces",
+        "lead": "Le registre rassemble des données provenant de plusieurs sources en amont, chacune faisant autorité pour un aspect différent du tableau :",
+        "iucnPrefix": "Liste rouge de l'UICN",
+        "iucnBody": " — la source officielle des évaluations de conservation (catégorie, critères, date de l'évaluation, évaluateurs).",
         "fishbasePrefix": "FishBase",
-        "fishbaseBody": " — ecological and morphological data (habitat, maximum length, diet notes).",
+        "fishbaseBody": " — données écologiques et morphologiques (habitat, longueur maximale, notes sur le régime alimentaire).",
         "gbifPrefix": "GBIF",
-        "gbifBody": " — occurrence records (georeferenced observations and museum specimens) published under Darwin Core.",
+        "gbifBody": " — fiches de présence (observations géoréférencées et spécimens de musée) publiées au format Darwin Core.",
         "caresPrefix": "CARES",
-        "caresBody": " — the Conservation, Awareness, Recognition and Encouragement for Species priority list maintained by the fishkeeping-hobbyist community, distinct from the IUCN Red List and focused on species held in private breeding programs.",
-        "shoalPrefix": "SHOAL 1,000 Fishes Blueprint",
-        "shoalBody": " — global priority alignment for freshwater fish conservation.",
-        "expertPrefix": "Expert contributions",
-        "expertBody": " — named researchers and keepers who have published or shared records for Malagasy endemics. Individual contributors are credited on the records they informed."
+        "caresBody": " — la liste des priorités en matière de conservation, de sensibilisation, de reconnaissance et de promotion des espèces, établie par la communauté des aquariophiles, qui se distingue de la Liste rouge de l'UICN et se concentre sur les espèces faisant l'objet de programmes d'élevage privés.",
+        "shoalPrefix": "Plan « Shoal 1 000 poissons »",
+        "shoalBody": " — harmonisation des priorités mondiales en matière de conservation des poissons d'eau douce.",
+        "expertPrefix": "Contributions d'experts",
+        "expertBody": " — les chercheurs et conservateurs qui ont publié ou partagé des données concernant les espèces endémiques malgaches. Les contributeurs individuels sont mentionnés dans les données qu’ils ont fournies."
       },
       "policy": {
-        "eyebrow": "Policy",
-        "title": "Conservation status is mirrored, not edited",
-        "para1": "The IUCN category shown on every species profile is a mirror of the most recent accepted assessment for that species. The platform does not hand-edit the badge. When a new IUCN assessment is ingested, the mirror updates; when no assessment exists, the profile reads \"not yet assessed\" rather than showing a stale category.",
-        "para2": "Manual expert input is supported, but only by creating a new assessment record with an assessor, date, and reasoning — the same path IUCN data takes. If a human-reviewed assessment disagrees with an incoming IUCN assessment, the conflict is flagged for review rather than silently overwritten. One source of truth, auditable back to the assessment record."
+        "eyebrow": "Politique",
+        "title": "Le statut de conservation est simplement reproduit, sans modification",
+        "para1": "La catégorie de l'UICN indiquée sur chaque fiche d'espèce reflète la dernière évaluation reconnue pour cette espèce. La plateforme ne modifie pas manuellement cette mention. Lorsqu'une nouvelle évaluation de l'UICN est intégrée, la mention est mise à jour ; en l'absence d'évaluation, la fiche indique « pas encore évaluée » plutôt que d'afficher une catégorie obsolète.",
+        "para2": "La saisie manuelle par un expert est prise en charge, mais uniquement en créant un nouvel enregistrement d'évaluation avec un évaluateur, une date et un justifiant — selon le même processus que celui suivi par les données de l'UICN. Si une évaluation vérifiée par un humain contredit une évaluation de l'UICN en cours d'importation, le conflit est signalé pour examen plutôt que d'être simplement écrasé sans avertissement. Une source unique de vérité, dont la traçabilité remonte jusqu'à l'enregistrement d'évaluation."
       },
       "geography": {
-        "eyebrow": "Geography",
-        "title": "How coordinates are handled",
-        "para1": "Occurrence records for non-sensitive species are shown with their original coordinates. For species assessed as threatened (Critically Endangered, Endangered, or Vulnerable), coordinates are generalized to roughly 0.1 degrees — about 11 km at the equator — following GBIF's sensitive-species best practices. This obscures exact localities while preserving the overall distribution pattern, which is what the public map is for.",
-        "para2": "Exact coordinates for sensitive species are available to conservation coordinator accounts (Tier 3) and above, for the organizations coordinating field work and transfers. The rationale is straightforward: small, range-restricted populations have been targeted by collectors in the past, and obscuring the precise pin is a cheap and effective protection."
+        "eyebrow": "Géographie",
+        "title": "Comment les coordonnées sont gérées",
+        "para1": "Les données de présence concernant les espèces non sensibles sont indiquées avec leurs coordonnées d'origine. Pour les espèces considérées comme menacées (en danger critique d'extinction, en danger ou vulnérables), les coordonnées sont généralisées à environ 0,1 degré — soit environ 11 km à l'équateur — conformément aux bonnes pratiques du GBIF relatives aux espèces sensibles. Cela permet de masquer les localisations exactes tout en conservant le schéma général de répartition, ce qui est précisément l'objectif de la carte publique.",
+        "para2": "Les coordonnées exactes des espèces sensibles sont accessibles aux comptes des coordinateurs de conservation (niveau 3) et supérieurs, pour les organisations chargées de coordonner le travail sur le terrain et les transferts. La raison en est simple : les petites populations à aire de répartition restreinte ont été la cible de collectionneurs par le passé, et le fait de masquer la localisation précise constitue une mesure de protection peu coûteuse et efficace."
       },
       "caveats": {
-        "eyebrow": "Caveats",
-        "title": "Known limitations",
-        "lead": "The upstream record is imperfect, and the platform does not pretend otherwise.",
-        "transcriptionPrefix": "Transcription errors in source records.",
-        "transcriptionBody": " A small number of GBIF occurrences place Madagascar endemics in the Indian Ocean, on the wrong coast, or in other countries entirely. These are almost always data-entry or georeferencing errors in the source. The platform flags suspect records for admin review rather than silently dropping them; corrected records are published back where possible.",
-        "undescribedPrefix": "Undescribed species.",
-        "undescribedBody1": " Madagascar's freshwater fish fauna includes morphospecies awaiting formal description. These appear in the registry under provisional names (for example, ",
-        "undescribedExample": "Ptychochromis sp. \"Tsimembo\"",
-        "undescribedBody2": ") with a status of \"not yet assessed.\" They are real species that keepers and researchers are working on; leaving them out would misrepresent the fauna.",
-        "introducedPrefix": "Introduced species.",
-        "introducedBody": " Introduced and invasive species in Malagasy waters (tilapia, gambusia, and others) are hidden from the directory by default to keep the focus on endemics. They can be surfaced with a filter toggle, because they are part of the ecological picture even when they are not the subject of conservation effort.",
-        "husbandryPrefix": "Sparse husbandry data.",
-        "husbandryBody": " For many species, published keeping and breeding guidance is thin or absent. Profiles say so plainly rather than inventing content."
+        "eyebrow": "Mises en garde",
+        "title": "Limites connues",
+        "lead": "Les antécédents de l'entreprise sont imparfaits, et la plateforme ne prétend pas le contraire.",
+        "transcriptionPrefix": "Erreurs de transcription dans les documents sources.",
+        "transcriptionBody": " Un petit nombre d'occurrences du GBIF situent des espèces endémiques de Madagascar dans l'océan Indien, sur la mauvaise côte ou même dans d'autres pays. Il s'agit presque toujours d'erreurs de saisie ou de géoréférencement dans la source. La plateforme signale les enregistrements suspects pour qu'ils soient examinés par les administrateurs, plutôt que de les supprimer sans rien dire ; les enregistrements corrigés sont republiés lorsque cela est possible.",
+        "undescribedPrefix": "Espèce non décrite.",
+        "undescribedBody1": " La faune piscicole d'eau douce de Madagascar comprend des morphospécies en attente d'une description officielle. Celles-ci figurent dans le registre sous des noms provisoires (par exemple, ",
+        "undescribedExample": "Ptychochromis sp. « Tsimembo »",
+        "undescribedBody2": ") dont le statut est « pas encore évalué ». Il s'agit d'espèces réelles sur lesquelles travaillent les gardiens et les chercheurs ; les omettre donnerait une image fausse de la faune.",
+        "introducedPrefix": "Espèces introduites.",
+        "introducedBody": " Les espèces introduites et envahissantes présentes dans les eaux malgaches (tilapia, gambusie et autres) sont masquées par défaut dans le répertoire afin de mettre l'accent sur les espèces endémiques. Elles peuvent être affichées à l'aide d'un filtre, car elles font partie du paysage écologique même si elles ne font pas l'objet d'efforts de conservation.",
+        "husbandryPrefix": "Données agricoles peu nombreuses.",
+        "husbandryBody": " Pour de nombreuses espèces, les conseils publiés en matière d'élevage et de reproduction sont rares, voire inexistants. Les fiches le mentionnent clairement, sans inventer de contenu."
       },
       "access": {
-        "eyebrow": "Access",
-        "title": "What is not public",
-        "lead": "Some data is deliberately behind tier-gated accounts:",
-        "item1": "Exact coordinates for sensitive (threatened) species.",
-        "item2": "Per-institution captive inventory detail from ZIMS and partner records (public view shows aggregates only).",
-        "item3": "Breeding-program genetics, studbook-level data, and transfer recommendations.",
-        "item4": "Contact information for individual keepers and researchers.",
-        "trailing": "Access is granted by the platform operator on request to qualified individuals at partner organizations."
+        "eyebrow": "Accès",
+        "title": "Ce qui n'est pas public",
+        "lead": "Certaines données sont délibérément réservées aux comptes de niveau supérieur :",
+        "item1": "Coordonnées exactes des espèces sensibles (menacées).",
+        "item2": "Détails des stocks captifs par établissement, issus de ZIMS et des registres des partenaires (la vue publique n'affiche que les données agrégées).",
+        "item3": "Données génétiques issues du programme d'élevage, données issues du livre généalogique et recommandations en matière de transfert.",
+        "item4": "Coordonnées des gardiens et des chercheurs.",
+        "trailing": "L'accès est accordé par l'opérateur de la plateforme, sur demande, aux personnes habilitées au sein des organisations partenaires."
       },
       "interop": {
-        "eyebrow": "Interop",
-        "title": "Standards alignment",
-        "body": "Occurrence data is modeled against the Darwin Core standard, which is the biodiversity community's shared vocabulary for species records. Publication of the platform's datasets to GBIF via an Integrated Publishing Toolkit (IPT) instance is planned after the MVP. IUCN categories, assessment criteria, and CARES priority status are carried through without re-interpretation."
+        "eyebrow": "Interopérabilité",
+        "title": "Harmonisation des normes",
+        "body": "Les données d'occurrence sont modélisées selon la norme Darwin Core, qui constitue le vocabulaire commun de la communauté de la biodiversité pour les fiches d'espèces. La publication des ensembles de données de la plateforme sur le GBIF via une instance de l'Integrated Publishing Toolkit (IPT) est prévue après la phase MVP. Les catégories de l'UICN, les critères d'évaluation et le statut de priorité CARES sont repris tels quels, sans réinterprétation."
       },
       "feedback": {
-        "eyebrow": "Feedback",
-        "title": "Questions or corrections",
-        "body": "If you see a record that looks wrong, or you have data that should be here and is not, the <aboutLink>About page</aboutLink> has contact and repository links. Corrections are welcomed and credited."
+        "eyebrow": "Commentaires",
+        "title": "Questions ou corrections",
+        "body": "Si vous remarquez une entrée qui semble erronée, ou si certaines données qui devraient figurer ici ne s'y trouvent pas, vous trouverez sur la <aboutLink>page « À propos »</aboutLink> des liens vers nos coordonnées et vers le référentiel. Les corrections sont les bienvenues et seront mentionnées."
       }
     },
     "glossary": {
-      "metaTitle": "Glossary — Madagascar Freshwater Fish Conservation Platform",
-      "metaDescription": "Definitions of IUCN categories, CARES, SHOAL, Darwin Core, GBIF, ex-situ / in-situ, studbook, and endemic as used on this platform.",
-      "backToAbout": "← About",
-      "title": "Glossary",
-      "intro": "Terms used across the platform, defined for a conservation-professional audience. IUCN Red List categories are listed individually; the full category hierarchy and criteria are documented by the IUCN.",
+      "metaTitle": "Glossaire — Plateforme pour la conservation des poissons d'eau douce de Madagascar",
+      "metaDescription": "Définitions des catégories de l'UICN, de CARES, de SHOAL, de Darwin Core, du GBIF, des termes « ex situ » et « in situ », du « stud-book » et du terme « endémique », tels qu'ils sont utilisés sur cette plateforme.",
+      "backToAbout": "← À propos",
+      "title": "Glossaire",
+      "intro": "Termes utilisés sur l'ensemble de la plateforme, définis à l'intention des professionnels de la conservation. Les catégories de la Liste rouge de l'UICN sont énumérées individuellement ; la hiérarchie complète des catégories et les critères correspondants sont documentés par l'UICN.",
       "entries": {
         "cares": {
           "term": "CARES",
-          "definition": "The Conservation, Awareness, Recognition, and Encouragement for Species program — a hobbyist-led priority list for freshwater fishes whose wild populations need ex-situ backup. Used on this platform to flag species that are prioritized by the aquarium-keeping community; distinct from the IUCN Red List assessment."
+          "definition": "Le programme « Conservation, sensibilisation, reconnaissance et encouragement des espèces » — une liste de priorités établie par des aquariophiles pour les poissons d'eau douce dont les populations sauvages ont besoin d'une protection ex situ. Utilisée sur cette plateforme pour signaler les espèces jugées prioritaires par la communauté des aquariophiles ; à ne pas confondre avec l'évaluation de la Liste rouge de l'UICN."
         },
         "criticallyEndangered": {
-          "term": "Critically Endangered (CR)",
-          "definition": "IUCN Red List category for species facing an extremely high risk of extinction in the wild. On this platform, CR is the most severe assessed category displayed."
+          "term": "En danger critique d'extinction (CR)",
+          "definition": "Catégorie de la Liste rouge de l'UICN désignant les espèces exposées à un risque extrêmement élevé d'extinction à l'état sauvage. Sur cette plateforme, « CR » est la catégorie la plus grave parmi celles affichées."
         },
         "dataDeficient": {
-          "term": "Data Deficient (DD)",
-          "definition": "IUCN Red List category for species with inadequate information to make a direct or indirect assessment of extinction risk. Not a category of lower concern — a DD species may well be threatened."
+          "term": "Données insuffisantes (DD)",
+          "definition": "Catégorie de la Liste rouge de l'UICN désignant les espèces pour lesquelles les informations disponibles sont insuffisantes pour évaluer, directement ou indirectement, le risque d'extinction. Il ne s'agit pas d'une catégorie indiquant un niveau de préoccupation moindre : une espèce classée DD peut très bien être menacée."
         },
         "darwinCore": {
           "term": "Darwin Core",
-          "definition": "The biodiversity data standard maintained by TDWG and used by GBIF for occurrence records. This platform stores occurrence data in Darwin Core–compliant form and can publish it to GBIF as a Darwin Core Archive."
+          "definition": "La norme relative aux données sur la biodiversité gérée par le TDWG et utilisée par le GBIF pour les enregistrements de présence. Cette plateforme stocke les données de présence dans un format conforme à Darwin Core et peut les publier sur le GBIF sous la forme d'une archive Darwin Core."
         },
         "endangered": {
-          "term": "Endangered (EN)",
-          "definition": "IUCN Red List category for species facing a very high risk of extinction in the wild, one tier below Critically Endangered."
+          "term": "En danger (EN)",
+          "definition": "Catégorie de la Liste rouge de l'UICN désignant les espèces exposées à un risque très élevé d'extinction à l'état sauvage, un cran en dessous de « en danger critique d'extinction »."
         },
         "endemic": {
-          "term": "Endemic",
-          "definition": "Found only in a given area and nowhere else. For this platform, all species in the registry are endemic to Madagascar — native to the island's freshwater systems and not naturally occurring elsewhere."
+          "term": "Endémique",
+          "definition": "On ne les trouve que dans une région donnée et nulle part ailleurs. Sur cette plateforme, toutes les espèces répertoriées sont endémiques à Madagascar : elles sont originaires des écosystèmes d'eau douce de l'île et ne sont présentes à l'état naturel nulle part ailleurs."
         },
         "exSitu": {
-          "term": "Ex-situ",
-          "definition": "Conservation activity that takes place outside a species' natural habitat — for example, captive breeding at a zoo, public aquarium, or private hobbyist facility. Contrast with in-situ."
+          "term": "Ex situ",
+          "definition": "Action de conservation menée en dehors de l'habitat naturel d'une espèce — par exemple, l'élevage en captivité dans un zoo, un aquarium public ou chez un éleveur amateur. À distinguer de la conservation in situ."
         },
         "gbif": {
           "term": "GBIF",
-          "definition": "The Global Biodiversity Information Facility — an international network and data infrastructure that aggregates species occurrence records. This platform can publish locality data to GBIF via Darwin Core Archives."
+          "definition": "Le Global Biodiversity Information Facility (GBIF) — un réseau international et une infrastructure de données qui rassemble les données sur la présence des espèces. Cette plateforme permet de publier des données de localisation vers le GBIF via les archives Darwin Core."
         },
         "inSitu": {
-          "term": "In-situ",
-          "definition": "Conservation activity that takes place within a species' natural habitat — field surveys, habitat restoration, community-managed protected areas. Contrast with ex-situ."
+          "term": "In situ",
+          "definition": "Activités de conservation menées au sein de l'habitat naturel d'une espèce : enquêtes sur le terrain, restauration des habitats, zones protégées gérées par les communautés. À distinguer de la conservation ex situ."
         },
         "leastConcern": {
-          "term": "Least Concern (LC)",
-          "definition": "IUCN Red List category for species that have been evaluated and do not qualify for a threatened category. Among Madagascar's endemic freshwater fish, very few species reach LC."
+          "term": "Préoccupation mineure (LC)",
+          "definition": "Catégorie de la Liste rouge de l'UICN désignant les espèces qui ont été évaluées et qui ne répondent pas aux critères d'une catégorie de menace. Parmi les poissons d'eau douce endémiques de Madagascar, très peu d'espèces sont classées dans la catégorie « en danger » (LC)."
         },
         "nearThreatened": {
-          "term": "Near Threatened (NT)",
-          "definition": "IUCN Red List category for species close to qualifying for, or likely to qualify for, a threatened category in the near future."
+          "term": "Quasi menacé (NT)",
+          "definition": "Catégorie de la Liste rouge de l'UICN désignant les espèces proches de remplir les critères d'une catégorie de menace ou susceptibles de les remplir dans un avenir proche."
         },
         "notEvaluated": {
-          "term": "Not Evaluated (NE) / not yet assessed",
-          "definition": "A species that has not been evaluated against the IUCN Red List criteria. Public profiles on this platform display \"not yet assessed\" rather than a category abbreviation; the NE code appears only in space-constrained contexts such as badges and map legends."
+          "term": "Non évalué (NE) / pas encore évalué",
+          "definition": "Une espèce qui n'a pas encore été évaluée selon les critères de la Liste rouge de l'UICN. Les profils publics sur cette plateforme affichent la mention « pas encore évaluée » plutôt qu'une abréviation de catégorie ; le code NE n'apparaît que dans les espaces restreints, tels que les badges et les légendes de cartes."
         },
         "shoal": {
           "term": "SHOAL",
-          "definition": "A global conservation initiative focused on freshwater species. Its 1,000 Fishes Blueprint identifies priority species for coordinated action; species flagged as SHOAL priorities are marked on their profile here."
+          "definition": "Une initiative mondiale de conservation axée sur les espèces d'eau douce. Son plan d'action « 1 000 Fishes » identifie les espèces prioritaires pour une action coordonnée ; les espèces désignées comme prioritaires par SHOAL sont signalées dans leur profil ici."
         },
         "studbook": {
-          "term": "Studbook",
-          "definition": "A structured record of pedigree, demographics, and transfer history for a captive population of a single species. Used to manage genetic diversity and demographic viability across institutions. Studbook-level data on this platform is restricted to program-manager accounts."
+          "term": "Livre généalogique",
+          "definition": "Registre structuré contenant les informations relatives au pedigree, aux données démographiques et à l'historique des transferts d'une population captive d'une seule espèce. Il sert à gérer la diversité génétique et la viabilité démographique entre les différentes institutions. L'accès aux données du livre généalogique sur cette plateforme est réservé aux comptes des responsables de programme."
         },
         "threatened": {
-          "term": "Threatened",
-          "definition": "Shorthand for the combined set of Critically Endangered, Endangered, and Vulnerable IUCN categories. Does not include Near Threatened."
+          "term": "Menacé",
+          "definition": "Abréviation désignant l'ensemble des catégories de l'UICN « En danger critique d'extinction », « En danger » et « Vulnérable ». N'inclut pas la catégorie « Quasi menacé »."
         },
         "vulnerable": {
-          "term": "Vulnerable (VU)",
-          "definition": "IUCN Red List category for species facing a high risk of extinction in the wild, one tier below Endangered."
+          "term": "Vulnérable (VU)",
+          "definition": "Catégorie de la Liste rouge de l'UICN désignant les espèces exposées à un risque élevé d'extinction à l'état sauvage, un niveau en dessous de la catégorie « En danger »."
         },
         "zims": {
           "term": "ZIMS",
-          "definition": "The Zoological Information Management System, operated by Species360. It is the standard record system for captive animal populations at accredited zoos and aquariums. This platform references ZIMS records where partner institutions have shared access."
+          "definition": "Le système de gestion des informations zoologiques (ZIMS), géré par Species360. Il s'agit du système standard d'enregistrement des populations d'animaux en captivité dans les zoos et aquariums agréés. Cette plateforme fait référence aux enregistrements ZIMS auxquels les institutions partenaires ont un accès partagé."
         }
       }
     }
   },
   "dashboard": {
-    "metaTitle": "Conservation Dashboard — Madagascar Freshwater Fish",
-    "metaDescription": "Counts of endemic freshwater fish species, IUCN Red List breakdown, ex-situ coverage, and field programs in Madagascar. Refreshed hourly.",
-    "eyebrow": "Conservation Dashboard",
-    "title": "Madagascar freshwater fish at a glance",
-    "stalenessFailure": "Current statistics are temporarily unavailable. The last successfully retrieved values are shown below.",
-    "stalenessStale": "The counts shown are older than the usual refresh window. A refresh is in progress.",
-    "backendDownPrefix": "Try again in a moment, or browse the",
-    "backendDownLink": "species directory",
-    "iucnChartCaption": "Counts mirror the most recent accepted IUCN Red List assessment for each endemic species in the registry. Species with no assessment appear as Not yet assessed.",
+    "metaTitle": "Tableau de bord de la conservation — Poissons d'eau douce de Madagascar",
+    "metaDescription": "Nombre d'espèces de poissons d'eau douce endémiques, répartition selon la Liste rouge de l'UICN, couverture ex situ et programmes de terrain à Madagascar. Mise à jour toutes les heures.",
+    "eyebrow": "Tableau de bord de la conservation",
+    "title": "Aperçu des poissons d'eau douce de Madagascar",
+    "stalenessFailure": "Les statistiques actuelles ne sont temporairement pas disponibles. Les dernières valeurs récupérées avec succès sont indiquées ci-dessous.",
+    "stalenessStale": "Les chiffres affichés datent d'avant la dernière mise à jour. Une mise à jour est en cours.",
+    "backendDownPrefix": "Réessayez dans quelques instants, ou parcourez le",
+    "backendDownLink": "répertoire des espèces",
+    "iucnChartCaption": "Les chiffres reflètent la dernière évaluation de la Liste rouge de l'UICN acceptée pour chaque espèce endémique figurant dans le registre. Les espèces pour lesquelles aucune évaluation n'a été effectuée apparaissent sous la mention « Pas encore évaluée ».",
     "totals": {
-      "eyebrow": "Species totals",
-      "title": "Registry coverage",
-      "ariaLabel": "Species totals",
-      "totalSpecies": "Total species",
-      "totalSpeciesSublabel": "{described} described, {undescribed} undescribed",
-      "institutions": "Institutions holding captive populations",
-      "exSituTracked": "Ex-situ populations tracked"
+      "eyebrow": "Nombre total d'espèces",
+      "title": "Couverture du registre",
+      "ariaLabel": "Nombre total d'espèces",
+      "totalSpecies": "Nombre total d'espèces",
+      "totalSpeciesSublabel": "{described} décrit,{undescribed}  non décrit",
+      "institutions": "Établissements détenant des populations en captivité",
+      "exSituTracked": "Suivi des populations ex situ"
     },
     "coordinated": {
-      "eyebrow": "Coordinated breeding",
-      "title": "Active programs & transfers",
-      "ariaLabel": "Coordinated breeding programs",
-      "activePrograms": "Active programs",
-      "activeProgramsSublabelMixed": "{formal} SSP / EEP / CARES, {other} other",
+      "eyebrow": "Élevage coordonné",
+      "title": "Programmes en cours et transferts",
+      "ariaLabel": "Programmes d'élevage coordonnés",
+      "activePrograms": "Programmes en cours",
+      "activeProgramsSublabelMixed": "{formal} SSP / EEP / CARES,{other}autres",
       "activeProgramsSublabelFormalOnly": "{formal} SSP / EEP / CARES",
-      "activeProgramsSublabelEmpty": "No active programs registered yet.",
-      "transfersInFlight": "Transfers in flight",
-      "transfersInFlightSublabel": "Proposed, approved, or in transit.",
-      "transfersCompleted": "Transfers completed (last {days}d)",
-      "transfersCompletedSublabel": "Recorded animal movements between institutions."
+      "activeProgramsSublabelEmpty": "Aucun programme actif n'est encore enregistré.",
+      "transfersInFlight": "Transferts en cours de vol",
+      "transfersInFlightSublabel": "En cours d'examen, approuvé ou en cours d'acheminement.",
+      "transfersCompleted": "Transferts effectués (dernier {days}jour)",
+      "transfersCompletedSublabel": "Enregistrement des transferts d'animaux entre établissements."
     },
     "fieldPrograms": {
-      "eyebrow": "Field programs",
-      "title": "In-situ activity",
-      "ariaLabel": "Field programs",
-      "active": "Active field programs",
-      "planned": "Planned",
-      "completed": "Completed"
+      "eyebrow": "Programmes sur le terrain",
+      "title": "Activité sur place",
+      "ariaLabel": "Programmes sur le terrain",
+      "active": "Programmes de terrain en cours",
+      "planned": "Prévu",
+      "completed": "Terminé"
     },
     "coordinator": {
-      "metaTitle": "Coordinator Dashboard — Madagascar Freshwater Fish",
-      "metaDescription": "Ex-situ coordinator triage view: coverage gaps, studbook status, demographic risk, and census staleness.",
-      "eyebrow": "Ex-situ coordination",
-      "title": "Coordinator Dashboard",
-      "description": "A triage view for ex-situ coordinators: where coverage is missing, which captive populations are at demographic risk, and whose census is overdue. The registry is the source of truth — this page is a read-only summary computed from it.",
-      "tierNote": "Population-level detail. Visible to Tier 3+ accounts (Conservation Coordinator and above).",
+      "metaTitle": "Tableau de bord du coordinateur — Poissons d'eau douce de Madagascar",
+      "metaDescription": "Vue du triage par le coordinateur ex situ : lacunes dans la couverture, statut du livre généalogique, risque démographique et ancienneté des données du recensement.",
+      "eyebrow": "Coordination ex situ",
+      "title": "Tableau de bord du coordinateur",
+      "description": "Une vue d'ensemble destinée aux coordinateurs ex situ : les zones non couvertes, les populations captives exposées à un risque démographique et les recensements en retard. Le registre fait autorité ; cette page est un résumé en lecture seule généré à partir de celui-ci.",
+      "tierNote": "Détails au niveau de la population. Accessible aux comptes de niveau 3 et plus (coordinateur de la conservation et au-delà).",
       "configError": {
-        "title": "Coordinator data is temporarily unavailable.",
-        "body": "The panels below couldn't reach the coordination API. Try refreshing the page; if the issue persists, contact the platform team."
+        "title": "Les données relatives au coordinateur ne sont temporairement pas disponibles.",
+        "body": "Les panneaux ci-dessous n'ont pas pu accéder à l'API de coordination. Veuillez actualiser la page ; si le problème persiste, contactez l'équipe de la plateforme."
       },
       "panels": {
         "coverage": {
-          "eyebrow": "Panel 1",
-          "title": "Coverage gap",
-          "titleWithCount": "Coverage gap — {total} {scope} species",
-          "scopeEndemic": "endemic",
+          "eyebrow": "Case 1",
+          "title": "Lacune en matière de couverture",
+          "titleWithCount": "Lacune de couverture —{total}  {scope} espèces",
+          "scopeEndemic": "endémique",
           "scopeAll": "",
-          "captionShort": "Threatened species with no ex-situ backstop.",
-          "captionFull": "Critically Endangered, Endangered, and Vulnerable species with no ex-situ population on record. The first list a coordinator should triage: each row is a species that has no captive safety net at all.",
-          "unavailable": "Coverage data is temporarily unavailable. The view will populate once the coordination API is reachable again.",
-          "endemicFilterAriaLabel": "Endemic filter",
-          "endemicOnly": "Endemic only",
-          "allThreatened": "All threatened",
-          "noResults": "No threatened species are missing ex-situ coverage at this filter. Either every threatened species in scope has a captive population on record, or the filter has narrowed the list to zero.",
-          "ddTitle": "Data Deficient",
-          "ddBody": "{total} species ({endemic} endemic) need a current Red List assessment before their conservation status can be acted on.",
-          "ddNone": "No DD species in the registry.",
-          "ddViewList": "View list →",
+          "captionShort": "Espèces menacées ne bénéficiant d'aucun filet de sécurité ex situ.",
+          "captionFull": "Espèces « en danger critique d'extinction », « en danger » et « vulnérables » pour lesquelles aucune population ex situ n'est répertoriée. Première liste qu'un coordinateur doit examiner en priorité : chaque ligne correspond à une espèce qui ne dispose d'aucun filet de sécurité en captivité.",
+          "unavailable": "Les données de couverture sont temporairement indisponibles. L'affichage s'actualisera dès que l'API de coordination sera à nouveau accessible.",
+          "endemicFilterAriaLabel": "Filtre endémique",
+          "endemicOnly": "Uniquement endémique",
+          "allThreatened": "Toutes menacées",
+          "noResults": "Aucune espèce menacée ne manque de couverture ex situ selon ce filtre. Soit toutes les espèces menacées concernées ont une population captive répertoriée, soit le filtre a réduit la liste à zéro.",
+          "ddTitle": "Données insuffisantes",
+          "ddBody": "{total} Les espèces ({endemic}endémiques) doivent faire l'objet d'une évaluation récente dans le cadre de la Liste rouge avant que des mesures puissent être prises concernant leur statut de conservation.",
+          "ddNone": "Aucune espèce DD n'est répertoriée dans le registre.",
+          "ddViewList": "Afficher la liste →",
           "table": {
-            "status": "Status",
-            "species": "Species",
-            "family": "Family",
-            "endemic": "Endemic",
-            "trend": "Trend",
+            "status": "Statut",
+            "species": "Espèce",
+            "family": "Famille",
+            "endemic": "Endémique",
+            "trend": "Tendance",
             "cares": "CARES",
-            "shoalTitle": "SHOAL 1,000 Fishes priority species",
+            "shoalTitle": "SHOAL 1 000 poissons : espèces prioritaires",
             "shoalLabel": "SHOAL",
-            "showMore": "Show {count} more",
-            "collapse": "Collapse to top {limit}",
-            "viewAll": "View all in directory →",
+            "showMore": "Afficher{count}  plus",
+            "collapse": "Réduire pour revenir en haut {limit}",
+            "viewAll": "Afficher tout le contenu du répertoire →",
             "emDash": "—"
           }
         },
         "studbook": {
-          "eyebrow": "Panel 2",
-          "title": "Studbook status",
-          "captionShort": "Per-species program classification.",
-          "captionFull": "Where each species sits on the captive-management spectrum, from formally managed studbooks down to no holdings at all. The breeding-not-studbook row matters: it surfaces ad-hoc populations that are reproducing but whose pedigree isn't tracked — a fragility that gets hidden when those species are lumped in with studbook programs.",
-          "unavailable": "Studbook status is temporarily unavailable. The view will populate once the coordination API is reachable again.",
+          "eyebrow": "Case 2",
+          "title": "Statut au stud-book",
+          "captionShort": "Classification des programmes par espèce.",
+          "captionFull": "La place qu'occupe chaque espèce sur le spectre de la gestion en captivité, allant des registres généalogiques officiellement gérés à l'absence totale de populations en captivité. La distinction entre « reproduction » et « registre généalogique » est importante : elle met en évidence des populations ponctuelles qui se reproduisent mais dont le pedigree n'est pas suivi — une fragilité qui passe inaperçue lorsque ces espèces sont regroupées avec les programmes de registres généalogiques.",
+          "unavailable": "Les informations relatives au stud-book sont temporairement indisponibles. La page s'affichera dès que l'API de coordination sera à nouveau accessible.",
           "buckets": {
             "studbook_managed": {
-              "label": "Studbook-managed",
-              "hint": "Coordinated program with pedigree records and transfer plans."
+              "label": "Géré par le stud-book",
+              "hint": "Programme coordonné comprenant les registres généalogiques et les plans de transfert."
             },
             "breeding_not_studbook": {
-              "label": "Breeding, not studbook",
-              "hint": "Breeding observed, but no formal studbook — pedigree is not tracked."
+              "label": "Élevage, pas stud-book",
+              "hint": "On observe des croisements, mais il n'existe pas de livre généalogique officiel — le pedigree n'est pas enregistré."
             },
             "holdings_only": {
-              "label": "Holdings only",
-              "hint": "Held in captivity, no breeding recorded."
+              "label": "Réservé aux abonnés",
+              "hint": "Élevé en captivité, aucune reproduction n'a été observée."
             },
             "no_captive_population": {
-              "label": "No captive population",
-              "hint": "No institution has registered holdings."
+              "label": "Pas de population captive",
+              "hint": "Aucune institution n'a déclaré de fonds."
             }
           }
         },
         "sexRatio": {
-          "eyebrow": "Panel 3",
-          "title": "Sex-ratio risk",
-          "titleWithCount": "Sex-ratio risk — {atRisk} of {total} populations",
-          "captionShort": "Populations with demographic imbalance.",
-          "captionFull": "Captive populations whose sex composition limits breeding potential. M.F.U is the standard zoo notation: males.females.unsexed. A population is flagged when one sex is absent, when the male-to-female ratio exceeds 4:1, or when more than half the animals are unsexed.",
-          "unavailable": "Demographic data is temporarily unavailable. Once the coordination API is reachable again, populations with imbalance will appear here.",
-          "noResults": "No populations are currently flagged for sex-ratio risk.",
+          "eyebrow": "Case 3",
+          "title": "Risque lié au rapport de masculinité",
+          "titleWithCount": "Risque lié au rapport de masculinité —{atRisk}des{total}populations",
+          "captionShort": "Populations présentant un déséquilibre démographique.",
+          "captionFull": "Populations en captivité dont la répartition par sexe limite le potentiel de reproduction. M.F.U. est la notation standard utilisée dans les zoos : mâles, femelles, non sexés. Une population est signalée lorsqu'un sexe est absent, lorsque le rapport mâles/femelles dépasse 4 pour 1, ou lorsque plus de la moitié des animaux ne sont pas sexés.",
+          "unavailable": "Les données démographiques sont temporairement indisponibles. Dès que l'API de coordination sera à nouveau accessible, les populations présentant un déséquilibre s'afficheront ici.",
+          "noResults": "Aucune population n'est actuellement signalée comme présentant un risque lié au rapport de masculinité.",
           "table": {
-            "species": "Species",
-            "institution": "Institution",
+            "species": "Espèce",
+            "institution": "Établissement",
             "mfu": "M.F.U",
-            "reasons": "Reasons"
+            "reasons": "Raisons"
           },
           "reasons": {
-            "no_males": "No males",
-            "no_females": "No females",
-            "skewed_ratio": "Sex ratio > 4:1",
-            "mostly_unsexed": "Mostly unsexed"
+            "no_males": "Pas de mâles",
+            "no_females": "Pas de femmes",
+            "skewed_ratio": "Rapport de masculinité &gt; 4:1",
+            "mostly_unsexed": "Pour la plupart non sexués"
           }
         },
         "staleCensus": {
-          "eyebrow": "Panel 4",
-          "title": "Stale census",
-          "titleWithCount": "Stale census — {stale} of {total} populations",
-          "captionShort": "Populations overdue for a census update.",
-          "captionFull": "Populations whose last census record — or any holding update — is more than {threshold} months old, plus any population that has never been censused. A current count is the prerequisite for every other coordination decision.",
-          "unavailable": "Census timestamps are temporarily unavailable. Overdue populations will reappear once the coordination API is reachable.",
-          "noResults": "Every tracked population has been censused within the last {threshold} months.",
+          "eyebrow": "Case 4",
+          "title": "Recensement obsolète",
+          "titleWithCount": "Recensement obsolète —{stale}des{total}populations",
+          "captionShort": "Populations dont les données du recensement doivent être mises à jour depuis longtemps.",
+          "captionFull": "Les populations dont les derniers données de recensement — ou toute mise à jour des effectifs — remontent à plus de{threshold}  mois, ainsi que toute population n'ayant jamais fait l'objet d'un recensement. Un décompte à jour est une condition préalable à toute autre décision de coordination.",
+          "unavailable": "Les horodatages du recensement sont temporairement indisponibles. Les populations en retard réapparaîtront dès que l'API de coordination sera à nouveau accessible.",
+          "noResults": "Toutes les populations faisant l'objet d'un suivi ont été recensées au cours des derniers{threshold}mois.",
           "table": {
-            "species": "Species",
-            "institution": "Institution",
-            "lastSignal": "Last signal",
-            "staleFor": "Stale for"
+            "species": "Espèce",
+            "institution": "Établissement",
+            "lastSignal": "Dernier signal",
+            "staleFor": "Périmé depuis"
           },
-          "neverCensused": "Never censused",
-          "noneRecorded": "none recorded",
-          "daysSuffix": "{count} days",
-          "monthsSuffix": "{count} months"
+          "neverCensused": "Jamais recensé",
+          "noneRecorded": "aucun enregistrement",
+          "daysSuffix": "{count} jours",
+          "monthsSuffix": "{count} mois"
         },
         "transfers": {
-          "eyebrow": "Panel 5",
-          "title": "Transfer activity",
-          "titleWithCount": "Transfer activity — {inFlight} in flight, {recent} recent",
-          "captionShort": "Animal movement between institutions.",
-          "captionFull": "Proposed, approved, and in-transit moves between institutions, plus moves completed in the last {windowDays} days. In-flight transfers are sorted oldest-proposed first, so anything stuck in coordination floats to the top.",
-          "unavailable": "Transfer records are temporarily unavailable. Proposed, in-transit, and recently completed moves will reappear once the coordination API is reachable.",
-          "inFlightHeading": "In flight",
-          "recentHeading": "Recently completed",
-          "inFlightEmpty": "No transfers are currently proposed, approved, or in transit.",
-          "recentEmpty": "No transfers have been completed in the last {windowDays} days.",
+          "eyebrow": "Case 5",
+          "title": "Activité de transfert",
+          "titleWithCount": "Mouvements de transfert —{inFlight}en cours,{recent}récents",
+          "captionShort": "Transferts d'animaux entre établissements.",
+          "captionFull": "Les transferts proposés, approuvés et en cours entre établissements, ainsi que ceux finalisés au cours des derniers{windowDays}jours. Les transferts en cours sont classés par ordre chronologique décroissant (les plus anciens en premier) ; ainsi, tout transfert en attente de coordination remonte en haut de la liste.",
+          "unavailable": "Les données relatives aux transferts ne sont temporairement pas disponibles. Les transferts proposés, en cours et récemment effectués réapparaîtront dès que l'API de coordination sera à nouveau accessible.",
+          "inFlightHeading": "En vol",
+          "recentHeading": "Récemment achevé",
+          "inFlightEmpty": "Aucun transfert n'est actuellement proposé, approuvé ou en cours.",
+          "recentEmpty": "Aucun transfert n'a été effectué au cours des derniers{windowDays}jours.",
           "table": {
-            "species": "Species",
-            "fromTo": "From → To",
-            "status": "Status",
-            "proposed": "Proposed",
-            "completed": "Completed",
+            "species": "Espèce",
+            "fromTo": "De → À",
+            "status": "Statut",
+            "proposed": "Proposition",
+            "completed": "Terminé",
             "mfu": "M.F.U",
             "cites": "CITES"
           },
           "statuses": {
-            "proposed": "Proposed",
-            "approved": "Approved",
-            "in_transit": "In transit",
-            "completed": "Completed",
-            "cancelled": "Cancelled"
+            "proposed": "Proposition",
+            "approved": "Approuvé",
+            "in_transit": "En transit",
+            "completed": "Terminé",
+            "cancelled": "Annulé"
           },
           "emDash": "—"
         },
         "openRecs": {
-          "eyebrow": "Panel 6",
-          "title": "Open breeding recommendations",
-          "titleWithCount": "Open breeding recommendations — {total}",
-          "titleWithOverdue": "Open breeding recommendations — {total} ({overdue} overdue)",
-          "captionShort": "Coordinator action items.",
-          "captionFull": "Active breed, hold, and transfer items issued by coordinators, sorted by priority. Critical and high-priority rows surface first; completed and cancelled items are archived elsewhere.",
-          "unavailable": "Open recommendations are temporarily unavailable. Breed, hold, and transfer items will reappear once the coordination API is reachable.",
-          "noResults": "No open recommendations on file. Either the breeding plan is fully addressed or coordinators have not yet logged any items for the current period.",
+          "eyebrow": "Case 6",
+          "title": "Recommandations pour la reproduction ouverte",
+          "titleWithCount": "Recommandations pour la reproduction ouverte — {total}",
+          "titleWithOverdue": "Recommandations d'élevage ouvertes —{total}  ({overdue}en retard)",
+          "captionShort": "Mesures à prendre par le coordinateur.",
+          "captionFull": "Afficher, gérer et transférer les tâches attribuées par les coordinateurs, classées par ordre de priorité. Les tâches critiques et hautement prioritaires apparaissent en premier ; les tâches terminées et annulées sont archivées ailleurs.",
+          "unavailable": "Les recommandations ouvertes sont temporairement indisponibles. Les actions « Élever », « Conserver » et « Transférer » réapparaîtront dès que l'API de coordination sera à nouveau accessible.",
+          "noResults": "Aucune recommandation en cours n'est enregistrée. Soit le plan d'élevage a été entièrement pris en compte, soit les coordinateurs n'ont encore saisi aucune donnée pour la période en cours.",
           "table": {
-            "priority": "Priority",
-            "species": "Species",
+            "priority": "Priorité",
+            "species": "Espèce",
             "type": "Type",
-            "target": "Target",
-            "issued": "Issued",
-            "due": "Due",
-            "status": "Status"
+            "target": "Cible",
+            "issued": "Publié",
+            "due": "À payer",
+            "status": "Statut"
           },
           "types": {
-            "breed": "Breed",
-            "non_breed": "Hold (do not breed)",
-            "transfer": "Transfer",
-            "other": "Other"
+            "breed": "Race",
+            "non_breed": "Mettre en attente (ne pas faire reproduire)",
+            "transfer": "Transfert",
+            "other": "Autres"
           },
           "priorities": {
-            "critical": "Critical",
-            "high": "High",
-            "medium": "Medium",
-            "low": "Low"
+            "critical": "Critique",
+            "high": "Élevé",
+            "medium": "Moyen",
+            "low": "Faible"
           },
           "statuses": {
-            "inProgress": "In progress",
-            "open": "Open"
+            "inProgress": "En cours",
+            "open": "Ouvrir"
           },
           "emDash": "—"
         },
         "reproductive": {
-          "eyebrow": "Panel 7",
-          "title": "Recent reproductive activity",
-          "titleWithCount": "Recent reproductive activity — {count, plural, one {# event} other {# events}}",
-          "captionShort": "Per-population event ledger.",
-          "captionFull": "Population-level events recorded in the last {windowDays} days, newest first: spawning, hatching, mortality, acquisition, and disposition. Up to {limit} rows are listed here; a population's full event history is on its admin page.",
-          "unavailable": "Breeding event records are temporarily unavailable. Recent spawnings, hatchings, and other population-level events will reappear once the coordination API is reachable.",
-          "noResults": "No events have been logged in the last {windowDays} days. Coordinators can record spawning, hatching, mortality, and acquisition events from a population's admin page; an empty ledger here usually means events are happening but are not being logged in the registry.",
+          "eyebrow": "Case 7",
+          "title": "Activité reproductive récente",
+          "titleWithCount": "Activité reproductrice récente — {count, plural, one {# événement} other {# événements}}",
+          "captionShort": "Registre des événements par population.",
+          "captionFull": "Événements relatifs à la population enregistrés au cours des derniers{windowDays}jours, les plus récents en premier : frai, éclosion, mortalité, acquisition et cession. Jusqu'à{limit}  lignes sont répertoriées ici ; l'historique complet des événements d'une population est disponible sur sa page d'administration.",
+          "unavailable": "Les données relatives aux événements de reproduction sont temporairement indisponibles. Les informations concernant les récents frai, éclosions et autres événements touchant la population réapparaîtront dès que l'API de coordination sera à nouveau accessible.",
+          "noResults": "Aucun événement n'a été enregistré au cours des derniers{windowDays}jours. Les coordinateurs peuvent consigner les événements liés à l'éclosion, à la mortalité et aux acquisitions depuis la page d'administration de la population ; si ce registre est vide, cela signifie généralement que des événements se produisent mais ne sont pas consignés dans le registre.",
           "events": {
-            "spawning": "Spawning",
-            "hatching": "Hatching",
-            "mortality": "Mortality",
+            "spawning": "Reproduction",
+            "hatching": "Éclosion",
+            "mortality": "Mortalité",
             "acquisition": "Acquisition",
             "disposition": "Disposition",
-            "other": "Other"
+            "other": "Autres"
           },
           "table": {
             "date": "Date",
-            "event": "Event",
-            "speciesInstitution": "Species · institution",
-            "countDelta": "Count Δ"
+            "event": "Événement",
+            "speciesInstitution": "Espèce · institution",
+            "countDelta": "Compter Δ"
           },
           "emDash": "—"
         }
@@ -856,97 +856,97 @@
     }
   },
   "account": {
-    "metaTitle": "Account — Madagascar Freshwater Fish",
-    "metaDescription": "Your account profile and access tier.",
-    "title": "Your profile",
-    "nameLabel": "Name",
-    "emailLabel": "Email",
-    "tierLabel": "Access tier",
-    "tierBadge": "{label} · Tier {tier}",
+    "metaTitle": "Compte — Poissons d'eau douce de Madagascar",
+    "metaDescription": "Le profil de votre compte et votre niveau d'accès.",
+    "title": "Votre profil",
+    "nameLabel": "Nom",
+    "emailLabel": "Courriel",
+    "tierLabel": "Niveau d'accès",
+    "tierBadge": "{label} · Niveau {tier}",
     "tiers": {
       "1": "Public",
-      "2": "Researcher",
-      "3": "Conservation Coordinator",
-      "4": "Program Manager",
-      "5": "Administrator",
-      "fallback": "Member"
+      "2": "Chercheur",
+      "3": "Coordinateur de la conservation",
+      "4": "Responsable de programme",
+      "5": "Administrateur",
+      "fallback": "Membre"
     },
     "tierDescriptions": {
-      "1": "Public profiles, the distribution map, and the conservation dashboard.",
-      "2": "Adds occurrence datasets, published field-program summaries, and observation submission.",
-      "3": "Adds exact locality coordinates for sensitive species, breeding recommendations, and transfer coordination.",
-      "4": "Adds population genetics, studbook-level data, and per-institution captive inventory.",
-      "5": "Full system access, including user management and data import."
+      "1": "Les profils publics, la carte de répartition et le tableau de bord de conservation.",
+      "2": "Ajoute des ensembles de données sur les occurrences, des résumés de programmes de terrain publiés et la soumission d'observations.",
+      "3": "Ajoute les coordonnées exactes des sites pour les espèces sensibles, des recommandations en matière de reproduction et la coordination des transferts.",
+      "4": "Ajoute des données de génétique des populations, des données issues des livres généalogiques et un inventaire des animaux en captivité par établissement.",
+      "5": "Accès complet au système, y compris la gestion des utilisateurs et l'importation de données."
     },
-    "tierUpgradeHint": "Higher tiers are assigned by the platform operator on request, for staff at partner organizations.",
-    "transientError": "Your profile is temporarily unavailable. Refresh in a moment; your sign-in is still active. If the problem persists, the platform team's contact details are on the About page.",
-    "signOut": "Sign out",
-    "signingOut": "Signing out…",
-    "saveChanges": "Save changes"
+    "tierUpgradeHint": "Les niveaux supérieurs sont attribués par l'opérateur de la plateforme, sur demande, au personnel des organisations partenaires.",
+    "transientError": "Votre profil est temporairement indisponible. Veuillez actualiser la page dans quelques instants ; votre session est toujours active. Si le problème persiste, vous trouverez les coordonnées de l'équipe de la plateforme sur la page « À propos ».",
+    "signOut": "Se déconnecter",
+    "signingOut": "Je me déconnecte…",
+    "saveChanges": "Enregistrer les modifications"
   },
   "contribute": {
     "husbandry": {
-      "metaTitle": "Contribute husbandry updates — Madagascar Freshwater Fish",
-      "title": "Contribute husbandry updates",
-      "bodyPrefix": "The contribution form is not yet live. In the meantime, please email ",
-      "bodySuffix": " with your corrections or additional content. Reference the species URL so we can route the update to the right record.",
-      "subjectGeneric": "Husbandry update",
-      "subjectForSpecies": "Husbandry update — species {speciesId}",
-      "backToHusbandry": "← Back to husbandry page"
+      "metaTitle": "Partager des informations sur l'élevage — Poissons d'eau douce de Madagascar",
+      "title": "Partager des informations sur l'élevage",
+      "bodyPrefix": "Le formulaire de contribution n'est pas encore disponible. En attendant, veuillez envoyer un e-mail à ",
+      "bodySuffix": " en y joignant vos corrections ou vos ajouts. Veuillez indiquer l'URL de l'espèce afin que nous puissions appliquer la mise à jour à la fiche correspondante.",
+      "subjectGeneric": "Le point sur l'élevage",
+      "subjectForSpecies": "Le point sur l'élevage — espèces {speciesId}",
+      "backToHusbandry": "← Retour à la page « Élevage »"
     }
   },
   "husbandry": {
-    "tocAriaLabel": "On this page",
-    "tocHeading": "On this page",
+    "tocAriaLabel": "Sur cette page",
+    "tocHeading": "Sur cette page",
     "disclaimer": {
-      "srHeading": "About this guidance",
-      "para1": "This guidance reflects practices reported by keepers and drawn from published sources. It is not a protocol, and conditions vary between systems, regions, and individual fish.",
-      "para2": "Use it as a starting point, compare it against other references, and consult a qualified aquatic veterinarian for health concerns."
+      "srHeading": "À propos de ce guide",
+      "para1": "Ces recommandations reflètent les pratiques rapportées par les éleveurs et tirées de sources publiées. Il ne s'agit pas d'un protocole, et les conditions varient selon les systèmes, les régions et les poissons.",
+      "para2": "Utilisez-le comme point de départ, comparez-le à d'autres sources d'information et consultez un vétérinaire spécialisé en médecine aquatique en cas de problèmes de santé."
     },
-    "difficultyTitle": "Difficulty Factors",
-    "showMoreFactors": "{count, plural, one {Show # more factor} other {Show # more factors}}",
-    "metaTitleTemplate": "Keeping {name} — Madagascar Freshwater Fish",
-    "metaTitleNotFound": "Husbandry not found — Madagascar Freshwater Fish",
-    "metaDescriptionFallback": "Husbandry and breeding guidance for {name}.",
+    "difficultyTitle": "Facteurs de difficulté",
+    "showMoreFactors": "{count, plural, one {Afficher # facteur supplémentaire} other {Afficher # facteurs supplémentaires}}",
+    "metaTitleTemplate": "Élevage{name}— Poissons d'eau douce de Madagascar",
+    "metaTitleNotFound": "Élevage introuvable — Poissons d'eau douce de Madagascar",
+    "metaDescriptionFallback": "Conseils d'élevage et de reproduction pour {name}.",
     "errorState": {
-      "title": "Husbandry guidance temporarily unavailable",
-      "body": "The husbandry data service is unreachable. Try again in a moment.",
-      "backToSpecies": "← Back to species"
+      "title": "Les conseils d'élevage sont temporairement indisponibles",
+      "body": "Le service de données d'élevage est inaccessible. Veuillez réessayer dans quelques instants.",
+      "backToSpecies": "← Retour à la liste des espèces"
     },
-    "backToSpecies": "← Back to ",
-    "pageTitle": "Keeping ",
+    "backToSpecies": "← Retour à ",
+    "pageTitle": "Conserver ",
     "sections": {
-      "atAGlance": "At a glance",
-      "difficulty": "Difficulty factors",
-      "water": "Water parameters",
-      "waterDisplay": "Water Parameters",
-      "tank": "Tank & system",
-      "tankDisplay": "Tank & System",
-      "diet": "Diet",
-      "behavior": "Behavior",
-      "behaviorDisplay": "Behavior & Social Structure",
-      "breeding": "Breeding",
-      "narrative": "Narrative",
-      "sourcingEthics": "Sourcing ethics",
-      "sourcingNotes": "Sourcing notes",
-      "sourcingNotesHeading": "Sourcing notes for this species",
-      "references": "References"
+      "atAGlance": "En bref",
+      "difficulty": "Facteurs de difficulté",
+      "water": "Paramètres de l'eau",
+      "waterDisplay": "Paramètres de l'eau",
+      "tank": "Réservoir et système",
+      "tankDisplay": "Réservoir et système",
+      "diet": "Régime alimentaire",
+      "behavior": "Comportement",
+      "behaviorDisplay": "Comportement et structure sociale",
+      "breeding": "Élevage",
+      "narrative": "Récit",
+      "sourcingEthics": "Éthique de l'approvisionnement",
+      "sourcingNotes": "Notes sur l'approvisionnement",
+      "sourcingNotesHeading": "Notes sur l'approvisionnement pour cette espèce",
+      "references": "Références"
     },
-    "yes": "Yes",
+    "yes": "Oui",
     "glance": {
-      "spawningMode": "Spawning mode",
-      "flow": "Flow preference",
-      "minVolume": "Min tank volume",
-      "sexRatio": "Sex ratio",
-      "liveFoodRequired": "Live food required",
-      "caresRegisteredBreeders": "CARES registered breeders"
+      "spawningMode": "Mode de reproduction",
+      "flow": "Préférence en matière de débit",
+      "minVolume": "Volume minimal du réservoir",
+      "sexRatio": "Rapport de masculinité",
+      "liveFoodRequired": "Nourriture vivante requise",
+      "caresRegisteredBreeders": "Éleveurs enregistrés auprès de CARES"
     },
     "water": {
-      "temperature": "Temperature",
+      "temperature": "Température",
       "ph": "pH",
-      "hardnessDgh": "Hardness (dGH)",
-      "hardnessDkh": "Hardness (dKH)",
-      "flow": "Flow"
+      "hardnessDgh": "Dureté (dGH)",
+      "hardnessDkh": "Dureté (dKH)",
+      "flow": "Débit"
     },
     "range": {
       "between": "{min} – {max} {unit}",
@@ -954,146 +954,146 @@
       "atMost": "≤ {max} {unit}"
     },
     "tank": {
-      "minVolume": "Minimum volume",
+      "minVolume": "Volume minimum",
       "minVolumeUnit": "{value} L",
-      "minFootprint": "Minimum footprint",
+      "minFootprint": "Encombrement minimal",
       "aquascape": "Aquascape",
-      "substrate": "Substrate",
-      "cover": "Cover"
+      "substrate": "Substrat",
+      "cover": "Couverture"
     },
     "diet": {
-      "acceptedFoods": "Accepted foods",
-      "liveFoodRequired": "Live food required",
-      "feedingFrequency": "Feeding frequency"
+      "acceptedFoods": "Aliments autorisés",
+      "liveFoodRequired": "Nourriture vivante requise",
+      "feedingFrequency": "Fréquence des repas"
     },
     "behavior": {
-      "temperament": "Temperament",
-      "sexRatio": "Sex ratio",
-      "schooling": "Schooling",
-      "communityCompatibility": "Community compatibility"
+      "temperament": "Tempérament",
+      "sexRatio": "Rapport de masculinité",
+      "schooling": "Scolarité",
+      "communityCompatibility": "Compatibilité avec la communauté"
     },
     "breeding": {
-      "spawningMode": "Spawning mode",
-      "triggers": "Triggers",
-      "typicalEggCount": "Typical egg count",
-      "fryCare": "Fry care",
-      "survivalBottlenecks": "Survival bottlenecks"
+      "spawningMode": "Mode de reproduction",
+      "triggers": "Déclencheurs",
+      "typicalEggCount": "Nombre habituel d'ovules",
+      "fryCare": "Entretien des friteuses",
+      "survivalBottlenecks": "Goulets d'étranglement en matière de survie"
     },
     "review": {
-      "reviewedByPrefix": "Reviewed by ",
-      "unknown": "unknown",
-      "reviewedOn": " on {date}.",
+      "reviewedByPrefix": "Révisé par ",
+      "unknown": "inconnu",
+      "reviewedOn": " le {date}.",
       "reviewedNoDate": ".",
       "orcidLabel": "ORCID {orcid}",
-      "stale": "Review pending — content may be out of date."
+      "stale": "En attente de vérification — le contenu est peut-être obsolète."
     },
-    "contributors": "Contributors:",
-    "contributeUpdates": "Contribute updates",
+    "contributors": "Contributeurs :",
+    "contributeUpdates": "Partager des mises à jour",
     "arrow": "→",
     "related": {
-      "ariaLabel": "Related species context",
-      "fieldPrograms": "Field programs for this species",
-      "heldAt": "{count, plural, one {Held at # institution.} other {Held at # institutions.}}",
-      "seeCaptiveSummary": "See captive population summary"
+      "ariaLabel": "Contexte des espèces apparentées",
+      "fieldPrograms": "Programmes de terrain consacrés à cette espèce",
+      "heldAt": "{count, plural, one {Détenu dans # institution.} other {Détenu dans # institutions.}}",
+      "seeCaptiveSummary": "Voir le résumé sur les populations en captivité"
     }
   },
   "auth": {
-    "accountEyebrow": "Account",
+    "accountEyebrow": "Compte",
     "login": {
-      "metaTitle": "Sign in — Madagascar Freshwater Fish",
-      "metaDescription": "Sign in to access tier-restricted content.",
-      "title": "Sign in",
-      "subtitle": "Sign in unlocks tier-restricted views — exact locality coordinates for sensitive species, the coordinator dashboard, and partner-only data. Species profiles, the public map, and the conservation dashboard are open without an account.",
-      "verifiedBanner": "Email verified. Sign in to continue.",
-      "formAriaLabel": "Sign in form",
-      "emailLabel": "Email",
-      "passwordLabel": "Password",
-      "submit": "Sign in",
-      "submitting": "Signing in…",
-      "errorInvalid": "Invalid email or password.",
-      "errorRateLimited": "Too many attempts. Please wait a few minutes and try again.",
-      "newToPlatformPrefix": "New to the platform?",
-      "createAccountLink": "Create an account"
+      "metaTitle": "Se connecter — Poissons d'eau douce de Madagascar",
+      "metaDescription": "Connectez-vous pour accéder au contenu réservé à certains niveaux d'abonnement.",
+      "title": "Se connecter",
+      "subtitle": "La connexion permet d'accéder à des contenus réservés à certains niveaux d'accès : les coordonnées exactes des sites où vivent des espèces sensibles, le tableau de bord du coordinateur et les données réservées aux partenaires. Les fiches d'espèces, la carte publique et le tableau de bord de conservation sont accessibles sans compte.",
+      "verifiedBanner": "Adresse e-mail vérifiée. Connectez-vous pour continuer.",
+      "formAriaLabel": "Formulaire de connexion",
+      "emailLabel": "Courriel",
+      "passwordLabel": "Mot de passe",
+      "submit": "Se connecter",
+      "submitting": "Connexion en cours…",
+      "errorInvalid": "Adresse e-mail ou mot de passe incorrect.",
+      "errorRateLimited": "Trop de tentatives. Veuillez patienter quelques minutes, puis réessayer.",
+      "newToPlatformPrefix": "Vous êtes nouveau sur la plateforme ?",
+      "createAccountLink": "Créer un compte"
     },
     "signup": {
-      "metaTitle": "Create an account — Madagascar Freshwater Fish",
-      "metaDescription": "Create a researcher account to access tier-restricted occurrence data and submit observations.",
-      "title": "Create an account",
-      "subtitle": "New accounts start as Tier 2 (Registered Researcher), which adds access to occurrence datasets and observation submission. Higher tiers — for ex-situ coordinators and program managers — are assigned by the platform operator on request. Public profiles, the map, and the conservation dashboard remain open without an account.",
-      "formAriaLabel": "Sign-up form",
-      "emailLabel": "Email",
-      "nameLabel": "Name",
-      "passwordLabel": "Password",
-      "passwordHelp": "At least 12 characters. Avoid common passwords and anything close to your email or name.",
-      "submit": "Create account",
-      "submitting": "Creating account…",
-      "haveAccountPrefix": "Already have an account?",
-      "loginLink": "Sign in",
-      "submittedTitle": "Check your email to finish signing up.",
-      "submittedBody": "If an account can be created with that address, a verification link is on its way. The link is valid for 48 hours. If nothing arrives, check your spam folder, then try registering again."
+      "metaTitle": "Créer un compte — Poissons d'eau douce de Madagascar",
+      "metaDescription": "Créez un compte de chercheur pour accéder aux données d'occurrence soumises à des restrictions d'accès et pour soumettre vos observations.",
+      "title": "Créer un compte",
+      "subtitle": "Les nouveaux comptes commencent au niveau 2 (Chercheur enregistré), ce qui donne accès aux ensembles de données sur les occurrences et permet de soumettre des observations. Les niveaux supérieurs — destinés aux coordinateurs ex situ et aux responsables de programme — sont attribués par l'opérateur de la plateforme sur demande. Les profils publics, la carte et le tableau de bord de conservation restent accessibles sans compte.",
+      "formAriaLabel": "Formulaire d'inscription",
+      "emailLabel": "Courriel",
+      "nameLabel": "Nom",
+      "passwordLabel": "Mot de passe",
+      "passwordHelp": "Au moins 12 caractères. Évitez les mots de passe courants et tout ce qui ressemble à votre adresse e-mail ou à votre nom.",
+      "submit": "Créer un compte",
+      "submitting": "Création du compte…",
+      "haveAccountPrefix": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter",
+      "submittedTitle": "Consultez votre messagerie pour finaliser votre inscription.",
+      "submittedBody": "Si un compte peut être créé avec cette adresse, un lien de vérification vous sera envoyé sous peu. Ce lien est valable pendant 48 heures. Si vous ne recevez rien, vérifiez votre dossier de courrier indésirable, puis essayez de vous inscrire à nouveau."
     },
     "verify": {
-      "metaTitle": "Verify your account — Madagascar Freshwater Fish",
-      "metaDescription": "Activate your account by verifying the email link.",
-      "title": "Verification link",
+      "metaTitle": "Vérifiez votre compte — Poissons d'eau douce de Madagascar",
+      "metaDescription": "Activez votre compte en cliquant sur le lien envoyé par e-mail.",
+      "title": "Lien de vérification",
       "missingToken": {
-        "title": "This link is missing its verification token.",
-        "bodyPrefix": "Open the link directly from your verification email — the URL should end with",
+        "title": "Il manque le jeton de vérification pour ce lien.",
+        "bodyPrefix": "Cliquez directement sur le lien figurant dans votre e-mail de vérification — l'URL doit se terminer par",
         "bodyTokenExample": "?token=…",
-        "bodyMiddle": ". If your email client truncated the link, you can",
-        "registerLink": "register again",
-        "bodySuffix": "to receive a fresh one."
+        "bodyMiddle": ". Si votre client de messagerie a tronqué le lien, vous pouvez",
+        "registerLink": "se réinscrire",
+        "bodySuffix": "pour en recevoir un nouveau."
       },
       "expired": {
-        "title": "This verification link is no longer valid.",
-        "bodyPrefix": "Links expire 48 hours after sign-up, and each link can only be used once. To finish creating your account,",
-        "registerLink": "register again",
-        "bodySuffix": "and we'll send a new link to your email."
+        "title": "Ce lien de vérification n'est plus valide.",
+        "bodyPrefix": "Les liens expirent 48 heures après l'inscription, et chaque lien ne peut être utilisé qu'une seule fois. Pour terminer la création de votre compte,",
+        "registerLink": "se réinscrire",
+        "bodySuffix": "et nous vous enverrons un nouveau lien par e-mail."
       },
       "transient": {
-        "title": "We couldn't verify your account just now.",
-        "bodyPrefix": "The verification service is temporarily unreachable. Try the link again in a few minutes. If it keeps failing, the platform team can verify your account manually — contact details are on the",
-        "aboutLink": "About page",
+        "title": "Nous n'avons pas pu vérifier votre compte pour le moment.",
+        "bodyPrefix": "Le service de vérification est temporairement indisponible. Veuillez réessayer dans quelques minutes. Si le problème persiste, l'équipe de la plateforme peut vérifier votre compte manuellement — vous trouverez ses coordonnées sur la",
+        "aboutLink": "Page « À propos »",
         "bodySuffix": "."
       }
     }
   },
   "errors": {
-    "title": "This page could not be loaded",
-    "subtitle": "An unexpected error interrupted rendering. Try again in a moment, or return to the home page.",
-    "ariaLabel": "Page temporarily unavailable",
-    "tryAgain": "Try again",
-    "homeLink": "Return home",
+    "title": "Cette page n'a pas pu être chargée",
+    "subtitle": "Une erreur inattendue a interrompu le chargement de la page. Veuillez réessayer dans quelques instants ou revenir à la page d'accueil.",
+    "ariaLabel": "Page temporairement indisponible",
+    "tryAgain": "Réessayez",
+    "homeLink": "Retour à la page d'accueil",
     "notFound": {
-      "metaTitle": "Page not found — Madagascar Freshwater Fish",
-      "title": "Page not found",
-      "body": "This address does not match any page on the platform. The link may be out of date, or the page may have moved.",
-      "homeLink": "Return home",
-      "browseAll": "Browse all species",
-      "directoryHintPrefix": "Looking for a specific species?",
-      "directoryHintLink": "Try the directory search."
+      "metaTitle": "Page introuvable — Poissons d'eau douce de Madagascar",
+      "title": "Page introuvable",
+      "body": "Cette adresse ne correspond à aucune page de la plateforme. Le lien est peut-être obsolète, ou la page a peut-être été déplacée.",
+      "homeLink": "Retour à la page d'accueil",
+      "browseAll": "Parcourir toutes les espèces",
+      "directoryHintPrefix": "Vous recherchez une espèce en particulier ?",
+      "directoryHintLink": "Essayez la recherche dans l'annuaire."
     }
   },
   "footer": {
-    "platformHeading": "Platform",
-    "dataHeading": "Data",
-    "aboutHeading": "About",
-    "contributeHeading": "Contribute",
+    "platformHeading": "Plateforme",
+    "dataHeading": "Données",
+    "aboutHeading": "À propos",
+    "contributeHeading": "Contribuer",
     "platformLinks": {
-      "speciesDirectory": "Species Directory",
-      "distributionMap": "Distribution Map",
-      "conservationDashboard": "Conservation Dashboard"
+      "speciesDirectory": "Répertoire des espèces",
+      "distributionMap": "Carte de répartition",
+      "conservationDashboard": "Tableau de bord de la conservation"
     },
     "aboutLinks": {
-      "aboutThePlatform": "About the Platform",
-      "dataSources": "Data Sources",
-      "glossary": "Glossary"
+      "aboutThePlatform": "À propos de la plateforme",
+      "dataSources": "Sources des données",
+      "glossary": "Glossaire"
     },
     "contributeLinks": {
-      "husbandryReports": "Husbandry Reports",
+      "husbandryReports": "Rapports d'élevage",
       "github": "GitHub"
     },
-    "license": "Madagascar Freshwater Fish Conservation Platform — Apache-2.0",
-    "dataNote": "Data mirrored from IUCN, FishBase, GBIF, ZIMS, SHOAL, and CARES."
+    "license": "Plateforme pour la conservation des poissons d'eau douce de Madagascar — Apache-2.0",
+    "dataNote": "Données issues de l'UICN, de FishBase, du GBIF, de ZIMS, de SHOAL et de CARES."
   }
 }
