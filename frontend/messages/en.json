@@ -42,6 +42,19 @@
       "updatedRecently": "Updated recently",
       "updatedTemplate": "Updated {ago}"
     },
+    "lastSync": {
+      "synced": "Last synced {when} — IUCN Red List",
+      "awaiting": "Awaiting first IUCN sync"
+    },
+    "cares": {
+      "CCR": "CARES CCR",
+      "CEN": "CARES CEN",
+      "CVU": "CARES CVU",
+      "CLC": "CARES CLC",
+      "priority": "CARES priority",
+      "monitored": "CARES monitored",
+      "fallback": "CARES {status}"
+    },
     "iucnAbbrev": {
       "CR": "CR",
       "EN": "EN",
@@ -131,7 +144,14 @@
         "familyLabel": "Family",
         "endemicLabel": "Endemic",
         "basinLabel": "Basin",
-        "viewProfile": "View profile"
+        "basinSuffix": "{basin} basin",
+        "viewProfile": "View profile",
+        "shoalPill": "SHOAL",
+        "endemic": {
+          "endemic": "Endemic",
+          "native": "Native",
+          "introduced": "Introduced"
+        }
       },
       "emptyState": {
         "title": "No species match these filters",

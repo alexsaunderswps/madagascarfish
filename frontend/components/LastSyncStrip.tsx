@@ -7,10 +7,15 @@
  * first sync" line with a muted dot (no pulse).
  */
 
-function formatSyncedAt(iso: string): string | null {
+import { getLocale, getTranslations } from "next-intl/server";
+
+function formatSyncedAt(iso: string, locale: string): string | null {
   const ms = Date.parse(iso);
   if (Number.isNaN(ms)) return null;
-  return new Intl.DateTimeFormat("en-US", {
+  // Use the active locale (BCP-47 tag) so date formatting matches the
+  // visitor's language: en → "Apr 29, 2026, 8:50 PM EDT", fr →
+  // "29 avr. 2026 à 20:50 UTC−4", etc.
+  return new Intl.DateTimeFormat(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -24,12 +29,16 @@ export type LastSyncStripProps = {
   lastSyncAt: string | null;
 };
 
-export default function LastSyncStrip({ lastSyncAt }: LastSyncStripProps) {
-  const formatted = lastSyncAt ? formatSyncedAt(lastSyncAt) : null;
+export default async function LastSyncStrip({ lastSyncAt }: LastSyncStripProps) {
+  const [locale, t] = await Promise.all([
+    getLocale(),
+    getTranslations("common.lastSync"),
+  ]);
+  const formatted = lastSyncAt ? formatSyncedAt(lastSyncAt, locale) : null;
   const hasSync = formatted !== null;
   const label = hasSync
-    ? `Last synced ${formatted} — IUCN Red List`
-    : "Awaiting first IUCN sync";
+    ? t("synced", { when: formatted })
+    : t("awaiting");
 
   return (
     <div
