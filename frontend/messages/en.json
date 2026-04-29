@@ -276,7 +276,31 @@
         "caresPrefix": "CARES {status}"
       },
       "primaryCommonLanguage": "({language})",
-      "fallbackBadge": "(English)"
+      "fallbackBadge": "(English)",
+      "commonNamesPanel": {
+        "eyebrow": "Vernacular",
+        "heading": "Common names",
+        "languages": {
+          "en": "English",
+          "mg": "Malagasy",
+          "fr": "French",
+          "de": "German",
+          "es": "Spanish",
+          "it": "Italian",
+          "nl": "Dutch",
+          "pt": "Portuguese",
+          "other": "Other"
+        },
+        "noNames": "No common names recorded yet."
+      },
+      "distributionPanel": {
+        "eyebrow": "Distribution",
+        "heading": "Where it's found",
+        "imageAltFallback": "Distribution overview",
+        "foundInLabel": "Found in",
+        "recordCount": "{count, plural, one {# record} other {# records}}",
+        "noLocalities": "No locality records are currently mapped for this species."
+      }
     },
     "notFound": {
       "title": "Species not found",

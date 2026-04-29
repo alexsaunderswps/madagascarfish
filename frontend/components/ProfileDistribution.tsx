@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import { fetchLocalities } from "@/lib/mapLocalities";
 import { fetchSiteMapAsset } from "@/lib/siteMapAssets";
 
@@ -20,11 +22,12 @@ export default async function ProfileDistribution({
   speciesId: number;
   hasLocalities: boolean;
 }) {
-  const [sma, localities] = await Promise.all([
+  const [sma, localities, t] = await Promise.all([
     fetchSiteMapAsset("profile_panel"),
     hasLocalities
       ? fetchLocalities({ species_id: String(speciesId) })
       : Promise.resolve(null),
+    getTranslations("species.profile.distributionPanel"),
   ]);
 
   const basinCounts = new Map<string, number>();
@@ -51,7 +54,7 @@ export default async function ProfileDistribution({
           margin: 0,
         }}
       >
-        Distribution
+        {t("eyebrow")}
       </p>
       <h2
         style={{
@@ -64,7 +67,7 @@ export default async function ProfileDistribution({
           lineHeight: 1.15,
         }}
       >
-        Where it&rsquo;s found
+        {t("heading")}
       </h2>
 
       {sma ? (
@@ -81,7 +84,7 @@ export default async function ProfileDistribution({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={sma.url}
-            alt={sma.alt || "Distribution overview"}
+            alt={sma.alt || t("imageAltFallback")}
             width={sma.width}
             height={sma.height}
             style={{
@@ -120,7 +123,7 @@ export default async function ProfileDistribution({
               color: "var(--ink-3)",
             }}
           >
-            Found in
+            {t("foundInLabel")}
           </p>
           <ul
             role="list"
@@ -155,7 +158,7 @@ export default async function ProfileDistribution({
                     fontVariantNumeric: "tabular-nums",
                   }}
                 >
-                  {count} record{count === 1 ? "" : "s"}
+                  {t("recordCount", { count })}
                 </span>
               </li>
             ))}
@@ -163,7 +166,7 @@ export default async function ProfileDistribution({
         </div>
       ) : hasLocalities ? null : (
         <p style={{ marginTop: 16, fontSize: 13, color: "var(--ink-3)" }}>
-          No locality records are currently mapped for this species.
+          {t("noLocalities")}
         </p>
       )}
     </section>
