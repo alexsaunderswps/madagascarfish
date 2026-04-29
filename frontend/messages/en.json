@@ -72,6 +72,11 @@
     "directory": {
       "title": "Species Directory",
       "subtitle": "Endemic freshwater fishes of Madagascar",
+      "metaTitle": "Species Directory — Madagascar Freshwater Fish",
+      "metaDescription": "Browse endemic freshwater fish species of Madagascar. Filter by IUCN Red List category, family, and captive-population coverage.",
+      "headerCounts": "{total} endemic freshwater fish species ({described} described, {undescribed} undescribed)",
+      "headerCountsLoading": "Species count is loading…",
+      "matchCount": "<strong>{count}</strong> {count, plural, one {species matches} other {species match}} the current filters.",
       "filters": {
         "search": "Search",
         "searchPlaceholder": "Scientific or common name",
@@ -94,8 +99,27 @@
       "emptyState": {
         "title": "No species match these filters",
         "subtitle": "{total} species in the directory total. Try relaxing one filter.",
-        "clearAction": "Clear all filters",
+        "bodyFiltered": "Active filters: {filters}. Of {total} species in the registry, none currently match. Clear one or more filters to widen the search.",
+        "bodyUnfiltered": "No species are currently listed.",
+        "clearAction": "Clear filters",
         "browseAction": "Browse all species"
+      },
+      "emptyStateBackendDown": {
+        "title": "Species directory temporarily unavailable",
+        "body": "The species data service is unreachable right now. The registry is unchanged — try again in a moment.",
+        "tryAgain": "Try again"
+      },
+      "activeFilters": {
+        "search": "search \"{query}\"",
+        "iucn": "IUCN {labels}",
+        "family": "family {family}",
+        "undescribedMorphospecies": "undescribed morphospecies only",
+        "describedOnly": "described species only",
+        "cares": "CARES priority",
+        "shoal": "SHOAL priority",
+        "withCaptive": "with a captive population",
+        "withoutCaptive": "without a captive population",
+        "includingIntroduced": "including introduced"
       },
       "pagination": {
         "previous": "Previous",

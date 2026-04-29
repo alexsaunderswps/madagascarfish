@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import DirectoryDensityControl from "@/components/DirectoryDensityControl";
 import EmptyState from "@/components/EmptyState";
@@ -28,10 +29,10 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "species.directory" });
   return {
-    title: "Species Directory — Madagascar Freshwater Fish",
-    description:
-      "Browse endemic freshwater fish species of Madagascar. Filter by IUCN Red List category, family, and captive-population coverage.",
+    title: t("metaTitle"),
+    description: t("metaDescription"),
     alternates: buildAlternates("/species", locale),
   };
 }
@@ -59,30 +60,35 @@ function hasAnyFilter(searchParams: Record<string, string | string[] | undefined
  * Build a human-readable summary of the filters that produced an empty
  * directory result. Matches the conservation-writer voice rule that empty
  * states should name the constraint, not just say "no results".
+ *
+ * Receives a localized `t` function (under the `species.directory` namespace)
+ * and a locale-aware IUCN label resolver so chip text translates per locale.
  */
-function describeActiveFilters(state: SpeciesFilterState): string[] {
+function describeActiveFilters(
+  state: SpeciesFilterState,
+  t: (key: string, values?: Record<string, string | number>) => string,
+  iucnLabel: (s: IucnStatus) => string,
+): string[] {
   const parts: string[] = [];
-  if (state.search) parts.push(`search "${state.search}"`);
+  if (state.search) parts.push(t("activeFilters.search", { query: state.search }));
   if (state.iucn_status && state.iucn_status.length > 0) {
-    const labels = state.iucn_status.map(
-      (s) => IUCN_LABELS[s as IucnStatus] ?? s,
-    );
-    parts.push(`IUCN ${labels.join(" / ")}`);
+    const labels = state.iucn_status.map((s) => iucnLabel(s as IucnStatus));
+    parts.push(t("activeFilters.iucn", { labels: labels.join(" / ") }));
   }
-  if (state.family) parts.push(`family ${state.family}`);
+  if (state.family) parts.push(t("activeFilters.family", { family: state.family }));
   if (state.taxonomic_status === "undescribed_morphospecies") {
-    parts.push("undescribed morphospecies only");
+    parts.push(t("activeFilters.undescribedMorphospecies"));
   } else if (state.taxonomic_status === "described") {
-    parts.push("described species only");
+    parts.push(t("activeFilters.describedOnly"));
   }
-  if (state.has_cares === "true") parts.push("CARES priority");
-  if (state.shoal_priority === "true") parts.push("SHOAL priority");
+  if (state.has_cares === "true") parts.push(t("activeFilters.cares"));
+  if (state.shoal_priority === "true") parts.push(t("activeFilters.shoal"));
   if (state.has_captive_population === "true") {
-    parts.push("with a captive population");
+    parts.push(t("activeFilters.withCaptive"));
   } else if (state.has_captive_population === "false") {
-    parts.push("without a captive population");
+    parts.push(t("activeFilters.withoutCaptive"));
   }
-  if (state.include_introduced === "true") parts.push("including introduced");
+  if (state.include_introduced === "true") parts.push(t("activeFilters.includingIntroduced"));
   return parts;
 }
 
@@ -93,12 +99,15 @@ export default async function SpeciesDirectoryPage({
 }) {
   const state = parseSpeciesFilterState(searchParams);
   const density = parseDensity(searchParams);
-  const [listResult, dashboard] = await Promise.all([
+  const [listResult, dashboard, t, tCommon] = await Promise.all([
     fetchSpeciesListSafe(state),
     fetchDashboard(),
+    getTranslations("species.directory"),
+    getTranslations("common"),
   ]);
   const list = listResult ?? EMPTY_PAGE;
   const backendUnavailable = listResult === null;
+  const iucnLabel = (s: IucnStatus): string => tCommon(`iucn.${s}`);
 
   // Fetch genus silhouettes once per unique genus in the result set so cards
   // can render the species → genus → placeholder cascade without N round-trips.
@@ -122,7 +131,7 @@ export default async function SpeciesDirectoryPage({
 
   const counts = dashboard?.species_counts;
   const filtered = hasAnyFilter(searchParams);
-  const filterSummary = filtered ? describeActiveFilters(state) : [];
+  const filterSummary = filtered ? describeActiveFilters(state, t, iucnLabel) : [];
 
   // Density controls grid gap + card padding. "comfortable" ≈ current default,
   // "compact" tightens both so researchers can scan more rows in a viewport.
@@ -145,21 +154,27 @@ export default async function SpeciesDirectoryPage({
       >
         <div>
           <h1 style={{ fontFamily: "var(--serif)", fontSize: 30, color: "var(--ink)", margin: 0 }}>
-            Species Directory
+            {t("title")}
           </h1>
           {counts ? (
             <p style={{ marginTop: 4, fontSize: 13, color: "var(--ink-2)" }}>
-              {counts.total} endemic freshwater fish species ({counts.described} described,{" "}
-              {counts.undescribed} undescribed)
+              {t("headerCounts", {
+                total: counts.total,
+                described: counts.described,
+                undescribed: counts.undescribed,
+              })}
             </p>
           ) : (
             <p style={{ marginTop: 4, fontSize: 13, color: "var(--ink-3)" }}>
-              Species count is loading…
+              {t("headerCountsLoading")}
             </p>
           )}
           {filtered ? (
             <p style={{ marginTop: 4, fontSize: 13, color: "var(--ink)" }}>
-              <strong>{list.count}</strong> species match the current filters.
+              {t.rich("matchCount", {
+                count: list.count,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
           ) : null}
         </div>
@@ -179,30 +194,26 @@ export default async function SpeciesDirectoryPage({
           {list.results.length === 0 ? (
             backendUnavailable ? (
               <EmptyState
-                title="Species directory temporarily unavailable"
-                body="The species data service is unreachable right now. The registry is unchanged — try again in a moment."
-                primaryAction={{ href: "/species/", label: "Try again" }}
+                title={t("emptyStateBackendDown.title")}
+                body={t("emptyStateBackendDown.body")}
+                primaryAction={{ href: "/species/", label: t("emptyStateBackendDown.tryAgain") }}
               />
             ) : (
               <EmptyState
-                title="No species match these filters"
+                title={t("emptyState.title")}
                 body={
-                  filtered ? (
-                    <>
-                      Active filters: {filterSummary.join(", ")}. Of{" "}
-                      {counts?.total ?? "the"} species in the registry, none
-                      currently match. Clear one or more filters to widen the
-                      search.
-                    </>
-                  ) : (
-                    "No species are currently listed."
-                  )
+                  filtered
+                    ? t("emptyState.bodyFiltered", {
+                        filters: filterSummary.join(", "),
+                        total: counts?.total ?? 0,
+                      })
+                    : t("emptyState.bodyUnfiltered")
                 }
                 primaryAction={
-                  filtered ? { href: "/species/", label: "Clear filters" } : undefined
+                  filtered ? { href: "/species/", label: t("emptyState.clearAction") } : undefined
                 }
                 secondaryAction={
-                  filtered ? { href: "/species/", label: "Browse all species" } : undefined
+                  filtered ? { href: "/species/", label: t("emptyState.browseAction") } : undefined
                 }
               />
             )
