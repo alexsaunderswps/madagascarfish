@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "i18n:check": "node scripts/check-i18n-keys.mjs",
+    "i18n:translate": "node scripts/translate-mt.mjs",
     "e2e": "playwright test",
     "bake-tiles": "node scripts/bake-esri-tiles.mjs"
   },
