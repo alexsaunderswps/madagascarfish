@@ -9,6 +9,13 @@ import { djangoLogoutAction } from "@/app/account/actions";
 export interface NavLink {
   href: string;
   label: string;
+  /**
+   * Minimum access tier required to see this link in the nav. Omitted means
+   * public (visible to anonymous + all tiers). The route itself is gated
+   * server-side; this just stops us from rendering a link the visitor can't
+   * use, which would bounce them to login.
+   */
+  minTier?: number;
 }
 
 export interface AuthNavItem {
@@ -19,11 +26,25 @@ export interface AuthNavItem {
 
 export const PRIMARY_NAV: NavLink[] = [
   { href: "/dashboard/", label: "Dashboard" },
-  { href: "/dashboard/coordinator/", label: "Coordinator" },
+  { href: "/dashboard/coordinator/", label: "Coordinator", minTier: 3 },
   { href: "/map/", label: "Map" },
   { href: "/species/", label: "Species Directory" },
   { href: "/about/", label: "About" },
 ];
+
+/**
+ * Filter nav links by viewer tier. Anonymous viewers are tier 0 here
+ * (not 1) so any `minTier` requirement filters them out — Tier 1 in the
+ * access model is "public", which already maps to the no-`minTier` case.
+ */
+export function visibleNavLinks(
+  links: readonly NavLink[],
+  viewerTier: number,
+): NavLink[] {
+  return links.filter(
+    (link) => link.minTier === undefined || viewerTier >= link.minTier,
+  );
+}
 
 function normalize(path: string): string {
   return path.endsWith("/") ? path : `${path}/`;
@@ -122,14 +143,17 @@ export interface NavLinksProps {
 
 export default function NavLinks({ authVisible = false }: NavLinksProps = {}) {
   const pathname = usePathname() ?? "/";
-  const activeHref = mostSpecificActiveHref(pathname, PRIMARY_NAV);
   // Resolve auth state client-side so the server-rendered HTML stays static
   // (preserves ISR for the public surface). During hydration `status` is
-  // "loading" — render no auth nav items in that state to avoid a flash of
-  // "Sign in" links for an already-signed-in user.
-  const { status } = useSession();
+  // "loading" — render no auth nav items and treat tier as 0 so links with
+  // a `minTier` stay hidden until we know what the viewer can see.
+  const { data: session, status } = useSession();
   const authenticated = status === "authenticated";
   const authResolved = status !== "loading";
+  const viewerTier =
+    authResolved && typeof session?.tier === "number" ? session.tier : 0;
+  const primaryLinks = visibleNavLinks(PRIMARY_NAV, viewerTier);
+  const activeHref = mostSpecificActiveHref(pathname, primaryLinks);
   const authItems = authResolved ? authNavItems(authVisible, authenticated) : [];
 
   return (
@@ -144,7 +168,7 @@ export default function NavLinks({ authVisible = false }: NavLinksProps = {}) {
         gap: "4px 16px",
       }}
     >
-      {PRIMARY_NAV.map((link) => {
+      {primaryLinks.map((link) => {
         const active = activeHref === link.href;
         return (
           <li key={link.href}>

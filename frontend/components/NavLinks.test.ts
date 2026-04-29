@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { authNavItems, isActive, mostSpecificActiveHref } from "./NavLinks";
+import {
+  authNavItems,
+  isActive,
+  mostSpecificActiveHref,
+  visibleNavLinks,
+  type NavLink,
+} from "./NavLinks";
 
 describe("isActive", () => {
   it("marks the exact match as active, with or without trailing slash", () => {
@@ -49,6 +55,42 @@ describe("mostSpecificActiveHref", () => {
     expect(mostSpecificActiveHref("/dashboard/coordinator", links)).toBe(
       "/dashboard/coordinator/",
     );
+  });
+});
+
+describe("visibleNavLinks", () => {
+  const links: NavLink[] = [
+    { href: "/dashboard/", label: "Dashboard" },
+    { href: "/dashboard/coordinator/", label: "Coordinator", minTier: 3 },
+    { href: "/map/", label: "Map" },
+  ];
+
+  it("hides minTier links from anonymous viewers (tier 0)", () => {
+    expect(visibleNavLinks(links, 0).map((l) => l.label)).toEqual([
+      "Dashboard",
+      "Map",
+    ]);
+  });
+
+  it("hides Coordinator from Tier 1 (public) and Tier 2 (researcher)", () => {
+    expect(visibleNavLinks(links, 1).map((l) => l.label)).toEqual([
+      "Dashboard",
+      "Map",
+    ]);
+    expect(visibleNavLinks(links, 2).map((l) => l.label)).toEqual([
+      "Dashboard",
+      "Map",
+    ]);
+  });
+
+  it("shows Coordinator at Tier 3+ (Coordinator, Program Manager, Admin)", () => {
+    for (const tier of [3, 4, 5]) {
+      expect(visibleNavLinks(links, tier).map((l) => l.label)).toEqual([
+        "Dashboard",
+        "Coordinator",
+        "Map",
+      ]);
+    }
   });
 });
 

@@ -14,6 +14,7 @@ export default defineConfig({
       "lib/**/*.test.ts",
       "components/**/*.test.ts",
       "app/**/*.test.ts",
+      "middleware.test.ts",
     ],
     globals: false,
   },

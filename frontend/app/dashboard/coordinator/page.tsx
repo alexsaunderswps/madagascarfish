@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import type { CSSProperties } from "react";
 
 import CoverageGapPanel from "@/components/coordinator/CoverageGapPanel";
@@ -7,7 +8,7 @@ import SexRatioRiskPanel from "@/components/coordinator/SexRatioRiskPanel";
 import StaleCensusPanel from "@/components/coordinator/StaleCensusPanel";
 import StudbookStatusPanel from "@/components/coordinator/StudbookStatusPanel";
 import TransferActivityPanel from "@/components/coordinator/TransferActivityPanel";
-import { getServerDrfToken } from "@/lib/auth";
+import { getServerDrfToken, getServerTier } from "@/lib/auth";
 import {
   fetchCoverageGap,
   fetchOpenRecommendations,
@@ -113,14 +114,20 @@ function ConfigErrorBanner() {
 export default async function CoordinatorDashboardPage({
   searchParams,
 }: PageProps) {
+  // Defense-in-depth tier gate. The middleware is the front-line guard;
+  // this catches the case where a request reaches the server component
+  // without going through middleware (matcher misconfiguration, internal
+  // rewrites, etc.). Tier 1/2 and anonymous visitors are bounced home —
+  // population-level detail at identified institutions has never been
+  // public regardless of auth-UX flag state.
+  const tier = (await getServerTier()) ?? 0;
+  if (tier < 3) {
+    redirect("/");
+  }
+
   const params = (await searchParams) ?? {};
   const endemicOnly = params.endemic_only !== "false";
 
-  // Gate 11: read the user's DRF token via the JWT-only accessor and pass
-  // it to each panel fetcher. Anonymous SSR (no session) leaves authToken
-  // undefined, which falls back to COORDINATOR_API_TOKEN in
-  // `coordinatorHeaders()` — preserving the existing service-token render
-  // path during rollout. See `lib/auth.ts` for the token-leak rationale.
   const userToken = await getServerDrfToken();
 
   const tokenConfigured = isCoordinatorTokenConfigured() || Boolean(userToken);
