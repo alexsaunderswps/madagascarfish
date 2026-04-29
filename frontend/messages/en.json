@@ -29,6 +29,19 @@
       "titleWithCriteria": "{label} — criteria {criteria}",
       "labelWithStatus": "{status} · {label}"
     },
+    "iucnChart": {
+      "title": "Species by IUCN status",
+      "barLabel": "{label} ({status})",
+      "barAriaLabel": "{count} species with status {label}"
+    },
+    "updatedAgo": {
+      "justNow": "just now",
+      "minutes": "{count, plural, one {# minute ago} other {# minutes ago}}",
+      "hours": "{count, plural, one {# hour ago} other {# hours ago}}",
+      "days": "{count, plural, one {# day ago} other {# days ago}}",
+      "updatedRecently": "Updated recently",
+      "updatedTemplate": "Updated {ago}"
+    },
     "iucnAbbrev": {
       "CR": "CR",
       "EN": "EN",
@@ -152,7 +165,8 @@
         "pageOf": "Page {current} of {total} — {totalCount} total"
       },
       "density": {
-        "label": "View",
+        "label": "Density",
+        "ariaLabel": "Directory density",
         "comfortable": "Comfortable",
         "compact": "Compact"
       }
@@ -285,8 +299,10 @@
     "keyboardHint": "Markers are color-coded by IUCN Red List category. Coordinates for threatened species are generalized per GBIF sensitive-species guidance. For keyboard and screen-reader access, use the list view toggle above.",
     "view": {
       "label": "View",
+      "ariaLabel": "View mode",
       "map": "Map",
-      "list": "List"
+      "list": "List",
+      "viewAsList": "View as list"
     },
     "legend": {
       "title": "IUCN Red List category"

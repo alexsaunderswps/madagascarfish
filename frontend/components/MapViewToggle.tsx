@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { Link } from "@/i18n/routing";
 
 export type MapView = "map" | "list";
@@ -31,6 +33,7 @@ export default function MapViewToggle({
   current: MapView;
   searchParams: Record<string, string | string[] | undefined>;
 }) {
+  const t = useTranslations("map.view");
   const mapHref = buildHref("/map/", searchParams, "map");
   const listHref = buildHref("/map/", searchParams, "list");
 
@@ -60,7 +63,7 @@ export default function MapViewToggle({
   return (
     <div
       role="group"
-      aria-label="View mode"
+      aria-label={t("ariaLabel")}
       style={{
         display: "inline-flex",
         overflow: "hidden",
@@ -74,7 +77,7 @@ export default function MapViewToggle({
         prefetch={false}
         style={current === "map" ? activeStyle : inactiveStyle}
       >
-        Map
+        {t("map")}
       </Link>
       <Link
         href={listHref}
@@ -82,7 +85,7 @@ export default function MapViewToggle({
         prefetch={false}
         style={current === "list" ? activeStyle : inactiveStyle}
       >
-        View as list
+        {t("viewAsList")}
       </Link>
     </div>
   );

@@ -5,10 +5,15 @@
  *
  * URL-backed: writes ?d=comfortable|compact and lets the server component
  * re-render. Unrecognized values fall back to comfortable (parseDensity).
+ *
+ * Locale-aware: uses the locale-aware router so density toggles preserve
+ * the active locale prefix (a user on /fr/species stays on /fr/species).
  */
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 
+import { useRouter } from "@/i18n/routing";
 import SegmentedControl from "./SegmentedControl";
 import type { DirectoryDensity } from "@/lib/species";
 
@@ -17,6 +22,7 @@ export default function DirectoryDensityControl({
 }: {
   density: DirectoryDensity;
 }) {
+  const t = useTranslations("species.directory.density");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -39,15 +45,15 @@ export default function DirectoryDensityControl({
           color: "var(--ink-3)",
         }}
       >
-        Density
+        {t("label")}
       </span>
       <SegmentedControl<DirectoryDensity>
-        ariaLabel="Directory density"
+        ariaLabel={t("ariaLabel")}
         value={density}
         onChange={onChange}
         options={[
-          { value: "comfortable", label: "Comfortable" },
-          { value: "compact", label: "Compact" },
+          { value: "comfortable", label: t("comfortable") },
+          { value: "compact", label: t("compact") },
         ]}
       />
     </div>
