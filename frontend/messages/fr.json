@@ -664,6 +664,194 @@
       "configError": {
         "title": "Coordinator data is temporarily unavailable.",
         "body": "The panels below couldn't reach the coordination API. Try refreshing the page; if the issue persists, contact the platform team."
+      },
+      "panels": {
+        "coverage": {
+          "eyebrow": "Panel 1",
+          "title": "Coverage gap",
+          "titleWithCount": "Coverage gap — {total} {scope} species",
+          "scopeEndemic": "endemic",
+          "scopeAll": "",
+          "captionShort": "Threatened species with no ex-situ backstop.",
+          "captionFull": "Critically Endangered, Endangered, and Vulnerable species with no ex-situ population on record. The first list a coordinator should triage: each row is a species that has no captive safety net at all.",
+          "unavailable": "Coverage data is temporarily unavailable. The view will populate once the coordination API is reachable again.",
+          "endemicFilterAriaLabel": "Endemic filter",
+          "endemicOnly": "Endemic only",
+          "allThreatened": "All threatened",
+          "noResults": "No threatened species are missing ex-situ coverage at this filter. Either every threatened species in scope has a captive population on record, or the filter has narrowed the list to zero.",
+          "ddTitle": "Data Deficient",
+          "ddBody": "{total} species ({endemic} endemic) need a current Red List assessment before their conservation status can be acted on.",
+          "ddNone": "No DD species in the registry.",
+          "ddViewList": "View list →",
+          "table": {
+            "status": "Status",
+            "species": "Species",
+            "family": "Family",
+            "endemic": "Endemic",
+            "trend": "Trend",
+            "cares": "CARES",
+            "shoalTitle": "SHOAL 1,000 Fishes priority species",
+            "shoalLabel": "SHOAL",
+            "showMore": "Show {count} more",
+            "collapse": "Collapse to top {limit}",
+            "viewAll": "View all in directory →",
+            "emDash": "—"
+          }
+        },
+        "studbook": {
+          "eyebrow": "Panel 2",
+          "title": "Studbook status",
+          "captionShort": "Per-species program classification.",
+          "captionFull": "Where each species sits on the captive-management spectrum, from formally managed studbooks down to no holdings at all. The breeding-not-studbook row matters: it surfaces ad-hoc populations that are reproducing but whose pedigree isn't tracked — a fragility that gets hidden when those species are lumped in with studbook programs.",
+          "unavailable": "Studbook status is temporarily unavailable. The view will populate once the coordination API is reachable again.",
+          "buckets": {
+            "studbook_managed": {
+              "label": "Studbook-managed",
+              "hint": "Coordinated program with pedigree records and transfer plans."
+            },
+            "breeding_not_studbook": {
+              "label": "Breeding, not studbook",
+              "hint": "Breeding observed, but no formal studbook — pedigree is not tracked."
+            },
+            "holdings_only": {
+              "label": "Holdings only",
+              "hint": "Held in captivity, no breeding recorded."
+            },
+            "no_captive_population": {
+              "label": "No captive population",
+              "hint": "No institution has registered holdings."
+            }
+          }
+        },
+        "sexRatio": {
+          "eyebrow": "Panel 3",
+          "title": "Sex-ratio risk",
+          "titleWithCount": "Sex-ratio risk — {atRisk} of {total} populations",
+          "captionShort": "Populations with demographic imbalance.",
+          "captionFull": "Captive populations whose sex composition limits breeding potential. M.F.U is the standard zoo notation: males.females.unsexed. A population is flagged when one sex is absent, when the male-to-female ratio exceeds 4:1, or when more than half the animals are unsexed.",
+          "unavailable": "Demographic data is temporarily unavailable. Once the coordination API is reachable again, populations with imbalance will appear here.",
+          "noResults": "No populations are currently flagged for sex-ratio risk.",
+          "table": {
+            "species": "Species",
+            "institution": "Institution",
+            "mfu": "M.F.U",
+            "reasons": "Reasons"
+          },
+          "reasons": {
+            "no_males": "No males",
+            "no_females": "No females",
+            "skewed_ratio": "Sex ratio > 4:1",
+            "mostly_unsexed": "Mostly unsexed"
+          }
+        },
+        "staleCensus": {
+          "eyebrow": "Panel 4",
+          "title": "Stale census",
+          "titleWithCount": "Stale census — {stale} of {total} populations",
+          "captionShort": "Populations overdue for a census update.",
+          "captionFull": "Populations whose last census record — or any holding update — is more than {threshold} months old, plus any population that has never been censused. A current count is the prerequisite for every other coordination decision.",
+          "unavailable": "Census timestamps are temporarily unavailable. Overdue populations will reappear once the coordination API is reachable.",
+          "noResults": "Every tracked population has been censused within the last {threshold} months.",
+          "table": {
+            "species": "Species",
+            "institution": "Institution",
+            "lastSignal": "Last signal",
+            "staleFor": "Stale for"
+          },
+          "neverCensused": "Never censused",
+          "noneRecorded": "none recorded",
+          "daysSuffix": "{count} days",
+          "monthsSuffix": "{count} months"
+        },
+        "transfers": {
+          "eyebrow": "Panel 5",
+          "title": "Transfer activity",
+          "titleWithCount": "Transfer activity — {inFlight} in flight, {recent} recent",
+          "captionShort": "Animal movement between institutions.",
+          "captionFull": "Proposed, approved, and in-transit moves between institutions, plus moves completed in the last {windowDays} days. In-flight transfers are sorted oldest-proposed first, so anything stuck in coordination floats to the top.",
+          "unavailable": "Transfer records are temporarily unavailable. Proposed, in-transit, and recently completed moves will reappear once the coordination API is reachable.",
+          "inFlightHeading": "In flight",
+          "recentHeading": "Recently completed",
+          "inFlightEmpty": "No transfers are currently proposed, approved, or in transit.",
+          "recentEmpty": "No transfers have been completed in the last {windowDays} days.",
+          "table": {
+            "species": "Species",
+            "fromTo": "From → To",
+            "status": "Status",
+            "proposed": "Proposed",
+            "completed": "Completed",
+            "mfu": "M.F.U",
+            "cites": "CITES"
+          },
+          "statuses": {
+            "proposed": "Proposed",
+            "approved": "Approved",
+            "in_transit": "In transit",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+          },
+          "emDash": "—"
+        },
+        "openRecs": {
+          "eyebrow": "Panel 6",
+          "title": "Open breeding recommendations",
+          "titleWithCount": "Open breeding recommendations — {total}",
+          "titleWithOverdue": "Open breeding recommendations — {total} ({overdue} overdue)",
+          "captionShort": "Coordinator action items.",
+          "captionFull": "Active breed, hold, and transfer items issued by coordinators, sorted by priority. Critical and high-priority rows surface first; completed and cancelled items are archived elsewhere.",
+          "unavailable": "Open recommendations are temporarily unavailable. Breed, hold, and transfer items will reappear once the coordination API is reachable.",
+          "noResults": "No open recommendations on file. Either the breeding plan is fully addressed or coordinators have not yet logged any items for the current period.",
+          "table": {
+            "priority": "Priority",
+            "species": "Species",
+            "type": "Type",
+            "target": "Target",
+            "issued": "Issued",
+            "due": "Due",
+            "status": "Status"
+          },
+          "types": {
+            "breed": "Breed",
+            "non_breed": "Hold (do not breed)",
+            "transfer": "Transfer",
+            "other": "Other"
+          },
+          "priorities": {
+            "critical": "Critical",
+            "high": "High",
+            "medium": "Medium",
+            "low": "Low"
+          },
+          "statuses": {
+            "inProgress": "In progress",
+            "open": "Open"
+          },
+          "emDash": "—"
+        },
+        "reproductive": {
+          "eyebrow": "Panel 7",
+          "title": "Recent reproductive activity",
+          "titleWithCount": "Recent reproductive activity — {count, plural, one {# event} other {# events}}",
+          "captionShort": "Per-population event ledger.",
+          "captionFull": "Population-level events recorded in the last {windowDays} days, newest first: spawning, hatching, mortality, acquisition, and disposition. Up to {limit} rows are listed here; a population's full event history is on its admin page.",
+          "unavailable": "Breeding event records are temporarily unavailable. Recent spawnings, hatchings, and other population-level events will reappear once the coordination API is reachable.",
+          "noResults": "No events have been logged in the last {windowDays} days. Coordinators can record spawning, hatching, mortality, and acquisition events from a population's admin page; an empty ledger here usually means events are happening but are not being logged in the registry.",
+          "events": {
+            "spawning": "Spawning",
+            "hatching": "Hatching",
+            "mortality": "Mortality",
+            "acquisition": "Acquisition",
+            "disposition": "Disposition",
+            "other": "Other"
+          },
+          "table": {
+            "date": "Date",
+            "event": "Event",
+            "speciesInstitution": "Species · institution",
+            "countDelta": "Count Δ"
+          },
+          "emDash": "—"
+        }
       }
     }
   },

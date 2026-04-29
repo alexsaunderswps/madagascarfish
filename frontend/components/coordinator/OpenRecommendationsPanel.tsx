@@ -1,27 +1,13 @@
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
 import type {
   OpenRecommendationRow,
   OpenRecommendationsResponse,
   RecommendationPriority,
-  RecommendationType,
 } from "@/lib/coordinatorDashboard";
 
 import PanelShell from "./PanelShell";
-
-const TYPE_LABELS: Record<RecommendationType, string> = {
-  breed: "Breed",
-  non_breed: "Hold (do not breed)",
-  transfer: "Transfer",
-  other: "Other",
-};
-
-const PRIORITY_LABELS: Record<RecommendationPriority, string> = {
-  critical: "Critical",
-  high: "High",
-  medium: "Medium",
-  low: "Low",
-};
 
 const PRIORITY_TAG_STYLE: Record<RecommendationPriority, CSSProperties> = {
   critical: {
@@ -45,8 +31,6 @@ const PRIORITY_TAG_STYLE: Record<RecommendationPriority, CSSProperties> = {
     border: "1px solid var(--rule)",
   },
 };
-
-const STATUS_LABEL_IN_PROGRESS = "In progress";
 
 const BASE_TAG: CSSProperties = {
   display: "inline-block",
@@ -105,49 +89,51 @@ interface Props {
   data: OpenRecommendationsResponse | null;
 }
 
-export default function OpenRecommendationsPanel({ data }: Props) {
+export default async function OpenRecommendationsPanel({ data }: Props) {
+  const t = await getTranslations("dashboard.coordinator.panels.openRecs");
+
   if (!data) {
     return (
       <PanelShell
-        eyebrow="Panel 6"
-        title="Open breeding recommendations"
-        caption="Coordinator action items."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        caption={t("captionShort")}
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Open recommendations are temporarily unavailable. Breed, hold,
-          and transfer items will reappear once the coordination API is
-          reachable.
+          {t("unavailable")}
         </p>
       </PanelShell>
     );
   }
 
   const { total_open, overdue_count, results, reference_date } = data;
+  const titleString =
+    overdue_count > 0
+      ? t("titleWithOverdue", { total: total_open, overdue: overdue_count })
+      : t("titleWithCount", { total: total_open });
 
   return (
     <PanelShell
-      eyebrow="Panel 6"
-      title={`Open breeding recommendations — ${total_open}${overdue_count > 0 ? ` (${overdue_count} overdue)` : ""}`}
-      caption="Active breed, hold, and transfer items issued by coordinators, sorted by priority. Critical and high-priority rows surface first; completed and cancelled items are archived elsewhere."
+      eyebrow={t("eyebrow")}
+      title={titleString}
+      caption={t("captionFull")}
     >
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          No open recommendations on file. Either the breeding plan is
-          fully addressed or coordinators have not yet logged any items
-          for the current period.
+          {t("noResults")}
         </p>
       ) : (
         <div style={{ overflowX: "auto" }}>
           <table style={TABLE_STYLE}>
             <thead>
               <tr>
-                <th style={TH_STYLE}>Priority</th>
-                <th style={TH_STYLE}>Species</th>
-                <th style={TH_STYLE}>Type</th>
-                <th style={TH_STYLE}>Target</th>
-                <th style={TH_STYLE}>Issued</th>
-                <th style={TH_STYLE}>Due</th>
-                <th style={TH_STYLE}>Status</th>
+                <th style={TH_STYLE}>{t("table.priority")}</th>
+                <th style={TH_STYLE}>{t("table.species")}</th>
+                <th style={TH_STYLE}>{t("table.type")}</th>
+                <th style={TH_STYLE}>{t("table.target")}</th>
+                <th style={TH_STYLE}>{t("table.issued")}</th>
+                <th style={TH_STYLE}>{t("table.due")}</th>
+                <th style={TH_STYLE}>{t("table.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -162,7 +148,7 @@ export default function OpenRecommendationsPanel({ data }: Props) {
                           ...PRIORITY_TAG_STYLE[row.priority],
                         }}
                       >
-                        {PRIORITY_LABELS[row.priority]}
+                        {t(`priorities.${row.priority}`)}
                       </span>
                     </td>
                     <td style={{ ...TD_STYLE, fontStyle: "italic" }}>
@@ -172,24 +158,24 @@ export default function OpenRecommendationsPanel({ data }: Props) {
                       ) : null}
                     </td>
                     <td style={TD_STYLE}>
-                      {TYPE_LABELS[row.recommendation_type]}
+                      {t(`types.${row.recommendation_type}`)}
                     </td>
                     <td style={TD_STYLE}>
                       {row.target_institution?.name ?? (
-                        <span style={{ color: "var(--ink-3)" }}>—</span>
+                        <span style={{ color: "var(--ink-3)" }}>{t("emDash")}</span>
                       )}
                     </td>
-                    <td style={TD_STYLE}>{row.issued_date ?? "—"}</td>
+                    <td style={TD_STYLE}>{row.issued_date ?? t("emDash")}</td>
                     <td style={{ ...TD_STYLE, ...(overdue ? OVERDUE_STYLE : {}) }}>
                       {row.due_date ?? (
-                        <span style={{ color: "var(--ink-3)" }}>—</span>
+                        <span style={{ color: "var(--ink-3)" }}>{t("emDash")}</span>
                       )}
                       {overdue ? " ⚠︎" : null}
                     </td>
                     <td style={TD_STYLE}>
                       {row.status === "in_progress"
-                        ? STATUS_LABEL_IN_PROGRESS
-                        : "Open"}
+                        ? t("statuses.inProgress")
+                        : t("statuses.open")}
                     </td>
                   </tr>
                 );

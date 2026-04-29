@@ -1,15 +1,9 @@
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
 import type { SexRatioRiskResponse } from "@/lib/coordinatorDashboard";
 
 import PanelShell from "./PanelShell";
-
-const REASON_LABELS: Record<string, string> = {
-  no_males: "No males",
-  no_females: "No females",
-  skewed_ratio: "Sex ratio > 4:1",
-  mostly_unsexed: "Mostly unsexed",
-};
 
 const TABLE_STYLE: CSSProperties = {
   width: "100%",
@@ -57,17 +51,25 @@ interface Props {
   data: SexRatioRiskResponse | null;
 }
 
-export default function SexRatioRiskPanel({ data }: Props) {
+const KNOWN_REASONS = new Set([
+  "no_males",
+  "no_females",
+  "skewed_ratio",
+  "mostly_unsexed",
+]);
+
+export default async function SexRatioRiskPanel({ data }: Props) {
+  const t = await getTranslations("dashboard.coordinator.panels.sexRatio");
+
   if (!data) {
     return (
       <PanelShell
-        eyebrow="Panel 3"
-        title="Sex-ratio risk"
-        caption="Populations with demographic imbalance."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        caption={t("captionShort")}
       >
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          Demographic data is temporarily unavailable. Once the coordination
-          API is reachable again, populations with imbalance will appear here.
+          {t("unavailable")}
         </p>
       </PanelShell>
     );
@@ -77,23 +79,26 @@ export default function SexRatioRiskPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow="Panel 3"
-      title={`Sex-ratio risk — ${total_at_risk} of ${total_populations} populations`}
-      caption="Captive populations whose sex composition limits breeding potential. M.F.U is the standard zoo notation: males.females.unsexed. A population is flagged when one sex is absent, when the male-to-female ratio exceeds 4:1, or when more than half the animals are unsexed."
+      eyebrow={t("eyebrow")}
+      title={t("titleWithCount", {
+        atRisk: total_at_risk,
+        total: total_populations,
+      })}
+      caption={t("captionFull")}
     >
       {results.length === 0 ? (
         <p style={{ margin: 0, fontSize: 13, color: "var(--ink-2)" }}>
-          No populations are currently flagged for sex-ratio risk.
+          {t("noResults")}
         </p>
       ) : (
         <div style={{ overflowX: "auto" }}>
           <table style={TABLE_STYLE}>
             <thead>
               <tr>
-                <th style={TH_STYLE}>Species</th>
-                <th style={TH_STYLE}>Institution</th>
-                <th style={{ ...TH_STYLE, textAlign: "right" }}>M.F.U</th>
-                <th style={TH_STYLE}>Reasons</th>
+                <th style={TH_STYLE}>{t("table.species")}</th>
+                <th style={TH_STYLE}>{t("table.institution")}</th>
+                <th style={{ ...TH_STYLE, textAlign: "right" }}>{t("table.mfu")}</th>
+                <th style={TH_STYLE}>{t("table.reasons")}</th>
               </tr>
             </thead>
             <tbody>
@@ -109,7 +114,7 @@ export default function SexRatioRiskPanel({ data }: Props) {
                   <td style={TD_STYLE}>
                     {row.risk_reasons.map((r) => (
                       <span key={r} style={TAG_STYLE}>
-                        {REASON_LABELS[r] ?? r}
+                        {KNOWN_REASONS.has(r) ? t(`reasons.${r}`) : r}
                       </span>
                     ))}
                   </td>
