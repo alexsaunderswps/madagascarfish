@@ -250,31 +250,64 @@
     "saveChanges": "Save changes"
   },
   "auth": {
+    "accountEyebrow": "Account",
     "login": {
+      "metaTitle": "Sign in — Madagascar Freshwater Fish",
+      "metaDescription": "Sign in to access tier-restricted content.",
       "title": "Sign in",
-      "subtitle": "Sign in to access researcher and coordinator features.",
+      "subtitle": "Sign in unlocks tier-restricted views — exact locality coordinates for sensitive species, the coordinator dashboard, and partner-only data. Species profiles, the public map, and the conservation dashboard are open without an account.",
+      "verifiedBanner": "Email verified. Sign in to continue.",
+      "formAriaLabel": "Sign in form",
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "submit": "Sign in",
-      "noAccount": "No account?",
-      "signupLink": "Create one",
+      "submitting": "Signing in…",
       "errorInvalid": "Invalid email or password.",
-      "errorRateLimited": "Too many attempts. Please wait a few minutes and try again."
+      "errorRateLimited": "Too many attempts. Please wait a few minutes and try again.",
+      "newToPlatformPrefix": "New to the platform?",
+      "createAccountLink": "Create an account"
     },
     "signup": {
+      "metaTitle": "Create an account — Madagascar Freshwater Fish",
+      "metaDescription": "Create a researcher account to access tier-restricted occurrence data and submit observations.",
       "title": "Create an account",
-      "subtitle": "Verify your email to confirm registration.",
+      "subtitle": "New accounts start as Tier 2 (Registered Researcher), which adds access to occurrence datasets and observation submission. Higher tiers — for ex-situ coordinators and program managers — are assigned by the platform operator on request. Public profiles, the map, and the conservation dashboard remain open without an account.",
+      "formAriaLabel": "Sign-up form",
       "emailLabel": "Email",
+      "nameLabel": "Name",
       "passwordLabel": "Password",
+      "passwordHelp": "At least 12 characters. Avoid common passwords and anything close to your email or name.",
       "submit": "Create account",
-      "haveAccount": "Already have an account?",
+      "submitting": "Creating account…",
+      "haveAccountPrefix": "Already have an account?",
       "loginLink": "Sign in",
-      "passwordHelp": "At least 12 characters."
+      "submittedTitle": "Check your email to finish signing up.",
+      "submittedBody": "If an account can be created with that address, a verification link is on its way. The link is valid for 48 hours. If nothing arrives, check your spam folder, then try registering again."
     },
     "verify": {
-      "title": "Verify your email",
-      "subtitle": "Click the link in the email we sent you to confirm your address.",
-      "resend": "Resend verification email"
+      "metaTitle": "Verify your account — Madagascar Freshwater Fish",
+      "metaDescription": "Activate your account by verifying the email link.",
+      "title": "Verification link",
+      "missingToken": {
+        "title": "This link is missing its verification token.",
+        "bodyPrefix": "Open the link directly from your verification email — the URL should end with",
+        "bodyTokenExample": "?token=…",
+        "bodyMiddle": ". If your email client truncated the link, you can",
+        "registerLink": "register again",
+        "bodySuffix": "to receive a fresh one."
+      },
+      "expired": {
+        "title": "This verification link is no longer valid.",
+        "bodyPrefix": "Links expire 48 hours after sign-up, and each link can only be used once. To finish creating your account,",
+        "registerLink": "register again",
+        "bodySuffix": "and we'll send a new link to your email."
+      },
+      "transient": {
+        "title": "We couldn't verify your account just now.",
+        "bodyPrefix": "The verification service is temporarily unreachable. Try the link again in a few minutes. If it keeps failing, the platform team can verify your account manually — contact details are on the",
+        "aboutLink": "About page",
+        "bodySuffix": "."
+      }
     }
   },
   "errors": {

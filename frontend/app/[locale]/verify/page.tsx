@@ -1,12 +1,16 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { resolveBaseUrl } from "@/lib/api";
 
-export const metadata = {
-  title: "Verify your account — Madagascar Freshwater Fish",
-  description: "Activate your account by verifying the email link.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("auth.verify");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -52,14 +56,16 @@ export default async function VerifyPage({ searchParams }: PageProps) {
     redirect("/login?verified=1");
   }
 
+  const t = await getTranslations("auth");
+
   return (
     <main className="mx-auto max-w-md px-6 py-16">
       <header className="mb-6">
         <p className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-          Account
+          {t("accountEyebrow")}
         </p>
         <h1 className="mt-2 font-serif text-3xl text-slate-900">
-          Verification link
+          {t("verify.title")}
         </h1>
       </header>
 
@@ -68,15 +74,15 @@ export default async function VerifyPage({ searchParams }: PageProps) {
           role="status"
           className="rounded border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900"
         >
-          <p className="font-medium">This link is missing its verification token.</p>
+          <p className="font-medium">{t("verify.missingToken.title")}</p>
           <p className="mt-2">
-            Open the link directly from your verification email — the URL
-            should end with <code className="px-1">?token=…</code>. If your
-            email client truncated the link, you can{" "}
+            {t("verify.missingToken.bodyPrefix")}{" "}
+            <code className="px-1">{t("verify.missingToken.bodyTokenExample")}</code>
+            {t("verify.missingToken.bodyMiddle")}{" "}
             <Link href="/signup" className="text-sky-700 hover:underline">
-              register again
+              {t("verify.missingToken.registerLink")}
             </Link>{" "}
-            to receive a fresh one.
+            {t("verify.missingToken.bodySuffix")}
           </p>
         </div>
       ) : null}
@@ -86,14 +92,13 @@ export default async function VerifyPage({ searchParams }: PageProps) {
           role="status"
           className="rounded border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900"
         >
-          <p className="font-medium">This verification link is no longer valid.</p>
+          <p className="font-medium">{t("verify.expired.title")}</p>
           <p className="mt-2">
-            Links expire 48 hours after sign-up, and each link can only be
-            used once. To finish creating your account,{" "}
+            {t("verify.expired.bodyPrefix")}{" "}
             <Link href="/signup" className="text-sky-700 hover:underline">
-              register again
+              {t("verify.expired.registerLink")}
             </Link>{" "}
-            and we&rsquo;ll send a new link to your email.
+            {t("verify.expired.bodySuffix")}
           </p>
         </div>
       ) : null}
@@ -103,15 +108,13 @@ export default async function VerifyPage({ searchParams }: PageProps) {
           role="alert"
           className="rounded border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700"
         >
-          <p className="font-medium">We couldn&rsquo;t verify your account just now.</p>
+          <p className="font-medium">{t("verify.transient.title")}</p>
           <p className="mt-2">
-            The verification service is temporarily unreachable. Try the link
-            again in a few minutes. If it keeps failing, the platform team
-            can verify your account manually — contact details are on the{" "}
+            {t("verify.transient.bodyPrefix")}{" "}
             <Link href="/about/" className="text-sky-700 hover:underline">
-              About page
+              {t("verify.transient.aboutLink")}
             </Link>
-            .
+            {t("verify.transient.bodySuffix")}
           </p>
         </div>
       ) : null}

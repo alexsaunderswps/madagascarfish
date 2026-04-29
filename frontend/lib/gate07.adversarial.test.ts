@@ -77,16 +77,30 @@ describe("NavLinks — PRIMARY_NAV order (FE-07-8 AC)", () => {
 // ============================================================
 
 describe("SiteFooter — data-sources list (FE-07-8 AC)", () => {
-  it("footer source string includes all six required data sources", () => {
-    // Read the footer source directly since it's a server component (no jsdom)
+  it("footer cites all six required data sources", () => {
+    // Spec: "data-source citation" must list all six: IUCN Red List,
+    // FishBase, GBIF, ZIMS, SHOAL, CARES.
+    //
+    // Gate L1 i18n: external partner-org links (IUCN Red List,
+    // FishBase, GBIF, CARES Preservation) are proper-noun-only and
+    // remain in `SiteFooter.tsx` directly; ZIMS and SHOAL are cited
+    // in the `dataNote` line which now lives in `en.json` so it
+    // translates per locale.
     const footerSrc = readFileSync(
       resolve(FRONTEND_ROOT, "components/SiteFooter.tsx"),
       "utf-8",
     );
-    // Spec: "data-source citation" must list all six: IUCN Red List, FishBase, GBIF, ZIMS, SHOAL, CARES
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    const combined = `${footerSrc}\n${enMessages}`;
     const required = ["IUCN Red List", "FishBase", "GBIF", "ZIMS", "SHOAL", "CARES"];
     for (const source of required) {
-      expect(footerSrc, `Footer is missing required data source: ${source}`).toContain(source);
+      expect(
+        combined,
+        `Footer is missing required data source: ${source}`,
+      ).toContain(source);
     }
   });
 });

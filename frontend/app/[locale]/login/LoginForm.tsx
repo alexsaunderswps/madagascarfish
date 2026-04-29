@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -23,6 +24,7 @@ const BUTTON_STYLE =
  * that Django enforces server-side.
  */
 export default function LoginForm() {
+  const t = useTranslations("auth.login");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -46,7 +48,7 @@ export default function LoginForm() {
     if (!result || result.error) {
       // result.error is `"CredentialsSignin"` for both 401 and 429 — by
       // design. We never branch UI on the server's specific failure shape.
-      setError("Invalid email or password.");
+      setError(t("errorInvalid"));
       return;
     }
 
@@ -56,10 +58,10 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" aria-label="Sign in form">
+    <form onSubmit={handleSubmit} className="space-y-4" aria-label={t("formAriaLabel")}>
       <div>
         <label htmlFor="login-email" className={LABEL_STYLE}>
-          Email
+          {t("emailLabel")}
         </label>
         <input
           id="login-email"
@@ -74,7 +76,7 @@ export default function LoginForm() {
       </div>
       <div>
         <label htmlFor="login-password" className={LABEL_STYLE}>
-          Password
+          {t("passwordLabel")}
         </label>
         <input
           id="login-password"
@@ -96,7 +98,7 @@ export default function LoginForm() {
         </p>
       ) : null}
       <button type="submit" disabled={submitting} className={BUTTON_STYLE}>
-        {submitting ? "Signing in…" : "Sign in"}
+        {submitting ? t("submitting") : t("submit")}
       </button>
     </form>
   );

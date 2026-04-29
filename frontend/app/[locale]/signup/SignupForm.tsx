@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, type FormEvent } from "react";
 
 import { registerAction, type SignupFieldErrors } from "./actions";
@@ -10,6 +11,7 @@ const BUTTON_STYLE =
   "inline-flex w-full justify-center rounded bg-sky-700 px-4 py-2 text-sm font-medium text-white hover:bg-sky-800 disabled:opacity-60";
 
 export default function SignupForm() {
+  const t = useTranslations("auth.signup");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -45,21 +47,22 @@ export default function SignupForm() {
         role="status"
         className="rounded border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900"
       >
-        <p className="font-medium">Check your email to finish signing up.</p>
-        <p className="mt-2">
-          If an account can be created with that address, a verification link
-          is on its way. The link is valid for 48 hours. If nothing arrives,
-          check your spam folder, then try registering again.
-        </p>
+        <p className="font-medium">{t("submittedTitle")}</p>
+        <p className="mt-2">{t("submittedBody")}</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" aria-label="Sign-up form" noValidate>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4"
+      aria-label={t("formAriaLabel")}
+      noValidate
+    >
       <div>
         <label htmlFor="signup-email" className={LABEL_STYLE}>
-          Email
+          {t("emailLabel")}
         </label>
         <input
           id="signup-email"
@@ -82,7 +85,7 @@ export default function SignupForm() {
 
       <div>
         <label htmlFor="signup-name" className={LABEL_STYLE}>
-          Name
+          {t("nameLabel")}
         </label>
         <input
           id="signup-name"
@@ -105,7 +108,7 @@ export default function SignupForm() {
 
       <div>
         <label htmlFor="signup-password" className={LABEL_STYLE}>
-          Password
+          {t("passwordLabel")}
         </label>
         <input
           id="signup-password"
@@ -123,8 +126,7 @@ export default function SignupForm() {
           className={FIELD_STYLE}
         />
         <p id="signup-password-hint" className="mt-1 text-xs text-slate-500">
-          At least 12 characters. Avoid common passwords and anything close
-          to your email or name.
+          {t("passwordHelp")}
         </p>
         {errors.password ? (
           <p id="signup-password-error" className="mt-1 text-sm text-red-700">
@@ -133,6 +135,13 @@ export default function SignupForm() {
         ) : null}
       </div>
 
+      {/*
+        Server-action errors (errors.form, transientError) bubble through
+        as English in L1. The Django backend itself returns English error
+        messages; full localization of these requires backend gettext
+        wiring on the auth views and is L4 work. Documented in the L1
+        spec under §"Out of scope."
+      */}
       {errors.form ? (
         <p
           role="alert"
@@ -151,7 +160,7 @@ export default function SignupForm() {
       ) : null}
 
       <button type="submit" disabled={submitting} className={BUTTON_STYLE}>
-        {submitting ? "Creating account…" : "Create account"}
+        {submitting ? t("submitting") : t("submit")}
       </button>
     </form>
   );
