@@ -94,8 +94,8 @@ class CoordinatedProgram(models.Model):
     """
 
     class ProgramType(models.TextChoices):
-        SSP = "ssp", "AZA Species Survival Plan"
-        EEP = "eep", "EAZA Ex-situ Programme"
+        SSP = "ssp", "AZA Species Survival Plan (SSP)"
+        EEP = "eep", "EAZA Ex-situ Programme (EEP)"
         CARES = "cares", "CARES Priority Species"
         INDEPENDENT = "independent", "Independent coordinated program"
         OTHER = "other", "Other"
