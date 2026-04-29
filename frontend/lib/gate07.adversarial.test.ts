@@ -459,12 +459,19 @@ describe("warm-cache.sh — existence and required paths (FE-07-11 AC)", () => {
 
 describe("About page — live species count or '~79' fallback (FE-07-8 AC)", () => {
   it("About page source contains ~79 fallback when count is unavailable", () => {
+    // Gate L1 i18n: the literal "~79" fallback moved into messages/en.json
+    // under about.page.missionFallbackTotal. Page source still references
+    // the t("missionFallbackTotal") branch. Verify both surfaces together.
     const src = readFileSync(
       resolve(FRONTEND_ROOT, "app/[locale]/about/page.tsx"),
       "utf-8",
     );
-    // AC: "About page renders live species count or '~79' fallback"
-    expect(src).toContain("~79");
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    expect(enMessages).toContain("~79");
+    expect(src).toContain("missionFallbackTotal");
   });
 
   it("About page reads live count from dashboard when available", () => {

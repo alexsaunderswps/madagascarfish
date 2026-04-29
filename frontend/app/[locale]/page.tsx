@@ -57,10 +57,11 @@ const SECTION_H2_STYLE = {
 };
 
 export default async function HomePage() {
-  const [dashboard, heroAsset, t] = await Promise.all([
+  const [dashboard, heroAsset, t, tCommon] = await Promise.all([
     fetchDashboard(),
     fetchSiteMapAsset("hero_thumb"),
     getTranslations("home"),
+    getTranslations("common"),
   ]);
 
   const gap = dashboard?.ex_situ_coverage;
@@ -119,9 +120,7 @@ export default async function HomePage() {
             gap: 20,
           }}
         >
-          <p style={EYEBROW_STYLE}>
-            Madagascar Freshwater Fish Conservation Platform
-          </p>
+          <p style={EYEBROW_STYLE}>{t("hero.eyebrow")}</p>
           <h1
             style={{
               margin: 0,
@@ -134,7 +133,7 @@ export default async function HomePage() {
               maxWidth: 880,
             }}
           >
-            A shared record for Madagascar&rsquo;s endemic freshwater fish.
+            {t("hero.title")}
           </h1>
           <p
             style={{
@@ -145,10 +144,7 @@ export default async function HomePage() {
               maxWidth: 760,
             }}
           >
-            An open platform that brings together species profiles, ex-situ
-            breeding coordination, and field program tracking for the roughly
-            79 freshwater fish species found only in Madagascar. Built to
-            complement IUCN, GBIF, FishBase, and ZIMS — not replace them.
+            {t("hero.subtitle")}
           </p>
         </div>
       </section>
@@ -180,7 +176,7 @@ export default async function HomePage() {
             {hasStat ? (
               <>
                 <p style={{ ...EYEBROW_STYLE, color: "var(--ink-2)" }}>
-                  Coverage gap
+                  {tCommon("coverageGap.eyebrow")}
                 </p>
                 <p
                   style={{
@@ -192,27 +188,34 @@ export default async function HomePage() {
                     color: "var(--ink)",
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: 40,
-                      fontWeight: 600,
-                      fontVariantNumeric: "tabular-nums",
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    {gap.threatened_species_without_captive_population.toLocaleString()}
-                  </span>{" "}
-                  of{" "}
-                  <span
-                    style={{
-                      fontSize: 26,
-                      fontWeight: 600,
-                      fontVariantNumeric: "tabular-nums",
-                    }}
-                  >
-                    {gap.threatened_species_total.toLocaleString()}
-                  </span>{" "}
-                  threatened species have no known captive population.
+                  {tCommon.rich("coverageGap.body", {
+                    withoutCaptive:
+                      gap.threatened_species_without_captive_population.toLocaleString(),
+                    total: gap.threatened_species_total.toLocaleString(),
+                    gap: (chunks) => (
+                      <span
+                        style={{
+                          fontSize: 40,
+                          fontWeight: 600,
+                          fontVariantNumeric: "tabular-nums",
+                          letterSpacing: "-0.02em",
+                        }}
+                      >
+                        {chunks}
+                      </span>
+                    ),
+                    ts: (chunks) => (
+                      <span
+                        style={{
+                          fontSize: 26,
+                          fontWeight: 600,
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {chunks}
+                      </span>
+                    ),
+                  })}
                 </p>
                 <p
                   style={{
@@ -222,7 +225,7 @@ export default async function HomePage() {
                     color: "var(--accent-2)",
                   }}
                 >
-                  See which species →
+                  {tCommon("coverageGap.seeWhich")}
                 </p>
               </>
             ) : (
@@ -230,7 +233,7 @@ export default async function HomePage() {
                 data-testid="coverage-gap-fallback"
                 style={{ margin: 0, fontSize: 14, color: "var(--ink-2)" }}
               >
-                Coverage statistics are refreshing. Counts will appear shortly.
+                {tCommon("coverageGap.fallback")}
               </p>
             )}
           </Link>
@@ -238,20 +241,20 @@ export default async function HomePage() {
 
         {hasIucn ? (
           <section>
-            <p style={EYEBROW_STYLE}>Red List breakdown</p>
-            <h2 style={SECTION_H2_STYLE}>Species by Red List category</h2>
+            <p style={EYEBROW_STYLE}>{t("redListSection.eyebrow")}</p>
+            <h2 style={SECTION_H2_STYLE}>{t("redListSection.title")}</h2>
             <div style={{ marginTop: 20 }}>
               <IucnChart
                 counts={iucnCounts}
-                caption="Counts reflect the current mirror of each species' most recent accepted IUCN assessment. Click a bar to open the directory filtered to that category."
+                caption={t("redListSection.chartCaption")}
               />
             </div>
           </section>
         ) : null}
 
-        <nav aria-label="Primary sections">
-          <p style={EYEBROW_STYLE}>Explore</p>
-          <h2 style={SECTION_H2_STYLE}>Where to go next</h2>
+        <nav aria-label={t("exploreSection.ariaLabel")}>
+          <p style={EYEBROW_STYLE}>{t("exploreSection.eyebrow")}</p>
+          <h2 style={SECTION_H2_STYLE}>{t("exploreSection.title")}</h2>
           <ul
             role="list"
             style={{
@@ -310,7 +313,7 @@ export default async function HomePage() {
                       color: "var(--accent-2)",
                     }}
                   >
-                    Open →
+                    {t("exploreSection.openLink")}
                   </span>
                 </Link>
               </li>

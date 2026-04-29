@@ -83,6 +83,22 @@
     "signOut": "Sign out"
   },
   "home": {
+    "hero": {
+      "eyebrow": "Madagascar Freshwater Fish Conservation Platform",
+      "title": "A shared record for Madagascar's endemic freshwater fish.",
+      "subtitle": "An open platform that brings together species profiles, ex-situ breeding coordination, and field program tracking for the roughly 79 freshwater fish species found only in Madagascar. Built to complement IUCN, GBIF, FishBase, and ZIMS — not replace them."
+    },
+    "redListSection": {
+      "eyebrow": "Red List breakdown",
+      "title": "Species by Red List category",
+      "chartCaption": "Counts reflect the current mirror of each species' most recent accepted IUCN assessment. Click a bar to open the directory filtered to that category."
+    },
+    "exploreSection": {
+      "ariaLabel": "Primary sections",
+      "eyebrow": "Explore",
+      "title": "Where to go next",
+      "openLink": "Open →"
+    },
     "navCards": {
       "directory": {
         "eyebrow": "Directory",
@@ -379,26 +395,47 @@
   },
   "about": {
     "page": {
-      "title": "About the Platform",
-      "missionHeading": "Mission",
-      "dataHeading": "Data sources",
-      "ownershipHeading": "Ownership and governance",
-      "partnersHeading": "Partner organizations",
-      "citationHeading": "How to cite",
-      "githubHeading": "Open source",
-      "contactHeading": "Contact"
+      "metaTitle": "About — Madagascar Freshwater Fish Conservation Platform",
+      "metaDescription": "About the Madagascar Freshwater Fish Conservation Platform: mission, data sources, ownership, and citations.",
+      "heroEyebrow": "About",
+      "heroTitle": "A shared record of Madagascar's endemic freshwater fish.",
+      "heroSubtitle": "An open platform for species profiles, ex-situ breeding coordination, and field program tracking — built to complement IUCN, GBIF, FishBase, and ZIMS, not replace them.",
+      "missionEyebrow": "Mission",
+      "missionTitle": "Why this platform exists",
+      "missionPara1": "Madagascar's freshwater fish are the most imperiled vertebrate group on the island. Of the {speciesTotal} described and undescribed endemic species in the registry, the majority are assessed as threatened on the IUCN Red List, and a significant share have no known captive population to serve as a demographic safety net. Coordination across the institutions working on these species — zoos, aquariums, academic researchers, hobbyist breeders, and in-country field programs — has historically relied on email threads, personal networks, and one-off spreadsheets.",
+      "missionFallbackTotal": "~79",
+      "missionPara2": "This platform is a single, open record of what is known: which species exist, how they are assessed, where they have been observed, and which institutions hold captive populations. It aggregates from authoritative upstream sources rather than competing with them, and publishes back to them (via Darwin Core Archives) where the data flow is appropriate.",
+      "scopeEyebrow": "Scope",
+      "scopeTitle": "What the platform does",
+      "scopePara1": "Public profiles cover every endemic species in the registry, including undescribed morphospecies that do not yet appear on the IUCN Red List. Conservation status mirrors the most recent accepted assessment; species with no assessment are marked \"not yet assessed\" rather than given a stale category. The distribution map shows locality records generalized per GBIF sensitive-species protocols; exact coordinates for threatened species are restricted to coordinator-tier accounts to protect wild populations.",
+      "scopePara2": "Restricted tiers support ex-situ breeding coordination, transfer recommendations, and studbook-level data for registered partners. Those features are not visible on the public site.",
+      "provenanceEyebrow": "Provenance",
+      "provenanceTitle": "Data sources",
+      "provenancePara1": "Species and assessment data are pulled from the IUCN Red List and FishBase. Occurrence records follow the Darwin Core standard and can be published to GBIF. Captive-population figures are entered by partner institutions and, where available, reconciled with ZIMS (Species360). Priority lists from SHOAL (1,000 Fishes Blueprint) and CARES inform filtering and sort order but do not override IUCN categories.",
+      "provenancePara2": "For a fuller account of provenance, the mirror policy for IUCN status, coordinate generalization, and known limitations, see <dataLink>how we handle the data</dataLink>.",
+      "provenancePara3": "Definitions of IUCN categories, CARES, Darwin Core, and other terminology used across the site are collected in the <glossaryLink>glossary</glossaryLink>.",
+      "stewardshipEyebrow": "Stewardship",
+      "stewardshipTitle": "Ownership",
+      "stewardshipBody": "Maintained by Aleksei Saunders (Wildlife Protection Solutions). Long-term stewardship is under discussion with partner organizations. Source code: <repoLink>github.com/alexsaunderswps/madagascarfish</repoLink>. Licensed Apache-2.0.",
+      "referencesEyebrow": "References",
+      "referencesTitle": "Citations",
+      "citation1Prefix": "Leiss L, Rauhaus A, Rakotoarison A, Fusari C, Vences M, Ziegler T. Review of threatened Malagasy freshwater fishes in zoos and aquaria: The necessity of an ex situ conservation network — A call for action. ",
+      "citation1Journal": "Zoo Biol.",
+      "citation1Suffix": " 2022 May;41(3):244–262. ",
+      "citation1DoiText": "doi:10.1002/zoo.21661",
+      "citation1End": ". PMID: 34870879; PMCID: PMC9299897.",
+      "citation2": "IUCN. Red List of Threatened Species. Version consulted at build time; category and criteria mirrored from the most recent accepted assessment per species.",
+      "citation3": "SHOAL. 1,000 Fishes Blueprint — global conservation priorities for freshwater fishes.",
+      "citation4": "GBIF. Darwin Core Archive standard and sensitive-species coordinate-generalization guidance.",
+      "staffSignIn": "Staff sign-in"
     },
     "data": {
-      "title": "Data sources and methods",
-      "iucnHeading": "IUCN Red List",
-      "fishbaseHeading": "FishBase",
-      "gbifHeading": "GBIF",
-      "zimsHeading": "ZIMS / Species360",
-      "caresHeading": "CARES priority list",
-      "shoalHeading": "SHOAL"
+      "metaTitle": "Data sources and methods — Madagascar Freshwater Fish",
+      "metaDescription": "How the platform handles species data, IUCN status mirroring, GBIF coordinate generalization, and known data limitations."
     },
     "glossary": {
-      "title": "Glossary"
+      "metaTitle": "Glossary — Madagascar Freshwater Fish",
+      "metaDescription": "Definitions of IUCN categories, CARES, Darwin Core, and other terminology used across the platform."
     }
   },
   "dashboard": {
