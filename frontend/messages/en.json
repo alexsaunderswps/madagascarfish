@@ -22,6 +22,13 @@
       "DD": "Data Deficient",
       "NE": "Not yet assessed"
     },
+    "iucnBadge": {
+      "ariaLabelUnassessed": "IUCN status: Not yet assessed",
+      "ariaLabelTemplate": "IUCN status: {label}",
+      "ariaLabelWithCriteria": "IUCN status: {label}, criteria {criteria}",
+      "titleWithCriteria": "{label} — criteria {criteria}",
+      "labelWithStatus": "{status} · {label}"
+    },
     "iucnAbbrev": {
       "CR": "CR",
       "EN": "EN",
@@ -78,16 +85,33 @@
       "headerCountsLoading": "Species count is loading…",
       "matchCount": "<strong>{count}</strong> {count, plural, one {species matches} other {species match}} the current filters.",
       "filters": {
+        "ariaLabel": "Species filters",
         "search": "Search",
-        "searchPlaceholder": "Scientific or common name",
+        "searchPlaceholder": "Scientific or common name…",
+        "searchHint": "Press Enter to search.",
         "iucnStatus": "IUCN status",
+        "iucnNeNote": "NE (\"Not yet assessed\") includes undescribed morphospecies that have not been assessed by the IUCN Red List.",
         "family": "Family",
-        "endemicStatus": "Endemic status",
-        "caresStatus": "CARES priority",
-        "shoalPriority": "SHOAL priority",
-        "hasCaptivePopulation": "Has captive population",
-        "clearAll": "Clear all filters",
-        "applyFilters": "Apply filters"
+        "anyFamily": "Any family",
+        "taxonomicStatus": "Taxonomic status",
+        "anyTaxonomicStatus": "Any",
+        "described": "Described",
+        "undescribedMorphospecies": "Undescribed morphospecies",
+        "priorityListings": "Priority listings",
+        "priorityListingsHint": "Conservation-priority lists maintained alongside the IUCN Red List, not in place of it.",
+        "caresLabel": "CARES",
+        "caresTooltip": "CARES — hobbyist-led priority list for freshwater fish whose wild populations need ex-situ backup. Distinct from IUCN.",
+        "shoalLabel": "SHOAL 1,000",
+        "shoalTooltip": "SHOAL 1,000 Fishes Blueprint — global priority list for freshwater fish conservation.",
+        "captivePopulationLegend": "Captive population",
+        "captiveAny": "Any",
+        "captiveHas": "Has captive pop.",
+        "captiveNone": "None tracked",
+        "introducedLegend": "Introduced species",
+        "introducedDescriptionPrefix": "Show introduced (non-native) species — for example,",
+        "introducedDescriptionSuffix": "spp. Hidden by default so the directory reads as Madagascar's native fauna.",
+        "clearFilters": "Clear filters",
+        "iucnLegendSummary": "IUCN legend"
       },
       "card": {
         "noCommonName": "No common name recorded",
@@ -122,9 +146,10 @@
         "includingIntroduced": "including introduced"
       },
       "pagination": {
-        "previous": "Previous",
-        "next": "Next",
-        "pageOf": "Page {current} of {total}"
+        "ariaLabel": "Pagination",
+        "previous": "← Previous",
+        "next": "Next →",
+        "pageOf": "Page {current} of {total} — {totalCount} total"
       },
       "density": {
         "label": "View",

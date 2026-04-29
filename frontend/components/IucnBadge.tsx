@@ -1,5 +1,7 @@
-import { IUCN_LABELS, type IucnStatus } from "@/lib/species";
+import { useTranslations } from "next-intl";
 import type { CSSProperties } from "react";
+
+import { type IucnStatus } from "@/lib/species";
 
 type Variant = "solid" | "soft" | "outline";
 
@@ -92,6 +94,10 @@ export default function IucnBadge({
   criteria?: string;
   compactUnassessed?: boolean;
 }) {
+  const tBadge = useTranslations("common.iucnBadge");
+  const tIucn = useTranslations("common.iucn");
+  const tAbbrev = useTranslations("common.iucnAbbrev");
+
   // Null == "Not yet assessed". Directory cards pass compactUnassessed so the
   // pill renders as "NE" (keeps the card name from wrapping); the profile page
   // keeps the full "Not yet assessed" wording.
@@ -99,26 +105,27 @@ export default function IucnBadge({
     return (
       <span
         style={pillStyle("NE")}
-        aria-label="IUCN status: Not yet assessed"
+        aria-label={tBadge("ariaLabelUnassessed")}
       >
         <span aria-hidden="true" style={dotStyle("NE")} />
-        {compactUnassessed ? "NE" : "Not yet assessed"}
+        {compactUnassessed ? tAbbrev("NE") : tIucn("NE")}
       </span>
     );
   }
 
-  const label = IUCN_LABELS[status];
-  const ariaLabel = `IUCN status: ${label}${
-    criteria ? `, criteria ${criteria}` : ""
-  }`;
+  const label = tIucn(status);
+  const ariaLabel = criteria
+    ? tBadge("ariaLabelWithCriteria", { label, criteria })
+    : tBadge("ariaLabelTemplate", { label });
+  const title = criteria ? tBadge("titleWithCriteria", { label, criteria }) : label;
   return (
     <span
       style={pillStyle(status)}
-      title={criteria ? `${label} — criteria ${criteria}` : label}
+      title={title}
       aria-label={ariaLabel}
     >
       <span aria-hidden="true" style={dotStyle(status)} />
-      {showLabel ? `${status} · ${label}` : status}
+      {showLabel ? tBadge("labelWithStatus", { status, label }) : status}
     </span>
   );
 }
