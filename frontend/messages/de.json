@@ -896,6 +896,15 @@
     }
   },
   "husbandry": {
+    "tocAriaLabel": "On this page",
+    "tocHeading": "On this page",
+    "disclaimer": {
+      "srHeading": "About this guidance",
+      "para1": "This guidance reflects practices reported by keepers and drawn from published sources. It is not a protocol, and conditions vary between systems, regions, and individual fish.",
+      "para2": "Use it as a starting point, compare it against other references, and consult a qualified aquatic veterinarian for health concerns."
+    },
+    "difficultyTitle": "Difficulty Factors",
+    "showMoreFactors": "{count, plural, one {Show # more factor} other {Show # more factors}}",
     "metaTitleTemplate": "Keeping {name} — Madagascar Freshwater Fish",
     "metaTitleNotFound": "Husbandry not found — Madagascar Freshwater Fish",
     "metaDescriptionFallback": "Husbandry and breeding guidance for {name}.",

@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 /**
  * Sticky in-page table of contents for the husbandry page.
  *
@@ -23,10 +25,11 @@ export default function HusbandryToc({
   items: HusbandryTocItem[];
   className?: string;
 }) {
+  const t = useTranslations("husbandry");
   if (items.length === 0) return null;
   return (
     <nav
-      aria-label="On this page"
+      aria-label={t("tocAriaLabel")}
       className={[
         // SiteHeader is 72px tall; top-20 (80px) leaves an 8px breathing gap.
         "sticky top-20 self-start text-sm",
@@ -36,7 +39,7 @@ export default function HusbandryToc({
         .trim()}
     >
       <p className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-        On this page
+        {t("tocHeading")}
       </p>
       <ul className="mt-3 space-y-1.5 border-l border-slate-200 pl-3">
         {items.map((item) => (

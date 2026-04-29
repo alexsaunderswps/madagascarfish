@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 import { collectDifficultyFactors, type SpeciesHusbandry } from "@/lib/husbandry";
 
 /**
@@ -14,6 +16,10 @@ import { collectDifficultyFactors, type SpeciesHusbandry } from "@/lib/husbandry
  *
  * If every factor is blank, the component renders nothing so the parent
  * page can elide the whole subsection heading.
+ *
+ * Note: factor labels and values come from collectDifficultyFactors in
+ * lib/husbandry, which still returns English. Localizing those helpers is
+ * L4 polish — same caveat as HusbandryTeaser's teaserSentence.
  */
 const VISIBLE_FACTORS = 2;
 
@@ -22,6 +28,7 @@ export default function HusbandryDifficultyFactors({
 }: {
   husbandry: SpeciesHusbandry;
 }) {
+  const t = useTranslations("husbandry");
   const factors = collectDifficultyFactors(husbandry);
   if (factors.length === 0) return null;
 
@@ -31,7 +38,7 @@ export default function HusbandryDifficultyFactors({
   return (
     <section aria-labelledby="difficulty-heading" className="mt-8">
       <h2 id="difficulty-heading" className="font-serif text-xl text-slate-900">
-        Difficulty Factors
+        {t("difficultyTitle")}
       </h2>
       <dl className="mt-2 space-y-2 text-sm text-slate-700">
         {visible.map((f) => (
@@ -44,7 +51,7 @@ export default function HusbandryDifficultyFactors({
       {hidden.length > 0 ? (
         <details className="mt-3 text-sm text-slate-700">
           <summary className="cursor-pointer text-sky-700 hover:underline">
-            Show {hidden.length} more factor{hidden.length === 1 ? "" : "s"}
+            {t("showMoreFactors", { count: hidden.length })}
           </summary>
           <dl className="mt-2 space-y-2">
             {hidden.map((f) => (
