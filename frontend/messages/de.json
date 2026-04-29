@@ -30,6 +30,12 @@
       "LC": "LC",
       "DD": "DD",
       "NE": "NE"
+    },
+    "coverageGap": {
+      "eyebrow": "Coverage gap",
+      "body": "<gap>{withoutCaptive}</gap> of <ts>{total}</ts> threatened species have no known captive population.",
+      "seeWhich": "See which species →",
+      "fallback": "Coverage statistics are refreshing. Counts will appear shortly."
     }
   },
   "nav": {
@@ -60,13 +66,7 @@
         "title": "Conservation Dashboard",
         "description": "Counts of species assessments, ex-situ coverage, and field programs, refreshed hourly."
       }
-    },
-    "coverageGap": {
-      "label": "Coverage gap",
-      "linkLabel": "Threatened species without captive populations →"
-    },
-    "iucnChartHeading": "Conservation status of {count} endemic species",
-    "lastSync": "Updated {time} ago"
+    }
   },
   "species": {
     "directory": {
@@ -234,11 +234,56 @@
     }
   },
   "dashboard": {
-    "title": "Dashboard",
-    "viewerTitle": "Conservation overview",
+    "metaTitle": "Conservation Dashboard — Madagascar Freshwater Fish",
+    "metaDescription": "Counts of endemic freshwater fish species, IUCN Red List breakdown, ex-situ coverage, and field programs in Madagascar. Refreshed hourly.",
+    "eyebrow": "Conservation Dashboard",
+    "title": "Madagascar freshwater fish at a glance",
+    "stalenessFailure": "Current statistics are temporarily unavailable. The last successfully retrieved values are shown below.",
+    "stalenessStale": "The counts shown are older than the usual refresh window. A refresh is in progress.",
+    "backendDownPrefix": "Try again in a moment, or browse the",
+    "backendDownLink": "species directory",
+    "iucnChartCaption": "Counts mirror the most recent accepted IUCN Red List assessment for each endemic species in the registry. Species with no assessment appear as Not yet assessed.",
+    "totals": {
+      "eyebrow": "Species totals",
+      "title": "Registry coverage",
+      "ariaLabel": "Species totals",
+      "totalSpecies": "Total species",
+      "totalSpeciesSublabel": "{described} described, {undescribed} undescribed",
+      "institutions": "Institutions holding captive populations",
+      "exSituTracked": "Ex-situ populations tracked"
+    },
+    "coordinated": {
+      "eyebrow": "Coordinated breeding",
+      "title": "Active programs & transfers",
+      "ariaLabel": "Coordinated breeding programs",
+      "activePrograms": "Active programs",
+      "activeProgramsSublabelMixed": "{formal} SSP / EEP / CARES, {other} other",
+      "activeProgramsSublabelFormalOnly": "{formal} SSP / EEP / CARES",
+      "activeProgramsSublabelEmpty": "No active programs registered yet.",
+      "transfersInFlight": "Transfers in flight",
+      "transfersInFlightSublabel": "Proposed, approved, or in transit.",
+      "transfersCompleted": "Transfers completed (last {days}d)",
+      "transfersCompletedSublabel": "Recorded animal movements between institutions."
+    },
+    "fieldPrograms": {
+      "eyebrow": "Field programs",
+      "title": "In-situ activity",
+      "ariaLabel": "Field programs",
+      "active": "Active field programs",
+      "planned": "Planned",
+      "completed": "Completed"
+    },
     "coordinator": {
-      "title": "Coordinator dashboard",
-      "subtitle": "Tier 3+ coordination view"
+      "metaTitle": "Coordinator Dashboard — Madagascar Freshwater Fish",
+      "metaDescription": "Ex-situ coordinator triage view: coverage gaps, studbook status, demographic risk, and census staleness.",
+      "eyebrow": "Ex-situ coordination",
+      "title": "Coordinator Dashboard",
+      "description": "A triage view for ex-situ coordinators: where coverage is missing, which captive populations are at demographic risk, and whose census is overdue. The registry is the source of truth — this page is a read-only summary computed from it.",
+      "tierNote": "Population-level detail. Visible to Tier 3+ accounts (Conservation Coordinator and above).",
+      "configError": {
+        "title": "Coordinator data is temporarily unavailable.",
+        "body": "The panels below couldn't reach the coordination API. Try refreshing the page; if the issue persists, contact the platform team."
+      }
     }
   },
   "account": {

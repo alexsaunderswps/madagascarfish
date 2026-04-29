@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/routing";
+import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
 import IucnChart from "@/components/IucnChart";
@@ -7,19 +8,18 @@ import { fetchDashboard } from "@/lib/dashboard";
 
 export const revalidate = 3600;
 
-export const metadata = {
-  title: "Conservation Dashboard — Madagascar Freshwater Fish",
-  description:
-    "Counts of endemic freshwater fish species, IUCN Red List breakdown, ex-situ coverage, and field programs in Madagascar. Refreshed hourly.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("dashboard");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 const STALE_THRESHOLD_MS = 2 * 60 * 60 * 1000;
 
 const COVERAGE_GAP_HREF =
   "/species/?iucn_status=CR,EN,VU&has_captive_population=false";
-
-const CHART_CAPTION =
-  "Counts mirror the most recent accepted IUCN Red List assessment for each endemic species in the registry. Species with no assessment appear as Not yet assessed.";
 
 const EYEBROW_STYLE: CSSProperties = {
   margin: 0,
@@ -46,11 +46,7 @@ const SECTION_H2_STYLE: CSSProperties = {
   lineHeight: 1.2,
 };
 
-function StalenessBanner({ reason }: { reason: "failure" | "stale" }) {
-  const message =
-    reason === "failure"
-      ? "Current statistics are temporarily unavailable. The last successfully retrieved values are shown below."
-      : "The counts shown are older than the usual refresh window. A refresh is in progress.";
+function StalenessBanner({ message }: { message: string }) {
   return (
     <div
       role="status"
@@ -138,13 +134,17 @@ const GRID_STYLE: CSSProperties = {
 };
 
 export default async function DashboardPage() {
-  const data = await fetchDashboard();
+  const [data, t, tCommon] = await Promise.all([
+    fetchDashboard(),
+    getTranslations("dashboard"),
+    getTranslations("common"),
+  ]);
 
   if (!data) {
     return (
       <main style={MAIN_STYLE}>
         <header>
-          <p style={EYEBROW_STYLE}>Conservation Dashboard</p>
+          <p style={EYEBROW_STYLE}>{t("eyebrow")}</p>
           <h1
             style={{
               margin: "8px 0 0",
@@ -156,12 +156,12 @@ export default async function DashboardPage() {
               lineHeight: 1.15,
             }}
           >
-            Madagascar freshwater fish at a glance
+            {t("title")}
           </h1>
         </header>
-        <StalenessBanner reason="failure" />
+        <StalenessBanner message={t("stalenessFailure")} />
         <p style={{ margin: 0, fontSize: 14, color: "var(--ink-2)" }}>
-          Try again in a moment, or browse the{" "}
+          {t("backendDownPrefix")}{" "}
           <Link
             href="/species/"
             style={{
@@ -171,7 +171,7 @@ export default async function DashboardPage() {
                 "1px solid color-mix(in oklab, var(--accent-2) 35%, transparent)",
             }}
           >
-            species directory
+            {t("backendDownLink")}
           </Link>
           .
         </p>
@@ -189,10 +189,25 @@ export default async function DashboardPage() {
   const isStale =
     Number.isFinite(lastUpdatedMs) && Date.now() - lastUpdatedMs > STALE_THRESHOLD_MS;
 
+  // Active-programs sublabel: empty / formal-only / formal+other.
+  let activeProgramsSublabel: string;
+  if (coordination.active_programs_total === 0) {
+    activeProgramsSublabel = t("coordinated.activeProgramsSublabelEmpty");
+  } else if (otherPrograms > 0) {
+    activeProgramsSublabel = t("coordinated.activeProgramsSublabelMixed", {
+      formal: formalPrograms,
+      other: otherPrograms,
+    });
+  } else {
+    activeProgramsSublabel = t("coordinated.activeProgramsSublabelFormalOnly", {
+      formal: formalPrograms,
+    });
+  }
+
   return (
     <main style={MAIN_STYLE}>
       <header style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <p style={EYEBROW_STYLE}>Conservation Dashboard</p>
+        <p style={EYEBROW_STYLE}>{t("eyebrow")}</p>
         <h1
           style={{
             margin: 0,
@@ -204,12 +219,12 @@ export default async function DashboardPage() {
             lineHeight: 1.15,
           }}
         >
-          Madagascar freshwater fish at a glance
+          {t("title")}
         </h1>
         <UpdatedAgo iso={last_updated} />
       </header>
 
-      {isStale ? <StalenessBanner reason="stale" /> : null}
+      {isStale ? <StalenessBanner message={t("stalenessStale")} /> : null}
 
       <Link
         href={COVERAGE_GAP_HREF}
@@ -226,7 +241,9 @@ export default async function DashboardPage() {
           textDecoration: "none",
         }}
       >
-        <p style={{ ...EYEBROW_STYLE, color: "var(--ink-2)" }}>Coverage gap</p>
+        <p style={{ ...EYEBROW_STYLE, color: "var(--ink-2)" }}>
+          {tCommon("coverageGap.eyebrow")}
+        </p>
         <p
           style={{
             margin: "12px 0 0",
@@ -237,27 +254,34 @@ export default async function DashboardPage() {
             color: "var(--ink)",
           }}
         >
-          <span
-            style={{
-              fontSize: 40,
-              fontWeight: 600,
-              fontVariantNumeric: "tabular-nums",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {ex_situ_coverage.threatened_species_without_captive_population.toLocaleString()}
-          </span>{" "}
-          of{" "}
-          <span
-            style={{
-              fontSize: 26,
-              fontWeight: 600,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            {ex_situ_coverage.threatened_species_total.toLocaleString()}
-          </span>{" "}
-          threatened species have no known captive population.
+          {tCommon.rich("coverageGap.body", {
+            withoutCaptive:
+              ex_situ_coverage.threatened_species_without_captive_population.toLocaleString(),
+            total: ex_situ_coverage.threatened_species_total.toLocaleString(),
+            gap: (chunks) => (
+              <span
+                style={{
+                  fontSize: 40,
+                  fontWeight: 600,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {chunks}
+              </span>
+            ),
+            ts: (chunks) => (
+              <span
+                style={{
+                  fontSize: 26,
+                  fontWeight: 600,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {chunks}
+              </span>
+            ),
+          })}
         </p>
         <p
           style={{
@@ -267,7 +291,7 @@ export default async function DashboardPage() {
             color: "var(--accent-2)",
           }}
         >
-          See which species →
+          {tCommon("coverageGap.seeWhich")}
         </p>
       </Link>
 
@@ -279,12 +303,12 @@ export default async function DashboardPage() {
           backgroundColor: "var(--bg-raised)",
         }}
       >
-        <IucnChart counts={species_counts.by_iucn_status} caption={CHART_CAPTION} />
+        <IucnChart counts={species_counts.by_iucn_status} caption={t("iucnChartCaption")} />
       </section>
 
-      <section aria-label="Species totals">
-        <p style={SECTION_EYEBROW_STYLE}>Species totals</p>
-        <h2 style={SECTION_H2_STYLE}>Registry coverage</h2>
+      <section aria-label={t("totals.ariaLabel")}>
+        <p style={SECTION_EYEBROW_STYLE}>{t("totals.eyebrow")}</p>
+        <h2 style={SECTION_H2_STYLE}>{t("totals.title")}</h2>
         <ul
           role="list"
           style={{
@@ -296,30 +320,33 @@ export default async function DashboardPage() {
         >
           <li>
             <StatTile
-              label="Total species"
+              label={t("totals.totalSpecies")}
               value={species_counts.total}
-              sublabel={`${species_counts.described.toLocaleString()} described, ${species_counts.undescribed.toLocaleString()} undescribed`}
+              sublabel={t("totals.totalSpeciesSublabel", {
+                described: species_counts.described.toLocaleString(),
+                undescribed: species_counts.undescribed.toLocaleString(),
+              })}
               href="/species/"
             />
           </li>
           <li>
             <StatTile
-              label="Institutions holding captive populations"
+              label={t("totals.institutions")}
               value={ex_situ_coverage.institutions_active}
             />
           </li>
           <li>
             <StatTile
-              label="Ex-situ populations tracked"
+              label={t("totals.exSituTracked")}
               value={ex_situ_coverage.total_populations_tracked}
             />
           </li>
         </ul>
       </section>
 
-      <section aria-label="Coordinated breeding programs">
-        <p style={SECTION_EYEBROW_STYLE}>Coordinated breeding</p>
-        <h2 style={SECTION_H2_STYLE}>Active programs &amp; transfers</h2>
+      <section aria-label={t("coordinated.ariaLabel")}>
+        <p style={SECTION_EYEBROW_STYLE}>{t("coordinated.eyebrow")}</p>
+        <h2 style={SECTION_H2_STYLE}>{t("coordinated.title")}</h2>
         <ul
           role="list"
           style={{
@@ -331,35 +358,33 @@ export default async function DashboardPage() {
         >
           <li>
             <StatTile
-              label="Active programs"
+              label={t("coordinated.activePrograms")}
               value={coordination.active_programs_total}
-              sublabel={
-                coordination.active_programs_total > 0
-                  ? `${formalPrograms} SSP / EEP / CARES${otherPrograms > 0 ? `, ${otherPrograms} other` : ""}`
-                  : "No active programs registered yet."
-              }
+              sublabel={activeProgramsSublabel}
             />
           </li>
           <li>
             <StatTile
-              label="Transfers in flight"
+              label={t("coordinated.transfersInFlight")}
               value={coordination.transfers_in_flight}
-              sublabel="Proposed, approved, or in transit."
+              sublabel={t("coordinated.transfersInFlightSublabel")}
             />
           </li>
           <li>
             <StatTile
-              label={`Transfers completed (last ${coordination.transfer_window_days}d)`}
+              label={t("coordinated.transfersCompleted", {
+                days: coordination.transfer_window_days,
+              })}
               value={coordination.transfers_recent_completed}
-              sublabel="Recorded animal movements between institutions."
+              sublabel={t("coordinated.transfersCompletedSublabel")}
             />
           </li>
         </ul>
       </section>
 
-      <section aria-label="Field programs">
-        <p style={SECTION_EYEBROW_STYLE}>Field programs</p>
-        <h2 style={SECTION_H2_STYLE}>In-situ activity</h2>
+      <section aria-label={t("fieldPrograms.ariaLabel")}>
+        <p style={SECTION_EYEBROW_STYLE}>{t("fieldPrograms.eyebrow")}</p>
+        <h2 style={SECTION_H2_STYLE}>{t("fieldPrograms.title")}</h2>
         <ul
           role="list"
           style={{
@@ -370,13 +395,13 @@ export default async function DashboardPage() {
           }}
         >
           <li>
-            <StatTile label="Active field programs" value={field_programs.active} />
+            <StatTile label={t("fieldPrograms.active")} value={field_programs.active} />
           </li>
           <li>
-            <StatTile label="Planned" value={field_programs.planned} />
+            <StatTile label={t("fieldPrograms.planned")} value={field_programs.planned} />
           </li>
           <li>
-            <StatTile label="Completed" value={field_programs.completed} />
+            <StatTile label={t("fieldPrograms.completed")} value={field_programs.completed} />
           </li>
         </ul>
       </section>

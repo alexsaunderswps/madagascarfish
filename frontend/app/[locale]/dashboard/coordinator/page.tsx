@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import type { CSSProperties } from "react";
 
@@ -22,11 +23,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Coordinator Dashboard — Madagascar Freshwater Fish",
-  description:
-    "Ex-situ coordinator triage view: coverage gaps, studbook status, demographic risk, and census staleness.",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("dashboard.coordinator");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 interface PageProps {
   searchParams?: Promise<{ endemic_only?: string }>;
@@ -90,7 +93,7 @@ const CONFIG_ERROR_STYLE: CSSProperties = {
   lineHeight: 1.5,
 };
 
-function ConfigErrorBanner() {
+async function ConfigErrorBanner() {
   // Operator hint — appears in Vercel function logs when the user-facing
   // banner is rendered. Reachable only post-tier-gate, so the visitor is
   // already Tier 3+; the banner means their DRF token couldn't be read
@@ -101,12 +104,10 @@ function ConfigErrorBanner() {
       "session token did not reach the coordination API and " +
       "COORDINATOR_API_TOKEN is not configured. See OPERATIONS.md §11.2.",
   );
+  const t = await getTranslations("dashboard.coordinator.configError");
   return (
     <div role="alert" style={CONFIG_ERROR_STYLE}>
-      <strong>Coordinator data is temporarily unavailable.</strong> The
-      panels below couldn&rsquo;t reach the coordination API. Try
-      refreshing the page; if the issue persists, contact the platform
-      team.
+      <strong>{t("title")}</strong> {t("body")}
     </div>
   );
 }
@@ -140,6 +141,7 @@ export default async function CoordinatorDashboardPage({
     transferActivity,
     openRecommendations,
     reproductiveActivity,
+    t,
   ] = await Promise.all([
     fetchCoverageGap({ endemicOnly, authToken: userToken }),
     fetchStudbookStatus({ authToken: userToken }),
@@ -148,23 +150,16 @@ export default async function CoordinatorDashboardPage({
     fetchTransferActivity({ authToken: userToken }),
     fetchOpenRecommendations({ authToken: userToken }),
     fetchReproductiveActivity({ authToken: userToken }),
+    getTranslations("dashboard.coordinator"),
   ]);
 
   return (
     <main style={PAGE_WRAPPER}>
       <header style={HEADER_STYLE}>
-        <p style={EYEBROW_STYLE}>Ex-situ coordination</p>
-        <h1 style={TITLE_STYLE}>Coordinator Dashboard</h1>
-        <p style={DESC_STYLE}>
-          A triage view for ex-situ coordinators: where coverage is missing,
-          which captive populations are at demographic risk, and whose
-          census is overdue. The registry is the source of truth — this
-          page is a read-only summary computed from it.
-        </p>
-        <p style={TIER_NOTE_STYLE}>
-          Population-level detail. Visible to Tier 3+ accounts (Conservation
-          Coordinator and above).
-        </p>
+        <p style={EYEBROW_STYLE}>{t("eyebrow")}</p>
+        <h1 style={TITLE_STYLE}>{t("title")}</h1>
+        <p style={DESC_STYLE}>{t("description")}</p>
+        <p style={TIER_NOTE_STYLE}>{t("tierNote")}</p>
       </header>
 
       {tokenConfigured ? null : <ConfigErrorBanner />}

@@ -167,13 +167,21 @@ describe("SpeciesCard — null iucn_status label (PR #32)", () => {
 
 describe("Dashboard page — CHART_CAPTION label (FE-07-7 AC)", () => {
   it("chart caption uses 'Not yet assessed' for the NE bucket", () => {
+    // Gate L1 i18n: chart caption moved into messages/en.json under
+    // dashboard.iucnChartCaption. Verify that the rendered surface
+    // (page source + catalog) carries the correct phrasing and never
+    // the deprecated "Not Evaluated".
     const src = readFileSync(
       resolve(FRONTEND_ROOT, "app/[locale]/dashboard/page.tsx"),
       "utf-8",
     );
-    // Spec: "Chart axis labels use expanded form" and "Not yet assessed" is the NE label
-    expect(src).toContain("Not yet assessed");
-    expect(src).not.toMatch(/Not Evaluated/i);
+    const enMessages = readFileSync(
+      resolve(FRONTEND_ROOT, "messages/en.json"),
+      "utf-8",
+    );
+    const combined = `${src}\n${enMessages}`;
+    expect(combined).toContain("Not yet assessed");
+    expect(combined).not.toMatch(/Not Evaluated/i);
   });
 });
 
