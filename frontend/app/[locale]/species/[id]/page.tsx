@@ -62,7 +62,7 @@ export async function generateMetadata({
 }: {
   params: { id: string; locale: Locale };
 }) {
-  const result = await fetchSpeciesDetail(params.id);
+  const result = await fetchSpeciesDetail(params.id, { locale: params.locale });
   const t = await getTranslations({
     locale: params.locale,
     namespace: "species.profile",
@@ -87,10 +87,10 @@ export default async function SpeciesProfilePage({
   params,
   searchParams,
 }: {
-  params: { id: string };
+  params: { id: string; locale: Locale };
   searchParams: SearchParams;
 }) {
-  const result = await fetchSpeciesDetail(params.id);
+  const result = await fetchSpeciesDetail(params.id, { locale: params.locale });
   const [t, tCommon] = await Promise.all([
     getTranslations("species.profile"),
     getTranslations("common"),
