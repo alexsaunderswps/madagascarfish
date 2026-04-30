@@ -30,20 +30,27 @@ const LABELS: Record<Locale, string> = {
   es: "Español",
 };
 
-const PER_LOCALE_FLAG_ENV: Record<Locale, string | undefined> = {
-  en: undefined, // default; always available when master flag is on
-  fr: process.env.NEXT_PUBLIC_FEATURE_I18N_FR,
-  de: process.env.NEXT_PUBLIC_FEATURE_I18N_DE,
-  es: process.env.NEXT_PUBLIC_FEATURE_I18N_ES,
-};
-
-function isLocaleEnabled(locale: Locale): boolean {
+/**
+ * Pure-function flag check, exported for unit-testing the per-locale
+ * gate (L4 S10). Reads `process.env` at call time rather than module
+ * load, so tests can vi.stubEnv freely.
+ */
+export function isLocaleEnabled(locale: Locale): boolean {
   if (locale === routing.defaultLocale) return true;
-  return PER_LOCALE_FLAG_ENV[locale] === "true";
+  const envKey = `NEXT_PUBLIC_FEATURE_I18N_${locale.toUpperCase()}`;
+  return process.env[envKey] === "true";
+}
+
+/** Returns the locales that should appear in the switcher under
+ *  current env. Empty array implies "do not render the switcher." */
+export function enabledSwitcherLocales(): Locale[] {
+  if (process.env.NEXT_PUBLIC_FEATURE_I18N !== "true") return [];
+  const enabled = routing.locales.filter(isLocaleEnabled);
+  // Don't render if only English is enabled (nothing to switch to).
+  return enabled.length <= 1 ? [] : Array.from(enabled);
 }
 
 export default function LocaleSwitcher() {
-  const flagOn = process.env.NEXT_PUBLIC_FEATURE_I18N === "true";
   const currentLocale = useLocale() as Locale;
   // pathname from @/i18n/routing returns the de-localized path
   // (`/species` even when the URL is `/fr/species`), which is what
@@ -52,11 +59,8 @@ export default function LocaleSwitcher() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  if (!flagOn) return null;
-
-  const enabled = routing.locales.filter(isLocaleEnabled);
-  // Don't render if only English is enabled (nothing to switch to).
-  if (enabled.length <= 1) return null;
+  const enabled = enabledSwitcherLocales();
+  if (enabled.length === 0) return null;
 
   function onChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const target = event.target.value as Locale;

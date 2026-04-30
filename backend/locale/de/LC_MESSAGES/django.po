@@ -1,0 +1,455 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-30 16:02+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: accounts/models.py:56
+msgid "1=Public, 2=Researcher, 3=Coordinator, 4=Program Manager, 5=Admin"
+msgstr ""
+
+#: accounts/models.py:68
+msgid "Inactive until manually activated or email-verified."
+msgstr ""
+
+#: accounts/models.py:77
+msgid ""
+"Preferred locale for transactional emails and (when logged in) the default "
+"UI locale on first visit. User-changeable from the account page."
+msgstr ""
+
+#: accounts/serializers.py:17
+msgid "An account with this email already exists."
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:4
+#: accounts/templates/accounts/verify_email_subject.txt:1
+msgid "Verify your Madagascar Fish account"
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:6
+msgid "Click to verify your account — link expires in 48 hours."
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:10
+#, python-format
+msgid "Welcome to %(platform_short_name)s"
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:14
+#: accounts/templates/accounts/verify_email_body.txt:3
+msgid ""
+"To finish creating your account, click the verification link below. The link "
+"is valid for 48 hours."
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:21
+msgid "Verify my account"
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:28
+msgid "If the button doesn't work, copy and paste this URL into your browser:"
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:35
+msgid "If you didn't sign up for an account, you can safely ignore this email."
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.txt:1
+msgid "Welcome to the Madagascar Freshwater Fish Conservation Platform."
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.txt:7
+msgid "If you didn't sign up for an account, you can ignore this email."
+msgstr ""
+
+#: accounts/views.py:118
+msgid "Registration successful. Check your email to verify your account."
+msgstr ""
+
+#: accounts/views.py:129
+msgid "Missing verification token."
+msgstr ""
+
+#: accounts/views.py:137
+msgid "Verification link has expired."
+msgstr ""
+
+#: accounts/views.py:142 accounts/views.py:150
+msgid "Invalid verification token."
+msgstr ""
+
+#: accounts/views.py:155
+msgid "Account already verified."
+msgstr ""
+
+#: accounts/views.py:160
+msgid "Account verified successfully."
+msgstr ""
+
+#: accounts/views.py:170
+msgid "Too many login attempts. Try again in 15 minutes."
+msgstr ""
+
+#: accounts/views.py:184
+msgid "Invalid email or password."
+msgstr ""
+
+#: accounts/views.py:203
+msgid "Logged out successfully."
+msgstr ""
+
+#: husbandry/admin.py:182
+msgid "Review is overdue; public page will show a 'review pending' note."
+msgstr ""
+
+#: husbandry/admin.py:203
+msgid "last_reviewed_by is required to publish."
+msgstr ""
+
+#: husbandry/admin.py:205
+msgid "last_reviewed_at is required to publish."
+msgstr ""
+
+#: husbandry/admin.py:207
+msgid "At least one source citation is required to publish."
+msgstr ""
+
+#: husbandry/apps.py:8
+msgid "Husbandry & Breeding Guidance"
+msgstr ""
+
+#: husbandry/models.py:55
+msgid ""
+"Gates public API + frontend teaser. Draft records are invisible to the "
+"public."
+msgstr ""
+
+#: husbandry/models.py:129
+msgid "Free text at MVP. Structured contributor records are post-MVP (BA §5)."
+msgstr ""
+
+#: husbandry/models.py:137 husbandry/models.py:140
+msgid "Required when published=True."
+msgstr ""
+
+#: husbandry/models.py:148
+msgid "Species husbandry record"
+msgstr ""
+
+#: husbandry/models.py:149
+msgid "Species husbandry records"
+msgstr ""
+
+#: husbandry/models.py:182
+msgid "A reviewer is required to publish a husbandry record."
+msgstr ""
+
+#: husbandry/models.py:186
+msgid "A review date is required to publish a husbandry record."
+msgstr ""
+
+#: i18n/admin.py:50
+msgid "English source"
+msgstr ""
+
+#: i18n/admin.py:68
+msgid ""
+"The English source text. Read-only — edit on the underlying Species or Taxon "
+"admin form if the source needs to change."
+msgstr ""
+
+#: i18n/admin.py:73
+msgid "Target translation"
+msgstr ""
+
+#: i18n/admin.py:89
+msgid ""
+"The translation in the target locale. Saving this form writes the edit back "
+"to the underlying object's &lt;field&gt;_&lt;locale&gt; column. Substantive "
+"edits should be paired with a 'Send back to mt_draft' to re-route through "
+"review."
+msgstr ""
+
+#: i18n/admin.py:140
+msgid "Identity"
+msgstr ""
+
+#: i18n/admin.py:152
+msgid "Side-by-side comparison + inline edit"
+msgstr ""
+
+#: i18n/admin.py:156
+msgid ""
+"Edit the translation directly here; saving writes it back to the underlying "
+"object. The English source is read-only."
+msgstr ""
+
+#: i18n/admin.py:163
+msgid "Pipeline state"
+msgstr ""
+
+#: i18n/admin.py:177
+msgid "Audit"
+msgstr ""
+
+#: i18n/admin.py:216
+#, python-brace-format
+msgid ""
+"Translation content for {model}#{id}.{field} ({locale}) saved. If the change "
+"is substantive, consider 'Send back to mt_draft' so it routes through review "
+"again."
+msgstr ""
+
+#: i18n/admin.py:242
+msgid "(no admin URL)"
+msgstr ""
+
+#: i18n/admin.py:247
+#, python-brace-format
+msgid ""
+"Open underlying {model} admin (opens new tab) — for editing the English "
+"source or using all-locale tabs →"
+msgstr ""
+
+#: i18n/admin.py:252
+msgid "Underlying admin"
+msgstr ""
+
+#: i18n/admin.py:276
+#, python-brace-format
+msgid "{n} row(s) advanced to writer_reviewed."
+msgstr ""
+
+#: i18n/admin.py:281
+#, python-brace-format
+msgid "{n} row(s) skipped (not in mt_draft state)."
+msgstr ""
+
+#: i18n/admin.py:285
+msgid "Advance: mt_draft → writer_reviewed"
+msgstr ""
+
+#: i18n/admin.py:307
+#, python-brace-format
+msgid "{n} row(s) approved (writer_reviewed → human_approved)."
+msgstr ""
+
+#: i18n/admin.py:314
+#, python-brace-format
+msgid ""
+"{n} row(s) skipped (not in writer_reviewed state — advance through writer "
+"review first)."
+msgstr ""
+
+#: i18n/admin.py:320
+msgid "Approve: writer_reviewed → human_approved"
+msgstr ""
+
+#: i18n/admin.py:339
+#, python-brace-format
+msgid ""
+"{n} row(s) sent back to mt_draft. The translation content itself is "
+"unchanged; only the pipeline status was reset."
+msgstr ""
+
+#: i18n/admin.py:347
+#, python-brace-format
+msgid "{n} row(s) skipped (already in mt_draft state)."
+msgstr ""
+
+#: i18n/admin.py:353
+msgid "Send back to mt_draft"
+msgstr ""
+
+#: i18n/apps.py:18
+msgid "Translation pipeline"
+msgstr ""
+
+#: i18n/models.py:73
+msgid "Provider that produced the original draft (e.g., 'deepl', 'manual')."
+msgstr ""
+
+#: i18n/templates/email/base.html:52
+#, python-format
+msgid "You're receiving this because you signed up at %(platform)s."
+msgstr ""
+
+#: populations/admin.py:127
+msgid "You can only modify records for your own institution."
+msgstr ""
+
+#: populations/admin.py:132
+msgid "You can only create records for your own institution."
+msgstr ""
+
+#: populations/models.py:35
+msgid "Visible at Tier 3+ only"
+msgstr ""
+
+#: populations/models.py:130
+msgid "Institution holding the studbook / coordination responsibility."
+msgstr ""
+
+#: populations/models.py:138
+msgid "The named studbook keeper, if one is assigned."
+msgstr ""
+
+#: populations/models.py:144
+msgid ""
+"Institutions that have joined the program (not including the coordinator)."
+msgstr ""
+
+#: populations/models.py:149
+msgid "Optional demographic target per the program's plan."
+msgstr ""
+
+#: populations/models.py:153
+msgid "Short human summary of the current plan. Full plan docs link out."
+msgstr ""
+
+#: populations/models.py:157
+msgid "External link to the authoritative plan (PDF, Confluence, etc.)."
+msgstr ""
+
+#: populations/models.py:210
+msgid "Date the transfer was first proposed / logged."
+msgstr ""
+
+#: populations/models.py:216
+msgid "Date the transfer actually completed. Required when status='completed'."
+msgstr ""
+
+#: populations/models.py:235
+msgid "Optional: the program this transfer serves."
+msgstr ""
+
+#: populations/models.py:336
+msgid "The program this recommendation was issued under, if any."
+msgstr ""
+
+#: populations/models.py:371
+msgid "When the recommendation was issued. Required."
+msgstr ""
+
+#: populations/models.py:376
+msgid "Target date for action, if the plan specifies one."
+msgstr ""
+
+#: populations/models.py:380
+msgid "Free text — what happened. Filled in at resolution."
+msgstr ""
+
+#: populations/models.py:447
+msgid "Signed change in male count. Negative = loss."
+msgstr ""
+
+#: species/admin.py:58
+#, python-format
+msgid "`%(field)s` is required when source is `manual_expert`."
+msgstr ""
+
+#: species/admin.py:64
+msgid "`reason` is required when creating a manual_expert assessment."
+msgstr ""
+
+#: species/admin.py:341
+msgid "No audit entries recorded."
+msgstr ""
+
+#: species/admin.py:432
+msgid ""
+"Tier 3 (Conservation Coordinator) or higher is required to author a "
+"manual_expert assessment."
+msgstr ""
+
+#: species/admin.py:520
+msgid "Required only when resolution='reconciled'."
+msgstr ""
+
+#: species/admin_revalidate.py:42
+msgid ""
+"Revalidate is not configured: set NEXT_REVALIDATE_URL and "
+"NEXT_REVALIDATE_SECRET in the environment."
+msgstr ""
+
+#: species/admin_revalidate.py:56
+#, python-format
+msgid "Revalidate timed out after %(t)ss — check frontend health."
+msgstr ""
+
+#: species/admin_revalidate.py:59
+#, python-format
+msgid "Revalidate request failed: %(e)s"
+msgstr ""
+
+#: species/admin_revalidate.py:63
+#, python-format
+msgid "Revalidate returned HTTP %(code)s: %(body)s"
+msgstr ""
+
+#: species/admin_revalidate.py:71
+#, python-format
+msgid "Revalidate succeeded (HTTP %(code)s, non-JSON body)."
+msgstr ""
+
+#: species/admin_revalidate.py:77
+#, python-format
+msgid "Revalidated %(n)s path(s)."
+msgstr ""
+
+#: species/admin_revalidate.py:80
+#, python-format
+msgid "%(n)s path(s) failed: %(list)s"
+msgstr ""
+
+#: species/admin_revalidate.py:85
+msgid "Revalidate public pages (clear Next.js cache)"
+msgstr ""
+
+#: species/models.py:309
+msgid "Fixed slot consumed by a specific page region."
+msgstr ""
+
+#: species/models.py:314
+msgid "PNG or JPEG at or above the expected dimensions. Empty = no asset yet."
+msgstr ""
+
+#: species/models.py:319
+msgid "Screen-reader description of the thumbnail. Required when image is set."
+msgstr ""
+
+#: species/models.py:324
+msgid "Attribution line shown alongside the image, if any."
+msgstr ""
+
+#: species/models.py:327
+msgid "Target render width in CSS pixels. Set when the slot is introduced."
+msgstr ""
+
+#: species/models.py:330
+msgid "Target render height in CSS pixels. Set when the slot is introduced."
+msgstr ""
+
+#: species/models.py:334
+msgid ""
+"Internal notes for editors — where the asset renders, sourcing guidance."
+msgstr ""
+
+#: species/models.py:349
+msgid "ISO 639-1 code: en, fr, mg"
+msgstr ""

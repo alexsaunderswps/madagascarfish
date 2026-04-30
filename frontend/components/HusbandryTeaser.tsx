@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/routing";
-import { teaserPresentation, teaserSentence, type TeaserContext } from "@/lib/husbandry";
+import { teaserPresentation, teaserSentenceToken, type TeaserContext } from "@/lib/husbandry";
 
 /**
  * Husbandry teaser block for species profile pages.
@@ -16,11 +16,8 @@ import { teaserPresentation, teaserSentence, type TeaserContext } from "@/lib/hu
  *
  * Copy lives in docs/planning/copy/husbandry-platform-copy.md §2.
  *
- * Note: chipText and sentence still come from teaserSentence/
- * teaserPresentation in lib/husbandry, which are L1-acceptable English.
- * Localizing those helpers is L4 polish — they currently render
- * "A CARES priority species — hobbyist breeders…" style sentences in
- * English regardless of locale.
+ * Chip and sentence text resolve from `species.profile.husbandryTeaser.{chip,sentence}.<token>`
+ * in the active locale; lib/husbandry returns symbolic tokens (L4 S3).
  */
 export default function HusbandryTeaser({
   speciesId,
@@ -33,9 +30,9 @@ export default function HusbandryTeaser({
   const presentation = teaserPresentation(ctx);
   if (!presentation.render) return null;
 
-  const { variant, chipText } = presentation;
+  const { variant, chipToken } = presentation;
   const isEmphasized = variant === "emphasized";
-  const sentence = teaserSentence(ctx);
+  const sentence = t(`sentence.${teaserSentenceToken(ctx)}`);
 
   // Accent border is a Tailwind class applied only when emphasized. The
   // border is decorative — the chip carries the textual signal so
@@ -52,10 +49,10 @@ export default function HusbandryTeaser({
       aria-labelledby="husbandry-teaser-heading"
       className={sectionClasses}
     >
-      {isEmphasized && chipText ? (
+      {isEmphasized && chipToken ? (
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sky-800">
           <span className="inline-block rounded bg-sky-50 px-2 py-0.5 ring-1 ring-sky-200">
-            {chipText}
+            {t(`chip.${chipToken}`)}
           </span>
         </p>
       ) : null}

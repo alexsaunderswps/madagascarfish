@@ -5,9 +5,11 @@ import hashlib
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.core.cache import cache
-from django.core.mail import send_mail
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.http import Http404
+from django.utils.translation import gettext_lazy as _
+
+from i18n.email import send_translated_email
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -16,7 +18,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from accounts.models import User
-from accounts.serializers import LoginSerializer, RegisterSerializer, UserProfileSerializer
+from accounts.serializers import (
+    LoginSerializer,
+    RegisterSerializer,
+    UserLocaleUpdateSerializer,
+    UserProfileSerializer,
+)
 
 signer = TimestampSigner()
 
@@ -74,11 +81,18 @@ def register(request: Request) -> Response:
     serializer.is_valid(raise_exception=True)
 
     data = serializer.validated_data
+    # Capture signup locale from the request — set by Django's LocaleMiddleware
+    # from Accept-Language. Frontend sends the path-prefix locale (en/fr/de/es)
+    # so a French signup gets locale='fr' baked in for transactional emails.
+    signup_locale = (getattr(request, "LANGUAGE_CODE", "en") or "en").split("-")[0]
+    if signup_locale not in {"en", "fr", "de", "es"}:
+        signup_locale = "en"
     user = User.objects.create_user(
         email=data["email"],
         password=data["password"],
         name=data["name"],
         is_active=False,
+        locale=signup_locale,
     )
     if data.get("institution_id"):
         user.institution_id = data["institution_id"]
@@ -89,16 +103,19 @@ def register(request: Request) -> Response:
     frontend_url = settings.FRONTEND_BASE_URL
     verification_url = f"{frontend_url}/verify?token={token}"
 
-    send_mail(
-        subject="Verify your Madagascar Fish account",
-        message=f"Click to verify your account: {verification_url}",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
+    # Locale is the new user's preferred locale (just set above from
+    # request.LANGUAGE_CODE). Email templates use {% trans %} blocks; the
+    # helper wraps `translation.override(locale)` so blocks resolve in
+    # the right language.
+    send_translated_email(
+        recipient=user,
+        template="accounts/verify_email",
+        context={"verification_url": verification_url, "user": user},
         fail_silently=True,
     )
 
     return Response(
-        {"detail": "Registration successful. Check your email to verify your account."},
+        {"detail": _("Registration successful. Check your email to verify your account.")},
         status=status.HTTP_201_CREATED,
     )
 
@@ -109,7 +126,7 @@ def verify_email(request: Request) -> Response:
     token = request.data.get("token")
     if not token:
         return Response(
-            {"detail": "Missing verification token."},
+            {"detail": _("Missing verification token.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -117,12 +134,12 @@ def verify_email(request: Request) -> Response:
         user_pk = signer.unsign(token, max_age=VERIFICATION_MAX_AGE)
     except SignatureExpired:
         return Response(
-            {"detail": "Verification link has expired."},
+            {"detail": _("Verification link has expired.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except BadSignature:
         return Response(
-            {"detail": "Invalid verification token."},
+            {"detail": _("Invalid verification token.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -130,17 +147,17 @@ def verify_email(request: Request) -> Response:
         user = User.objects.get(pk=user_pk)
     except User.DoesNotExist:
         return Response(
-            {"detail": "Invalid verification token."},
+            {"detail": _("Invalid verification token.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
     if user.is_active:
-        return Response({"detail": "Account already verified."})
+        return Response({"detail": _("Account already verified.")})
 
     user.is_active = True
     user.save(update_fields=["is_active"])
 
-    return Response({"detail": "Account verified successfully."})
+    return Response({"detail": _("Account verified successfully.")})
 
 
 @api_view(["POST"])
@@ -150,7 +167,7 @@ def login(request: Request) -> Response:
 
     if _check_and_record_rate_limit(ip):
         return Response(
-            {"detail": "Too many login attempts. Try again in 15 minutes."},
+            {"detail": _("Too many login attempts. Try again in 15 minutes.")},
             status=status.HTTP_429_TOO_MANY_REQUESTS,
         )
 
@@ -164,11 +181,11 @@ def login(request: Request) -> Response:
         # Covers: wrong password, non-existent email, and inactive accounts.
         # All return the same generic message to prevent account enumeration.
         return Response(
-            {"detail": "Invalid email or password."},
+            {"detail": _("Invalid email or password.")},
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
-    token, _ = Token.objects.get_or_create(user=user)
+    token, _created = Token.objects.get_or_create(user=user)
 
     return Response(
         {
@@ -183,7 +200,7 @@ def login(request: Request) -> Response:
 @permission_classes([IsAuthenticated])
 def logout(request: Request) -> Response:
     Token.objects.filter(user=request.user).delete()
-    return Response({"detail": "Logged out successfully."})
+    return Response({"detail": _("Logged out successfully.")})
 
 
 @api_view(["GET"])
@@ -191,6 +208,24 @@ def logout(request: Request) -> Response:
 def me(request: Request) -> Response:
     serializer = UserProfileSerializer(request.user)
     return Response(serializer.data)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_locale(request: Request) -> Response:
+    """Self-serve update of the active user's preferred locale.
+
+    Used by the /account locale picker (S9). Accepts only the `locale`
+    field; everything else on UserProfileSerializer is read-only via
+    that endpoint anyway. Returns the full updated profile so the
+    frontend can refresh its session cache in one round-trip.
+    """
+    serializer = UserLocaleUpdateSerializer(
+        request.user, data=request.data, partial=True
+    )
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(UserProfileSerializer(request.user).data)
 
 
 # --- Test-only helpers (Gate 11 C9) ---

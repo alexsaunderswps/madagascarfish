@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import Point
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 _SVG_ROOT_TAG_RE = re.compile(r"(<svg\b)([^>]*)(>)", re.IGNORECASE)
@@ -305,32 +306,32 @@ class SiteMapAsset(models.Model):
         max_length=40,
         choices=Slot.choices,
         unique=True,
-        help_text="Fixed slot consumed by a specific page region.",
+        help_text=_("Fixed slot consumed by a specific page region."),
     )
     image = models.ImageField(
         upload_to="site-maps/",
         blank=True,
-        help_text="PNG or JPEG at or above the expected dimensions. Empty = no asset yet.",
+        help_text=_("PNG or JPEG at or above the expected dimensions. Empty = no asset yet."),
     )
     alt_text = models.CharField(
         max_length=300,
         blank=True,
-        help_text="Screen-reader description of the thumbnail. Required when image is set.",
+        help_text=_("Screen-reader description of the thumbnail. Required when image is set."),
     )
     credit = models.CharField(
         max_length=200,
         blank=True,
-        help_text="Attribution line shown alongside the image, if any.",
+        help_text=_("Attribution line shown alongside the image, if any."),
     )
     expected_width_px = models.PositiveIntegerField(
-        help_text="Target render width in CSS pixels. Set when the slot is introduced.",
+        help_text=_("Target render width in CSS pixels. Set when the slot is introduced."),
     )
     expected_height_px = models.PositiveIntegerField(
-        help_text="Target render height in CSS pixels. Set when the slot is introduced.",
+        help_text=_("Target render height in CSS pixels. Set when the slot is introduced."),
     )
     usage_notes = models.TextField(
         blank=True,
-        help_text="Internal notes for editors — where the asset renders, sourcing guidance.",
+        help_text=_("Internal notes for editors — where the asset renders, sourcing guidance."),
     )
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -345,7 +346,7 @@ class SiteMapAsset(models.Model):
 class CommonName(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="common_names")
     name = models.CharField(max_length=200)
-    language = models.CharField(max_length=10, help_text="ISO 639-1 code: en, fr, mg")
+    language = models.CharField(max_length=10, help_text=_("ISO 639-1 code: en, fr, mg"))
     is_preferred = models.BooleanField(default=False)
 
     class Meta:

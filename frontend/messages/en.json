@@ -316,7 +316,18 @@
       "husbandryTeaser": {
         "heading": "Keeping this species",
         "seeGuidancePrefix": "See husbandry guidance",
-        "arrow": "→"
+        "arrow": "→",
+        "chip": {
+          "caresShoal": "CARES + SHOAL priority",
+          "cares": "CARES breeder priority",
+          "shoal": "SHOAL priority"
+        },
+        "sentence": {
+          "caresShoal": "A CARES / SHOAL priority species.",
+          "cares": "A CARES priority species.",
+          "shoal": "A SHOAL priority species.",
+          "default": "Guidance on keeping this species, drawn from keepers and published sources."
+        }
       },
       "sourcingEthics": {
         "heading": "Sourcing ethics",
@@ -882,7 +893,18 @@
     "transientError": "Your profile is temporarily unavailable. Refresh in a moment; your sign-in is still active. If the problem persists, the platform team's contact details are on the About page.",
     "signOut": "Sign out",
     "signingOut": "Signing out…",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "localePicker": {
+      "label": "Preferred language",
+      "help": "Used for transactional emails and the default UI language on first visit. Changes apply immediately.",
+      "saving": "Saving…",
+      "saved": "Saved.",
+      "error": "Couldn't save. Try again in a moment.",
+      "english": "English",
+      "french": "Français",
+      "german": "Deutsch",
+      "spanish": "Español"
+    }
   },
   "contribute": {
     "husbandry": {
@@ -904,6 +926,15 @@
       "para2": "Use it as a starting point, compare it against other references, and consult a qualified aquatic veterinarian for health concerns."
     },
     "difficultyTitle": "Difficulty Factors",
+    "difficulty": {
+      "adultSize": "Adult size",
+      "spaceDemand": "Space demand",
+      "temperament": "Temperament challenge",
+      "waterParams": "Water parameter demand",
+      "dietary": "Dietary specialization",
+      "breedingComplexity": "Breeding complexity",
+      "other": "Other"
+    },
     "showMoreFactors": "{count, plural, one {Show # more factor} other {Show # more factors}}",
     "metaTitleTemplate": "Keeping {name} — Madagascar Freshwater Fish",
     "metaTitleNotFound": "Husbandry not found — Madagascar Freshwater Fish",
@@ -1030,7 +1061,13 @@
       "haveAccountPrefix": "Already have an account?",
       "loginLink": "Sign in",
       "submittedTitle": "Check your email to finish signing up.",
-      "submittedBody": "If an account can be created with that address, a verification link is on its way. The link is valid for 48 hours. If nothing arrives, check your spam folder, then try registering again."
+      "submittedBody": "If an account can be created with that address, a verification link is on its way. The link is valid for 48 hours. If nothing arrives, check your spam folder, then try registering again.",
+      "actionErrors": {
+        "missingFields": "Email, name, and password are all required.",
+        "unreachable": "Could not reach the server. Check your connection and try again.",
+        "genericFailure": "Sign-up failed. Please check your details and try again.",
+        "unavailable": "The server is unavailable. Please try again in a moment."
+      }
     },
     "verify": {
       "metaTitle": "Verify your account — Madagascar Freshwater Fish",

@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.utils.translation import gettext_lazy as _
 
 
 class I18NConfig(AppConfig):
@@ -14,7 +15,7 @@ class I18NConfig(AppConfig):
     name = "i18n"
     label = "i18n"
     default_auto_field = "django.db.models.BigAutoField"
-    verbose_name = "Translation pipeline"
+    verbose_name = _("Translation pipeline")
 
     def ready(self):
         # Wire post_save / pre_save signal handlers that keep

@@ -21,6 +21,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class TranslationStatus(models.Model):
@@ -69,7 +70,7 @@ class TranslationStatus(models.Model):
         max_length=50,
         blank=True,
         default="deepl",
-        help_text="Provider that produced the original draft (e.g., 'deepl', 'manual').",
+        help_text=_("Provider that produced the original draft (e.g., 'deepl', 'manual')."),
     )
     mt_translated_at = models.DateTimeField(null=True, blank=True)
     writer_reviewed_at = models.DateTimeField(null=True, blank=True)

@@ -7,7 +7,7 @@ import {
   REVIEW_STALE_AFTER_DAYS,
   type SpeciesHusbandry,
   teaserPresentation,
-  teaserSentence,
+  teaserSentenceToken,
 } from "./husbandry";
 
 function makeHusbandry(overrides: Partial<SpeciesHusbandry> = {}): SpeciesHusbandry {
@@ -114,7 +114,7 @@ describe("teaserPresentation", () => {
       cares_status: null,
       shoal_priority: false,
     });
-    expect(out).toEqual({ render: true, variant: "standard", chipText: null });
+    expect(out).toEqual({ render: true, variant: "standard", chipToken: null });
   });
 
   it("treats empty-string cares_status as not set", () => {
@@ -124,67 +124,79 @@ describe("teaserPresentation", () => {
       shoal_priority: false,
     });
     expect(out.variant).toBe("standard");
-    expect(out.chipText).toBeNull();
+    expect(out.chipToken).toBeNull();
   });
 
-  it("emphasizes with CARES-only chip when only cares_status is set", () => {
+  it("emphasizes with CARES-only chip token when only cares_status is set", () => {
     const out = teaserPresentation({
       has_husbandry: true,
       cares_status: "priority",
       shoal_priority: false,
     });
     expect(out.variant).toBe("emphasized");
-    expect(out.chipText).toBe("CARES breeder priority");
+    expect(out.chipToken).toBe("cares");
   });
 
-  it("emphasizes with SHOAL-only chip when only shoal_priority is set", () => {
+  it("emphasizes with SHOAL-only chip token when only shoal_priority is set", () => {
     const out = teaserPresentation({
       has_husbandry: true,
       cares_status: null,
       shoal_priority: true,
     });
     expect(out.variant).toBe("emphasized");
-    expect(out.chipText).toBe("SHOAL priority");
+    expect(out.chipToken).toBe("shoal");
   });
 
-  it("merges both flags into a single chip — never stacks two", () => {
+  it("merges both flags into a single chip token — never stacks two", () => {
     const out = teaserPresentation({
       has_husbandry: true,
       cares_status: "CCR",
       shoal_priority: true,
     });
     expect(out.variant).toBe("emphasized");
-    expect(out.chipText).toBe("CARES + SHOAL priority");
+    expect(out.chipToken).toBe("caresShoal");
   });
 });
 
-describe("teaserSentence", () => {
-  it("returns a default invitational sentence when no priority flags set", () => {
-    const sentence = teaserSentence({
-      has_husbandry: true,
-      cares_status: null,
-      shoal_priority: false,
-    });
-    expect(sentence.length).toBeGreaterThan(0);
-    expect(sentence).not.toMatch(/CARES|SHOAL/);
+describe("teaserSentenceToken", () => {
+  it("returns 'default' when no priority flags set", () => {
+    expect(
+      teaserSentenceToken({
+        has_husbandry: true,
+        cares_status: null,
+        shoal_priority: false,
+      }),
+    ).toBe("default");
   });
 
-  it("uses combined phrasing when both flags set", () => {
-    const sentence = teaserSentence({
-      has_husbandry: true,
-      cares_status: "priority",
-      shoal_priority: true,
-    });
-    expect(sentence).toBe("A CARES / SHOAL priority species.");
+  it("returns 'caresShoal' when both flags set", () => {
+    expect(
+      teaserSentenceToken({
+        has_husbandry: true,
+        cares_status: "priority",
+        shoal_priority: true,
+      }),
+    ).toBe("caresShoal");
   });
 
-  it("uses CARES-only phrasing when only CARES set", () => {
-    const sentence = teaserSentence({
-      has_husbandry: true,
-      cares_status: "priority",
-      shoal_priority: false,
-    });
-    expect(sentence).toBe("A CARES priority species.");
+  it("returns 'cares' when only CARES set", () => {
+    expect(
+      teaserSentenceToken({
+        has_husbandry: true,
+        cares_status: "priority",
+        shoal_priority: false,
+      }),
+    ).toBe("cares");
+  });
+
+  it("returns 'shoal' when only SHOAL set", () => {
+    expect(
+      teaserSentenceToken({
+        has_husbandry: true,
+        cares_status: null,
+        shoal_priority: true,
+      }),
+    ).toBe("shoal");
   });
 });
 
@@ -201,7 +213,9 @@ describe("collectDifficultyFactors — elision (AC-09.5)", () => {
     const factors = collectDifficultyFactors(h);
     expect(factors).toHaveLength(2);
     expect(factors[0]?.key).toBe("difficulty_water_parameter_demand");
+    expect(factors[0]?.token).toBe("waterParams");
     expect(factors[1]?.key).toBe("difficulty_breeding_complexity");
+    expect(factors[1]?.token).toBe("breedingComplexity");
     expect(factors[0]?.value).toBe("demanding — stable soft water required");
   });
 
@@ -213,6 +227,7 @@ describe("collectDifficultyFactors — elision (AC-09.5)", () => {
     const factors = collectDifficultyFactors(h);
     expect(factors).toHaveLength(1);
     expect(factors[0]?.key).toBe("difficulty_other");
+    expect(factors[0]?.token).toBe("other");
   });
 
   it("never produces a single aggregate difficulty label", () => {

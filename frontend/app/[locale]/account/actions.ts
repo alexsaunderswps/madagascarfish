@@ -33,3 +33,44 @@ export async function djangoLogoutAction(): Promise<{ ok: boolean }> {
     return { ok: false };
   }
 }
+
+const ALLOWED_LOCALES = new Set(["en", "fr", "de", "es"]);
+
+export type UpdateLocaleResult = { ok: true } | { ok: false; reason: string };
+
+/**
+ * Server-side half of the /account locale-picker (S9). PATCHes the
+ * authenticated user's preferred locale to Django; the field drives email
+ * locale in S8 and the default UI locale on first visit (architecture §13.7).
+ *
+ * Locale validation is server-side: the browser may send anything, we
+ * accept only the four whitelisted codes.
+ */
+export async function updateLocaleAction(
+  locale: string,
+): Promise<UpdateLocaleResult> {
+  if (!ALLOWED_LOCALES.has(locale)) {
+    return { ok: false, reason: "invalid_locale" };
+  }
+  const drfToken = await getServerDrfToken();
+  if (!drfToken) {
+    return { ok: false, reason: "unauthenticated" };
+  }
+  try {
+    const response = await fetch(`${resolveBaseUrl()}/api/v1/auth/me/locale/`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${drfToken}`,
+      },
+      body: JSON.stringify({ locale }),
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return { ok: false, reason: "server_error" };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: "network" };
+  }
+}

@@ -6,6 +6,17 @@ from django.contrib.auth.models import (
 )
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+# Locale choices for User.locale. Mirrors LANGUAGES in settings/base.py;
+# kept here to avoid an import cycle (settings imports accounts indirectly
+# through INSTALLED_APPS at startup).
+USER_LOCALE_CHOICES = [
+    ("en", "English"),
+    ("fr", "Français"),
+    ("de", "Deutsch"),
+    ("es", "Español"),
+]
 
 
 class UserManager(BaseUserManager["User"]):
@@ -42,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     access_tier = models.IntegerField(
         default=2,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
-        help_text="1=Public, 2=Researcher, 3=Coordinator, 4=Program Manager, 5=Admin",
+        help_text=_("1=Public, 2=Researcher, 3=Coordinator, 4=Program Manager, 5=Admin"),
     )
     institution = models.ForeignKey(
         "populations.Institution",
@@ -54,10 +65,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     expertise_areas = models.TextField(blank=True)
     orcid_id = models.CharField(max_length=50, blank=True)
     is_active = models.BooleanField(
-        default=False, help_text="Inactive until manually activated or email-verified."
+        default=False, help_text=_("Inactive until manually activated or email-verified.")
     )
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    locale = models.CharField(
+        max_length=5,
+        choices=USER_LOCALE_CHOICES,
+        default="en",
+        help_text=_(
+            "Preferred locale for transactional emails and (when logged in) the "
+            "default UI locale on first visit. User-changeable from the account "
+            "page."
+        ),
+    )
 
     objects = UserManager()
 
