@@ -114,7 +114,7 @@ function hasAnyBreeding(h: SpeciesHusbandry): boolean {
 export async function generateMetadata({ params }: { params: PageParams }) {
   const [speciesResult, husbandryResult, t] = await Promise.all([
     fetchSpeciesDetail(params.id, { locale: params.locale }),
-    fetchSpeciesHusbandry(params.id),
+    fetchSpeciesHusbandry(params.id, { locale: params.locale }),
     getTranslations("husbandry"),
   ]);
 
@@ -136,7 +136,7 @@ export async function generateMetadata({ params }: { params: PageParams }) {
 export default async function HusbandryPage({ params }: { params: PageParams }) {
   const [speciesResult, husbandryResult, t] = await Promise.all([
     fetchSpeciesDetail(params.id, { locale: params.locale }),
-    fetchSpeciesHusbandry(params.id),
+    fetchSpeciesHusbandry(params.id, { locale: params.locale }),
     getTranslations("husbandry"),
   ]);
 
