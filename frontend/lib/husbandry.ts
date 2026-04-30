@@ -138,31 +138,48 @@ export function isReviewStale(
 
 // -----------------------------------------------------------------------------
 // Pure logic exported for unit tests and component rendering.
+//
+// L4: helpers in this module return symbolic tokens (not English strings)
+// so that components — which have `useTranslations` access — render the
+// active locale. See `docs/planning/i18n/L4-S1-english-pockets-survey.md`.
 // -----------------------------------------------------------------------------
+
+export type DifficultyFactorToken =
+  | "adultSize"
+  | "spaceDemand"
+  | "temperament"
+  | "waterParams"
+  | "dietary"
+  | "breedingComplexity"
+  | "other";
 
 export interface DifficultyFactor {
   key: string;
-  label: string;
+  /** Catalog token under `husbandry.difficulty.<token>`. */
+  token: DifficultyFactorToken;
   value: string;
 }
 
-const DIFFICULTY_FACTOR_ORDER: Array<{ key: keyof SpeciesHusbandry; label: string }> = [
-  { key: "difficulty_adult_size", label: "Adult size" },
-  { key: "difficulty_space_demand", label: "Space demand" },
-  { key: "difficulty_temperament_challenge", label: "Temperament challenge" },
-  { key: "difficulty_water_parameter_demand", label: "Water parameter demand" },
-  { key: "difficulty_dietary_specialization", label: "Dietary specialization" },
-  { key: "difficulty_breeding_complexity", label: "Breeding complexity" },
-  { key: "difficulty_other", label: "Other" },
+const DIFFICULTY_FACTOR_ORDER: Array<{
+  key: keyof SpeciesHusbandry;
+  token: DifficultyFactorToken;
+}> = [
+  { key: "difficulty_adult_size", token: "adultSize" },
+  { key: "difficulty_space_demand", token: "spaceDemand" },
+  { key: "difficulty_temperament_challenge", token: "temperament" },
+  { key: "difficulty_water_parameter_demand", token: "waterParams" },
+  { key: "difficulty_dietary_specialization", token: "dietary" },
+  { key: "difficulty_breeding_complexity", token: "breedingComplexity" },
+  { key: "difficulty_other", token: "other" },
 ];
 
 /** Collect non-blank difficulty factors in display order (spec AC-09.5). */
 export function collectDifficultyFactors(h: SpeciesHusbandry): DifficultyFactor[] {
   const out: DifficultyFactor[] = [];
-  for (const { key, label } of DIFFICULTY_FACTOR_ORDER) {
+  for (const { key, token } of DIFFICULTY_FACTOR_ORDER) {
     const v = h[key];
     if (typeof v === "string" && v.trim() !== "") {
-      out.push({ key: String(key), label, value: v });
+      out.push({ key: String(key), token, value: v });
     }
   }
   return out;
@@ -174,6 +191,12 @@ export function collectDifficultyFactors(h: SpeciesHusbandry): DifficultyFactor[
 
 export type TeaserVariant = "standard" | "emphasized";
 
+/** Catalog token under `species.profile.husbandryTeaser.chip.<token>`. */
+export type TeaserChipToken = "caresShoal" | "cares" | "shoal";
+
+/** Catalog token under `species.profile.husbandryTeaser.sentence.<token>`. */
+export type TeaserSentenceToken = "caresShoal" | "cares" | "shoal" | "default";
+
 export interface TeaserContext {
   has_husbandry: boolean;
   cares_status: string | null;
@@ -183,7 +206,8 @@ export interface TeaserContext {
 export interface TeaserPresentation {
   render: boolean;
   variant: TeaserVariant;
-  chipText: string | null; // null in standard variant
+  /** null in standard variant; component renders chip text from t(`chip.${token}`). */
+  chipToken: TeaserChipToken | null;
 }
 
 /**
@@ -192,47 +216,42 @@ export interface TeaserPresentation {
  * Rules (from spec "Visual treatment — teaser block", locked 2026-04-18):
  * - Render iff `has_husbandry` is true.
  * - Emphasized when `cares_status` is a non-empty string OR `shoal_priority`.
- * - Chip reads "CARES + SHOAL priority" when BOTH are set, otherwise the
- *   single-flag phrase — never stack two chips.
+ * - Chip token resolves to "caresShoal" when BOTH are set, otherwise the
+ *   single-flag token — never stack two chips.
  */
 export function teaserPresentation(ctx: TeaserContext): TeaserPresentation {
   if (!ctx.has_husbandry) {
-    return { render: false, variant: "standard", chipText: null };
+    return { render: false, variant: "standard", chipToken: null };
   }
   const hasCares = typeof ctx.cares_status === "string" && ctx.cares_status.trim() !== "";
   const hasShoal = ctx.shoal_priority === true;
   if (!hasCares && !hasShoal) {
-    return { render: true, variant: "standard", chipText: null };
+    return { render: true, variant: "standard", chipToken: null };
   }
-  let chipText: string;
+  let chipToken: TeaserChipToken;
   if (hasCares && hasShoal) {
-    chipText = "CARES + SHOAL priority";
+    chipToken = "caresShoal";
   } else if (hasCares) {
-    chipText = "CARES breeder priority";
+    chipToken = "cares";
   } else {
-    chipText = "SHOAL priority";
+    chipToken = "shoal";
   }
-  return { render: true, variant: "emphasized", chipText };
+  return { render: true, variant: "emphasized", chipToken };
 }
 
 /**
- * Build the short teaser sentence for the CARES/SHOAL-emphasized variant
+ * Resolve the teaser-sentence token for the CARES/SHOAL-emphasized variant
  * (copy from `docs/planning/copy/husbandry-platform-copy.md` §2 Variant A,
- * with single-flag rewrites per "Notes for implementation").
+ * with single-flag rewrites per "Notes for implementation"). Component
+ * renders the localized string via t(`sentence.${token}`).
  */
-export function teaserSentence(ctx: TeaserContext): string {
+export function teaserSentenceToken(ctx: TeaserContext): TeaserSentenceToken {
   const hasCares = typeof ctx.cares_status === "string" && ctx.cares_status.trim() !== "";
   const hasShoal = ctx.shoal_priority === true;
-  if (hasCares && hasShoal) {
-    return "A CARES / SHOAL priority species.";
-  }
-  if (hasCares) {
-    return "A CARES priority species.";
-  }
-  if (hasShoal) {
-    return "A SHOAL priority species.";
-  }
-  return "Guidance on keeping this species, drawn from keepers and published sources.";
+  if (hasCares && hasShoal) return "caresShoal";
+  if (hasCares) return "cares";
+  if (hasShoal) return "shoal";
+  return "default";
 }
 
 /**

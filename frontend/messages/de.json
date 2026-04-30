@@ -316,7 +316,18 @@
       "husbandryTeaser": {
         "heading": "Keeping this species",
         "seeGuidancePrefix": "See husbandry guidance",
-        "arrow": "→"
+        "arrow": "→",
+        "chip": {
+          "caresShoal": "CARES + SHOAL priority",
+          "cares": "CARES breeder priority",
+          "shoal": "SHOAL priority"
+        },
+        "sentence": {
+          "caresShoal": "A CARES / SHOAL priority species.",
+          "cares": "A CARES priority species.",
+          "shoal": "A SHOAL priority species.",
+          "default": "Guidance on keeping this species, drawn from keepers and published sources."
+        }
       },
       "sourcingEthics": {
         "heading": "Sourcing ethics",
@@ -904,6 +915,15 @@
       "para2": "Use it as a starting point, compare it against other references, and consult a qualified aquatic veterinarian for health concerns."
     },
     "difficultyTitle": "Difficulty Factors",
+    "difficulty": {
+      "adultSize": "Adult size",
+      "spaceDemand": "Space demand",
+      "temperament": "Temperament challenge",
+      "waterParams": "Water parameter demand",
+      "dietary": "Dietary specialization",
+      "breedingComplexity": "Breeding complexity",
+      "other": "Other"
+    },
     "showMoreFactors": "{count, plural, one {Show # more factor} other {Show # more factors}}",
     "metaTitleTemplate": "Keeping {name} — Madagascar Freshwater Fish",
     "metaTitleNotFound": "Husbandry not found — Madagascar Freshwater Fish",

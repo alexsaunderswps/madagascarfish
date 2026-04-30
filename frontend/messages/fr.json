@@ -316,7 +316,18 @@
       "husbandryTeaser": {
         "heading": "Maintenir cette espèce",
         "seeGuidancePrefix": "Voir les recommandations d'élevage",
-        "arrow": "→"
+        "arrow": "→",
+        "chip": {
+          "caresShoal": "Priorité CARES + SHOAL",
+          "cares": "Priorité éleveur CARES",
+          "shoal": "Priorité SHOAL"
+        },
+        "sentence": {
+          "caresShoal": "Une espèce prioritaire CARES / SHOAL.",
+          "cares": "Une espèce prioritaire CARES.",
+          "shoal": "Une espèce prioritaire SHOAL.",
+          "default": "Recommandations pour la maintenance de cette espèce, tirées de l'expérience d'éleveurs et de sources publiées."
+        }
       },
       "sourcingEthics": {
         "heading": "Éthique de l'approvisionnement",
@@ -904,6 +915,15 @@
       "para2": "Utilisez-les comme point de départ, comparez-les à d'autres références, et consultez un vétérinaire spécialisé en médecine aquatique en cas de problème de santé."
     },
     "difficultyTitle": "Facteurs de difficulté",
+    "difficulty": {
+      "adultSize": "Taille adulte",
+      "spaceDemand": "Espace requis",
+      "temperament": "Difficulté de tempérament",
+      "waterParams": "Exigences sur les paramètres de l'eau",
+      "dietary": "Spécialisation alimentaire",
+      "breedingComplexity": "Complexité de la reproduction",
+      "other": "Autre"
+    },
     "showMoreFactors": "{count, plural, one {Afficher # facteur supplémentaire} other {Afficher # facteurs supplémentaires}}",
     "metaTitleTemplate": "Maintenir {name} — Poissons d'eau douce de Madagascar",
     "metaTitleNotFound": "Élevage introuvable — Poissons d'eau douce de Madagascar",

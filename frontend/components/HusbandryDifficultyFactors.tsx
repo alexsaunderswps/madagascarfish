@@ -17,9 +17,8 @@ import { collectDifficultyFactors, type SpeciesHusbandry } from "@/lib/husbandry
  * If every factor is blank, the component renders nothing so the parent
  * page can elide the whole subsection heading.
  *
- * Note: factor labels and values come from collectDifficultyFactors in
- * lib/husbandry, which still returns English. Localizing those helpers is
- * L4 polish — same caveat as HusbandryTeaser's teaserSentence.
+ * Factor labels resolve from `husbandry.difficulty.<token>` in the active
+ * locale; collectDifficultyFactors returns symbolic tokens (L4 S3).
  */
 const VISIBLE_FACTORS = 2;
 
@@ -43,7 +42,7 @@ export default function HusbandryDifficultyFactors({
       <dl className="mt-2 space-y-2 text-sm text-slate-700">
         {visible.map((f) => (
           <div key={f.key}>
-            <dt className="font-medium text-slate-500">{f.label}</dt>
+            <dt className="font-medium text-slate-500">{t(`difficulty.${f.token}`)}</dt>
             <dd className="mt-0.5">{f.value}</dd>
           </div>
         ))}
@@ -56,7 +55,7 @@ export default function HusbandryDifficultyFactors({
           <dl className="mt-2 space-y-2">
             {hidden.map((f) => (
               <div key={f.key}>
-                <dt className="font-medium text-slate-500">{f.label}</dt>
+                <dt className="font-medium text-slate-500">{t(`difficulty.${f.token}`)}</dt>
                 <dd className="mt-0.5">{f.value}</dd>
               </div>
             ))}
