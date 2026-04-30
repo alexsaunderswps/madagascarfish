@@ -20,6 +20,7 @@ Usage:
     python manage.py translate_species --locale fr --species 42 43 99
     python manage.py translate_species --locale fr --family Bedotiidae
     python manage.py translate_species --locale fr --force
+    python manage.py translate_species --locale fr --retranslate-stale
     python manage.py translate_species --locale fr --dry-run
 
 Reads DEEPL_API_KEY from the .env loaded by config/settings/base.py.
@@ -111,6 +112,16 @@ class Command(BaseCommand):
             ),
         )
         parser.add_argument(
+            "--retranslate-stale",
+            action="store_true",
+            help=(
+                "Re-run MT only on TranslationStatus rows that were demoted "
+                "back to mt_draft because their English source changed (signal "
+                "auto-invalidation). Overwrites the existing target column. "
+                "Equivalent to scoping --species + --force to those rows."
+            ),
+        )
+        parser.add_argument(
             "--dry-run",
             action="store_true",
             help="Print the job plan without calling DeepL.",
@@ -129,6 +140,34 @@ class Command(BaseCommand):
         force: bool = options["force"]
         dry_run: bool = options["dry_run"]
         skip_taxon: bool = options["no_taxon"]
+        retranslate_stale: bool = options["retranslate_stale"]
+
+        # --retranslate-stale resolves to: find species rows whose
+        # TranslationStatus is mt_draft AND was auto-demoted (signal note
+        # about English-source change). Force-retranslate those.
+        if retranslate_stale:
+            if species_ids or family:
+                raise CommandError(
+                    "--retranslate-stale is mutually exclusive with --species and --family."
+                )
+            species_ct = ContentType.objects.get_for_model(Species)
+            stale_ids = list(
+                TranslationStatus.objects.filter(
+                    content_type=species_ct,
+                    locale=locale,
+                    status=TranslationStatus.Status.MT_DRAFT,
+                    notes__icontains="English source changed",
+                )
+                .values_list("object_id", flat=True)
+                .distinct()
+            )
+            if not stale_ids:
+                self.stdout.write(
+                    f"[translate_species] no stale {locale} rows; nothing to do."
+                )
+                return
+            species_ids = stale_ids
+            force = True
 
         key = os.environ.get("DEEPL_API_KEY", "").strip()
         if not key and not dry_run:
