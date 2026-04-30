@@ -1,5 +1,89 @@
 # TODO
 
+## Translation review walkthrough (FR ready now; DE + ES post-ABQ)
+
+**Status as of 2026-04-30:**
+
+| Locale | Frontend UI catalog | Species `distribution_narrative` | Backend `gettext` (.po) | Flag |
+|---|---|---|---|---|
+| `fr` | Translated + voice-reviewed | **143 rows in `writer_reviewed` — awaiting your approval** | 89 msgids translated | `..._FR=false` (flip after approval pass) |
+| `de` | MT pre-staged (786 strings) | 143 rows in `mt_draft` (post-ABQ) | 97 msgids translated | `..._DE=false` |
+| `es` | MT pre-staged (786 strings) | 143 rows in `mt_draft` (post-ABQ) | 97 msgids translated | `..._ES=false` |
+
+### How to compare two locale versions of a translation
+
+For one species' long-form prose at the API level (no auth needed for
+public fields):
+
+```bash
+curl -s -H "Accept-Language: en" "http://localhost:8000/api/v1/species/1/" \
+    | python3 -c "import sys,json; d=json.load(sys.stdin); print('EN:', d['distribution_narrative'][:200])"
+curl -s -H "Accept-Language: fr" "http://localhost:8000/api/v1/species/1/" \
+    | python3 -c "import sys,json; d=json.load(sys.stdin); print('FR:', d['distribution_narrative'][:200])"
+```
+
+For the **side-by-side review screen** (the operational workflow):
+
+1. Visit `localhost:8000/admin/i18n/translationstatus/`
+2. Filter: `locale=fr`, `status=writer_reviewed`, `content_type=Species`
+3. Click into any row — the change form has the **English source** pane
+   (read-only) on top and the **Target translation** pane (editable)
+   below. Edit inline; save writes back to the underlying species
+   row's `<field>_<locale>` column.
+4. To approve a batch: back on the list view, bulk-select rows →
+   Action dropdown → **"Approve: writer_reviewed → human_approved"** →
+   Go. Stamps `human_approved_by` + `human_approved_at`.
+
+### FR approval pass — your TODO
+
+- [ ] Filter to `locale=fr`, `status=writer_reviewed`, content_type=Species
+      (143 rows expected)
+- [ ] Walk through them family by family. Bedotiidae (29) is the demo
+      banner family — start there. Cichlidae (48) is the largest;
+      Aplocheilidae (8), Anchariidae (6), and the 21 small families
+      (~58 rows) are quicker.
+- [ ] Bulk-approve each family's batch via the admin action.
+- [ ] When the demo families (at least Bedotiidae) are approved, run
+      the flag-flip pre-flight in
+      `docs/operations/i18n-flag-flip-runbook.md` and flip
+      `NEXT_PUBLIC_FEATURE_I18N_FR=true` on Vercel.
+
+### DE + ES — post-ABQ
+
+Both are MT-only right now. Post-workshop work per
+`docs/planning/specs/gate-L5-german.md` and
+`docs/planning/specs/gate-L6-spanish.md`:
+
+1. `@conservation-writer` voice review of `frontend/messages/<locale>.json`
+2. Hand-translate the 12 plurals each
+3. Family-batched conservation-writer review of the 143 `mt_draft`
+   species rows
+4. Human-approval pass + flag flip
+
+Estimated effort: ~1 focused day per locale.
+
+## Coordinator-dashboard demo data — seeded 2026-04-30
+
+Shipped demo data so the Tier-3 coordinator dashboard panels render
+non-empty for the ABQ workshop. **Seed is "demo-shaped, not field
+data"**; replace before any external sharing.
+
+- Source: `data/seed/coordinator-demo/institutions_populations.csv`
+- README: `data/seed/coordinator-demo/README.md`
+- Loaders: `seed_populations` then `seed_demo_coordination` (both
+  idempotent).
+- Result: 9 Institutions, 18 ExSituPopulations, 8 CoordinatedPrograms,
+  2 Transfers, 7 BreedingRecommendations, 24 BreedingEvents.
+
+**Real-data swap-in** before any partner-facing share:
+
+- [ ] Replace count + census-date columns with ZIMS-accurate numbers
+- [ ] Confirm institution × species pairings against actual holdings
+- [ ] Re-run `seed_populations` (idempotent on institution name +
+      species pair)
+
+---
+
 ## Wire up `malagasyfishes.org` (public URL — decided 2026-04-19)
 
 **Decision:** Public URL is `malagasyfishes.org`. Staging remains
