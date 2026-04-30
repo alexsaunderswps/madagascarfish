@@ -264,6 +264,64 @@ changes a term standard (e.g., "studbook" → "livre généalogique" not
 
 ---
 
+## Adding new English content → translating it
+
+The MT pipeline is **idempotent** — `translate_species` skips fields whose
+target column already has content and translates only what's empty. So the
+flow for new content is:
+
+```bash
+# 1. Edit description_en / ecology_notes_en / distribution_narrative_en /
+#    morphology_en via Django admin, a content-fill management command, or
+#    bulk import.
+
+# 2. Run the MT pipeline (idempotent — only translates new/empty rows).
+docker compose exec web python manage.py translate_species --locale fr
+docker compose exec web python manage.py translate_species --locale de  # post-ABQ
+docker compose exec web python manage.py translate_species --locale es  # post-ABQ
+
+# 3. Review the new mt_draft rows in admin → writer_reviewed → human_approved.
+#    See "Layer 2 — Species and Taxon content" above for the per-row flow.
+```
+
+Family-scoped run:
+
+```bash
+docker compose exec web python manage.py translate_species --locale fr --family Bedotiidae
+```
+
+Dry-run (no DeepL calls, prints the job plan):
+
+```bash
+docker compose exec web python manage.py translate_species --locale fr --dry-run
+```
+
+### Editing English on already-translated species
+
+The `post_save` signal auto-demotes the locale rows back to `mt_draft` with
+a "needs re-review" note (the French text is preserved, but the review-gate
+serves the English fallback until somebody re-reviews). To **retranslate**
+rather than just re-review:
+
+```bash
+docker compose exec web python manage.py translate_species --locale fr --species 42 --force
+```
+
+### Cron-friendly batch run (post-ABQ)
+
+`translate_species` is safe to run on a schedule (idempotent + only translates
+empty cells). Once L4 ships and prod has the deployment, a weekly cron is a
+reasonable pattern: it queues new content for review without manual prompting.
+
+### Husbandry content (currently English-only)
+
+`SpeciesHusbandry` is **not yet translatable** — see the post-L4 ticket to
+register it with `django-modeltranslation` and extend `translate_species` to
+walk husbandry fields too. Until that lands, husbandry pages render English
+on `/fr/`, `/de/`, `/es/` regardless of locale.
+
+---
+
 ## Quick reference
 
 | What needs fixing | Where | What advances it |
@@ -273,6 +331,7 @@ changes a term standard (e.g., "studbook" → "livre généalogique" not
 | Status of a translation row | Translation statuses list → bulk-select → action dropdown | Admin actions: Advance / Approve / Send back |
 | Glossary term convention used 5+ times | `.claude/agents/conservation-writer.md` (table) + sed-fix existing catalog/DB + bulk-demote affected rows | Re-review the demoted batch |
 | English source content (any layer) | Edit en column or en.json | Auto-invalidates locale rows (Layer 2); doesn't touch Layer 1 |
+| New English content added (any species field) | Edit `<field>_en`, then `translate_species --locale <fr/de/es>` | Idempotent — translates only empty cells; produces `mt_draft` rows for review |
 
 ## Related
 

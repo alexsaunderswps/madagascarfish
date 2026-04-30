@@ -14,7 +14,7 @@ description: >
   copy for X", "funder summary", "handover doc", "review the French
   translation", "voice-check the German copy", or when copy-voice consistency
   matters across pages or languages.
-tools: Read, Grep, Glob, Write
+tools: Read, Grep, Glob, Write, Bash
 model: opus
 ---
 
