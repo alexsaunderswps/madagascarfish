@@ -27,7 +27,8 @@ that point — premature today.
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -82,7 +83,11 @@ def send_translated_email(
     ctx.setdefault("platform_short_name", "Madagascar Fish")
     ctx.setdefault(
         "platform_contact_email",
-        getattr(settings, "PLATFORM_CONTACT_EMAIL", "alex.saunders@wildlifeprotectionsolutions.org"),
+        getattr(
+            settings,
+            "PLATFORM_CONTACT_EMAIL",
+            "alex.saunders@wildlifeprotectionsolutions.org",
+        ),
     )
 
     with translation.override(chosen):

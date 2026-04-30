@@ -55,8 +55,7 @@ class ConservationAssessmentAdminForm(forms.ModelForm):
             for field in missing:
                 self.add_error(
                     field,
-                    _("`%(field)s` is required when source is `manual_expert`.")
-                    % {"field": field},
+                    _("`%(field)s` is required when source is `manual_expert`.") % {"field": field},
                 )
             if not cleaned.get("reason"):
                 self.add_error(

@@ -128,9 +128,7 @@ class ExSituPopulationAdmin(admin.ModelAdmin):
                     )
             # For creates, verify the target institution matches the user's
             if obj.institution_id != request.user.institution_id:  # type: ignore[union-attr]
-                raise PermissionDenied(
-                    _("You can only create records for your own institution.")
-                )
+                raise PermissionDenied(_("You can only create records for your own institution."))
         super().save_model(request, obj, form, change)
         ok, msg = _post_revalidate()
         level = messages.SUCCESS if ok else messages.WARNING

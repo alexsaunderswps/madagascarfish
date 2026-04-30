@@ -36,7 +36,6 @@ import os
 import re
 import time
 from dataclasses import dataclass
-from typing import Iterable
 
 import requests
 from django.contrib.contenttypes.models import ContentType
@@ -182,9 +181,7 @@ class Command(BaseCommand):
                 .distinct()
             )
             if not stale_ids:
-                self.stdout.write(
-                    f"[translate_species] no stale {locale} rows; nothing to do."
-                )
+                self.stdout.write(f"[translate_species] no stale {locale} rows; nothing to do.")
                 return
             species_ids = stale_ids
             force = True
@@ -294,9 +291,7 @@ class Command(BaseCommand):
         if dry_run:
             for j in jobs[:20]:
                 preview = j.source_text[:60].replace("\n", " ")
-                self.stdout.write(
-                    f"  - {j.model}#{j.object_id}.{j.field}: {preview!r}"
-                )
+                self.stdout.write(f"  - {j.model}#{j.object_id}.{j.field}: {preview!r}")
             if len(jobs) > 20:
                 self.stdout.write(f"  ... and {len(jobs) - 20} more")
             return
@@ -317,16 +312,12 @@ class Command(BaseCommand):
             batch = jobs[batch_start : batch_start + BATCH_SIZE]
             sources = [j.source_text for j in batch]
             try:
-                translations = self._call_deepl(
-                    key, endpoint, sources, deepl_lang
-                )
+                translations = self._call_deepl(key, endpoint, sources, deepl_lang)
             except Exception as exc:
                 self.stderr.write(
                     f"[translate_species] DeepL batch starting at {batch_start} failed: {exc}"
                 )
-                self.stderr.write(
-                    "[translate_species] partial batch NOT written. Re-run to retry."
-                )
+                self.stderr.write("[translate_species] partial batch NOT written. Re-run to retry.")
                 raise
 
             with transaction.atomic():
@@ -348,9 +339,7 @@ class Command(BaseCommand):
                         },
                     )
                     translated += 1
-            self.stdout.write(
-                f"[translate_species] {translated}/{len(jobs)} translated"
-            )
+            self.stdout.write(f"[translate_species] {translated}/{len(jobs)} translated")
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -415,9 +404,7 @@ class Command(BaseCommand):
             )
 
         if not response.ok:
-            raise RuntimeError(
-                f"DeepL {response.status_code}: {response.text[:500]}"
-            )
+            raise RuntimeError(f"DeepL {response.status_code}: {response.text[:500]}")
 
         data = response.json()
         return [self._decode_from_deepl(t["text"]) for t in data["translations"]]

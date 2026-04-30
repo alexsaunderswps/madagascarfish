@@ -12,7 +12,7 @@ extend-exclude = ["*/migrations/*"]
 select = ["E", "F", "W", "I", "N", "UP"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["config", "species", "populations", "fieldwork", "accounts", "integration", "audit"]
+known-first-party = ["config", "species", "populations", "fieldwork", "accounts", "integration", "audit", "husbandry", "i18n"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -35,10 +35,13 @@ module = [
     "audit.context",
     "audit.signals",
     "config.pagination",
+    "accounts.models",
     "fieldwork.admin",
+    "fieldwork.models",
     "fieldwork.serializers",
     "fieldwork.views",
     "husbandry.admin",
+    "husbandry.models",
     "husbandry.serializers",
     "husbandry.views",
     "husbandry.tests",
@@ -55,6 +58,12 @@ module = [
     "species.views_dashboard",
     "species.views_map",
     "species.management.*",
+    "i18n.admin",
+    "i18n.apps",
+    "i18n.email",
+    "i18n.serializers",
+    "i18n.signals",
+    "i18n.management.*",
     "tests.*",
     "*.migrations.*",
 ]
@@ -72,6 +81,7 @@ disable_error_code = [
     "attr-defined",
     "var-annotated",
     "override",
+    "django-manager-missing",
 ]
 
 [tool.django-stubs]
