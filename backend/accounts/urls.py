@@ -10,6 +10,7 @@ urlpatterns = [
     path("login/", views.login, name="login"),
     path("logout/", views.logout, name="logout"),
     path("me/", views.me, name="me"),
+    path("me/locale/", views.update_locale, name="update-locale"),
     # Test helper — gated by settings.ALLOW_TEST_HELPERS, returns 404 in prod.
     path(
         "_test/verification-token/",

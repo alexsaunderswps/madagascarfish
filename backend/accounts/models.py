@@ -8,6 +8,16 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+# Locale choices for User.locale. Mirrors LANGUAGES in settings/base.py;
+# kept here to avoid an import cycle (settings imports accounts indirectly
+# through INSTALLED_APPS at startup).
+USER_LOCALE_CHOICES = [
+    ("en", "English"),
+    ("fr", "Français"),
+    ("de", "Deutsch"),
+    ("es", "Español"),
+]
+
 
 class UserManager(BaseUserManager["User"]):
     def create_user(
@@ -59,6 +69,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    locale = models.CharField(
+        max_length=5,
+        choices=USER_LOCALE_CHOICES,
+        default="en",
+        help_text=_(
+            "Preferred locale for transactional emails and (when logged in) the "
+            "default UI locale on first visit. User-changeable from the account "
+            "page."
+        ),
+    )
 
     objects = UserManager()
 

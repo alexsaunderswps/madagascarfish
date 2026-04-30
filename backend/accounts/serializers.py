@@ -33,5 +33,27 @@ class LoginSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "email", "name", "access_tier", "institution", "is_active", "date_joined"]
-        read_only_fields = fields
+        fields = [
+            "id",
+            "email",
+            "name",
+            "access_tier",
+            "institution",
+            "is_active",
+            "date_joined",
+            "locale",
+        ]
+        read_only_fields = [
+            "id",
+            "email",
+            "access_tier",
+            "institution",
+            "is_active",
+            "date_joined",
+        ]
+
+
+class UserLocaleUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["locale"]

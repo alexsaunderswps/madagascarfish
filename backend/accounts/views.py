@@ -17,7 +17,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from accounts.models import User
-from accounts.serializers import LoginSerializer, RegisterSerializer, UserProfileSerializer
+from accounts.serializers import (
+    LoginSerializer,
+    RegisterSerializer,
+    UserLocaleUpdateSerializer,
+    UserProfileSerializer,
+)
 
 signer = TimestampSigner()
 
@@ -75,11 +80,18 @@ def register(request: Request) -> Response:
     serializer.is_valid(raise_exception=True)
 
     data = serializer.validated_data
+    # Capture signup locale from the request — set by Django's LocaleMiddleware
+    # from Accept-Language. Frontend sends the path-prefix locale (en/fr/de/es)
+    # so a French signup gets locale='fr' baked in for transactional emails.
+    signup_locale = (getattr(request, "LANGUAGE_CODE", "en") or "en").split("-")[0]
+    if signup_locale not in {"en", "fr", "de", "es"}:
+        signup_locale = "en"
     user = User.objects.create_user(
         email=data["email"],
         password=data["password"],
         name=data["name"],
         is_active=False,
+        locale=signup_locale,
     )
     if data.get("institution_id"):
         user.institution_id = data["institution_id"]
@@ -192,6 +204,24 @@ def logout(request: Request) -> Response:
 def me(request: Request) -> Response:
     serializer = UserProfileSerializer(request.user)
     return Response(serializer.data)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_locale(request: Request) -> Response:
+    """Self-serve update of the active user's preferred locale.
+
+    Used by the /account locale picker (S9). Accepts only the `locale`
+    field; everything else on UserProfileSerializer is read-only via
+    that endpoint anyway. Returns the full updated profile so the
+    frontend can refresh its session cache in one round-trip.
+    """
+    serializer = UserLocaleUpdateSerializer(
+        request.user, data=request.data, partial=True
+    )
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(UserProfileSerializer(request.user).data)
 
 
 # --- Test-only helpers (Gate 11 C9) ---
