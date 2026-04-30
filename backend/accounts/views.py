@@ -5,10 +5,11 @@ import hashlib
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.core.cache import cache
-from django.core.mail import send_mail
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
+
+from i18n.email import send_translated_email
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -102,11 +103,14 @@ def register(request: Request) -> Response:
     frontend_url = settings.FRONTEND_BASE_URL
     verification_url = f"{frontend_url}/verify?token={token}"
 
-    send_mail(
-        subject=str(_("Verify your Madagascar Fish account")),
-        message=str(_("Click to verify your account: %(url)s")) % {"url": verification_url},
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
+    # Locale is the new user's preferred locale (just set above from
+    # request.LANGUAGE_CODE). Email templates use {% trans %} blocks; the
+    # helper wraps `translation.override(locale)` so blocks resolve in
+    # the right language.
+    send_translated_email(
+        recipient=user,
+        template="accounts/verify_email",
+        context={"verification_url": verification_url, "user": user},
         fail_silently=True,
     )
 

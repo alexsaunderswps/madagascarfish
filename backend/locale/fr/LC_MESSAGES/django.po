@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: madagascarfish 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-30 15:57+0000\n"
+"POT-Creation-Date: 2026-04-30 16:02+0000\n"
 "PO-Revision-Date: 2026-04-30 15:50+0000\n"
 "Last-Translator: conservation-writer + Aleksei Saunders\n"
 "Language-Team: French <fr@madagascarfish>\n"
@@ -16,63 +16,106 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: accounts/models.py:46
+#: accounts/models.py:56
 msgid "1=Public, 2=Researcher, 3=Coordinator, 4=Program Manager, 5=Admin"
 msgstr ""
 "1=Public, 2=Chercheur, 3=Coordinateur, 4=Responsable de programme, "
 "5=Administrateur"
 
-#: accounts/models.py:58
+#: accounts/models.py:68
 msgid "Inactive until manually activated or email-verified."
 msgstr "Inactif jusqu'à activation manuelle ou vérification de l'e-mail."
+
+#: accounts/models.py:77
+msgid ""
+"Preferred locale for transactional emails and (when logged in) the default "
+"UI locale on first visit. User-changeable from the account page."
+msgstr ""
+"Langue préférée pour les e-mails transactionnels et (lorsque vous êtes "
+"connecté) la langue par défaut de l'interface lors de la première visite. "
+"Modifiable depuis la page de compte."
 
 #: accounts/serializers.py:17
 msgid "An account with this email already exists."
 msgstr "Un compte avec cette adresse e-mail existe déjà."
 
-#: accounts/views.py:94
+#: accounts/templates/accounts/verify_email_body.html:4
+#: accounts/templates/accounts/verify_email_subject.txt:1
 msgid "Verify your Madagascar Fish account"
 msgstr "Vérifiez votre compte Madagascar Fish"
 
-#: accounts/views.py:95
-#, python-format
-msgid "Click to verify your account: %(url)s"
-msgstr "Cliquez pour vérifier votre compte : %(url)s"
+#: accounts/templates/accounts/verify_email_body.html:6
+msgid "Click to verify your account — link expires in 48 hours."
+msgstr "Cliquez pour vérifier votre compte — le lien expire dans 48 heures."
 
-#: accounts/views.py:102
+#: accounts/templates/accounts/verify_email_body.html:10
+#, python-format
+msgid "Welcome to %(platform_short_name)s"
+msgstr "Bienvenue sur %(platform_short_name)s"
+
+#: accounts/templates/accounts/verify_email_body.html:14
+#: accounts/templates/accounts/verify_email_body.txt:3
+msgid ""
+"To finish creating your account, click the verification link below. The link "
+"is valid for 48 hours."
+msgstr ""
+"Pour finaliser la création de votre compte, cliquez sur le lien de "
+"vérification ci-dessous. Le lien est valable 48 heures."
+
+#: accounts/templates/accounts/verify_email_body.html:21
+msgid "Verify my account"
+msgstr "Vérifier mon compte"
+
+#: accounts/templates/accounts/verify_email_body.html:28
+msgid "If the button doesn't work, copy and paste this URL into your browser:"
+msgstr "Si le bouton ne fonctionne pas, copiez et collez cette URL dans votre navigateur :"
+
+#: accounts/templates/accounts/verify_email_body.html:35
+msgid "If you didn't sign up for an account, you can safely ignore this email."
+msgstr "Si vous n'avez pas créé de compte, vous pouvez ignorer cet e-mail en toute sécurité."
+
+#: accounts/templates/accounts/verify_email_body.txt:1
+msgid "Welcome to the Madagascar Freshwater Fish Conservation Platform."
+msgstr "Bienvenue sur la plateforme de conservation des poissons d'eau douce de Madagascar."
+
+#: accounts/templates/accounts/verify_email_body.txt:7
+msgid "If you didn't sign up for an account, you can ignore this email."
+msgstr "Si vous n'avez pas créé de compte, vous pouvez ignorer cet e-mail."
+
+#: accounts/views.py:118
 msgid "Registration successful. Check your email to verify your account."
 msgstr ""
 "Inscription réussie. Consultez votre messagerie pour vérifier votre compte."
 
-#: accounts/views.py:113
+#: accounts/views.py:129
 msgid "Missing verification token."
 msgstr "Jeton de vérification manquant."
 
-#: accounts/views.py:121
+#: accounts/views.py:137
 msgid "Verification link has expired."
 msgstr "Le lien de vérification a expiré."
 
-#: accounts/views.py:126 accounts/views.py:134
+#: accounts/views.py:142 accounts/views.py:150
 msgid "Invalid verification token."
 msgstr "Jeton de vérification invalide."
 
-#: accounts/views.py:139
+#: accounts/views.py:155
 msgid "Account already verified."
 msgstr "Compte déjà vérifié."
 
-#: accounts/views.py:144
+#: accounts/views.py:160
 msgid "Account verified successfully."
 msgstr "Compte vérifié avec succès."
 
-#: accounts/views.py:154
+#: accounts/views.py:170
 msgid "Too many login attempts. Try again in 15 minutes."
 msgstr "Trop de tentatives de connexion. Réessayez dans 15 minutes."
 
-#: accounts/views.py:168
+#: accounts/views.py:184
 msgid "Invalid email or password."
 msgstr "E-mail ou mot de passe incorrect."
 
-#: accounts/views.py:187
+#: accounts/views.py:203
 msgid "Logged out successfully."
 msgstr "Déconnexion réussie."
 
@@ -268,7 +311,14 @@ msgstr "Pipeline de traduction"
 
 #: i18n/models.py:73
 msgid "Provider that produced the original draft (e.g., 'deepl', 'manual')."
-msgstr "Fournisseur ayant produit le brouillon original (par exemple « deepl », « manual »)."
+msgstr ""
+"Fournisseur ayant produit le brouillon original (par exemple « deepl », "
+"« manual »)."
+
+#: i18n/templates/email/base.html:52
+#, python-format
+msgid "You're receiving this because you signed up at %(platform)s."
+msgstr "Vous recevez ce message parce que vous vous êtes inscrit sur %(platform)s."
 
 #: populations/admin.py:127
 msgid "You can only modify records for your own institution."
@@ -295,7 +345,8 @@ msgstr "Le gardien du livre généalogique nommé, le cas échéant."
 #: populations/models.py:144
 msgid ""
 "Institutions that have joined the program (not including the coordinator)."
-msgstr "Institutions ayant rejoint le programme (hors institution coordinatrice)."
+msgstr ""
+"Institutions ayant rejoint le programme (hors institution coordinatrice)."
 
 #: populations/models.py:149
 msgid "Optional demographic target per the program's plan."
@@ -303,7 +354,9 @@ msgstr "Objectif démographique facultatif selon le plan du programme."
 
 #: populations/models.py:153
 msgid "Short human summary of the current plan. Full plan docs link out."
-msgstr "Résumé court du plan actuel. Les documents complets sont accessibles via lien externe."
+msgstr ""
+"Résumé court du plan actuel. Les documents complets sont accessibles via "
+"lien externe."
 
 #: populations/models.py:157
 msgid "External link to the authoritative plan (PDF, Confluence, etc.)."
@@ -311,11 +364,15 @@ msgstr "Lien externe vers le plan de référence (PDF, Confluence, etc.)."
 
 #: populations/models.py:210
 msgid "Date the transfer was first proposed / logged."
-msgstr "Date à laquelle le transfert a été proposé ou enregistré pour la première fois."
+msgstr ""
+"Date à laquelle le transfert a été proposé ou enregistré pour la première "
+"fois."
 
 #: populations/models.py:216
 msgid "Date the transfer actually completed. Required when status='completed'."
-msgstr "Date à laquelle le transfert a effectivement été achevé. Requis lorsque status=« completed »."
+msgstr ""
+"Date à laquelle le transfert a effectivement été achevé. Requis lorsque "
+"status=« completed »."
 
 #: populations/models.py:235
 msgid "Optional: the program this transfer serves."
@@ -323,7 +380,9 @@ msgstr "Facultatif : le programme auquel ce transfert se rapporte."
 
 #: populations/models.py:336
 msgid "The program this recommendation was issued under, if any."
-msgstr "Le programme dans le cadre duquel cette recommandation a été émise, le cas échéant."
+msgstr ""
+"Le programme dans le cadre duquel cette recommandation a été émise, le cas "
+"échéant."
 
 #: populations/models.py:371
 msgid "When the recommendation was issued. Required."
@@ -416,11 +475,15 @@ msgstr "Emplacement fixe occupé par une région de page spécifique."
 
 #: species/models.py:314
 msgid "PNG or JPEG at or above the expected dimensions. Empty = no asset yet."
-msgstr "PNG ou JPEG à des dimensions au moins égales aux dimensions attendues. Vide = aucun visuel pour l'instant."
+msgstr ""
+"PNG ou JPEG à des dimensions au moins égales aux dimensions attendues. Vide "
+"= aucun visuel pour l'instant."
 
 #: species/models.py:319
 msgid "Screen-reader description of the thumbnail. Required when image is set."
-msgstr "Description pour lecteur d'écran de la vignette. Requis lorsqu'une image est définie."
+msgstr ""
+"Description pour lecteur d'écran de la vignette. Requis lorsqu'une image est "
+"définie."
 
 #: species/models.py:324
 msgid "Attribution line shown alongside the image, if any."
@@ -428,16 +491,22 @@ msgstr "Ligne d'attribution affichée à côté de l'image, le cas échéant."
 
 #: species/models.py:327
 msgid "Target render width in CSS pixels. Set when the slot is introduced."
-msgstr "Largeur de rendu cible en pixels CSS. Renseignée lors de l'introduction de l'emplacement."
+msgstr ""
+"Largeur de rendu cible en pixels CSS. Renseignée lors de l'introduction de "
+"l'emplacement."
 
 #: species/models.py:330
 msgid "Target render height in CSS pixels. Set when the slot is introduced."
-msgstr "Hauteur de rendu cible en pixels CSS. Renseignée lors de l'introduction de l'emplacement."
+msgstr ""
+"Hauteur de rendu cible en pixels CSS. Renseignée lors de l'introduction de "
+"l'emplacement."
 
 #: species/models.py:334
 msgid ""
 "Internal notes for editors — where the asset renders, sourcing guidance."
-msgstr "Notes internes pour les éditeurs — où le visuel s'affiche, indications de sourçage."
+msgstr ""
+"Notes internes pour les éditeurs — où le visuel s'affiche, indications de "
+"sourçage."
 
 #: species/models.py:349
 msgid "ISO 639-1 code: en, fr, mg"

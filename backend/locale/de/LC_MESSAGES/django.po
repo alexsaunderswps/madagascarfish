@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-30 15:57+0000\n"
+"POT-Creation-Date: 2026-04-30 16:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,60 +18,98 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: accounts/models.py:46
+#: accounts/models.py:56
 msgid "1=Public, 2=Researcher, 3=Coordinator, 4=Program Manager, 5=Admin"
 msgstr ""
 
-#: accounts/models.py:58
+#: accounts/models.py:68
 msgid "Inactive until manually activated or email-verified."
+msgstr ""
+
+#: accounts/models.py:77
+msgid ""
+"Preferred locale for transactional emails and (when logged in) the default "
+"UI locale on first visit. User-changeable from the account page."
 msgstr ""
 
 #: accounts/serializers.py:17
 msgid "An account with this email already exists."
 msgstr ""
 
-#: accounts/views.py:94
+#: accounts/templates/accounts/verify_email_body.html:4
+#: accounts/templates/accounts/verify_email_subject.txt:1
 msgid "Verify your Madagascar Fish account"
 msgstr ""
 
-#: accounts/views.py:95
-#, python-format
-msgid "Click to verify your account: %(url)s"
+#: accounts/templates/accounts/verify_email_body.html:6
+msgid "Click to verify your account — link expires in 48 hours."
 msgstr ""
 
-#: accounts/views.py:102
+#: accounts/templates/accounts/verify_email_body.html:10
+#, python-format
+msgid "Welcome to %(platform_short_name)s"
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:14
+#: accounts/templates/accounts/verify_email_body.txt:3
+msgid ""
+"To finish creating your account, click the verification link below. The link "
+"is valid for 48 hours."
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:21
+msgid "Verify my account"
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:28
+msgid "If the button doesn't work, copy and paste this URL into your browser:"
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.html:35
+msgid "If you didn't sign up for an account, you can safely ignore this email."
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.txt:1
+msgid "Welcome to the Madagascar Freshwater Fish Conservation Platform."
+msgstr ""
+
+#: accounts/templates/accounts/verify_email_body.txt:7
+msgid "If you didn't sign up for an account, you can ignore this email."
+msgstr ""
+
+#: accounts/views.py:118
 msgid "Registration successful. Check your email to verify your account."
 msgstr ""
 
-#: accounts/views.py:113
+#: accounts/views.py:129
 msgid "Missing verification token."
 msgstr ""
 
-#: accounts/views.py:121
+#: accounts/views.py:137
 msgid "Verification link has expired."
 msgstr ""
 
-#: accounts/views.py:126 accounts/views.py:134
+#: accounts/views.py:142 accounts/views.py:150
 msgid "Invalid verification token."
 msgstr ""
 
-#: accounts/views.py:139
+#: accounts/views.py:155
 msgid "Account already verified."
 msgstr ""
 
-#: accounts/views.py:144
+#: accounts/views.py:160
 msgid "Account verified successfully."
 msgstr ""
 
-#: accounts/views.py:154
+#: accounts/views.py:170
 msgid "Too many login attempts. Try again in 15 minutes."
 msgstr ""
 
-#: accounts/views.py:168
+#: accounts/views.py:184
 msgid "Invalid email or password."
 msgstr ""
 
-#: accounts/views.py:187
+#: accounts/views.py:203
 msgid "Logged out successfully."
 msgstr ""
 
@@ -244,6 +282,11 @@ msgstr ""
 
 #: i18n/models.py:73
 msgid "Provider that produced the original draft (e.g., 'deepl', 'manual')."
+msgstr ""
+
+#: i18n/templates/email/base.html:52
+#, python-format
+msgid "You're receiving this because you signed up at %(platform)s."
 msgstr ""
 
 #: populations/admin.py:127
