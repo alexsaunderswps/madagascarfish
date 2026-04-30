@@ -516,8 +516,9 @@ EN vs FR lives in one row, EN vs DE lives in a sibling row, etc.
 2. Right-hand filter column:
    - **Locale** = `fr` (start with French; switch to `de` / `es`
      post-ABQ for the same flow).
-   - **Status** = `writer_reviewed` (these are the rows the MT pipeline
-     + conservation-writer agent already pre-screened).
+   - **Status** = `writer_reviewed` (these are the rows that both
+     the MT pipeline and the conservation-writer agent already
+     pre-screened).
    - **Content type** = `Species`.
 3. **Sort by `object_id`** (the column header). This groups rows by
    species — useful because each species can have up to 4 translatable
@@ -545,11 +546,11 @@ EN vs FR lives in one row, EN vs DE lives in a sibling row, etc.
 **Three-locale comparison — CLI for spot-checking one species across
 EN / FR / DE / ES:**
 
-The admin only shows EN vs ONE target locale at a time. To eyeball EN
-+ FR + DE + ES side-by-side for one species (good for catching MT
-drift between locales — e.g. FR says "rivière X" but DE invented "Fluss
-Y"), use the public API. No auth needed; `Accept-Language` toggles
-which locale the response field comes back in:
+The admin only shows EN vs ONE target locale at a time. To eyeball
+all four locales side-by-side for one species (good for catching MT
+drift between locales — e.g. FR says "rivière X" but DE invented
+"Fluss Y"), use the public API. No auth needed; `Accept-Language`
+toggles which locale the response field comes back in:
 
 ```bash
 SP_ID=1   # Bedotia albomarginata; pick whichever species you're checking
