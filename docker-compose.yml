@@ -31,7 +31,10 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --reload
+    # Dev uses runserver so DEBUG=True auto-serves admin/DRF static files
+    # without needing whitenoise or collectstatic. Production uses gunicorn
+    # via the Dockerfile CMD.
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     env_file: .env
