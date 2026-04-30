@@ -16,6 +16,7 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.utils.translation import gettext_lazy as _
 
 # Canonical public paths served by Next.js. Wildcards (e.g. /species/[id])
 # are revalidated by their dynamic parent; Next.js revalidatePath handles the
@@ -36,9 +37,11 @@ def _post_revalidate() -> tuple[bool, str]:
     timeout = getattr(settings, "NEXT_REVALIDATE_TIMEOUT_SECONDS", 10)
 
     if not url or not secret:
-        return False, (
-            "Revalidate is not configured: set NEXT_REVALIDATE_URL and "
-            "NEXT_REVALIDATE_SECRET in the environment."
+        return False, str(
+            _(
+                "Revalidate is not configured: set NEXT_REVALIDATE_URL and "
+                "NEXT_REVALIDATE_SECRET in the environment."
+            )
         )
 
     try:
@@ -49,27 +52,37 @@ def _post_revalidate() -> tuple[bool, str]:
             timeout=timeout,
         )
     except requests.Timeout:
-        return False, f"Revalidate timed out after {timeout}s — check frontend health."
+        return False, str(
+            _("Revalidate timed out after %(t)ss — check frontend health.") % {"t": timeout}
+        )
     except requests.RequestException as exc:
-        return False, f"Revalidate request failed: {exc}"
+        return False, str(_("Revalidate request failed: %(e)s") % {"e": exc})
 
     if response.status_code >= 400:
-        return False, (f"Revalidate returned HTTP {response.status_code}: {response.text[:200]}")
+        return False, str(
+            _("Revalidate returned HTTP %(code)s: %(body)s")
+            % {"code": response.status_code, "body": response.text[:200]}
+        )
 
     try:
         data = response.json()
     except ValueError:
-        return True, f"Revalidate succeeded (HTTP {response.status_code}, non-JSON body)."
+        return True, str(
+            _("Revalidate succeeded (HTTP %(code)s, non-JSON body).")
+            % {"code": response.status_code}
+        )
 
     revalidated = data.get("revalidated") or []
     failures = data.get("failures") or []
-    summary = f"Revalidated {len(revalidated)} path(s)."
+    summary = str(_("Revalidated %(n)s path(s).") % {"n": len(revalidated)})
     if failures:
-        summary += f" {len(failures)} path(s) failed: {failures}"
+        summary += " " + str(
+            _("%(n)s path(s) failed: %(list)s") % {"n": len(failures), "list": failures}
+        )
     return True, summary
 
 
-@admin.action(description="Revalidate public pages (clear Next.js cache)")
+@admin.action(description=_("Revalidate public pages (clear Next.js cache)"))
 def revalidate_public_pages(
     modeladmin: admin.ModelAdmin[Any],
     request: HttpRequest,

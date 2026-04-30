@@ -15,6 +15,7 @@ from __future__ import annotations
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest
+from django.utils.translation import gettext_lazy as _
 
 from husbandry.models import HusbandrySource, SpeciesHusbandry
 
@@ -178,7 +179,7 @@ class SpeciesHusbandryAdmin(admin.ModelAdmin):
             if obj and obj.last_reviewed_at and obj.review_is_stale:
                 messages.warning(
                     request,
-                    "Review is overdue; public page will show a 'review pending' note.",
+                    _("Review is overdue; public page will show a 'review pending' note."),
                 )
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
@@ -199,11 +200,11 @@ class SpeciesHusbandryAdmin(admin.ModelAdmin):
 
         errors: list[str] = []
         if obj.last_reviewed_by_id is None:
-            errors.append("last_reviewed_by is required to publish.")
+            errors.append(str(_("last_reviewed_by is required to publish.")))
         if obj.last_reviewed_at is None:
-            errors.append("last_reviewed_at is required to publish.")
+            errors.append(str(_("last_reviewed_at is required to publish.")))
         if not obj.sources.exists():
-            errors.append("At least one source citation is required to publish.")
+            errors.append(str(_("At least one source citation is required to publish.")))
 
         if errors:
             # Revert the publish flag so the record stays draft until fixed.

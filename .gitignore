@@ -29,6 +29,10 @@ Thumbs.db
 backend/staticfiles/
 backend/media/
 
+# Compiled gettext catalogs — built at image-build time per L4 decision.
+# .po files are source-of-truth; .mo files are build artifacts.
+*.mo
+
 # Docker
 docker-compose.override.yml
 

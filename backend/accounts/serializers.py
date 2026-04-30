@@ -1,4 +1,5 @@
 from django.contrib.auth import password_validation
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from accounts.models import User
@@ -13,7 +14,7 @@ class RegisterSerializer(serializers.Serializer):
     def validate_email(self, value: str) -> str:
         email = value.lower().strip()
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError("An account with this email already exists.")
+            raise serializers.ValidationError(_("An account with this email already exists."))
         return email
 
     def validate_password(self, value: str) -> str:

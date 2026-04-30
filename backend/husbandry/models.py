@@ -20,6 +20,7 @@ from datetime import date, timedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 # Review becomes "stale" / "overdue" after this many days. 24 months ≈ 730 days
 # (we use 730 rather than dateutil relativedelta to keep the boundary
@@ -50,7 +51,9 @@ class SpeciesHusbandry(models.Model):
 
     published = models.BooleanField(
         default=False,
-        help_text="Gates public API + frontend teaser. Draft records are invisible to the public.",
+        help_text=_(
+            "Gates public API + frontend teaser. Draft records are invisible to the public."
+        ),
     )
 
     # --- Water parameters ---
@@ -123,7 +126,7 @@ class SpeciesHusbandry(models.Model):
     # --- Governance ---
     contributors = models.TextField(
         blank=True,
-        help_text="Free text at MVP. Structured contributor records are post-MVP (BA §5).",
+        help_text=_("Free text at MVP. Structured contributor records are post-MVP (BA §5)."),
     )
     last_reviewed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -131,10 +134,10 @@ class SpeciesHusbandry(models.Model):
         null=True,
         blank=True,
         related_name="reviewed_husbandry",
-        help_text="Required when published=True.",
+        help_text=_("Required when published=True."),
     )
     last_reviewed_at = models.DateField(
-        null=True, blank=True, help_text="Required when published=True."
+        null=True, blank=True, help_text=_("Required when published=True.")
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -142,8 +145,8 @@ class SpeciesHusbandry(models.Model):
     class Meta:
         db_table = "husbandry_specieshusbandry"
         ordering = ("species__scientific_name",)
-        verbose_name = "Species husbandry record"
-        verbose_name_plural = "Species husbandry records"
+        verbose_name = _("Species husbandry record")
+        verbose_name_plural = _("Species husbandry records")
 
     def __str__(self) -> str:
         return f"Husbandry: {self.species.scientific_name}"
@@ -175,10 +178,12 @@ class SpeciesHusbandry(models.Model):
         if self.published:
             errors: dict[str, str] = {}
             if self.last_reviewed_by_id is None:
-                errors["last_reviewed_by"] = "A reviewer is required to publish a husbandry record."
+                errors["last_reviewed_by"] = str(
+                    _("A reviewer is required to publish a husbandry record.")
+                )
             if self.last_reviewed_at is None:
-                errors["last_reviewed_at"] = (
-                    "A review date is required to publish a husbandry record."
+                errors["last_reviewed_at"] = str(
+                    _("A review date is required to publish a husbandry record.")
                 )
             if errors:
                 raise ValidationError(errors)

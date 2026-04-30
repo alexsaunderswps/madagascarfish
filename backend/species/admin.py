@@ -7,6 +7,7 @@ from django.db import transaction
 from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
+from django.utils.translation import gettext_lazy as _
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from audit.context import audit_actor
@@ -52,11 +53,15 @@ class ConservationAssessmentAdminForm(forms.ModelForm):
                 if not cleaned.get(field)
             ]
             for field in missing:
-                self.add_error(field, f"`{field}` is required when source is `manual_expert`.")
+                self.add_error(
+                    field,
+                    _("`%(field)s` is required when source is `manual_expert`.")
+                    % {"field": field},
+                )
             if not cleaned.get("reason"):
                 self.add_error(
                     "reason",
-                    "`reason` is required when creating a manual_expert assessment.",
+                    _("`reason` is required when creating a manual_expert assessment."),
                 )
         return cleaned
 
@@ -333,7 +338,7 @@ class SpeciesAdmin(TabbedTranslationAdmin):
             field="iucn_status",
         ).order_by("-timestamp")[:10]
         if not entries:
-            return "No audit entries recorded."
+            return _("No audit entries recorded.")
         rows = format_html_join(
             "",
             "<tr><td>{}</td><td>{}</td><td>{}→{}</td><td>{}</td><td>{}</td></tr>",
@@ -423,8 +428,10 @@ class ConservationAssessmentAdmin(admin.ModelAdmin):
         if obj.source == ConservationAssessment.Source.MANUAL_EXPERT:
             if _user_tier(request) < 3:
                 raise PermissionDenied(
-                    "Tier 3 (Conservation Coordinator) or higher is required to "
-                    "author a manual_expert assessment."
+                    _(
+                        "Tier 3 (Conservation Coordinator) or higher is required to "
+                        "author a manual_expert assessment."
+                    )
                 )
             if obj.created_by_id is None:
                 obj.created_by = request.user  # type: ignore[assignment]

@@ -1,0 +1,328 @@
+# French translation catalog for the Madagascar Freshwater Fish
+# Conservation Platform. Source-of-truth file; .mo is built at image-build
+# time. Voice/glossary follows .claude/agents/conservation-writer.md.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: madagascarfish 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-30 15:41+0000\n"
+"PO-Revision-Date: 2026-04-30 15:50+0000\n"
+"Last-Translator: conservation-writer + Aleksei Saunders\n"
+"Language-Team: French <fr@madagascarfish>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: accounts/models.py:46
+msgid "1=Public, 2=Researcher, 3=Coordinator, 4=Program Manager, 5=Admin"
+msgstr "1=Public, 2=Chercheur, 3=Coordinateur, 4=Responsable de programme, 5=Administrateur"
+
+#: accounts/models.py:58
+msgid "Inactive until manually activated or email-verified."
+msgstr "Inactif jusqu'à activation manuelle ou vérification de l'e-mail."
+
+#: accounts/serializers.py:17
+msgid "An account with this email already exists."
+msgstr "Un compte avec cette adresse e-mail existe déjà."
+
+#: accounts/views.py:94
+msgid "Verify your Madagascar Fish account"
+msgstr "Vérifiez votre compte Madagascar Fish"
+
+#: accounts/views.py:95
+#, python-format
+msgid "Click to verify your account: %(url)s"
+msgstr "Cliquez pour vérifier votre compte : %(url)s"
+
+#: accounts/views.py:102
+msgid "Registration successful. Check your email to verify your account."
+msgstr "Inscription réussie. Consultez votre messagerie pour vérifier votre compte."
+
+#: accounts/views.py:113
+msgid "Missing verification token."
+msgstr "Jeton de vérification manquant."
+
+#: accounts/views.py:121
+msgid "Verification link has expired."
+msgstr "Le lien de vérification a expiré."
+
+#: accounts/views.py:126 accounts/views.py:134
+msgid "Invalid verification token."
+msgstr "Jeton de vérification invalide."
+
+#: accounts/views.py:139
+msgid "Account already verified."
+msgstr "Compte déjà vérifié."
+
+#: accounts/views.py:144
+msgid "Account verified successfully."
+msgstr "Compte vérifié avec succès."
+
+#: accounts/views.py:154
+msgid "Too many login attempts. Try again in 15 minutes."
+msgstr "Trop de tentatives de connexion. Réessayez dans 15 minutes."
+
+#: accounts/views.py:168
+msgid "Invalid email or password."
+msgstr "E-mail ou mot de passe incorrect."
+
+#: accounts/views.py:187
+msgid "Logged out successfully."
+msgstr "Déconnexion réussie."
+
+#: husbandry/admin.py:182
+msgid "Review is overdue; public page will show a 'review pending' note."
+msgstr "La relecture est en retard ; la page publique affichera une note « relecture en attente »."
+
+#: husbandry/admin.py:203
+msgid "last_reviewed_by is required to publish."
+msgstr "« last_reviewed_by » est requis pour publier."
+
+#: husbandry/admin.py:205
+msgid "last_reviewed_at is required to publish."
+msgstr "« last_reviewed_at » est requis pour publier."
+
+#: husbandry/admin.py:207
+msgid "At least one source citation is required to publish."
+msgstr "Au moins une citation de source est requise pour publier."
+
+#: husbandry/models.py:55
+msgid ""
+"Gates public API + frontend teaser. Draft records are invisible to the "
+"public."
+msgstr ""
+"Conditionne l'accès à l'API publique et au teaser front-end. Les "
+"enregistrements en brouillon sont invisibles pour le public."
+
+#: husbandry/models.py:129
+msgid "Free text at MVP. Structured contributor records are post-MVP (BA §5)."
+msgstr ""
+"Texte libre au stade MVP. Les enregistrements de contributeurs "
+"structurés sont post-MVP (BA §5)."
+
+#: husbandry/models.py:137 husbandry/models.py:140
+msgid "Required when published=True."
+msgstr "Requis lorsque published=True."
+
+#: husbandry/models.py:148
+msgid "Species husbandry record"
+msgstr "Fiche d'élevage d'espèce"
+
+#: husbandry/models.py:149
+msgid "Species husbandry records"
+msgstr "Fiches d'élevage d'espèces"
+
+#: husbandry/models.py:182
+msgid "A reviewer is required to publish a husbandry record."
+msgstr "Un relecteur est requis pour publier une fiche d'élevage."
+
+#: husbandry/models.py:186
+msgid "A review date is required to publish a husbandry record."
+msgstr "Une date de relecture est requise pour publier une fiche d'élevage."
+
+#: i18n/admin.py:50
+msgid "English source"
+msgstr "Source anglaise"
+
+#: i18n/admin.py:68
+msgid ""
+"The English source text. Read-only — edit on the underlying Species or Taxon "
+"admin form if the source needs to change."
+msgstr ""
+"Texte source en anglais. Lecture seule — modifiez-le sur le formulaire "
+"d'administration Species ou Taxon sous-jacent si la source doit changer."
+
+#: i18n/admin.py:73
+msgid "Target translation"
+msgstr "Traduction cible"
+
+#: i18n/admin.py:89
+msgid ""
+"The translation in the target locale. Saving this form writes the edit back "
+"to the underlying object's &lt;field&gt;_&lt;locale&gt; column. Substantive "
+"edits should be paired with a 'Send back to mt_draft' to re-route through "
+"review."
+msgstr ""
+"La traduction dans la langue cible. L'enregistrement de ce formulaire "
+"réécrit la modification dans la colonne "
+"&lt;field&gt;_&lt;locale&gt; de l'objet sous-jacent. Les modifications "
+"substantielles doivent être accompagnées d'un « Renvoyer en mt_draft » "
+"pour repasser par la relecture."
+
+#: i18n/admin.py:140
+msgid "Identity"
+msgstr "Identité"
+
+#: i18n/admin.py:152
+msgid "Side-by-side comparison + inline edit"
+msgstr "Comparaison côte à côte + édition en ligne"
+
+#: i18n/admin.py:156
+msgid ""
+"Edit the translation directly here; saving writes it back to the underlying "
+"object. The English source is read-only."
+msgstr ""
+"Modifiez la traduction directement ici ; l'enregistrement la réécrit "
+"dans l'objet sous-jacent. La source anglaise est en lecture seule."
+
+#: i18n/admin.py:163
+msgid "Pipeline state"
+msgstr "État du pipeline"
+
+#: i18n/admin.py:177
+msgid "Audit"
+msgstr "Audit"
+
+#: i18n/admin.py:216
+#, python-brace-format
+msgid ""
+"Translation content for {model}#{id}.{field} ({locale}) saved. If the change "
+"is substantive, consider 'Send back to mt_draft' so it routes through review "
+"again."
+msgstr ""
+"Contenu de traduction pour {model}#{id}.{field} ({locale}) enregistré. "
+"Si la modification est substantielle, envisagez « Renvoyer en mt_draft » "
+"pour repasser par la relecture."
+
+#: i18n/admin.py:242
+msgid "(no admin URL)"
+msgstr "(aucune URL d'administration)"
+
+#: i18n/admin.py:247
+#, python-brace-format
+msgid ""
+"Open underlying {model} admin (opens new tab) — for editing the English "
+"source or using all-locale tabs →"
+msgstr ""
+"Ouvrir l'administration {model} sous-jacente (nouvel onglet) — pour "
+"modifier la source anglaise ou utiliser les onglets multi-langues →"
+
+#: i18n/admin.py:252
+msgid "Underlying admin"
+msgstr "Administration sous-jacente"
+
+#: i18n/admin.py:276
+#, python-brace-format
+msgid "{n} row(s) advanced to writer_reviewed."
+msgstr "{n} ligne(s) passée(s) en writer_reviewed."
+
+#: i18n/admin.py:281
+#, python-brace-format
+msgid "{n} row(s) skipped (not in mt_draft state)."
+msgstr "{n} ligne(s) ignorée(s) (pas en état mt_draft)."
+
+#: i18n/admin.py:285
+msgid "Advance: mt_draft → writer_reviewed"
+msgstr "Avancer : mt_draft → writer_reviewed"
+
+#: i18n/admin.py:307
+#, python-brace-format
+msgid "{n} row(s) approved (writer_reviewed → human_approved)."
+msgstr "{n} ligne(s) approuvée(s) (writer_reviewed → human_approved)."
+
+#: i18n/admin.py:314
+#, python-brace-format
+msgid ""
+"{n} row(s) skipped (not in writer_reviewed state — advance through writer "
+"review first)."
+msgstr ""
+"{n} ligne(s) ignorée(s) (pas en état writer_reviewed — passez d'abord "
+"par la relecture)."
+
+#: i18n/admin.py:320
+msgid "Approve: writer_reviewed → human_approved"
+msgstr "Approuver : writer_reviewed → human_approved"
+
+#: i18n/admin.py:339
+#, python-brace-format
+msgid ""
+"{n} row(s) sent back to mt_draft. The translation content itself is "
+"unchanged; only the pipeline status was reset."
+msgstr ""
+"{n} ligne(s) renvoyée(s) en mt_draft. Le contenu de la traduction "
+"reste inchangé ; seul l'état du pipeline a été réinitialisé."
+
+#: i18n/admin.py:347
+#, python-brace-format
+msgid "{n} row(s) skipped (already in mt_draft state)."
+msgstr "{n} ligne(s) ignorée(s) (déjà en état mt_draft)."
+
+#: i18n/admin.py:353
+msgid "Send back to mt_draft"
+msgstr "Renvoyer en mt_draft"
+
+#: populations/admin.py:127
+msgid "You can only modify records for your own institution."
+msgstr "Vous ne pouvez modifier que les enregistrements de votre propre institution."
+
+#: populations/admin.py:132
+msgid "You can only create records for your own institution."
+msgstr "Vous ne pouvez créer des enregistrements que pour votre propre institution."
+
+#: species/admin.py:58
+#, python-format
+msgid "`%(field)s` is required when source is `manual_expert`."
+msgstr "« %(field)s » est requis lorsque la source est « manual_expert »."
+
+#: species/admin.py:64
+msgid "`reason` is required when creating a manual_expert assessment."
+msgstr ""
+"« reason » est requis lors de la création d'une évaluation manual_expert."
+
+#: species/admin.py:341
+msgid "No audit entries recorded."
+msgstr "Aucune entrée d'audit enregistrée."
+
+#: species/admin.py:432
+msgid ""
+"Tier 3 (Conservation Coordinator) or higher is required to author a "
+"manual_expert assessment."
+msgstr ""
+"Le niveau d'accès 3 (Coordinateur de conservation) ou supérieur est "
+"requis pour créer une évaluation manual_expert."
+
+#: species/admin_revalidate.py:42
+msgid ""
+"Revalidate is not configured: set NEXT_REVALIDATE_URL and "
+"NEXT_REVALIDATE_SECRET in the environment."
+msgstr ""
+"La revalidation n'est pas configurée : définissez NEXT_REVALIDATE_URL "
+"et NEXT_REVALIDATE_SECRET dans l'environnement."
+
+#: species/admin_revalidate.py:56
+#, python-format
+msgid "Revalidate timed out after %(t)ss — check frontend health."
+msgstr ""
+"La revalidation a expiré après %(t)ss — vérifiez la santé du front-end."
+
+#: species/admin_revalidate.py:59
+#, python-format
+msgid "Revalidate request failed: %(e)s"
+msgstr "La requête de revalidation a échoué : %(e)s"
+
+#: species/admin_revalidate.py:63
+#, python-format
+msgid "Revalidate returned HTTP %(code)s: %(body)s"
+msgstr "La revalidation a renvoyé HTTP %(code)s : %(body)s"
+
+#: species/admin_revalidate.py:71
+#, python-format
+msgid "Revalidate succeeded (HTTP %(code)s, non-JSON body)."
+msgstr "Revalidation réussie (HTTP %(code)s, corps non-JSON)."
+
+#: species/admin_revalidate.py:77
+#, python-format
+msgid "Revalidated %(n)s path(s)."
+msgstr "%(n)s chemin(s) revalidé(s)."
+
+#: species/admin_revalidate.py:80
+#, python-format
+msgid "%(n)s path(s) failed: %(list)s"
+msgstr "%(n)s chemin(s) en échec : %(list)s"
+
+#: species/admin_revalidate.py:85
+msgid "Revalidate public pages (clear Next.js cache)"
+msgstr "Revalider les pages publiques (vider le cache Next.js)"

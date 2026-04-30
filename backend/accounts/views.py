@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.http import Http404
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -90,15 +91,15 @@ def register(request: Request) -> Response:
     verification_url = f"{frontend_url}/verify?token={token}"
 
     send_mail(
-        subject="Verify your Madagascar Fish account",
-        message=f"Click to verify your account: {verification_url}",
+        subject=str(_("Verify your Madagascar Fish account")),
+        message=str(_("Click to verify your account: %(url)s")) % {"url": verification_url},
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
         fail_silently=True,
     )
 
     return Response(
-        {"detail": "Registration successful. Check your email to verify your account."},
+        {"detail": _("Registration successful. Check your email to verify your account.")},
         status=status.HTTP_201_CREATED,
     )
 
@@ -109,7 +110,7 @@ def verify_email(request: Request) -> Response:
     token = request.data.get("token")
     if not token:
         return Response(
-            {"detail": "Missing verification token."},
+            {"detail": _("Missing verification token.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -117,12 +118,12 @@ def verify_email(request: Request) -> Response:
         user_pk = signer.unsign(token, max_age=VERIFICATION_MAX_AGE)
     except SignatureExpired:
         return Response(
-            {"detail": "Verification link has expired."},
+            {"detail": _("Verification link has expired.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except BadSignature:
         return Response(
-            {"detail": "Invalid verification token."},
+            {"detail": _("Invalid verification token.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -130,17 +131,17 @@ def verify_email(request: Request) -> Response:
         user = User.objects.get(pk=user_pk)
     except User.DoesNotExist:
         return Response(
-            {"detail": "Invalid verification token."},
+            {"detail": _("Invalid verification token.")},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
     if user.is_active:
-        return Response({"detail": "Account already verified."})
+        return Response({"detail": _("Account already verified.")})
 
     user.is_active = True
     user.save(update_fields=["is_active"])
 
-    return Response({"detail": "Account verified successfully."})
+    return Response({"detail": _("Account verified successfully.")})
 
 
 @api_view(["POST"])
@@ -150,7 +151,7 @@ def login(request: Request) -> Response:
 
     if _check_and_record_rate_limit(ip):
         return Response(
-            {"detail": "Too many login attempts. Try again in 15 minutes."},
+            {"detail": _("Too many login attempts. Try again in 15 minutes.")},
             status=status.HTTP_429_TOO_MANY_REQUESTS,
         )
 
@@ -164,11 +165,11 @@ def login(request: Request) -> Response:
         # Covers: wrong password, non-existent email, and inactive accounts.
         # All return the same generic message to prevent account enumeration.
         return Response(
-            {"detail": "Invalid email or password."},
+            {"detail": _("Invalid email or password.")},
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
-    token, _ = Token.objects.get_or_create(user=user)
+    token, _created = Token.objects.get_or_create(user=user)
 
     return Response(
         {
@@ -183,7 +184,7 @@ def login(request: Request) -> Response:
 @permission_classes([IsAuthenticated])
 def logout(request: Request) -> Response:
     Token.objects.filter(user=request.user).delete()
-    return Response({"detail": "Logged out successfully."})
+    return Response({"detail": _("Logged out successfully.")})
 
 
 @api_view(["GET"])
