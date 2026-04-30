@@ -187,14 +187,14 @@ class TranslationStatusAdmin(admin.ModelAdmin):
         underlying object so the form pre-fills with the current
         values. Without this, the synthetic fields render empty on
         change pages."""
-        Form = super().get_form(request, obj, **kwargs)
+        form_cls = super().get_form(request, obj, **kwargs)
         if obj is not None and obj.content_object is not None:
             target = obj.content_object
             en_value = getattr(target, f"{obj.field}_en", None) or ""
             loc_value = getattr(target, f"{obj.field}_{obj.locale}", None) or ""
-            Form.base_fields["english_source"].initial = en_value
-            Form.base_fields["target_text"].initial = loc_value
-        return Form
+            form_cls.base_fields["english_source"].initial = en_value
+            form_cls.base_fields["target_text"].initial = loc_value
+        return form_cls
 
     def save_model(self, request, obj, form, change):
         """When the form saves, write `target_text` back to the
@@ -292,9 +292,7 @@ class TranslationStatusAdmin(admin.ModelAdmin):
 
         now = timezone.now()
         eligible = queryset.filter(status=TranslationStatus.Status.WRITER_REVIEWED)
-        skipped = queryset.exclude(
-            status=TranslationStatus.Status.WRITER_REVIEWED
-        ).count()
+        skipped = queryset.exclude(status=TranslationStatus.Status.WRITER_REVIEWED).count()
         updated = eligible.update(
             status=TranslationStatus.Status.HUMAN_APPROVED,
             human_approved_at=now,
@@ -303,9 +301,7 @@ class TranslationStatusAdmin(admin.ModelAdmin):
         if updated:
             messages.success(
                 request,
-                _(
-                    "{n} row(s) approved (writer_reviewed → human_approved)."
-                ).format(n=updated),
+                _("{n} row(s) approved (writer_reviewed → human_approved).").format(n=updated),
             )
         if skipped:
             messages.info(
@@ -344,9 +340,7 @@ class TranslationStatusAdmin(admin.ModelAdmin):
         if skipped:
             messages.info(
                 request,
-                _("{n} row(s) skipped (already in mt_draft state).").format(
-                    n=skipped
-                ),
+                _("{n} row(s) skipped (already in mt_draft state).").format(n=skipped),
             )
 
     send_back_to_mt_draft.short_description = (  # type: ignore[attr-defined]

@@ -123,6 +123,5 @@ class TranslationStatus(models.Model):
 
     def __str__(self) -> str:
         return (
-            f"{self.content_type.model}#{self.object_id}.{self.field}"
-            f" [{self.locale}={self.status}]"
+            f"{self.content_type.model}#{self.object_id}.{self.field} [{self.locale}={self.status}]"
         )

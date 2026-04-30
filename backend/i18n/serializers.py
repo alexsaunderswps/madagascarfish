@@ -39,9 +39,7 @@ class TranslationActualLocaleMixin:
 
     def to_representation(self, instance):  # type: ignore[override]
         data = super().to_representation(instance)
-        active = (
-            translation.get_language() or settings.MODELTRANSLATION_DEFAULT_LANGUAGE
-        )
+        active = translation.get_language() or settings.MODELTRANSLATION_DEFAULT_LANGUAGE
 
         # Pre-fetch all approved-status translation rows for this
         # instance once when the review-gate is enabled, so we don't
@@ -49,9 +47,7 @@ class TranslationActualLocaleMixin:
         approved_locales_by_field = self._approved_status_lookup(instance, active)
 
         for field in self.translatable_fields:
-            actual = self._resolve_actual_locale(
-                instance, field, active, approved_locales_by_field
-            )
+            actual = self._resolve_actual_locale(instance, field, active, approved_locales_by_field)
             data[f"{field}_locale_actual"] = actual
             # If the actual locale differs from the requested locale, the
             # value in the payload is from the fallback (default) locale,
@@ -63,9 +59,7 @@ class TranslationActualLocaleMixin:
 
         return data
 
-    def _approved_status_lookup(
-        self, instance, active_locale: str
-    ) -> dict[str, set[str]]:
+    def _approved_status_lookup(self, instance, active_locale: str) -> dict[str, set[str]]:
         """Return {field: {locales-with-approved-status}} for the active
         non-default locale. Empty when the review-gate is off OR the
         active locale is the default (en)."""

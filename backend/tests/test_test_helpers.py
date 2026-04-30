@@ -18,7 +18,6 @@ from django.test import override_settings
 
 from accounts.models import User
 
-
 # --- seed_test_users ---
 
 

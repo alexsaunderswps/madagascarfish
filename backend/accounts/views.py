@@ -8,8 +8,6 @@ from django.core.cache import cache
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
-
-from i18n.email import send_translated_email
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -24,6 +22,7 @@ from accounts.serializers import (
     UserLocaleUpdateSerializer,
     UserProfileSerializer,
 )
+from i18n.email import send_translated_email
 
 signer = TimestampSigner()
 
@@ -220,9 +219,7 @@ def update_locale(request: Request) -> Response:
     that endpoint anyway. Returns the full updated profile so the
     frontend can refresh its session cache in one round-trip.
     """
-    serializer = UserLocaleUpdateSerializer(
-        request.user, data=request.data, partial=True
-    )
+    serializer = UserLocaleUpdateSerializer(request.user, data=request.data, partial=True)
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response(UserProfileSerializer(request.user).data)

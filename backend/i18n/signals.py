@@ -41,7 +41,6 @@ from husbandry.models import SpeciesHusbandry
 from i18n.models import TranslationStatus
 from species.models import Species, Taxon
 
-
 # Translatable fields per model. Mirrors backend/<app>/translation.py.
 TRANSLATABLE: dict[type, tuple[str, ...]] = {
     Species: ("description", "ecology_notes", "distribution_narrative", "morphology"),
