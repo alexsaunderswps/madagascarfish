@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-30 15:41+0000\n"
+"POT-Creation-Date: 2026-04-30 15:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: accounts/models.py:46
 msgid "1=Public, 2=Researcher, 3=Coordinator, 4=Program Manager, 5=Admin"
 msgstr ""
@@ -88,6 +89,10 @@ msgstr ""
 
 #: husbandry/admin.py:207
 msgid "At least one source citation is required to publish."
+msgstr ""
+
+#: husbandry/apps.py:8
+msgid "Husbandry & Breeding Guidance"
 msgstr ""
 
 #: husbandry/models.py:55
@@ -233,12 +238,81 @@ msgstr ""
 msgid "Send back to mt_draft"
 msgstr ""
 
+#: i18n/apps.py:18
+msgid "Translation pipeline"
+msgstr ""
+
+#: i18n/models.py:73
+msgid "Provider that produced the original draft (e.g., 'deepl', 'manual')."
+msgstr ""
+
 #: populations/admin.py:127
 msgid "You can only modify records for your own institution."
 msgstr ""
 
 #: populations/admin.py:132
 msgid "You can only create records for your own institution."
+msgstr ""
+
+#: populations/models.py:35
+msgid "Visible at Tier 3+ only"
+msgstr ""
+
+#: populations/models.py:130
+msgid "Institution holding the studbook / coordination responsibility."
+msgstr ""
+
+#: populations/models.py:138
+msgid "The named studbook keeper, if one is assigned."
+msgstr ""
+
+#: populations/models.py:144
+msgid ""
+"Institutions that have joined the program (not including the coordinator)."
+msgstr ""
+
+#: populations/models.py:149
+msgid "Optional demographic target per the program's plan."
+msgstr ""
+
+#: populations/models.py:153
+msgid "Short human summary of the current plan. Full plan docs link out."
+msgstr ""
+
+#: populations/models.py:157
+msgid "External link to the authoritative plan (PDF, Confluence, etc.)."
+msgstr ""
+
+#: populations/models.py:210
+msgid "Date the transfer was first proposed / logged."
+msgstr ""
+
+#: populations/models.py:216
+msgid "Date the transfer actually completed. Required when status='completed'."
+msgstr ""
+
+#: populations/models.py:235
+msgid "Optional: the program this transfer serves."
+msgstr ""
+
+#: populations/models.py:336
+msgid "The program this recommendation was issued under, if any."
+msgstr ""
+
+#: populations/models.py:371
+msgid "When the recommendation was issued. Required."
+msgstr ""
+
+#: populations/models.py:376
+msgid "Target date for action, if the plan specifies one."
+msgstr ""
+
+#: populations/models.py:380
+msgid "Free text — what happened. Filled in at resolution."
+msgstr ""
+
+#: populations/models.py:447
+msgid "Signed change in male count. Negative = loss."
 msgstr ""
 
 #: species/admin.py:58
@@ -258,6 +332,10 @@ msgstr ""
 msgid ""
 "Tier 3 (Conservation Coordinator) or higher is required to author a "
 "manual_expert assessment."
+msgstr ""
+
+#: species/admin.py:520
+msgid "Required only when resolution='reconciled'."
 msgstr ""
 
 #: species/admin_revalidate.py:42
@@ -298,4 +376,37 @@ msgstr ""
 
 #: species/admin_revalidate.py:85
 msgid "Revalidate public pages (clear Next.js cache)"
+msgstr ""
+
+#: species/models.py:309
+msgid "Fixed slot consumed by a specific page region."
+msgstr ""
+
+#: species/models.py:314
+msgid "PNG or JPEG at or above the expected dimensions. Empty = no asset yet."
+msgstr ""
+
+#: species/models.py:319
+msgid "Screen-reader description of the thumbnail. Required when image is set."
+msgstr ""
+
+#: species/models.py:324
+msgid "Attribution line shown alongside the image, if any."
+msgstr ""
+
+#: species/models.py:327
+msgid "Target render width in CSS pixels. Set when the slot is introduced."
+msgstr ""
+
+#: species/models.py:330
+msgid "Target render height in CSS pixels. Set when the slot is introduced."
+msgstr ""
+
+#: species/models.py:334
+msgid ""
+"Internal notes for editors — where the asset renders, sourcing guidance."
+msgstr ""
+
+#: species/models.py:349
+msgid "ISO 639-1 code: en, fr, mg"
 msgstr ""

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class ExSituPopulationQuerySet(models.QuerySet["ExSituPopulation"]):
@@ -31,7 +32,7 @@ class Institution(models.Model):
     eaza_member = models.BooleanField(default=False)
     aza_member = models.BooleanField(default=False)
     website = models.URLField(blank=True)
-    contact_email = models.EmailField(blank=True, help_text="Visible at Tier 3+ only")
+    contact_email = models.EmailField(blank=True, help_text=_("Visible at Tier 3+ only"))
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -126,7 +127,7 @@ class CoordinatedProgram(models.Model):
         null=True,
         blank=True,
         related_name="coordinated_programs_led",
-        help_text="Institution holding the studbook / coordination responsibility.",
+        help_text=_("Institution holding the studbook / coordination responsibility."),
     )
     studbook_keeper = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -134,26 +135,26 @@ class CoordinatedProgram(models.Model):
         null=True,
         blank=True,
         related_name="coordinated_programs_managed",
-        help_text="The named studbook keeper, if one is assigned.",
+        help_text=_("The named studbook keeper, if one is assigned."),
     )
     enrolled_institutions = models.ManyToManyField(
         Institution,
         blank=True,
         related_name="coordinated_programs_enrolled",
-        help_text="Institutions that have joined the program (not including the coordinator).",
+        help_text=_("Institutions that have joined the program (not including the coordinator)."),
     )
     target_population_size = models.IntegerField(
         null=True,
         blank=True,
-        help_text="Optional demographic target per the program's plan.",
+        help_text=_("Optional demographic target per the program's plan."),
     )
     plan_summary = models.TextField(
         blank=True,
-        help_text="Short human summary of the current plan. Full plan docs link out.",
+        help_text=_("Short human summary of the current plan. Full plan docs link out."),
     )
     plan_document_url = models.URLField(
         blank=True,
-        help_text="External link to the authoritative plan (PDF, Confluence, etc.).",
+        help_text=_("External link to the authoritative plan (PDF, Confluence, etc.)."),
     )
     start_date = models.DateField(null=True, blank=True)
     next_review_date = models.DateField(null=True, blank=True)
@@ -206,13 +207,13 @@ class Transfer(models.Model):
     )
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PROPOSED)
     proposed_date = models.DateField(
-        help_text="Date the transfer was first proposed / logged.",
+        help_text=_("Date the transfer was first proposed / logged."),
     )
     planned_date = models.DateField(null=True, blank=True)
     actual_date = models.DateField(
         null=True,
         blank=True,
-        help_text="Date the transfer actually completed. Required when status='completed'.",
+        help_text=_("Date the transfer actually completed. Required when status='completed'."),
     )
     count_male = models.IntegerField(null=True, blank=True)
     count_female = models.IntegerField(null=True, blank=True)
@@ -231,7 +232,7 @@ class Transfer(models.Model):
         null=True,
         blank=True,
         related_name="transfers",
-        help_text="Optional: the program this transfer serves.",
+        help_text=_("Optional: the program this transfer serves."),
     )
     notes = models.TextField(blank=True)
     created_by = models.ForeignKey(
@@ -332,7 +333,7 @@ class BreedingRecommendation(models.Model):
         null=True,
         blank=True,
         related_name="breeding_recommendations",
-        help_text="The program this recommendation was issued under, if any.",
+        help_text=_("The program this recommendation was issued under, if any."),
     )
     recommendation_type = models.CharField(max_length=20, choices=RecommendationType.choices)
     priority = models.CharField(max_length=10, choices=Priority.choices, default=Priority.MEDIUM)
@@ -367,16 +368,16 @@ class BreedingRecommendation(models.Model):
         ),
     )
     issued_date = models.DateField(
-        help_text="When the recommendation was issued. Required.",
+        help_text=_("When the recommendation was issued. Required."),
     )
     due_date = models.DateField(
         null=True,
         blank=True,
-        help_text="Target date for action, if the plan specifies one.",
+        help_text=_("Target date for action, if the plan specifies one."),
     )
     outcome_notes = models.TextField(
         blank=True,
-        help_text="Free text — what happened. Filled in at resolution.",
+        help_text=_("Free text — what happened. Filled in at resolution."),
     )
     issued_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -443,7 +444,7 @@ class BreedingEvent(models.Model):
     count_delta_male = models.IntegerField(
         null=True,
         blank=True,
-        help_text="Signed change in male count. Negative = loss.",
+        help_text=_("Signed change in male count. Negative = loss."),
     )
     count_delta_female = models.IntegerField(null=True, blank=True)
     count_delta_unsexed = models.IntegerField(null=True, blank=True)

@@ -517,7 +517,7 @@ class ConservationStatusConflictAdminForm(forms.ModelForm):
     reconciled_category = forms.ChoiceField(
         choices=[("", "—")] + list(Species.IUCNStatus.choices),
         required=False,
-        help_text="Required only when resolution='reconciled'.",
+        help_text=_("Required only when resolution='reconciled'."),
     )
 
     class Meta:
