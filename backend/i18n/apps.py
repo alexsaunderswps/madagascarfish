@@ -15,3 +15,9 @@ class I18NConfig(AppConfig):
     label = "i18n"
     default_auto_field = "django.db.models.BigAutoField"
     verbose_name = "Translation pipeline"
+
+    def ready(self):
+        # Wire post_save / pre_save signal handlers that keep
+        # TranslationStatus rows in sync with translatable model edits.
+        # See backend/i18n/signals.py.
+        from i18n import signals  # noqa: F401
