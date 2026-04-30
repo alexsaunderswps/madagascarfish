@@ -55,8 +55,11 @@ test.describe("Gate 11 auth flow", () => {
     // Should redirect to /login?verified=1.
     expect(page.url()).toMatch(/\/login\?verified=1$/);
     expect(verifyResponse?.status()).toBeLessThan(400);
+    // The /login page renders the catalog string `auth.login.verifiedBanner`
+    // ("Email verified. Sign in to continue.") inside a role=status banner
+    // when ?verified=1 is present.
     await expect(
-      page.getByRole("status").getByText(/account verified/i),
+      page.getByRole("status").getByText(/email verified/i),
     ).toBeVisible();
 
     // --- /login ---
