@@ -149,18 +149,28 @@ Django `/auth/logout/`, deletes the DRF Token row) AND `signOut()` (clears
 the NextAuth cookie). A logout that only clears the cookie is a bug per
 BA cross-cutting; both calls must run.
 
-### i18n (Gate L1)
+### i18n (Gates L1 → L4)
 
 Multilingual platform shipped behind `NEXT_PUBLIC_FEATURE_I18N`. Four
 locales: `en` (default, at `/`), `fr`, `de`, `es` (path-prefixed at
 `/fr/`, `/de/`, `/es/`). next-intl v3 with `localePrefix: "as-needed"`.
-English baseline content is live; French/German/Spanish ship as
-byte-identical English placeholder catalogs ready for L2 / L5 / L6
-translation.
+French content + UI is shipped through L4. German/Spanish ride the
+same infrastructure with byte-identical placeholder catalogs;
+translated in L5/L6.
+
+L4 added: server-action error localization (S2), `lib/husbandry`
+symbolic tokens (S3), Django `gettext_lazy` sweep + FR `.po` catalog
+(S4–S6), `User.locale` field + PATCH endpoint (S7), branded HTML email
+templates + `send_translated_email()` helper (S8), account-page locale
+picker (S9), per-locale flag-gating tests (S10), pre-flip + rollback
+runbook (S11), CI lint-pockets script (S12).
 
 Specs: `docs/planning/i18n/README.md` (locked decisions D1–D18),
 `docs/planning/i18n/gate-L1-framework.md` (12 user stories),
+`docs/planning/specs/gate-L4-i18n-french-staff.md` (12 user stories),
 `docs/planning/architecture/i18n-architecture.md` (technical depth).
+Operations: `docs/handover/i18n-corrections-workflow.md` and
+`docs/operations/i18n-flag-flip-runbook.md`.
 
 Where the moving parts live:
 - `frontend/i18n/routing.ts` — `routing` config plus `Link`,
@@ -182,12 +192,29 @@ Where the moving parts live:
   `frontend/app/robots.ts` — locale-aware metadata, hreflang tags,
   cross-locale `xhtml:link` annotations.
 - `backend/<app>/translation.py` — `django-modeltranslation`
-  registrations. Currently wired on `Species` (description,
-  ecology_notes, distribution_narrative, morphology) and `Taxon`
-  (common_family_name).
+  registrations. Wired on `Species` (description, ecology_notes,
+  distribution_narrative, morphology), `Taxon` (common_family_name),
+  and `SpeciesHusbandry` (narrative + 6 *_notes fields, added in L4).
 - `backend/i18n/models.py::TranslationStatus` — per-(model, id, field,
-  locale) review-pipeline state. Read-only admin in L1; the L3
-  side-by-side review screen reads/writes via this model.
+  locale) review-pipeline state. Read-only admin in L1; L3 side-by-side
+  inline edit + admin actions; L4 admin shortcut lets reviewers edit
+  inline without bouncing into a separate admin.
+- `backend/i18n/email.py::send_translated_email()` — locale-aware
+  transactional email helper (L4 S8). Resolves locale from explicit
+  arg → `recipient.locale` → settings.LANGUAGE_CODE; renders
+  `{template}_subject.txt` + `_body.txt` + (optional) `_body.html`
+  inside `translation.override(locale)`.
+- `backend/i18n/templates/email/base.html` — shared branded layout
+  for transactional emails. Inline-styled (email-client compat),
+  600px responsive table, header band + body region + footer.
+- `backend/locale/<locale>/LC_MESSAGES/django.po` — gettext catalogs.
+  `.po` is source-of-truth; `.mo` is built at image-build time
+  (`compilemessages` runs in `backend/Dockerfile`). `.mo` is
+  gitignored.
+- `backend/accounts/models.py::User.locale` — preferred-locale field
+  (L4 S7). Captured from `request.LANGUAGE_CODE` on signup; updatable
+  via `PATCH /api/v1/auth/me/locale/`. Drives email locale and
+  serves as default UI locale for logged-in users.
 
 Five rules that govern i18n code:
 
@@ -202,11 +229,15 @@ Five rules that govern i18n code:
    key parity across locales in CI; add new keys to en.json AND
    each placeholder catalog or the check fails.
 
-3. **Server-action error strings, `lib/husbandry` helpers, and
-   Django-side error messages are L4 polish, not L1 work.** Three
-   pockets ship in L1 producing English regardless of locale; they
-   need symbolic-token plumbing or backend gettext wiring. Do not
-   route around — let them land in L4.
+3. **Server-action errors, `lib/husbandry` helpers, and Django-side
+   error messages are localized as of L4.** Server actions use
+   `getTranslations("namespace")` (see `frontend/app/[locale]/signup/
+   actions.ts` for the pattern). `lib/husbandry` returns symbolic
+   tokens (`DifficultyFactorToken`, `TeaserChipToken`,
+   `TeaserSentenceToken`); consumer components resolve them via
+   `t(\`namespace.\${token}\`)`. Django strings are wrapped with
+   `gettext_lazy as _`. **Don't introduce new hardcoded English in
+   these pockets** — `pnpm i18n:lint-pockets` (CI) catches it.
 
 4. **`Species.iucn_status` mirror policy still applies (see "Conservation
    status sourcing").** Modeltranslation's `description_<locale>`

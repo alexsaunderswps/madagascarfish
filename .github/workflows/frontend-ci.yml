@@ -40,6 +40,12 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: i18n catalog parity
+        run: pnpm i18n:check
+
+      - name: i18n pocket lint (no hardcoded English in server actions / lib helpers)
+        run: pnpm i18n:lint-pockets
+
       - name: Unit tests
         run: pnpm test
 
