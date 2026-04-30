@@ -133,17 +133,14 @@ class Command(BaseCommand):
                     missing += 1
                     continue
                 raise CommandError(
-                    f"Species not found: {sci_name!r}. "
-                    f"Pass --skip-missing to ignore."
+                    f"Species not found: {sci_name!r}. Pass --skip-missing to ignore."
                 )
 
             update_fields: list[str] = []
             for field, payload_field in fields.items():
                 column = f"{field}_{locale}"
                 if not hasattr(sp, column):
-                    self.stdout.write(
-                        f"{prefix} skip unknown column on Species: {column}"
-                    )
+                    self.stdout.write(f"{prefix} skip unknown column on Species: {column}")
                     continue
 
                 fr_text = (payload_field or {}).get("fr_text") or ""
