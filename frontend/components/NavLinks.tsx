@@ -202,11 +202,16 @@ export default function NavLinks({ authVisible = false }: NavLinksProps = {}) {
                 type="button"
                 onClick={performLogout}
                 style={{
+                  // `font: inherit` first to clear the user-agent button
+                  // default (often system-ui at the platform default size);
+                  // then itemStyle's explicit fontFamily / fontSize /
+                  // fontWeight / lineHeight win and match the sibling
+                  // <a> elements (Sign in / Sign up / Account).
+                  font: "inherit",
                   ...itemStyle(false),
                   border: "none",
                   background: "transparent",
                   cursor: "pointer",
-                  font: "inherit",
                 }}
               >
                 {t(item.labelKey)}
