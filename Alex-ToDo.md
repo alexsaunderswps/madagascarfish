@@ -13,15 +13,13 @@ round of development. I'll maintain it as items land or become obsolete.
 - **Don't delete completed items** — move them to the "Done" section at
   the bottom with a short note on what it unlocked.
 
-**Last updated:** 2026-04-29 (coordinator-dashboard tier-gate hardening
-landed: middleware now requires session + tier ≥ 3 unconditionally,
-service-token route bypass removed, page server component re-checks
-tier, Coordinator nav link auto-hides for anonymous + Tier 1/2.
-Admin data-entry UX cleanup landed: ExSituPopulation / Species /
-ConservationAssessment / SpeciesLocality / User / FieldProgram all
-have searchable autocomplete on FK fields. **Critical path to ABQ
-is still §2.7 + §2.1 — but see §2.1 update on realistic CARES data
-scope.**)
+**Last updated:** 2026-04-30 (Gate L4 / L5 / L6 i18n shipped — French
+content + UI is human-review-ready, German + Spanish are MT-staged
+post-ABQ. **§2.11 added below for the language-comparison approval
+pass (143 FR rows in `writer_reviewed` waiting for you).** Also a
+demo-shaped coordinator-dashboard seed landed in
+`data/seed/coordinator-demo/` so the panels render non-empty even
+before §2.1 / §2.7 entries land — see §2.1 update.)
 
 ---
 
@@ -96,6 +94,25 @@ distribution. Read that PR's findings, then ping me with "keep" or
 dashboard is a read-only view over this data — without it, ABQ is a
 demo of empty panels. Step 2 of the critical path above; do §2.7 first
 for the warm-up lap.
+
+**Update 2026-04-30:** a demo-shaped seed at
+`data/seed/coordinator-demo/institutions_populations.csv` is now in
+the repo. Local Docker has it loaded (9 institutions, 18 populations,
+8 programs, 2 transfers, 7 recommendations, 24 events) — staging /
+prod still need it run there manually:
+
+```bash
+ssh deploy@46.224.196.197
+cd /home/deploy/madagascarfish/deploy/staging
+docker compose exec -T web python manage.py seed_populations \
+    --csv /data/seed/coordinator-demo/institutions_populations.csv
+docker compose exec -T web python manage.py seed_demo_coordination
+```
+
+The seed is **demo-shaped, not field data** — flagged that way in the
+README. Real CARES entry below still happens; the seed is a backstop,
+not a substitute. When you start entering real keepers, delete the
+matching demo rows or the panels will double-count.
 
 **Update 2026-04-29:** realistic CARES data scope is "a few keepers
 with a few cichlid species, almost no other captive populations" —
@@ -475,6 +492,138 @@ reverse-chronological order.
 coordinator triage view. A Gate 4 Phase 3 "recent reproductive
 activity" panel is plausible once you have enough events logged
 that it'd read as a trend line instead of a sparse list.
+
+---
+
+### 2.11 Approve translated species rows (FR now; DE + ES post-ABQ)
+
+**Priority:** **HIGH — blocks French flag-flip for ABQ.** The French
+machine translation + voice-review pipeline finished 2026-04-30 with
+143 species rows sitting at `writer_reviewed`. Until you walk through
+them and bulk-approve to `human_approved`, the public site continues
+to fall back to English on `/fr/` URLs (the review-gate is enforced
+in prod). Same workflow comes back post-ABQ for German + Spanish.
+
+**Status table:**
+
+| Locale | Frontend UI catalog | Species `distribution_narrative` | Backend `gettext` `.po` | Public flag |
+|---|---|---|---|---|
+| `fr` | Translated + voice-reviewed | **143 rows in `writer_reviewed` — your approval pass** | Translated | `..._FR=false` (flip after approval) |
+| `de` | MT pre-staged (786 strings) | 143 rows in `mt_draft` (post-ABQ) | Translated | `..._DE=false` |
+| `es` | MT pre-staged (786 strings) | 143 rows in `mt_draft` (post-ABQ) | Translated | `..._ES=false` |
+
+**Two-column comparison — side-by-side admin walkthrough (the
+operational path):**
+
+The TranslationStatus admin's change form puts the English source
+read-only on top and the target locale below, editable. One row per
+`(species, field, locale)` tuple — so for a single species, comparing
+EN vs FR lives in one row, EN vs DE lives in a sibling row, etc.
+
+1. <https://api.malagasyfishes.org/admin/i18n/translationstatus/>
+   (or `localhost:8000/admin/i18n/translationstatus/` for local).
+2. Right-hand filter column:
+   - **Locale** = `fr` (start with French; switch to `de` / `es`
+     post-ABQ for the same flow).
+   - **Status** = `writer_reviewed` (these are the rows that both
+     the MT pipeline and the conservation-writer agent already
+     pre-screened).
+   - **Content type** = `Species`.
+3. **Sort by `object_id`** (the column header). This groups rows by
+   species — useful because each species can have up to 4 translatable
+   fields (`distribution_narrative`, `description`, `ecology_notes`,
+   `morphology`). Most species today only have `distribution_narrative`
+   populated, so it's mostly one row per species.
+4. Click into a row. The change form shows:
+   - **English source** pane (read-only, gray background) — the
+     authoritative EN text from `Species.<field>_en`.
+   - **Target translation** pane (editable, yellow background) —
+     the current FR (or DE / ES) text from `Species.<field>_<locale>`.
+5. Read both panes. Three outcomes:
+   - **Approve as-is**: hit Save (no edits), then bulk-approve in step
+     6 below.
+   - **Edit then approve**: tweak the target pane, hit Save (writes
+     back to `<field>_<locale>` on the species row), then bulk-approve.
+   - **Send back to mt_draft**: substantive concern → bulk-action
+     "Send back to mt_draft" demotes the row; conservation-writer can
+     re-review.
+6. **Bulk approve a batch:** back on the list view, multi-select
+   reviewed rows, Action dropdown → **"Approve: writer_reviewed →
+   human_approved"** → Go. Stamps `human_approved_by` (= you) and
+   `human_approved_at` (= now) on every selected row.
+
+**Three-locale comparison — CLI for spot-checking one species across
+EN / FR / DE / ES:**
+
+The admin only shows EN vs ONE target locale at a time. To eyeball
+all four locales side-by-side for one species (good for catching MT
+drift between locales — e.g. FR says "rivière X" but DE invented
+"Fluss Y"), use the public API. No auth needed; `Accept-Language`
+toggles which locale the response field comes back in:
+
+```bash
+SP_ID=1   # Bedotia albomarginata; pick whichever species you're checking
+
+for LOCALE in en fr de es; do
+  echo "=== $LOCALE ==="
+  curl -s -H "Accept-Language: $LOCALE" \
+       "http://localhost:8000/api/v1/species/$SP_ID/" \
+       | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['distribution_narrative'])"
+  echo
+done
+```
+
+That prints the English source plus the three translated versions
+back to back. If the locale fallback badge fires for any of them
+(`<field>_locale_actual = 'en'` even though you asked for `fr`), the
+review-gate hasn't approved that row yet — see step 6 above.
+
+**Direct DB comparison** — if you want raw `_en` / `_fr` / `_de` /
+`_es` columns for one species ignoring the review-gate, drop into the
+Django shell:
+
+```bash
+docker compose exec -T web python manage.py shell -c "
+from species.models import Species
+sp = Species.objects.get(pk=1)
+for f in ('description', 'ecology_notes', 'distribution_narrative', 'morphology'):
+    print(f'--- {f} ---')
+    for loc in ('en', 'fr', 'de', 'es'):
+        val = getattr(sp, f'{f}_{loc}', '') or ''
+        print(f'  {loc}: {val[:200]}')
+    print()
+"
+```
+
+**FR approval pass — your TODO this week:**
+
+- [ ] Filter to `locale=fr`, `status=writer_reviewed`,
+      `content_type=Species` (143 rows expected).
+- [ ] Walk family by family. **Bedotiidae (29) first** — that's the
+      ABQ banner family and the smallest meaningful batch. Then
+      Cichlidae (48 — biggest), Aplocheilidae (8), Anchariidae (6),
+      and the 21 small families (~52 rows combined).
+- [ ] Bulk-approve each family's batch via the admin action.
+- [ ] When at least Bedotiidae is approved, run the flag-flip
+      pre-flight in `docs/operations/i18n-flag-flip-runbook.md` and
+      flip `NEXT_PUBLIC_FEATURE_I18N_FR=true` in Vercel production.
+- [ ] Smoke-test `/fr/species/<bedotiidae-id>` on prod — French
+      distribution narrative should render (no `(English)` fallback
+      badge on the approved fields).
+
+**DE + ES — post-ABQ:** same flow, swap `fr` → `de` / `es` in the
+filter. No human-approved rows yet, so the public flag stays
+`false`. See `docs/planning/specs/gate-L5-german.md` and
+`docs/planning/specs/gate-L6-spanish.md` for the post-ABQ workplan
+(plurals + voice review + family-batched approval, ~1 day per
+locale).
+
+**How to verify:** run the multi-locale CLI snippet above against an
+approved species and confirm the FR field renders the French text
+(not the English fallback). On prod with the gate on, only
+`human_approved` rows make it through; on local with
+`I18N_ENFORCE_REVIEW_GATE=False`, `writer_reviewed` rows also render
+(useful for testing the comparison flow before flipping anything).
 
 ---
 
