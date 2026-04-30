@@ -1,22 +1,10 @@
 import type { CSSProperties, ReactNode } from "react";
 
 interface PanelShellProps {
-  eyebrow: string;
   title: string;
   caption?: string;
   children: ReactNode;
 }
-
-const EYEBROW_STYLE: CSSProperties = {
-  margin: 0,
-  marginBottom: 6,
-  fontFamily: "var(--sans)",
-  fontSize: 11,
-  fontWeight: 700,
-  letterSpacing: "0.18em",
-  textTransform: "uppercase",
-  color: "var(--ink-3)",
-};
 
 const TITLE_STYLE: CSSProperties = {
   margin: 0,
@@ -45,14 +33,12 @@ const SHELL_STYLE: CSSProperties = {
 };
 
 export default function PanelShell({
-  eyebrow,
   title,
   caption,
   children,
 }: PanelShellProps) {
   return (
     <section style={SHELL_STYLE}>
-      <p style={EYEBROW_STYLE}>{eyebrow}</p>
       <h2 style={TITLE_STYLE}>{title}</h2>
       {caption ? <p style={CAPTION_STYLE}>{caption}</p> : null}
       {children}

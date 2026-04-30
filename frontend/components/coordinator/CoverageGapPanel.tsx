@@ -51,7 +51,6 @@ export default async function CoverageGapPanel({ data }: Props) {
   if (!data) {
     return (
       <PanelShell
-        eyebrow={t("eyebrow")}
         title={t("title")}
         caption={t("captionShort")}
       >
@@ -66,7 +65,6 @@ export default async function CoverageGapPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow={t("eyebrow")}
       title={t("titleWithCount", {
         total,
         scope: endemic_only ? t("scopeEndemic") : t("scopeAll"),

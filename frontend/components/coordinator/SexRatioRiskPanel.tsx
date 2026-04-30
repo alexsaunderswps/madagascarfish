@@ -1,9 +1,16 @@
 import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
+import { Link } from "@/i18n/routing";
 import type { SexRatioRiskResponse } from "@/lib/coordinatorDashboard";
 
 import PanelShell from "./PanelShell";
+
+const SPECIES_LINK_STYLE: CSSProperties = {
+  color: "inherit",
+  textDecoration: "none",
+  borderBottom: "1px dotted var(--rule)",
+};
 
 const TABLE_STYLE: CSSProperties = {
   width: "100%",
@@ -64,7 +71,6 @@ export default async function SexRatioRiskPanel({ data }: Props) {
   if (!data) {
     return (
       <PanelShell
-        eyebrow={t("eyebrow")}
         title={t("title")}
         caption={t("captionShort")}
       >
@@ -79,7 +85,6 @@ export default async function SexRatioRiskPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow={t("eyebrow")}
       title={t("titleWithCount", {
         atRisk: total_at_risk,
         total: total_populations,
@@ -105,7 +110,12 @@ export default async function SexRatioRiskPanel({ data }: Props) {
               {results.map((row) => (
                 <tr key={row.population_id}>
                   <td style={{ ...TD_STYLE, fontStyle: "italic" }}>
-                    {row.species.scientific_name}
+                    <Link
+                      href={`/species/${row.species.id}`}
+                      style={SPECIES_LINK_STYLE}
+                    >
+                      {row.species.scientific_name}
+                    </Link>
                   </td>
                   <td style={TD_STYLE}>{row.institution.name}</td>
                   <td style={{ ...TD_STYLE, textAlign: "right" }}>

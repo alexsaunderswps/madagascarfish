@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
+import { Link } from "@/i18n/routing";
 import type {
   OpenRecommendationRow,
   OpenRecommendationsResponse,
@@ -8,6 +9,12 @@ import type {
 } from "@/lib/coordinatorDashboard";
 
 import PanelShell from "./PanelShell";
+
+const SPECIES_LINK_STYLE: CSSProperties = {
+  color: "inherit",
+  textDecoration: "none",
+  borderBottom: "1px dotted var(--rule)",
+};
 
 const PRIORITY_TAG_STYLE: Record<RecommendationPriority, CSSProperties> = {
   critical: {
@@ -95,7 +102,6 @@ export default async function OpenRecommendationsPanel({ data }: Props) {
   if (!data) {
     return (
       <PanelShell
-        eyebrow={t("eyebrow")}
         title={t("title")}
         caption={t("captionShort")}
       >
@@ -114,7 +120,6 @@ export default async function OpenRecommendationsPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow={t("eyebrow")}
       title={titleString}
       caption={t("captionFull")}
     >
@@ -152,7 +157,12 @@ export default async function OpenRecommendationsPanel({ data }: Props) {
                       </span>
                     </td>
                     <td style={{ ...TD_STYLE, fontStyle: "italic" }}>
-                      {row.species.scientific_name}
+                      <Link
+                        href={`/species/${row.species.id}`}
+                        style={SPECIES_LINK_STYLE}
+                      >
+                        {row.species.scientific_name}
+                      </Link>
                       {row.rationale ? (
                         <div style={RATIONALE_STYLE}>{row.rationale}</div>
                       ) : null}

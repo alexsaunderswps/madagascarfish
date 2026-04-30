@@ -678,7 +678,6 @@
       },
       "panels": {
         "coverage": {
-          "eyebrow": "Viñeta 1",
           "title": "Brecha en la cobertura",
           "titleWithCount": "Laguna en la cobertura —{total}  {scope} especies",
           "scopeEndemic": "endémico",
@@ -710,7 +709,6 @@
           }
         },
         "studbook": {
-          "eyebrow": "Cuadro 2",
           "title": "Situación en el libro genealógico",
           "captionShort": "Clasificación del programa por especies.",
           "captionFull": "La posición que ocupa cada especie en el espectro de la gestión en cautividad, desde los libros genealógicos gestionados de forma oficial hasta la ausencia total de ejemplares. La distinción entre «cría» y «libro genealógico» es importante: pone de manifiesto poblaciones improvisadas que se reproducen pero cuyo pedigrí no se registra, una fragilidad que queda oculta cuando esas especies se incluyen en los programas de libros genealógicos.",
@@ -735,7 +733,6 @@
           }
         },
         "sexRatio": {
-          "eyebrow": "Cuadro 3",
           "title": "Riesgo relacionado con la proporción entre sexos",
           "titleWithCount": "Riesgo relacionado con la proporción de sexos —{atRisk}de{total}las poblaciones",
           "captionShort": "Poblaciones con desequilibrio demográfico.",
@@ -756,7 +753,6 @@
           }
         },
         "staleCensus": {
-          "eyebrow": "Cuadro 4",
           "title": "Censo obsoleto",
           "titleWithCount": "Censos obsoletos —{stale}de{total}las poblaciones",
           "captionShort": "Poblaciones que llevan tiempo sin actualizarse en el censo.",
@@ -775,7 +771,6 @@
           "monthsSuffix": "{count} meses"
         },
         "transfers": {
-          "eyebrow": "Cuadro 5",
           "title": "Actividad de traspasos",
           "titleWithCount": "Movimientos de traspasos —{inFlight}en curso,{recent}recientes",
           "captionShort": "Traslado de animales entre centros.",
@@ -804,7 +799,6 @@
           "emDash": "—"
         },
         "openRecs": {
-          "eyebrow": "Cuadro 6",
           "title": "Recomendaciones para la cría abierta",
           "titleWithCount": "Recomendaciones generales sobre la cría — {total}",
           "titleWithOverdue": "Recomendaciones sobre la cría libre —{total}  ({overdue}pendientes)",
@@ -840,7 +834,6 @@
           "emDash": "—"
         },
         "reproductive": {
-          "eyebrow": "Cuadro 7",
           "title": "Actividad reproductiva reciente",
           "titleWithCount": "Recent reproductive activity — {count, plural, one {# event} other {# events}}",
           "captionShort": "Registro de eventos por población.",

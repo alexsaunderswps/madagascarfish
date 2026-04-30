@@ -678,7 +678,6 @@
       },
       "panels": {
         "coverage": {
-          "eyebrow": "Panel 1",
           "title": "Coverage gap",
           "titleWithCount": "Coverage gap — {total} {scope} species",
           "scopeEndemic": "endemic",
@@ -710,7 +709,6 @@
           }
         },
         "studbook": {
-          "eyebrow": "Panel 2",
           "title": "Studbook status",
           "captionShort": "Per-species program classification.",
           "captionFull": "Where each species sits on the captive-management spectrum, from formally managed studbooks down to no holdings at all. The breeding-not-studbook row matters: it surfaces ad-hoc populations that are reproducing but whose pedigree isn't tracked — a fragility that gets hidden when those species are lumped in with studbook programs.",
@@ -735,7 +733,6 @@
           }
         },
         "sexRatio": {
-          "eyebrow": "Panel 3",
           "title": "Sex-ratio risk",
           "titleWithCount": "Sex-ratio risk — {atRisk} of {total} populations",
           "captionShort": "Populations with demographic imbalance.",
@@ -756,7 +753,6 @@
           }
         },
         "staleCensus": {
-          "eyebrow": "Panel 4",
           "title": "Stale census",
           "titleWithCount": "Stale census — {stale} of {total} populations",
           "captionShort": "Populations overdue for a census update.",
@@ -775,7 +771,6 @@
           "monthsSuffix": "{count} months"
         },
         "transfers": {
-          "eyebrow": "Panel 5",
           "title": "Transfer activity",
           "titleWithCount": "Transfer activity — {inFlight} in flight, {recent} recent",
           "captionShort": "Animal movement between institutions.",
@@ -804,7 +799,6 @@
           "emDash": "—"
         },
         "openRecs": {
-          "eyebrow": "Panel 6",
           "title": "Open breeding recommendations",
           "titleWithCount": "Open breeding recommendations — {total}",
           "titleWithOverdue": "Open breeding recommendations — {total} ({overdue} overdue)",
@@ -840,7 +834,6 @@
           "emDash": "—"
         },
         "reproductive": {
-          "eyebrow": "Panel 7",
           "title": "Recent reproductive activity",
           "titleWithCount": "Recent reproductive activity — {count, plural, one {# event} other {# events}}",
           "captionShort": "Per-population event ledger.",

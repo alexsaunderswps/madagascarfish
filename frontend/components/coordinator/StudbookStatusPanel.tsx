@@ -1,9 +1,16 @@
 import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
+import { Link } from "@/i18n/routing";
 import type { StudbookStatusResponse } from "@/lib/coordinatorDashboard";
 
 import PanelShell from "./PanelShell";
+
+const SPECIES_LINK_STYLE: CSSProperties = {
+  color: "inherit",
+  textDecoration: "none",
+  borderBottom: "1px dotted var(--rule)",
+};
 
 const BUCKET_GRID_STYLE: CSSProperties = {
   display: "grid",
@@ -74,7 +81,6 @@ export default async function StudbookStatusPanel({ data }: Props) {
   if (!data) {
     return (
       <PanelShell
-        eyebrow={t("eyebrow")}
         title={t("title")}
         caption={t("captionShort")}
       >
@@ -95,7 +101,6 @@ export default async function StudbookStatusPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow={t("eyebrow")}
       title={t("title")}
       caption={t("captionFull")}
     >
@@ -129,7 +134,12 @@ export default async function StudbookStatusPanel({ data }: Props) {
                     marginBottom: 2,
                   }}
                 >
-                  {sp.scientific_name}
+                  <Link
+                    href={`/species/${sp.species_id}`}
+                    style={SPECIES_LINK_STYLE}
+                  >
+                    {sp.scientific_name}
+                  </Link>
                   <span
                     style={{
                       marginLeft: 6,
