@@ -5,39 +5,103 @@ L1 had this read-only with the side-by-side review screen scoped out
 to L3 (architect §5 / B1 deferral). L3 lifts that:
 
 - Filterable list view by locale, status, content_type, date.
-- Detail view shows the EN source and the active locale's translation
-  side-by-side with the current TranslationStatus row.
+- Detail view shows the EN source on the left and the **editable**
+  target-locale translation on the right. Saving the form writes the
+  edit back to the underlying Species/Taxon row (which fires the
+  post_save signal that keeps the TranslationStatus row in sync).
 - Three admin actions on selected rows:
     * "Advance to writer-reviewed" (mt_draft → writer_reviewed)
     * "Approve (advance to human-approved)" (writer_reviewed →
       human_approved); also stamps human_approved_by / _at.
     * "Send back to MT draft" (any → mt_draft) for re-review.
+- A "Send back to mt_draft" link on the change form for the same
+  effect on a single row.
 
-The architect's spec called for a custom side-by-side admin view with
-EN/target columns and inline edit. The current implementation reuses
-Django's stock change_form rendering for TranslationStatus + a new
-read-only `compare_text` panel that pulls the EN value and the locale
-value off the underlying object. Editing the actual translation
-content still happens via the modeltranslation tabs on the Species or
-Taxon admin form (link provided). Combining edit + status workflow
-into a single screen is a Wave-5 polish.
+The change form's `target_text` field is a virtual/synthetic field
+(not on the model) populated in `get_form` from the underlying
+object's `<field>_<locale>` column and persisted in `save_model` by
+writing back to that same column. This avoids the round-trip through
+the Species/Taxon admin and keeps the reviewer on a single screen.
 """
 
 from __future__ import annotations
 
-from typing import Any
-
+from django import forms
 from django.contrib import admin, messages
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from i18n.models import TranslationStatus
 
 
+class TranslationStatusForm(forms.ModelForm):
+    """ModelForm that adds a synthetic `target_text` field. Reads from
+    and writes to the underlying Species/Taxon row's
+    `<field>_<locale>` column, so the reviewer can edit the
+    translation directly on the TranslationStatus change page without
+    flipping into a separate admin.
+
+    The `english_source` field is read-only and shows the en column
+    for context.
+    """
+
+    english_source = forms.CharField(
+        label=_("English source"),
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 8,
+                "readonly": True,
+                "style": (
+                    "width: 100%; max-width: 100%; "
+                    "background: #f8f8f8; "
+                    "border: 1px solid #ccc; "
+                    "padding: 10px; "
+                    "font-family: var(--font-family-monospace, monospace); "
+                    "font-size: 13px; "
+                    "line-height: 1.45;"
+                ),
+            }
+        ),
+        help_text=_(
+            "The English source text. Read-only — edit on the underlying "
+            "Species or Taxon admin form if the source needs to change."
+        ),
+    )
+    target_text = forms.CharField(
+        label=_("Target translation"),
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "rows": 12,
+                "style": (
+                    "width: 100%; max-width: 100%; "
+                    "background: #fff8e8; "
+                    "border: 1px solid #d4ad6a; "
+                    "padding: 10px; "
+                    "font-size: 13px; "
+                    "line-height: 1.45;"
+                ),
+            }
+        ),
+        help_text=_(
+            "The translation in the target locale. Saving this form "
+            "writes the edit back to the underlying object's "
+            "&lt;field&gt;_&lt;locale&gt; column. Substantive edits "
+            "should be paired with a 'Send back to mt_draft' to "
+            "re-route through review."
+        ),
+    )
+
+    class Meta:
+        model = TranslationStatus
+        fields = "__all__"
+
+
 @admin.register(TranslationStatus)
 class TranslationStatusAdmin(admin.ModelAdmin):
+    form = TranslationStatusForm
     list_display = (
         "content_type",
         "object_id",
@@ -68,7 +132,6 @@ class TranslationStatusAdmin(admin.ModelAdmin):
         "human_approved_by",
         "created_at",
         "updated_at",
-        "compare_panel",
         "edit_target_object_link",
     )
 
@@ -86,14 +149,13 @@ class TranslationStatusAdmin(admin.ModelAdmin):
             },
         ),
         (
-            _("Side-by-side comparison"),
+            _("Side-by-side comparison + inline edit"),
             {
-                "fields": ("compare_panel",),
+                "fields": ("english_source", "target_text"),
                 "description": _(
-                    "English source and the active locale's translation. "
-                    "To edit the translation itself, follow the link above "
-                    "to the Species or Taxon admin and use the modeltranslation "
-                    "locale tabs."
+                    "Edit the translation directly here; saving writes "
+                    "it back to the underlying object. The English "
+                    "source is read-only."
                 ),
             },
         ),
@@ -120,43 +182,55 @@ class TranslationStatusAdmin(admin.ModelAdmin):
         ),
     )
 
-    # --- read-only comparison panel ------------------------------------
+    def get_form(self, request, obj=None, **kwargs):
+        """Populate `english_source` and `target_text` from the
+        underlying object so the form pre-fills with the current
+        values. Without this, the synthetic fields render empty on
+        change pages."""
+        Form = super().get_form(request, obj, **kwargs)
+        if obj is not None and obj.content_object is not None:
+            target = obj.content_object
+            en_value = getattr(target, f"{obj.field}_en", None) or ""
+            loc_value = getattr(target, f"{obj.field}_{obj.locale}", None) or ""
+            Form.base_fields["english_source"].initial = en_value
+            Form.base_fields["target_text"].initial = loc_value
+        return Form
 
-    def compare_panel(self, obj: TranslationStatus) -> str:
-        """Render EN source + target-locale value side-by-side."""
-        if obj is None or obj.pk is None:
-            return "—"
+    def save_model(self, request, obj, form, change):
+        """When the form saves, write `target_text` back to the
+        underlying Species/Taxon row's `<field>_<locale>` column.
+        The post_save signal on that model fires automatically and
+        keeps any other TranslationStatus rows in sync (no-op for
+        this row since we save it after)."""
         target = obj.content_object
-        if target is None:
-            return _("(target object missing)")
-        en_value = getattr(target, f"{obj.field}_en", None)
-        loc_value = getattr(target, f"{obj.field}_{obj.locale}", None)
-        return format_html(
-            '<div style="display: grid; grid-template-columns: 1fr 1fr; '
-            'gap: 16px; max-width: 960px;">'
-            '<div><h3 style="margin: 0 0 6px; font-size: 12px; color: #666;">'
-            "ENGLISH ({en_label})</h3>"
-            '<div style="white-space: pre-wrap; padding: 12px; '
-            "background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; "
-            'min-height: 80px;">{en_value}</div></div>'
-            '<div><h3 style="margin: 0 0 6px; font-size: 12px; color: #666;">'
-            "TARGET ({locale_upper})</h3>"
-            '<div style="white-space: pre-wrap; padding: 12px; '
-            "background: #fff8e8; border: 1px solid #ddd; border-radius: 4px; "
-            'min-height: 80px;">{loc_value}</div></div>'
-            "</div>",
-            en_label="en",
-            en_value=en_value or _("(empty)"),
-            locale_upper=obj.locale.upper(),
-            loc_value=loc_value or _("(empty)"),
-        )
-
-    compare_panel.short_description = _("Comparison")  # type: ignore[attr-defined]
+        if target is not None and "target_text" in form.cleaned_data:
+            new_text = form.cleaned_data["target_text"] or ""
+            column = f"{obj.field}_{obj.locale}"
+            current = getattr(target, column, None) or ""
+            if new_text != current:
+                setattr(target, column, new_text)
+                target.save(update_fields=[column])
+                messages.info(
+                    request,
+                    _(
+                        "Translation content for {model}#{id}.{field} "
+                        "({locale}) saved. If the change is substantive, "
+                        "consider 'Send back to mt_draft' so it routes "
+                        "through review again."
+                    ).format(
+                        model=obj.content_type.model,
+                        id=obj.object_id,
+                        field=obj.field,
+                        locale=obj.locale,
+                    ),
+                )
+        super().save_model(request, obj, form, change)
 
     def edit_target_object_link(self, obj: TranslationStatus) -> str:
-        """Link to the underlying Species/Taxon admin change form so the
-        reviewer can edit the translation in place via the
-        modeltranslation tabs."""
+        """Escape hatch link to the underlying Species/Taxon admin —
+        useful when the reviewer needs to also edit the English source
+        (which can't be edited inline here) or use the modeltranslation
+        locale tabs across all four languages at once."""
         if obj is None or obj.pk is None or obj.content_type is None:
             return "—"
         try:
@@ -169,12 +243,13 @@ class TranslationStatusAdmin(admin.ModelAdmin):
         return format_html(
             '<a href="{url}" target="_blank">{label}</a>',
             url=url,
-            label=_("Edit translation in {model} admin (opens in new tab) →").format(
-                model=obj.content_type.model,
-            ),
+            label=_(
+                "Open underlying {model} admin (opens new tab) — for editing the "
+                "English source or using all-locale tabs →"
+            ).format(model=obj.content_type.model),
         )
 
-    edit_target_object_link.short_description = _("Edit target")  # type: ignore[attr-defined]
+    edit_target_object_link.short_description = _("Underlying admin")  # type: ignore[attr-defined]
 
     # --- actions ---------------------------------------------------------
 

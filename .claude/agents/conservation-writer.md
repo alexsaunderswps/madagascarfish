@@ -353,7 +353,7 @@ VU category specifically.
 | Ex-situ (italicized)         | *ex situ*                           | *ex situ* / Ex-situ-Erhaltung             | *ex situ*                            |
 | In-situ (italicized)         | *in situ*                           | *in situ* / In-situ-Erhaltung             | *in situ*                            |
 | Captive breeding             | élevage en captivité                | Erhaltungszucht (conservation context)    | cría en cautividad                   |
-| Studbook                     | registre généalogique               | Zuchtbuch                                 | stud book / libro genealógico        |
+| Studbook                     | livre généalogique (NOT registre généalogique) | Zuchtbuch                      | stud book / libro genealógico        |
 | Population (biological)      | population                          | Bestand / Population                      | población                            |
 | Range (geographic)           | aire de répartition                 | Verbreitungsgebiet                        | área de distribución                 |
 | Occurrence record            | observation / signalement           | Nachweis / Beobachtung                    | registro de ocurrencia               |
@@ -387,6 +387,16 @@ term you've corrected three times.
 - Quotation marks: `«  »` with non-breaking spaces is correct French
   typography; if the surface is a small UI string and typographic quotes
   are noisy, fall back to straight `"`.
+- **IUCN → UICN.** In French copy, render the IUCN organization and its
+  Red List using the French acronym **UICN** ("Liste rouge de l'UICN",
+  "statut UICN", "catégories UICN"). This is the platform owner's
+  decision (2026-04-30) overriding the earlier "keep IUCN verbatim"
+  rule. The English copy still uses IUCN; only the FR catalog and
+  FR species content uses UICN. German keeps IUCN; Spanish uses UICN
+  (Spanish convention).
+- **Studbook → livre généalogique** (NOT registre généalogique). Both
+  are common but the platform owner has standardized on `livre
+  généalogique` (2026-04-30).
 
 **German (`de`):**
 - Public copy uses `Sie`, not `du`. Coordinator dashboard for authenticated
