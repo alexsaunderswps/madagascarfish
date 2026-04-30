@@ -1,5 +1,7 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
+
 import { resolveBaseUrl } from "@/lib/api";
 
 /**
@@ -41,6 +43,7 @@ export async function registerAction(input: {
   name: string;
   password: string;
 }): Promise<SignupResult> {
+  const t = await getTranslations("auth.signup.actionErrors");
   const email = input.email.trim().toLowerCase();
   const name = input.name.trim();
   const password = input.password;
@@ -48,7 +51,7 @@ export async function registerAction(input: {
   if (!email || !name || !password) {
     return {
       ok: false,
-      errors: { form: "Email, name, and password are all required." },
+      errors: { form: t("missingFields") },
     };
   }
 
@@ -63,8 +66,7 @@ export async function registerAction(input: {
   } catch {
     return {
       ok: false,
-      transientError:
-        "Could not reach the server. Check your connection and try again.",
+      transientError: t("unreachable"),
     };
   }
 
@@ -79,7 +81,7 @@ export async function registerAction(input: {
     } catch {
       return {
         ok: false,
-        errors: { form: "Sign-up failed. Please check your details and try again." },
+        errors: { form: t("genericFailure") },
       };
     }
 
@@ -115,6 +117,6 @@ export async function registerAction(input: {
 
   return {
     ok: false,
-    transientError: "The server is unavailable. Please try again in a moment.",
+    transientError: t("unavailable"),
   };
 }

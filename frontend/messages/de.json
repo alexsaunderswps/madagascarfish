@@ -1030,7 +1030,13 @@
       "haveAccountPrefix": "Already have an account?",
       "loginLink": "Sign in",
       "submittedTitle": "Check your email to finish signing up.",
-      "submittedBody": "If an account can be created with that address, a verification link is on its way. The link is valid for 48 hours. If nothing arrives, check your spam folder, then try registering again."
+      "submittedBody": "If an account can be created with that address, a verification link is on its way. The link is valid for 48 hours. If nothing arrives, check your spam folder, then try registering again.",
+      "actionErrors": {
+        "missingFields": "Email, name, and password are all required.",
+        "unreachable": "Could not reach the server. Check your connection and try again.",
+        "genericFailure": "Sign-up failed. Please check your details and try again.",
+        "unavailable": "The server is unavailable. Please try again in a moment."
+      }
     },
     "verify": {
       "metaTitle": "Verify your account — Madagascar Freshwater Fish",

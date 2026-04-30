@@ -1030,7 +1030,13 @@
       "haveAccountPrefix": "Vous avez déjà un compte ?",
       "loginLink": "Se connecter",
       "submittedTitle": "Consultez votre messagerie pour finaliser l'inscription.",
-      "submittedBody": "Si un compte peut être créé avec cette adresse, un lien de vérification est en route. Le lien est valable 48 heures. Si rien n'arrive, vérifiez votre dossier de courrier indésirable, puis essayez de vous inscrire à nouveau."
+      "submittedBody": "Si un compte peut être créé avec cette adresse, un lien de vérification est en route. Le lien est valable 48 heures. Si rien n'arrive, vérifiez votre dossier de courrier indésirable, puis essayez de vous inscrire à nouveau.",
+      "actionErrors": {
+        "missingFields": "L'e-mail, le nom et le mot de passe sont tous obligatoires.",
+        "unreachable": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
+        "genericFailure": "L'inscription a échoué. Veuillez vérifier vos informations et réessayer.",
+        "unavailable": "Le serveur est indisponible. Veuillez réessayer dans un instant."
+      }
     },
     "verify": {
       "metaTitle": "Vérifier votre compte — Poissons d'eau douce de Madagascar",

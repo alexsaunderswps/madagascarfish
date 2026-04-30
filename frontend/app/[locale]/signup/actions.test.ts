@@ -1,5 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("next-intl/server", () => ({
+  getTranslations: vi.fn(async () => {
+    const en = {
+      missingFields: "Email, name, and password are all required.",
+      unreachable: "Could not reach the server. Check your connection and try again.",
+      genericFailure: "Sign-up failed. Please check your details and try again.",
+      unavailable: "The server is unavailable. Please try again in a moment.",
+    };
+    return (key: string) => en[key as keyof typeof en];
+  }),
+}));
+
 import { registerAction } from "./actions";
 
 const ORIGINAL_API_URL = process.env.NEXT_PUBLIC_API_URL;
