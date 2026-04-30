@@ -32,13 +32,22 @@ const LABELS: Record<Locale, string> = {
 
 /**
  * Pure-function flag check, exported for unit-testing the per-locale
- * gate (L4 S10). Reads `process.env` at call time rather than module
- * load, so tests can vi.stubEnv freely.
+ * gate (L4 S10). Reads `process.env` at call time inside each thunk,
+ * so tests can vi.stubEnv freely. Each thunk references its env var
+ * by static literal name (NOT dynamic key) so Next.js's webpack pass
+ * inlines the value into the client bundle — `process.env[dynamicKey]`
+ * does NOT get inlined and resolves to `undefined` in the browser.
  */
+const PER_LOCALE_FLAG_THUNKS: Record<Exclude<Locale, "en">, () => boolean> = {
+  fr: () => process.env.NEXT_PUBLIC_FEATURE_I18N_FR === "true",
+  de: () => process.env.NEXT_PUBLIC_FEATURE_I18N_DE === "true",
+  es: () => process.env.NEXT_PUBLIC_FEATURE_I18N_ES === "true",
+};
+
 export function isLocaleEnabled(locale: Locale): boolean {
   if (locale === routing.defaultLocale) return true;
-  const envKey = `NEXT_PUBLIC_FEATURE_I18N_${locale.toUpperCase()}`;
-  return process.env[envKey] === "true";
+  const thunk = PER_LOCALE_FLAG_THUNKS[locale as Exclude<Locale, "en">];
+  return thunk ? thunk() : false;
 }
 
 /** Returns the locales that should appear in the switcher under
