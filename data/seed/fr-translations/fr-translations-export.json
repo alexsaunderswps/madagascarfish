@@ -1,0 +1,1289 @@
+[
+ {
+  "scientific_name": "Agonostomus telfairii",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ambassis fontoynonti",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Faraony, est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ambassis urotaenia",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ancharius fuscus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Plusieurs bassins versants orientaux, allant de Mananara du Nord (NE) à la rivière Mahampanihm près de Fort-Dauphin (SE)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ancharius griseus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Onilahy (rivières Ihazofotsy et Manana), près du parc national d'Isalo, au sud-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Anguilla bicolor",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Anguilla labiata",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Anguilla marmorata",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Anguilla mossambica",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Arius madagascariensis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Awaous aeneofuscus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Awaous commersoni",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Awaous macrorhynchus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bathygobius fuscus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia albomarginata",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassins versants supérieurs des rivières Mananara et Rienana, hautes terres du sud-est près de Vondrozo/Vevembe ; corridor du COFAV",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia alveyi",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Les rivières Antainambalana et Vohimaro, aire protégée forestière de Makira, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia geayi",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Mananjary, sud-est de Madagascar ; micro-endémique",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia leucopteron",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin d'Iaroka-Rianila, ruisseau Sandrakatrana à Ampasimbe ; altitude : 100 à 850 m",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia longianalis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Les rivières Ifontsy et Anove, sur la côte est ; ainsi que l'île Sainte-Marie (Nosy Boraha)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia madagascariensis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "De la partie inférieure de l'Ivoloina au ruisseau Manambolo / réseau du canal des Pangalanes ; introduit dans le bassin de Betsiboka",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia marojejy",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin de la rivière Manantenina / Lokoho, limite sud-est du parc national de Marojejy, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia masoala",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de l'Ankavanana, péninsule de Masoala, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'ankavia-ankavanana'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de l'Ankavia-Ankavanana, péninsule de Masoala, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'bemarivo'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Bemarivo, nord-est de Madagascar (région SAVA)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'betampona'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Fontsimavo, bassin de l'Ivoloina, près de la réserve naturelle intégrale de Betampona, est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'garassa'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Le ruisseau Andrafia près du village d'Ankarefo, au sud-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'lazana'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Lazana à Beforona, bassin versant de la Rianila, est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'mahanara'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Région de la rivière Mahanara du Nord, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'manombo'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Zone de la réserve spéciale de Manombo, sud-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'namorona'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Namorona près de Ranomafana, sud-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'nosivola'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Nosivolo en aval du village d'Ambatomasina, à l'est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia sp. 'sambava'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Sambava, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Bedotia tricolor",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Faraony, province de Manakara, est de Madagascar ; micro-endémique",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Betancurichthys festinus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Amboaboa près du confluent de Mangarahara, dans le bassin versant de Sofia, au nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Betancurichthys uncinatus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Lac Andrapongy, bassin versant de la rivière Ankofia, nord-ouest de Madagascar (~-14,6969, 48,1317)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Carassius auratus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Channa maculata",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Channa striata",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Coptodon rendalli",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Coptodon zillii",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Cyprinus carpio",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Eleotris acanthopoma",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Eleotris mauritiana",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Gambusia affinis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Gambusia holbrooki",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Giuris margaritacea",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Glossogobius ankaranensis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Réseau de grottes d'Ankarana / résurgences karstiques, nord de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Gogo arcuatus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Andriambondro / bassin versant de Sandrananta, hautes terres du sud-est",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Gogo atratus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Mananara du Nord près du village d'Antonibaolina, à 108 m d'altitude, au nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Gogo brevibarbis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Sources du bassin de la rivière Mananjary, près d'Ambohimango, dans l'est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Gogo ornatus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Les bassins versants des rivières Mangoro et Nosivolo, à l'est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Heterotis niloticus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Katria katria",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Nosivolo, sur un tronçon d'environ 30 km autour de Marolambo, à l'est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Kuhlia sauvagii",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar ; largement répandu dans les eaux douces. Spécimen type provenant de l'Imerina (hauts plateaux centraux)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Labeo rohita",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Lepomis macrochirus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Macropodus opercularis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Malagodon honahona",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Marais de pandanus dans la Réserve spéciale de Manombo, sur la côte sud-est de Madagascar (~23,02° S, 47,73° E)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Malagodon madagascariensis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Originaire des marécages boisés situés près de Mahambo, sur la côte nord-est de Madagascar (~17,49° S, 49,47° E)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Mesopristes elongatus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Lac Kinkony, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Microctenopoma ansorgii",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Micropterus salmoides",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Oncorhynchus mykiss",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Oreochromis aureus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Oreochromis macrochir",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Oreochromis mossambicus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Oreochromis niloticus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Oreochromis spilurus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Osphronemus goramy",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Oxylapia polli",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Le bassin versant de la Nosivolo, centré sur Marolambo, dans l'est de Madagascar ; les observations les plus au sud ont été enregistrées près d'Ambodivoar (-20,315 S)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Pachypanchax arnoulti",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassins de Mahavavy du Sud, Betsiboka, bassin du lac Kinkony, Tsingy de Bemaraha ; nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Pachypanchax omalonotus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "L'île de Nosy Be et le bassin du fleuve Sambirano sur le continent adjacent ; la péninsule d'Ankify",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Pachypanchax patriciae",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassins des fleuves Mananjeba, Mahavavy du Nord, Ifasy, Manehoko et Ampandra, au nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Pachypanchax sakaramyi",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Sakaramy et le cours supérieur de l'Antongombato, à l'extrême nord de Madagascar ; 500 m d'altitude",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Pachypanchax sp. 'antsahalalina'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Antsahalalina, nord de Madagascar, près de la Montagne d'Ambre",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Pachypanchax sparksorum",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Ankofia et ses affluents à Anjingo, au nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Pachypanchax sp. 'sofia'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Sources du bassin de la rivière Sofia, région d'Amboaboa, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Pachypanchax varatraza",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassins des rivières Menambery, Fanambana et Ampanobe, au nord-est de Madagascar (versant est du massif du Tsaratanana)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paratilapia polleni",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Répandue dans tout Madagascar ; lacs de cratère de Nosy Be, haut plateau central, côte est, lacs du nord-ouest ; complexe d'espèces comprenant probablement 3 à 7 espèces",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paratilapia sp. 'andapa'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin d'Andapa, nord-est de Madagascar ; rivière Manantenina, ruisseau Sarahandrano",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paratilapia sp. 'betsiboka'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Betsiboka, ouest de Madagascar ; lac Ravelobe, région de Befandriana-Mandritsara",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paratilapia sp. 'betsileo highlands'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Hauts plateaux de Betsileo, centre de Madagascar ; Imerina, Ambalavao, Horombe, rivière Mananatanana",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paratilapia sp. 'fony'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Côte est de Madagascar ; de Tamatave à Mananjary",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paratilapia sp. 'southwest'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Sud-ouest de Madagascar ; Tuléar, Maroamalona, lac Iotry",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paratilapia sp. 'vevembe'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Région de Vevembe/Vondrozo, bassin versant de Mananara du Sud, sud-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus cf. kieneri 'sofia drainage'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin de la rivière Sofia près de Mandritsara ; la population du lac Tseny pourrait constituer une entité distincte",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus dambabe",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Lac Kinkony et ses lacs satellites (Andranobe, La Digue), bassin versant de Mahavavy du Sud, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus damii",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Nosy Be, fleuve Sambirano, fleuves Sahinana/Sampiana (ouest de la Montagne d'Ambre) ; aire de répartition réduite après la distinction entre P. loisellei et P. risengi",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus gymnopreopercularis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Confluence de la rivière Amboaboa et de la Mangarahara, bassin versant de Sofia, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus kieneri",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Anciennement lac Kinkony (disparu) ; lac Ravelobe, lac Tseny, rivière Kalamilotra, lac Amparinandrina, bassins de Betsiboka/Mahajamba",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus lamenabe",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Le cours inférieur de la rivière Mahajamba, le lac Tseny, la rivière Anjingo près d'Antsohihy",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus loisellei",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Mahanara, à environ 4 km au nord-ouest d'Antsirabe-Nord, au nord-est de Madagascar ; trois localités précises pour les paratypes",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus maculatus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Betsiboka ; bassin de la rivière Ikopa ; lac Ravelobe (apparemment disparu en octobre 2024)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus maromandia",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de l'Andranomalaza près de Maromandia ; rivière Maevarano ; rivière Maintsomalaza ; anciennement lac Andrapongy (disparu)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus menarambo",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Lac Tseny (seule population sauvage restante), bassin de la rivière Sofia, nord-ouest de Madagascar ; anciennement lac Sarodrano et lacs de la plaine inondable de Bemarivo",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus nourissati",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Les rivières Mangarahara et Amboaboa, bassin versant de Sofia, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus petiti",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la rivière Betsiboka ; rivière Maintimaso et lac Ambanja (d'après Sparks, 2008)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus polyactis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Côte est de Madagascar, entre environ 14° et 25° de latitude sud ; Maroantsetra, Ambila, Manombo, Canal des Pangalanes, Farafangana",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus risengi",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Le bassin versant d'Anjingo-Ankofia, y compris le lac Andrapongy, au nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus sp. 'dridrimena'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Versant ouest de la Montagne d'Ambre ; rivière Mananjeba (lac Babano), Mahavavy du Nord, rivière Ifasy",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus sp. 'lake amparihinandrina'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Lac Amparihinandrina, probablement dans le bassin versant inférieur de la Betsiboka, au nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Paretroplus tsimoly",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Kalamilotra, bassin de la Betsiboka, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Plicofollis dussumieri",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Poecilia reticulata",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis curvidens",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Andranofanjava, à l'ouest d'Amboitra ; ainsi que la région de Diana (rivière Sapiana)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis ernestmagnusi",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Mananara du Nord près du village d'Antanibaolina, à 108 m d'altitude, au nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis grandidieri",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Côte est et sud-est, de Mananjary à la région d'Anosy (Fort-Dauphin) ; réserve de Manombo",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis inornatus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant d'Anjingo-Ankofia, région d'Antsohihy, nord-ouest de Madagascar ; bassin nord du lac Andrapongy",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis insolitus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Amboaboa, affluent de la Mangarahara, bassin versant de Sofia, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis loisellei",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Mahanara, à environ 4 km au nord-ouest d'Antsirabe-Nord, région SAVA, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis mainty",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Région de Fort-Dauphin (Tolanaro), sud-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis makira",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Antainambalana près de Maroantsetra, au nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis oligacanthus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Répartition : lacs de Nosy Be, côte est (de Pangalanes à Manombo), nord-ouest (Mananjeba, Sambirano), haut plateau central ; 361 observations dans le GBIF",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis onilahy",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Anciennement le bassin de l'Onilahy, sud-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromis sp. 'mananara'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Région de Mananara du Nord, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromoides betsileanus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "La rivière Ilanana près de Ranohira, au sud du parc national de l'Isalo ; anciennement Ankafaua (Betsileo), Maroamalona",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromoides itasy",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Le lac Itasy et les eaux environnantes, dans les hautes terres du centre de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ptychochromoides vondrozo",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin versant de la Mananara du Sud, près de Vondrozo/Vevembe, sud-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Ratsirakia legendrei",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Eaux douces des hauts plateaux et des versants orientaux ; parc national de Mantadia, est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles alaotrensis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin du lac Alaotra, région de Perinet/Andasibe, affluents du Mangoro, zone humide de Torotorofotsy, affluents de la Betsiboka ; l'espèce de Rheocles à l'aire de répartition la plus étendue",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles derhami",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Amboaboa / affluent de la Mangarahara, bassin versant de Sofia, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles lateralis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Haut Mandolotra / rivière Nosivolo, bassin versant du Mangoro, est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles pellegrini",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Les bassins versants de l'Antainambalana et de la Lokoho près d'Andapa, au nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles sikorae",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Le bassin versant de la Mangoro, comprenant Nosivolo et Manambola ; centre-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles sp. 'ambatovy'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Zone minière d'Ambatovy et bassins versants des sources de Mangoro/Rianila aux alentours, est de Madagascar ; 890-990 m",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles sp. 'ambodivato'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Vakoana, bassin versant d'Ambodivato, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles sp. 'antainambalana'",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Rivière Antainambalana, Parc naturel de Makira, nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles vatosoa",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Bassin de la rivière Lokoho, région d'Andapa, nord-est de Madagascar ; altitude : 157 à 940 m",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Rheocles wrightae",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Les rivières Sandrangato et Mamavo, bassin versant du Mangoro, centre-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Sauvagella madagascariensis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Répandu dans les eaux douces de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Sauvagella robusta",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Région de la rivière Amboaboa, nord-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Sicyopterus fasciatus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Stenogobius polyzona",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Taenioides gracilis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Tanichthys albonubes",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Teramulus kieneri",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Répandu dans les eaux douces de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Teramulus waterloti",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Région boisée de Mahambo, au nord-est de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Tilapia sparrmanii",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Typhleotris madagascariensis",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Réseaux de grottes, plateau de Mahafaly, sud-ouest de Madagascar : doline de Mitoho (type), puits d'Andranomalaza, d'Andranoilovy, d'Andriamaniloke et d'Ambilahilalika, doline de Nikotsy",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Typhleotris mararybe",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Grotte de Vitane près d'Itampolo, ainsi que quatre autres dolines, plateau de Mahafaly, sud-ouest de Madagascar",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Typhleotris pauliani",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Karst côtier de Morombe, sud-ouest de Madagascar ; grotte d'Andranomaly (type), dolines situées entre environ 22,07° S et environ 22,32° S",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Xiphophorus hellerii",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ },
+ {
+  "scientific_name": "Xiphophorus maculatus",
+  "fields": {
+   "distribution_narrative": {
+    "fr_text": "Madagascar (espèce introduite)",
+    "status": "human_approved"
+   }
+  }
+ }
+]
