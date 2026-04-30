@@ -603,7 +603,7 @@ This field is `django-modeltranslation`-registered — it has `_en`, `_fr`,
 
 ### Husbandry record (SpeciesHusbandry)
 
-Admin: **Husbandry → Species husbandries → Add**.
+Admin: **Husbandry & Breeding Guidance → Species husbandry records → Add**.
 
 One per species (`OneToOneField`). Fieldsets mirror the authoring template:
 **Water / Tank / Diet / Behavior / Breeding / Difficulty / Sourcing /
@@ -705,9 +705,10 @@ end-to-end example walkthrough of adding a real program.
 Admin: **Populations → Breeding recommendations → Add**.
 
 > **Naming note:** the model is `BreedingRecommendation`, not
-> `BreedingRecommendationEvent`. Tracked lifecycle states (`pending`,
-> `in_progress`, `completed`, `superseded`, `cancelled`) and resolution
-> dates are fields on this single model, not a separate event table.
+> `BreedingRecommendationEvent`. Tracked lifecycle states (`open`,
+> `in_progress`, `completed`, `superseded`, `cancelled` — default `open`)
+> and resolution dates are fields on this single model, not a separate
+> event table.
 
 Fields:
 
@@ -735,8 +736,10 @@ Set `actual_date` when `status='completed'`; leave blank until then.
 
 ### BreedingEvent (the "ReproductiveActivity" exposed via API)
 
-Admin: **Populations → Breeding events → Add** (or inline on
-`ExSituPopulation`).
+Admin: **Populations → Breeding events → Add**. (A
+`BreedingEventInline` class exists in `populations/admin.py` but is
+not currently wired onto `ExSituPopulationAdmin` — only
+`HoldingRecordInline` is. Add via the dedicated Breeding-events page.)
 
 > **Naming note:** the model is `BreedingEvent`. The
 > `ReproductiveActivityView` API endpoint at
@@ -764,10 +767,16 @@ Fields:
 
 - `species`, `locality_name`, `locality_type`, `presence_status`,
   `water_body`, `water_body_type`.
-- `latitude`, `longitude` (auto-converted to a PostGIS Point).
+- `location` — single PostGIS `PointField`. The admin renders a map
+  widget (via `GISModelAdmin`) for direct point placement; the
+  `seed_localities` management command is the path that takes
+  `latitude` + `longitude` as separate CSV columns.
 - `coordinate_precision`, `is_sensitive` (superuser-only).
-- `drainage_basin` — auto-assigned from PostGIS spatial join against
-  Watersheds at save time; readonly on the form.
+- `drainage_basin` — editable autocomplete FK to `Watershed`.
+  `drainage_basin_name` is the readonly cached display string.
+  Spatial-join auto-assignment runs in `seed_localities` (not in
+  the admin save path); set the FK manually when entering localities
+  through the admin.
 - `year_collected`, `collector`, `source_citation`.
 - `needs_review` — auto-set when coordinates fall outside Madagascar's
   bounding box, or longitude > 50.6° (offshore). Records flagged this way
@@ -1380,7 +1389,13 @@ what flipping it does.
 Treat `NEXT_PUBLIC_*` flags as **public** — they're inlined into the
 client bundle. Don't put secrets there.
 
-### Django flags (root `.env`, read in `config/settings/base.py`)
+### Backend flags (root `.env`)
+
+Most are read in `config/settings/base.py`. Two exceptions noted in
+the table: `DEEPL_API_KEY` is read directly via `os.environ` in
+`translate_species`, and `COORDINATOR_API_TOKEN` is also consumed by
+the Next.js SSR layer (`frontend/lib/coordinatorDashboard.ts`) — set
+the same value in both Vercel and the Django env.
 
 | Flag                              | Default | Gates                                                                                                                              |
 |-----------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------|
@@ -1388,11 +1403,11 @@ client bundle. Don't put secrets there.
 | `ALLOW_IUCN_STATUS_OVERWRITE`     | True    | When True, `iucn_sync` mirrors accepted IUCN categories onto `Species.iucn_status`. Toggle off during a manual review window if you want the sync to log changes without touching the public badge.                          |
 | `ALLOW_TEST_HELPERS`              | False   | Permits `seed_test_users` and `get_verification_token` to run. **Never set to True in prod** — these commands print credentials/tokens to stdout.                                                                              |
 | `TRUST_X_FORWARDED_FOR`           | False   | When True, login rate-limiting reads the client IP from `X-Forwarded-For` instead of `REMOTE_ADDR`. Set True only when Django sits behind a trusted reverse proxy (Caddy on staging). Spoofable if the WSGI port is reachable directly. |
-| `COORDINATOR_API_TOKEN`           | (empty) | Service token that lets server-side renderers (Next.js SSR for the coordinator dashboard) hit Tier-3+ endpoints without a user session. Sent as `Authorization: Bearer <token>`. **Emergency-fallback only**; the session-token path is the default.   |
+| `COORDINATOR_API_TOKEN`           | (empty) | Service token (consumed by both Django `settings.py` and Next.js SSR — set in Vercel env too). Lets server-side renderers (coordinator dashboard) hit Tier-3+ endpoints without a user session. Sent as `Authorization: Bearer <token>`. **Emergency-fallback only**; the session-token path is the default. |
 | `NEXT_REVALIDATE_URL`             | local   | URL of the Next.js revalidate webhook. See [§7](#7-cache-invalidation).                                                            |
 | `NEXT_REVALIDATE_SECRET`          | (empty) | Shared secret for the revalidate webhook. Blank disables the admin "Revalidate public pages" action with a visible notice.         |
 | `IUCN_API_TOKEN`                  | (empty) | API key for the IUCN Red List v4 API.                                                                                              |
-| `DEEPL_API_KEY`                   | (empty) | API key for DeepL. Required by `translate_species`. Free-tier keys end in `:fx`.                                                   |
+| `DEEPL_API_KEY`                   | (empty) | API key for DeepL. Read directly via `os.environ` in `translate_species` (not declared in `settings.py`). Required for any MT pipeline run. Free-tier keys end in `:fx`. |
 
 ### Where to flip flags
 
