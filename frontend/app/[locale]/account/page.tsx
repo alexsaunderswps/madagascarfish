@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { getServerDrfToken } from "@/lib/auth";
 
+import LocalePicker from "./LocalePicker";
 import LogoutButton from "./LogoutButton";
 
 export async function generateMetadata() {
@@ -20,6 +21,7 @@ interface MeResponse {
   email: string;
   name: string;
   access_tier: number;
+  locale?: string;
 }
 
 export default async function AccountPage() {
@@ -111,6 +113,12 @@ export default async function AccountPage() {
             </dd>
           </div>
         </dl>
+      ) : null}
+
+      {me ? (
+        <div className="mt-6 rounded border border-slate-200 bg-white p-4">
+          <LocalePicker initialLocale={me.locale ?? "en"} />
+        </div>
       ) : null}
 
       {transientError ? (

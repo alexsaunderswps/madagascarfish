@@ -893,7 +893,18 @@
     "transientError": "Votre fiche est temporairement indisponible. Rafraîchissez dans quelques instants ; votre session reste active. Si le problème persiste, les coordonnées de l'équipe de la plateforme sont sur la page À propos.",
     "signOut": "Se déconnecter",
     "signingOut": "Déconnexion…",
-    "saveChanges": "Enregistrer les modifications"
+    "saveChanges": "Enregistrer les modifications",
+    "localePicker": {
+      "label": "Langue préférée",
+      "help": "Utilisée pour les e-mails transactionnels et la langue par défaut de l'interface lors de la première visite. Les changements prennent effet immédiatement.",
+      "saving": "Enregistrement…",
+      "saved": "Enregistré.",
+      "error": "Impossible d'enregistrer. Réessayez dans un instant.",
+      "english": "English",
+      "french": "Français",
+      "german": "Deutsch",
+      "spanish": "Español"
+    }
   },
   "contribute": {
     "husbandry": {

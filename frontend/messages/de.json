@@ -893,7 +893,18 @@
     "transientError": "Your profile is temporarily unavailable. Refresh in a moment; your sign-in is still active. If the problem persists, the platform team's contact details are on the About page.",
     "signOut": "Sign out",
     "signingOut": "Signing out…",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "localePicker": {
+      "label": "Preferred language",
+      "help": "Used for transactional emails and the default UI language on first visit. Changes apply immediately.",
+      "saving": "Saving…",
+      "saved": "Saved.",
+      "error": "Couldn't save. Try again in a moment.",
+      "english": "English",
+      "french": "Français",
+      "german": "Deutsch",
+      "spanish": "Español"
+    }
   },
   "contribute": {
     "husbandry": {
