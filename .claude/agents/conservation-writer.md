@@ -363,7 +363,11 @@ VU category specifically.
 | Coordinator (program role)   | coordinateur / coordinatrice        | Koordinator / Koordinatorin               | coordinador / coordinadora           |
 | Researcher                   | chercheur / chercheuse              | Forscher / Forscherin                     | investigador / investigadora         |
 | Institution                  | institution                         | Einrichtung / Institution                 | institución                          |
-| Tier (access level)          | niveau d'accès                      | Zugriffsstufe                             | nivel de acceso                      |
+| Tier (access level)          | niveau d'accès (lowercase n)        | Zugriffsstufe                             | nivel de acceso                      |
+| Locality record              | observation par localité            | Lokalitätsnachweis                        | registro de localidad                |
+| Sex ratio                    | sex-ratio (invariable, hyphenated)  | Geschlechterverhältnis                    | proporción de sexos                  |
+| Holdings (captive bucket)    | détentions                          | Bestände                                  | tenencias                            |
+| Stale (data freshness)       | périmé (NOT obsolète; obsolète implies retired) | überfällig                | desactualizado                       |
 
 Add new entries here when MT produces something locked-in for a recurring
 term you've corrected three times.
