@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/routing";
+import { Link, type Locale } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -20,7 +20,7 @@ import {
 
 export const revalidate = 3600;
 
-type PageParams = { id: string };
+type PageParams = { id: string; locale: Locale };
 
 /**
  * Format a min/max numeric range like "22 – 26 °C", eliding either side if
@@ -113,7 +113,7 @@ function hasAnyBreeding(h: SpeciesHusbandry): boolean {
 
 export async function generateMetadata({ params }: { params: PageParams }) {
   const [speciesResult, husbandryResult, t] = await Promise.all([
-    fetchSpeciesDetail(params.id),
+    fetchSpeciesDetail(params.id, { locale: params.locale }),
     fetchSpeciesHusbandry(params.id),
     getTranslations("husbandry"),
   ]);
@@ -135,7 +135,7 @@ export async function generateMetadata({ params }: { params: PageParams }) {
 
 export default async function HusbandryPage({ params }: { params: PageParams }) {
   const [speciesResult, husbandryResult, t] = await Promise.all([
-    fetchSpeciesDetail(params.id),
+    fetchSpeciesDetail(params.id, { locale: params.locale }),
     fetchSpeciesHusbandry(params.id),
     getTranslations("husbandry"),
   ]);

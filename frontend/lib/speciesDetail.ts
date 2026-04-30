@@ -47,9 +47,19 @@ export type SpeciesDetailResult =
   | { kind: "not_found" }
   | { kind: "error" };
 
-export async function fetchSpeciesDetail(id: string | number): Promise<SpeciesDetailResult> {
+export async function fetchSpeciesDetail(
+  id: string | number,
+  options: { locale?: string } = {},
+): Promise<SpeciesDetailResult> {
   try {
-    const data = await apiFetch<SpeciesDetail>(`/api/v1/species/${id}/`);
+    // Forward the active locale so Django's LocaleMiddleware resolves
+    // the right `<field>_<locale>` columns. Without this, SSR for
+    // /fr/species/<id> always returns the EN content. See
+    // frontend/lib/api.ts::apiFetch — `locale` becomes Accept-Language.
+    const data = await apiFetch<SpeciesDetail>(
+      `/api/v1/species/${id}/`,
+      options.locale ? { locale: options.locale } : undefined,
+    );
     return { kind: "ok", data };
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
