@@ -815,6 +815,21 @@ and `is_superuser` are **read-only for non-superusers** (see
 `accounts/admin.py:UserAdmin.get_readonly_fields`). Only a Tier-5/superuser
 can promote a user.
 
+#### `User.locale` — preferred language (L4 S7)
+
+Each user has a `locale` field (`en` / `fr` / `de` / `es`, default `en`).
+Two effects:
+
+- **Transactional emails** (verify-email, future password-reset etc.) render
+  in `User.locale` via `backend/i18n/email.py::send_translated_email`.
+- **Default UI locale on first visit** for logged-in users (read by the
+  frontend through `getServerTier()` / NextAuth session).
+
+Auto-set at signup from the path-prefix locale (a user signing up at
+`/fr/signup` gets `locale='fr'`). Self-serve update available on
+`/account` via the locale picker (`PATCH /api/v1/auth/me/locale/`).
+Admins can also set it directly on the user-edit page.
+
 ### Bulk content via fixtures and seeds
 
 For lots of species or localities, use the seed commands in [§3](#3-server-commands-cheat-sheet)
@@ -1403,6 +1418,7 @@ follow the link.
 | Staging connect, deploys, restarts, log inspection, post-merge flow                  | [`OPERATIONS.md`](../../OPERATIONS.md)                                                        |
 | First-time staging VM bootstrap                                                      | [`deploy/staging/README.md`](../../deploy/staging/README.md)                                  |
 | i18n correction workflow (Layer 1 catalog + Layer 2 DB, glossary updates, prod move) | [`docs/handover/i18n-corrections-workflow.md`](./i18n-corrections-workflow.md)                |
+| i18n flag-flip pre-flight + rollback (turning `..._FR=true` on prod safely)          | [`docs/operations/i18n-flag-flip-runbook.md`](../operations/i18n-flag-flip-runbook.md)        |
 | Auth Gate 11 foundation (NextAuth + Django Token)                                    | [`docs/handover/auth-gate-11-foundation.md`](./auth-gate-11-foundation.md)                    |
 | EAZA EEP coordination program entry — worked example                                 | [`docs/EAZA_EEP_ENTRY_GUIDE.md`](../EAZA_EEP_ENTRY_GUIDE.md)                                  |
 | CARES reduced-scope plan                                                             | [`docs/CARES_REDUCED_SCOPE_PLAN.md`](../CARES_REDUCED_SCOPE_PLAN.md)                          |
@@ -1415,8 +1431,9 @@ These live in `frontend/scripts/` and are wired into `frontend/package.json`.
 Run from `frontend/`:
 
 ```bash
-pnpm i18n:check       # verify key parity across all four locale catalogs
-pnpm i18n:translate   # MT pipeline for the UI catalog (Layer 1)
+pnpm i18n:check         # verify key parity across all four locale catalogs
+pnpm i18n:lint-pockets  # CI guard — fail on hardcoded English in server-actions / lib/husbandry
+pnpm i18n:translate     # MT pipeline for the UI catalog (Layer 1)
 pnpm bake-tiles       # offline bake of Esri map tiles for /map
 pnpm gen:types        # regenerate lib/api-types.ts from /api/v1/schema/
 pnpm gen:types:check  # verify lib/api-types.ts is in sync with the live schema
