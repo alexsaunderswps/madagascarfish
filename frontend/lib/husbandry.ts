@@ -96,9 +96,17 @@ export type SpeciesHusbandryResult =
 
 export async function fetchSpeciesHusbandry(
   id: string | number,
+  options: { locale?: string } = {},
 ): Promise<SpeciesHusbandryResult> {
   try {
-    const data = await apiFetch<SpeciesHusbandry>(`/api/v1/species/${id}/husbandry/`);
+    // Forward the active locale so Django's LocaleMiddleware resolves the
+    // right `<field>_<locale>` columns (narrative + the 6 *_notes are
+    // translatable as of L4 — see backend/husbandry/translation.py).
+    // Mirrors the speciesDetail fix.
+    const data = await apiFetch<SpeciesHusbandry>(
+      `/api/v1/species/${id}/husbandry/`,
+      options.locale ? { locale: options.locale } : undefined,
+    );
     return { kind: "ok", data };
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
