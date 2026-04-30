@@ -21,162 +21,162 @@ msgstr ""
 
 #: accounts/models.py:56
 msgid "1=Public, 2=Researcher, 3=Coordinator, 4=Program Manager, 5=Admin"
-msgstr ""
+msgstr "1 = Público, 2 = Investigador, 3 = Coordinador, 4 = Responsable del programa, 5 = Administrador"
 
 #: accounts/models.py:68
 msgid "Inactive until manually activated or email-verified."
-msgstr ""
+msgstr "Inactivo hasta que se active manualmente o se verifique por correo electrónico."
 
 #: accounts/models.py:77
 msgid ""
 "Preferred locale for transactional emails and (when logged in) the default "
 "UI locale on first visit. User-changeable from the account page."
-msgstr ""
+msgstr "Idioma predeterminado para los correos electrónicos transaccionales y (cuando se inicia sesión) idioma predeterminado de la interfaz de usuario en la primera visita. El usuario puede cambiarlo desde la página de la cuenta."
 
 #: accounts/serializers.py:17
 msgid "An account with this email already exists."
-msgstr ""
+msgstr "Ya existe una cuenta con esta dirección de correo electrónico."
 
 #: accounts/templates/accounts/verify_email_body.html:4
 #: accounts/templates/accounts/verify_email_subject.txt:1
 msgid "Verify your Madagascar Fish account"
-msgstr ""
+msgstr "Verifica tu cuenta de Madagascar Fish"
 
 #: accounts/templates/accounts/verify_email_body.html:6
 msgid "Click to verify your account — link expires in 48 hours."
-msgstr ""
+msgstr "Haz clic para verificar tu cuenta; el enlace caduca en 48 horas."
 
 #: accounts/templates/accounts/verify_email_body.html:10
 #, python-format
 msgid "Welcome to %(platform_short_name)s"
-msgstr ""
+msgstr "Bienvenido a %(platform_short_name)s"
 
 #: accounts/templates/accounts/verify_email_body.html:14
 #: accounts/templates/accounts/verify_email_body.txt:3
 msgid ""
 "To finish creating your account, click the verification link below. The link "
 "is valid for 48 hours."
-msgstr ""
+msgstr "Para completar la creación de tu cuenta, haz clic en el enlace de verificación que aparece a continuación. El enlace es válido durante 48 horas."
 
 #: accounts/templates/accounts/verify_email_body.html:21
 msgid "Verify my account"
-msgstr ""
+msgstr "Verificar mi cuenta"
 
 #: accounts/templates/accounts/verify_email_body.html:28
 msgid "If the button doesn't work, copy and paste this URL into your browser:"
-msgstr ""
+msgstr "Si el botón no funciona, copia y pega esta URL en tu navegador:"
 
 #: accounts/templates/accounts/verify_email_body.html:35
 msgid "If you didn't sign up for an account, you can safely ignore this email."
-msgstr ""
+msgstr "Si no te has registrado, puedes ignorar este correo electrónico sin ningún problema."
 
 #: accounts/templates/accounts/verify_email_body.txt:1
 msgid "Welcome to the Madagascar Freshwater Fish Conservation Platform."
-msgstr ""
+msgstr "Bienvenidos a la Plataforma para la Conservación de los Peces de Agua Dulce de Madagascar."
 
 #: accounts/templates/accounts/verify_email_body.txt:7
 msgid "If you didn't sign up for an account, you can ignore this email."
-msgstr ""
+msgstr "Si no te has registrado, puedes ignorar este correo electrónico."
 
 #: accounts/views.py:118
 msgid "Registration successful. Check your email to verify your account."
-msgstr ""
+msgstr "El registro se ha realizado correctamente. Revisa tu correo electrónico para verificar tu cuenta."
 
 #: accounts/views.py:129
 msgid "Missing verification token."
-msgstr ""
+msgstr "Falta el token de verificación."
 
 #: accounts/views.py:137
 msgid "Verification link has expired."
-msgstr ""
+msgstr "El enlace de verificación ha caducado."
 
 #: accounts/views.py:142 accounts/views.py:150
 msgid "Invalid verification token."
-msgstr ""
+msgstr "Token de verificación no válido."
 
 #: accounts/views.py:155
 msgid "Account already verified."
-msgstr ""
+msgstr "La cuenta ya está verificada."
 
 #: accounts/views.py:160
 msgid "Account verified successfully."
-msgstr ""
+msgstr "La cuenta se ha verificado correctamente."
 
 #: accounts/views.py:170
 msgid "Too many login attempts. Try again in 15 minutes."
-msgstr ""
+msgstr "Demasiados intentos de inicio de sesión. Inténtalo de nuevo dentro de 15 minutos."
 
 #: accounts/views.py:184
 msgid "Invalid email or password."
-msgstr ""
+msgstr "Correo electrónico o contraseña incorrectos."
 
 #: accounts/views.py:203
 msgid "Logged out successfully."
-msgstr ""
+msgstr "Se ha cerrado la sesión correctamente."
 
 #: husbandry/admin.py:182
 msgid "Review is overdue; public page will show a 'review pending' note."
-msgstr ""
+msgstr "La revisión está pendiente; en la página pública aparecerá una nota que indica «revisión pendiente»."
 
 #: husbandry/admin.py:203
 msgid "last_reviewed_by is required to publish."
-msgstr ""
+msgstr "El campo «last_reviewed_by» es obligatorio para publicar."
 
 #: husbandry/admin.py:205
 msgid "last_reviewed_at is required to publish."
-msgstr ""
+msgstr "El campo «last_reviewed_at» es obligatorio para publicar."
 
 #: husbandry/admin.py:207
 msgid "At least one source citation is required to publish."
-msgstr ""
+msgstr "Para publicar es necesario citar al menos una fuente."
 
 #: husbandry/apps.py:8
 msgid "Husbandry & Breeding Guidance"
-msgstr ""
+msgstr "Guía sobre el cuidado y la cría"
 
 #: husbandry/models.py:55
 msgid ""
 "Gates public API + frontend teaser. Draft records are invisible to the "
 "public."
-msgstr ""
+msgstr "API pública de Gates + avance de la interfaz. Los registros preliminares no son visibles para el público."
 
 #: husbandry/models.py:129
 msgid "Free text at MVP. Structured contributor records are post-MVP (BA §5)."
-msgstr ""
+msgstr "Texto libre en MVP. Los registros estructurados de colaboradores se crean después de MVP (BA §5)."
 
 #: husbandry/models.py:137 husbandry/models.py:140
 msgid "Required when published=True."
-msgstr ""
+msgstr "Obligatorio cuando published=True."
 
 #: husbandry/models.py:148
 msgid "Species husbandry record"
-msgstr ""
+msgstr "Registro de cría de especies"
 
 #: husbandry/models.py:149
 msgid "Species husbandry records"
-msgstr ""
+msgstr "Registros de cría de especies"
 
 #: husbandry/models.py:182
 msgid "A reviewer is required to publish a husbandry record."
-msgstr ""
+msgstr "El revisor debe publicar un registro de cría."
 
 #: husbandry/models.py:186
 msgid "A review date is required to publish a husbandry record."
-msgstr ""
+msgstr "Para publicar un registro de cría es necesario fijar una fecha de revisión."
 
 #: i18n/admin.py:50
 msgid "English source"
-msgstr ""
+msgstr "Fuente en inglés"
 
 #: i18n/admin.py:68
 msgid ""
 "The English source text. Read-only — edit on the underlying Species or Taxon "
 "admin form if the source needs to change."
-msgstr ""
+msgstr "El texto original en inglés. Solo lectura: edítalo en el formulario de administración de la especie o el taxón correspondiente si es necesario modificar el texto original."
 
 #: i18n/admin.py:73
 msgid "Target translation"
-msgstr ""
+msgstr "Traducción del texto de destino"
 
 #: i18n/admin.py:89
 msgid ""
@@ -184,29 +184,29 @@ msgid ""
 "to the underlying object's &lt;field&gt;_&lt;locale&gt; column. Substantive "
 "edits should be paired with a 'Send back to mt_draft' to re-route through "
 "review."
-msgstr ""
+msgstr "La traducción en la configuración regional de destino. Al guardar este formulario, los cambios se guardan en la columna &lt;field&gt;_&lt;locale&gt; del objeto subyacente. Las modificaciones sustanciales deben ir acompañadas de un «Enviar de nuevo a mt_draft» para que vuelvan a pasar por el proceso de revisión."
 
 #: i18n/admin.py:140
 msgid "Identity"
-msgstr ""
+msgstr "Identidad"
 
 #: i18n/admin.py:152
 msgid "Side-by-side comparison + inline edit"
-msgstr ""
+msgstr "Comparación en paralelo + edición en línea"
 
 #: i18n/admin.py:156
 msgid ""
 "Edit the translation directly here; saving writes it back to the underlying "
 "object. The English source is read-only."
-msgstr ""
+msgstr "Edita la traducción directamente aquí; al guardar, se vuelve a escribir en el objeto subyacente. El texto original en inglés es de solo lectura."
 
 #: i18n/admin.py:163
 msgid "Pipeline state"
-msgstr ""
+msgstr "Estado del proceso"
 
 #: i18n/admin.py:177
 msgid "Audit"
-msgstr ""
+msgstr "Auditoría"
 
 #: i18n/admin.py:216
 #, python-brace-format
@@ -214,11 +214,11 @@ msgid ""
 "Translation content for {model}#{id}.{field} ({locale}) saved. If the change "
 "is substantive, consider 'Send back to mt_draft' so it routes through review "
 "again."
-msgstr ""
+msgstr "Se ha guardado el contenido de la traducción para {model}#{id}.{field} ({locale}). Si el cambio es sustancial, considera la opción «Enviar de nuevo a mt_draft» para que vuelva a pasar por el proceso de revisión."
 
 #: i18n/admin.py:242
 msgid "(no admin URL)"
-msgstr ""
+msgstr "(sin URL de administración)"
 
 #: i18n/admin.py:247
 #, python-brace-format
@@ -226,231 +226,234 @@ msgid ""
 "Open underlying {model} admin (opens new tab) — for editing the English "
 "source or using all-locale tabs →"
 msgstr ""
+"Abrir la página de administración del {model} subyacente (se abre en una "
+"nueva pestaña) — para editar el texto original en inglés o utilizar las "
+"pestañas de todas las configuraciones regionales →"
 
 #: i18n/admin.py:252
 msgid "Underlying admin"
-msgstr ""
+msgstr "Administración subyacente"
 
 #: i18n/admin.py:276
 #, python-brace-format
 msgid "{n} row(s) advanced to writer_reviewed."
-msgstr ""
+msgstr "{n} fila(s) han pasado al estado «writer_reviewed»."
 
 #: i18n/admin.py:281
 #, python-brace-format
 msgid "{n} row(s) skipped (not in mt_draft state)."
-msgstr ""
+msgstr "{n} fila(s) omitida(s) (no se encuentran en estado mt_draft)."
 
 #: i18n/admin.py:285
 msgid "Advance: mt_draft → writer_reviewed"
-msgstr ""
+msgstr "Estado: mt_draft → revisado_por_el_redactor"
 
 #: i18n/admin.py:307
 #, python-brace-format
 msgid "{n} row(s) approved (writer_reviewed → human_approved)."
-msgstr ""
+msgstr "{n} fila(s) aprobadas (revisadas por el autor → aprobadas por una persona)."
 
 #: i18n/admin.py:314
 #, python-brace-format
 msgid ""
 "{n} row(s) skipped (not in writer_reviewed state — advance through writer "
 "review first)."
-msgstr ""
+msgstr "{n} fila(s) omitida(s) (no se encuentran en estado «writer_reviewed»; primero hay que avanzar hasta la revisión del escritor)."
 
 #: i18n/admin.py:320
 msgid "Approve: writer_reviewed → human_approved"
-msgstr ""
+msgstr "Aprobar: revisado_por_el_redactor → aprobado_por_una_persona"
 
 #: i18n/admin.py:339
 #, python-brace-format
 msgid ""
 "{n} row(s) sent back to mt_draft. The translation content itself is "
 "unchanged; only the pipeline status was reset."
-msgstr ""
+msgstr "{n} fila(s) devueltas a mt_draft. El contenido de la traducción no ha sufrido cambios; solo se ha restablecido el estado del proceso."
 
 #: i18n/admin.py:347
 #, python-brace-format
 msgid "{n} row(s) skipped (already in mt_draft state)."
-msgstr ""
+msgstr "{n} fila(s) omitida(s) (ya se encuentran en estado mt_draft)."
 
 #: i18n/admin.py:353
 msgid "Send back to mt_draft"
-msgstr ""
+msgstr "Enviar de vuelta a mt_draft"
 
 #: i18n/apps.py:18
 msgid "Translation pipeline"
-msgstr ""
+msgstr "Proceso de traducción"
 
 #: i18n/models.py:73
 msgid "Provider that produced the original draft (e.g., 'deepl', 'manual')."
-msgstr ""
+msgstr "Proveedor que elaboró el borrador original (p. ej., «deepl», «manual»)."
 
 #: i18n/templates/email/base.html:52
 #, python-format
 msgid "You're receiving this because you signed up at %(platform)s."
-msgstr ""
+msgstr "Recibes este mensaje porque te registraste en %(platform)s."
 
 #: populations/admin.py:127
 msgid "You can only modify records for your own institution."
-msgstr ""
+msgstr "Solo puede modificar los registros de su propia institución."
 
 #: populations/admin.py:132
 msgid "You can only create records for your own institution."
-msgstr ""
+msgstr "Solo puede crear registros para su propia institución."
 
 #: populations/models.py:35
 msgid "Visible at Tier 3+ only"
-msgstr ""
+msgstr "Visible solo a partir del nivel 3"
 
 #: populations/models.py:130
 msgid "Institution holding the studbook / coordination responsibility."
-msgstr ""
+msgstr "Institución encargada del libro genealógico / responsable de la coordinación."
 
 #: populations/models.py:138
 msgid "The named studbook keeper, if one is assigned."
-msgstr ""
+msgstr "El responsable del libro genealógico designado, en caso de que se haya asignado uno."
 
 #: populations/models.py:144
 msgid ""
 "Institutions that have joined the program (not including the coordinator)."
-msgstr ""
+msgstr "Instituciones que se han adherido al programa (sin contar al coordinador)."
 
 #: populations/models.py:149
 msgid "Optional demographic target per the program's plan."
-msgstr ""
+msgstr "Público objetivo opcional según el plan del programa."
 
 #: populations/models.py:153
 msgid "Short human summary of the current plan. Full plan docs link out."
-msgstr ""
+msgstr "Breve resumen del plan actual. Enlace a la documentación completa del plan."
 
 #: populations/models.py:157
 msgid "External link to the authoritative plan (PDF, Confluence, etc.)."
-msgstr ""
+msgstr "Enlace externo al documento oficial (PDF, Confluence, etc.)."
 
 #: populations/models.py:210
 msgid "Date the transfer was first proposed / logged."
-msgstr ""
+msgstr "Fecha en la que se propuso o registró por primera vez la transferencia."
 
 #: populations/models.py:216
 msgid "Date the transfer actually completed. Required when status='completed'."
-msgstr ""
+msgstr "Fecha en la que se completó efectivamente la transferencia. Obligatorio cuando status = «completed»."
 
 #: populations/models.py:235
 msgid "Optional: the program this transfer serves."
-msgstr ""
+msgstr "Opcional: el programa al que se destina esta transferencia."
 
 #: populations/models.py:336
 msgid "The program this recommendation was issued under, if any."
-msgstr ""
+msgstr "El programa en el marco del cual se emitió esta recomendación, si lo hubiera."
 
 #: populations/models.py:371
 msgid "When the recommendation was issued. Required."
-msgstr ""
+msgstr "Cuándo se emitió la recomendación. Obligatorio."
 
 #: populations/models.py:376
 msgid "Target date for action, if the plan specifies one."
-msgstr ""
+msgstr "Fecha prevista para la acción, si el plan la especifica."
 
 #: populations/models.py:380
 msgid "Free text — what happened. Filled in at resolution."
-msgstr ""
+msgstr "Texto libre: lo que ocurrió. Se completará en la resolución."
 
 #: populations/models.py:447
 msgid "Signed change in male count. Negative = loss."
-msgstr ""
+msgstr "Variación con signo del recuento de espermatozoides. Negativo = disminución."
 
 #: species/admin.py:58
 #, python-format
 msgid "`%(field)s` is required when source is `manual_expert`."
-msgstr ""
+msgstr "`%(field)s` es obligatorio cuando la fuente es `manual_expert`."
 
 #: species/admin.py:64
 msgid "`reason` is required when creating a manual_expert assessment."
-msgstr ""
+msgstr "El campo «motivo» es obligatorio al crear una evaluación manual_expert."
 
 #: species/admin.py:341
 msgid "No audit entries recorded."
-msgstr ""
+msgstr "No se han registrado entradas de auditoría."
 
 #: species/admin.py:432
 msgid ""
 "Tier 3 (Conservation Coordinator) or higher is required to author a "
 "manual_expert assessment."
-msgstr ""
+msgstr "Se requiere un nivel 3 (coordinador de conservación) o superior para redactar una evaluación de expertos del manual."
 
 #: species/admin.py:520
 msgid "Required only when resolution='reconciled'."
-msgstr ""
+msgstr "Solo es obligatorio cuando resolution = «reconciled»."
 
 #: species/admin_revalidate.py:42
 msgid ""
 "Revalidate is not configured: set NEXT_REVALIDATE_URL and "
 "NEXT_REVALIDATE_SECRET in the environment."
-msgstr ""
+msgstr "La revalidación no está configurada: configura NEXT_REVALIDATE_URL y NEXT_REVALIDATE_SECRET en el entorno."
 
 #: species/admin_revalidate.py:56
 #, python-format
 msgid "Revalidate timed out after %(t)ss — check frontend health."
-msgstr ""
+msgstr "La revalidación ha expirado tras %(t) segundos; comprueba el estado del frontend."
 
 #: species/admin_revalidate.py:59
 #, python-format
 msgid "Revalidate request failed: %(e)s"
-msgstr ""
+msgstr "Error al revalidar la solicitud: %(e)s"
 
 #: species/admin_revalidate.py:63
 #, python-format
 msgid "Revalidate returned HTTP %(code)s: %(body)s"
-msgstr ""
+msgstr "La revalidación devolvió HTTP %(code)s: %(body)s"
 
 #: species/admin_revalidate.py:71
 #, python-format
 msgid "Revalidate succeeded (HTTP %(code)s, non-JSON body)."
-msgstr ""
+msgstr "Revalidación correcta (HTTP %(code)s, cuerpo no JSON)."
 
 #: species/admin_revalidate.py:77
 #, python-format
 msgid "Revalidated %(n)s path(s)."
-msgstr ""
+msgstr "Se han revalidado %(n)s rutas."
 
 #: species/admin_revalidate.py:80
 #, python-format
 msgid "%(n)s path(s) failed: %(list)s"
-msgstr ""
+msgstr "%(n)s rutas han fallado: %(list)s"
 
 #: species/admin_revalidate.py:85
 msgid "Revalidate public pages (clear Next.js cache)"
-msgstr ""
+msgstr "Actualizar las páginas públicas (borrar la caché de Next.js)"
 
 #: species/models.py:309
 msgid "Fixed slot consumed by a specific page region."
-msgstr ""
+msgstr "Espacio fijo ocupado por una zona concreta de la página."
 
 #: species/models.py:314
 msgid "PNG or JPEG at or above the expected dimensions. Empty = no asset yet."
-msgstr ""
+msgstr "PNG o JPEG con unas dimensiones iguales o superiores a las previstas. Vacío = aún no hay recurso."
 
 #: species/models.py:319
 msgid "Screen-reader description of the thumbnail. Required when image is set."
-msgstr ""
+msgstr "Descripción de la miniatura para lectores de pantalla. Obligatorio cuando se incluye una imagen."
 
 #: species/models.py:324
 msgid "Attribution line shown alongside the image, if any."
-msgstr ""
+msgstr "Línea de atribución que aparece junto a la imagen, si la hay."
 
 #: species/models.py:327
 msgid "Target render width in CSS pixels. Set when the slot is introduced."
-msgstr ""
+msgstr "Ancho de renderizado deseado en píxeles CSS. Se establece al crear la ranura."
 
 #: species/models.py:330
 msgid "Target render height in CSS pixels. Set when the slot is introduced."
-msgstr ""
+msgstr "Altura de visualización prevista en píxeles CSS. Se establece al crear la ranura."
 
 #: species/models.py:334
 msgid ""
 "Internal notes for editors — where the asset renders, sourcing guidance."
-msgstr ""
+msgstr "Notas internas para los editores: dónde se muestra el recurso, indicaciones sobre la fuente."
 
 #: species/models.py:349
 msgid "ISO 639-1 code: en, fr, mg"
-msgstr ""
+msgstr "Código ISO 639-1: en, fr, mg"
