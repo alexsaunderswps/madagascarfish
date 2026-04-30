@@ -44,11 +44,12 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
+from husbandry.models import SpeciesHusbandry
 from i18n.models import TranslationStatus
 from species.models import Species, Taxon
 
 # Translatable fields per model. Mirrors the registrations in
-# backend/species/translation.py.
+# backend/<app>/translation.py.
 SPECIES_FIELDS = (
     "description",
     "ecology_notes",
@@ -56,6 +57,15 @@ SPECIES_FIELDS = (
     "morphology",
 )
 TAXON_FIELDS = ("common_family_name",)
+HUSBANDRY_FIELDS = (
+    "narrative",
+    "water_notes",
+    "tank_notes",
+    "diet_notes",
+    "behavior_notes",
+    "breeding_notes",
+    "sourcing_notes",
+)
 
 DEEPL_FREE_ENDPOINT = "https://api-free.deepl.com/v2/translate"
 DEEPL_PAID_ENDPOINT = "https://api.deepl.com/v2/translate"
@@ -131,6 +141,15 @@ class Command(BaseCommand):
             action="store_true",
             help="Skip Taxon.common_family_name translation.",
         )
+        parser.add_argument(
+            "--no-husbandry",
+            action="store_true",
+            help=(
+                "Skip SpeciesHusbandry translation. Husbandry has 7 long-form "
+                "narrative/notes fields per species; useful to skip during "
+                "narrow species-only review batches."
+            ),
+        )
 
     def handle(self, *args, **options):
         locale: str = options["locale"]
@@ -140,6 +159,7 @@ class Command(BaseCommand):
         force: bool = options["force"]
         dry_run: bool = options["dry_run"]
         skip_taxon: bool = options["no_taxon"]
+        skip_husbandry: bool = options["no_husbandry"]
         retranslate_stale: bool = options["retranslate_stale"]
 
         # --retranslate-stale resolves to: find species rows whose
@@ -234,11 +254,37 @@ class Command(BaseCommand):
                         )
                     )
 
+        if not skip_husbandry:
+            # Husbandry rows are 1:1 with Species; reuse the species-id filter
+            # so --species and --family scope husbandry too.
+            husbandry_qs = SpeciesHusbandry.objects.all()
+            if species_ids:
+                husbandry_qs = husbandry_qs.filter(species_id__in=species_ids)
+            if family:
+                husbandry_qs = husbandry_qs.filter(species__family=family)
+            for hb in husbandry_qs.iterator():
+                for field in HUSBANDRY_FIELDS:
+                    source = getattr(hb, f"{field}_en", None) or getattr(hb, field, "")
+                    if not source or not source.strip():
+                        continue
+                    target = getattr(hb, f"{field}_{locale}", None)
+                    if target and target.strip() and not force:
+                        continue
+                    jobs.append(
+                        TranslationJob(
+                            model="husbandry",
+                            object_id=hb.pk,
+                            field=field,
+                            source_text=source,
+                        )
+                    )
+
         species_jobs = sum(1 for j in jobs if j.model == "species")
         taxon_jobs = sum(1 for j in jobs if j.model == "taxon")
+        husbandry_jobs = sum(1 for j in jobs if j.model == "husbandry")
         self.stdout.write(
             f"[translate_species] {len(jobs)} jobs scheduled "
-            f"({species_jobs} species fields, {taxon_jobs} taxon fields)"
+            f"({species_jobs} species, {taxon_jobs} taxon, {husbandry_jobs} husbandry fields)"
         )
 
         if not jobs:
@@ -258,6 +304,13 @@ class Command(BaseCommand):
         # Execute in batches.
         sp_ct = ContentType.objects.get_for_model(Species)
         tx_ct = ContentType.objects.get_for_model(Taxon)
+        hb_ct = ContentType.objects.get_for_model(SpeciesHusbandry)
+
+        model_to_class = {
+            "species": (Species, sp_ct),
+            "taxon": (Taxon, tx_ct),
+            "husbandry": (SpeciesHusbandry, hb_ct),
+        }
 
         translated = 0
         for batch_start in range(0, len(jobs), BATCH_SIZE):
@@ -279,16 +332,10 @@ class Command(BaseCommand):
             with transaction.atomic():
                 now = timezone.now()
                 for job, translated_text in zip(batch, translations, strict=True):
-                    if job.model == "species":
-                        sp = Species.objects.get(pk=job.object_id)
-                        setattr(sp, f"{job.field}_{locale}", translated_text)
-                        sp.save(update_fields=[f"{job.field}_{locale}"])
-                        ct = sp_ct
-                    else:
-                        tx = Taxon.objects.get(pk=job.object_id)
-                        setattr(tx, f"{job.field}_{locale}", translated_text)
-                        tx.save(update_fields=[f"{job.field}_{locale}"])
-                        ct = tx_ct
+                    cls, ct = model_to_class[job.model]
+                    obj = cls.objects.get(pk=job.object_id)
+                    setattr(obj, f"{job.field}_{locale}", translated_text)
+                    obj.save(update_fields=[f"{job.field}_{locale}"])
                     TranslationStatus.objects.update_or_create(
                         content_type=ct,
                         object_id=job.object_id,

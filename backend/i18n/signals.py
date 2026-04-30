@@ -37,14 +37,24 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
+from husbandry.models import SpeciesHusbandry
 from i18n.models import TranslationStatus
 from species.models import Species, Taxon
 
 
-# Translatable fields per model. Mirrors backend/species/translation.py.
+# Translatable fields per model. Mirrors backend/<app>/translation.py.
 TRANSLATABLE: dict[type, tuple[str, ...]] = {
     Species: ("description", "ecology_notes", "distribution_narrative", "morphology"),
     Taxon: ("common_family_name",),
+    SpeciesHusbandry: (
+        "narrative",
+        "water_notes",
+        "tank_notes",
+        "diet_notes",
+        "behavior_notes",
+        "breeding_notes",
+        "sourcing_notes",
+    ),
 }
 
 
@@ -75,6 +85,7 @@ def _all_translatable_columns(sender: type) -> list[str]:
 
 @receiver(pre_save, sender=Species)
 @receiver(pre_save, sender=Taxon)
+@receiver(pre_save, sender=SpeciesHusbandry)
 def _cache_pre_save_translatable_values(sender, instance, **kwargs):
     """Capture the pre-save DB state for translatable columns so the
     post-save handler can detect what changed."""
@@ -93,6 +104,7 @@ def _cache_pre_save_translatable_values(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Species)
 @receiver(post_save, sender=Taxon)
+@receiver(post_save, sender=SpeciesHusbandry)
 def _update_translation_status_on_save(sender, instance, created, **kwargs):
     """For each translatable (field, non-default-locale) on the saved
     instance:

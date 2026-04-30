@@ -333,6 +333,78 @@ on `/fr/`, `/de/`, `/es/` regardless of locale.
 | English source content (any layer) | Edit en column or en.json | Auto-invalidates locale rows (Layer 2); doesn't touch Layer 1 |
 | New English content added (any species field) | Edit `<field>_en`, then `translate_species --locale <fr/de/es>` | Idempotent — translates only empty cells; produces `mt_draft` rows for review |
 
+---
+
+## Moving the local FR review work onto production (Path A)
+
+The L3 review queue is being worked locally first because that's where
+the Bedotiidae batch was MT-translated and reviewed (April 2026). When
+prod / staging is deployable, the human-approved rows need to land
+there so the public site can serve them. Two-step move:
+
+### 1. Dump the locale columns + TranslationStatus rows from local
+
+```bash
+# From the project root, with the local stack running:
+docker compose exec -T db pg_dump \
+    -U postgres -d mffcp \
+    --data-only \
+    --table=species_species \
+    --table=i18n_translationstatus \
+    --column-inserts \
+    > /tmp/mffcp-fr-snapshot.sql
+```
+
+`--data-only` keeps the dump narrow (no schema). `--column-inserts`
+makes the rows easier to inspect / cherry-pick if needed. The file
+will include the English columns too — that's intentional; the same
+rows are the source-of-truth for both EN and FR/DE/ES.
+
+### 2. Import on prod (or staging)
+
+Two options depending on whether prod's species table is empty or has
+its own data:
+
+**If prod's species table is empty** (fresh deploy):
+
+```bash
+# On the prod box, after psql access:
+psql -U postgres -d mffcp_prod < mffcp-fr-snapshot.sql
+```
+
+**If prod's species table is already populated** (more likely):
+
+The pg_dump above will conflict on primary keys. Cleanest path: write
+a small Python migration script that walks the dump, looks each
+species up by `scientific_name` (the natural key), and updates only
+the `<field>_<locale>` columns + creates the matching
+`i18n_translationstatus` rows. Save the script as
+`backend/i18n/management/commands/import_fr_snapshot.py` when
+implementing.
+
+Either approach should run in a transaction and be re-runnable.
+
+### Caveats
+
+- **Don't merge in human-approved rows blindly.** If prod has its own
+  reviewed rows for the same species (e.g., a colleague approved a row
+  through prod admin), the dump from local will overwrite. Prefer the
+  field-level merge approach above, with a `--dry-run` flag that prints
+  the would-update rows first.
+- **Re-run signals on import.** The post_save signal handlers need to
+  fire to keep things consistent. If using raw SQL load, remember to
+  hit the species rows once after import (e.g., `Species.objects.all()
+  .update(updated_at=timezone.now())`) to trigger a save. Or just
+  use the field-level Python script which goes through the ORM.
+- **TranslationStatus rows are coupled to a `content_type_id`.** The
+  ContentType for Species must exist on the target DB before the dump
+  is loaded. Standard Django setup handles this automatically.
+
+When any of this gets implemented, that script and the actual
+runbook should land here as a section under "Path A — execution log."
+
+---
+
 ## Related
 
 - Architecture: `docs/planning/architecture/i18n-architecture.md` — D5 (DeepL), §5 (signals), §4 (review-gate).
