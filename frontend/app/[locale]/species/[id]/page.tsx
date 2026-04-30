@@ -572,7 +572,11 @@ export default async function SpeciesProfilePage({
             alignItems: "start",
           }}
         >
-          <ProfileDistribution speciesId={sp.id} hasLocalities={sp.has_localities} />
+          <ProfileDistribution
+            speciesId={sp.id}
+            hasLocalities={sp.has_localities}
+            narrative={sp.distribution_narrative ?? ""}
+          />
           <ProfileCommonNames commonNames={sp.common_names} />
         </section>
 

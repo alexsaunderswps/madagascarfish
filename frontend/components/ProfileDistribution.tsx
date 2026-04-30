@@ -18,9 +18,14 @@ import { fetchSiteMapAsset } from "@/lib/siteMapAssets";
 export default async function ProfileDistribution({
   speciesId,
   hasLocalities,
+  narrative,
 }: {
   speciesId: number;
   hasLocalities: boolean;
+  /** Prose distribution narrative from `Species.distribution_narrative`
+   *  (locale-resolved by the API). Empty string when the species has no
+   *  populated narrative for any locale. */
+  narrative: string;
 }) {
   const [sma, localities, t] = await Promise.all([
     fetchSiteMapAsset("profile_panel"),
@@ -69,6 +74,21 @@ export default async function ProfileDistribution({
       >
         {t("heading")}
       </h2>
+
+      {narrative.trim() ? (
+        <p
+          style={{
+            marginTop: 16,
+            marginBottom: 0,
+            fontFamily: "var(--serif)",
+            fontSize: 16,
+            lineHeight: 1.55,
+            color: "var(--ink)",
+          }}
+        >
+          {narrative.trim()}
+        </p>
+      ) : null}
 
       {sma ? (
         <figure
