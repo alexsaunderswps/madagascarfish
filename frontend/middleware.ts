@@ -35,6 +35,7 @@ import { routing } from "./i18n/routing";
  */
 
 const COORDINATOR_MIN_TIER = 3;
+const INSTITUTION_MIN_TIER = 2;
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -107,6 +108,23 @@ async function authGate(request: NextRequest): Promise<NextResponse> {
       }
       const homeUrl = new URL(withLocale("/", locale), request.url);
       return NextResponse.redirect(homeUrl);
+    }
+    return NextResponse.next();
+  }
+
+  if (path.startsWith("/dashboard/institution")) {
+    // Gate 13: Tier 2+ AND token present. The institution-membership
+    // claim_status check happens server-side on the page itself —
+    // middleware can only see the JWT (tier + token) and an extra
+    // round trip per request would be wasteful. The page redirects
+    // to /account if claim_status != "approved".
+    if (!flagOn) {
+      const homeUrl = new URL(withLocale("/", locale), request.url);
+      return NextResponse.redirect(homeUrl);
+    }
+    const tier = typeof token?.tier === "number" ? token.tier : 0;
+    if (!token || tier < INSTITUTION_MIN_TIER) {
+      return redirectToLogin(request, fullPath, locale);
     }
     return NextResponse.next();
   }

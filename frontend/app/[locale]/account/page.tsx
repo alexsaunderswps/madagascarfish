@@ -17,11 +17,22 @@ export async function generateMetadata() {
 
 export const dynamic = "force-dynamic";
 
+interface InstitutionMembership {
+  institution_id: number | null;
+  institution_name: string | null;
+  claim_status: "none" | "pending" | "approved" | "rejected" | "withdrawn";
+  claim_id: number | null;
+  claim_requested_at: string | null;
+  claim_reviewed_at: string | null;
+  rejection_reason: string | null;
+}
+
 interface MeResponse {
   email: string;
   name: string;
   access_tier: number;
   locale?: string;
+  institution_membership?: InstitutionMembership;
 }
 
 export default async function AccountPage() {
@@ -113,6 +124,74 @@ export default async function AccountPage() {
             </dd>
           </div>
         </dl>
+      ) : null}
+
+      {me?.institution_membership &&
+      me.institution_membership.claim_status !== "none" ? (
+        <section className="mt-6 rounded border border-slate-200 bg-white p-4 text-sm">
+          <h2 className="text-xs font-medium uppercase tracking-wider text-slate-500">
+            {t("institutionMembership.heading")}
+          </h2>
+          {(() => {
+            const m = me.institution_membership;
+            if (!m) return null;
+            if (m.claim_status === "approved") {
+              return (
+                <div className="mt-2 space-y-1">
+                  <p className="text-slate-900">
+                    {t("institutionMembership.approved", {
+                      name: m.institution_name ?? "",
+                    })}
+                  </p>
+                  <a
+                    href="/dashboard/institution"
+                    className="inline-block text-sm text-sky-700 underline underline-offset-2 hover:text-sky-900"
+                  >
+                    {t("institutionMembership.openDashboard")}
+                  </a>
+                </div>
+              );
+            }
+            if (m.claim_status === "pending") {
+              return (
+                <p className="mt-2 text-slate-700">
+                  {t("institutionMembership.pending", {
+                    name: m.institution_name ?? "",
+                  })}
+                </p>
+              );
+            }
+            if (m.claim_status === "rejected") {
+              return (
+                <div className="mt-2 space-y-2">
+                  <p className="text-slate-700">
+                    {t("institutionMembership.rejected", {
+                      name: m.institution_name ?? "",
+                    })}
+                  </p>
+                  {m.rejection_reason ? (
+                    <p className="rounded bg-slate-50 px-3 py-2 text-xs text-slate-700">
+                      <span className="font-semibold">
+                        {t("institutionMembership.reasonLabel")}
+                      </span>{" "}
+                      {m.rejection_reason}
+                    </p>
+                  ) : null}
+                </div>
+              );
+            }
+            if (m.claim_status === "withdrawn") {
+              return (
+                <p className="mt-2 text-slate-700">
+                  {t("institutionMembership.withdrawn", {
+                    name: m.institution_name ?? "",
+                  })}
+                </p>
+              );
+            }
+            return null;
+          })()}
+        </section>
       ) : null}
 
       {me ? (

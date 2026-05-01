@@ -103,6 +103,63 @@ describe("middleware /dashboard/coordinator gate (default locale)", () => {
   });
 });
 
+describe("middleware /dashboard/institution gate (default locale)", () => {
+  // Gate 13. Tier 2+ AND token present, but the page-level claim_status
+  // check is server-side (not visible to middleware), so middleware lets
+  // any authenticated Tier 2+ through and the page redirects to /account
+  // if the claim isn't approved.
+  beforeEach(() => {
+    process.env.NEXTAUTH_SECRET = "test-secret";
+    getTokenMock.mockReset();
+  });
+
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = ORIGINAL_FLAG;
+  });
+
+  it("redirects anonymous to / when auth flag is off", async () => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "false";
+    getTokenMock.mockResolvedValue(null);
+    const res = await middleware(req("/dashboard/institution/"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3000/");
+  });
+
+  it("redirects anonymous to /login when flag is on", async () => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "true";
+    getTokenMock.mockResolvedValue(null);
+    const res = await middleware(req("/dashboard/institution/"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe(
+      "http://localhost:3000/login?callbackUrl=%2Fdashboard%2Finstitution%2F",
+    );
+  });
+
+  it("redirects Tier 1 users to /login when flag is on", async () => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "true";
+    getTokenMock.mockResolvedValue({ tier: 1 });
+    const res = await middleware(req("/dashboard/institution/"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe(
+      "http://localhost:3000/login?callbackUrl=%2Fdashboard%2Finstitution%2F",
+    );
+  });
+
+  it("lets Tier 2 users through (page-level checks claim_status)", async () => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "true";
+    getTokenMock.mockResolvedValue({ tier: 2 });
+    const res = await middleware(req("/dashboard/institution/"));
+    expect(isPassThrough(res)).toBe(true);
+  });
+
+  it("lets Tier 3 users through", async () => {
+    process.env.NEXT_PUBLIC_FEATURE_AUTH = "true";
+    getTokenMock.mockResolvedValue({ tier: 3 });
+    const res = await middleware(req("/dashboard/institution/"));
+    expect(isPassThrough(res)).toBe(true);
+  });
+});
+
 describe("middleware /account gate (default locale)", () => {
   beforeEach(() => {
     process.env.NEXTAUTH_SECRET = "test-secret";
