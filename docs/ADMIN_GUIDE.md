@@ -25,14 +25,19 @@ Tier gates are enforced on specific models — see each section.
 | Add a locality / occurrence record | **Species → Species localities** | GIS map picker; check `needs_review` to quarantine |
 | Add a common name for a species | **Species → Species** → open species → Common names inline | Tabular inline at bottom of species form. Set `language` to ISO 639-1 code (en, mg, fr, de). Public profile groups by language. |
 | Add an institution holding captive fish | **Populations → Institutions** | |
-| Record a captive population | **Populations → Ex situ populations** | Tier 3–4 scoped to own institution |
-| Log a census snapshot | **Populations → Ex situ populations** → open row → Holding records inline | Reporter auto-fills to current user |
+| Record a captive population | **Populations → Ex situ populations** | After creation, the institution's keepers can edit it from the self-service web surface — see POPULATION_DATA_GUIDE §4 |
+| Log a census snapshot | **Populations → Ex situ populations** → open row → Holding records inline | Or update `last_census_date` on the row directly (Option A in POPULATION_DATA_GUIDE §8) |
+| Approve / reject an institution-membership claim | **Accounts → Pending institution claims** | Tier 3+. Use the "Approve selected" / "Reject selected" actions; superuser-only for add/delete |
+| Log a breeding event | Self-service preferred — `/dashboard/institution/breeding-events/` | Append-only ledger; corrections via follow-up entries |
 | Add husbandry guidance | **Husbandry → Species husbandry** | Publishing requires ≥1 source + reviewer |
-| Record a field program | **Fieldwork → Field programs** | M2M to focal species and partner institutions |
+| Record a field program | **Fieldwork → Field programs** *or* `/dashboard/institution/field-programs/` | Self-service can create/edit programs led by your institution; M2M relations stay coordinator-only |
+| Draft a breeding recommendation | **Populations → Breeding recommendations** | Lifecycle: open → in-review → completed |
+| Log a transfer | **Populations → Transfers** | Coordinator-only; lifecycle proposed → completed |
 | Check an IUCN sync run | **Integration → Sync jobs** | Read-only log |
 | Invite a user / change tier | **Accounts → Users** | Superuser only for tier/privilege edits |
 | Review an IUCN↔manual conflict | **Species → Conservation status conflicts** | Tier 3+; resolve or dismiss |
-| Audit who changed an IUCN status | **Audit → Audit entries** | Tier 5 only (append-only) |
+| Audit who changed an IUCN status, a population, a breeding event, or a field program | **Audit → Audit entries** | Tier 5 list view; Tier 3+ via the per-species inline. Filter by `target_type`, `actor_institution`, `action`, `timestamp`. Append-only. |
+| Pull a quarter's audit log as CSV | `GET /api/v1/audit/export.csv` (Tier 3+) | See POPULATION_DATA_GUIDE §12 for filters and curl |
 
 ---
 
