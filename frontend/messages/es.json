@@ -864,6 +864,11 @@
           },
           "emDash": "—"
         }
+      },
+      "pulse": {
+        "ariaLabel": "Platform activity pulse",
+        "eyebrow": "{days}-day pulse",
+        "line": "{edits} edits · {events} breeding events · {census} fresh censuses · across {institutions} institutions in {countries} countries."
       }
     },
     "institution": {

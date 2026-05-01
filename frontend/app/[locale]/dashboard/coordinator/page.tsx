@@ -20,6 +20,7 @@ import {
   fetchTransferActivity,
   isCoordinatorTokenConfigured,
 } from "@/lib/coordinatorDashboard";
+import { fetchDashboard } from "@/lib/dashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -142,6 +143,7 @@ export default async function CoordinatorDashboardPage({
     openRecommendations,
     reproductiveActivity,
     t,
+    pulse,
   ] = await Promise.all([
     fetchCoverageGap({ endemicOnly, authToken: userToken }),
     fetchStudbookStatus({ authToken: userToken }),
@@ -151,7 +153,10 @@ export default async function CoordinatorDashboardPage({
     fetchOpenRecommendations({ authToken: userToken }),
     fetchReproductiveActivity({ authToken: userToken }),
     getTranslations("dashboard.coordinator"),
+    // Public dashboard payload — surfaces the `contributors` pulse data.
+    fetchDashboard(),
   ]);
+  const contributors = pulse?.contributors ?? null;
 
   return (
     <main style={PAGE_WRAPPER}>
@@ -161,6 +166,42 @@ export default async function CoordinatorDashboardPage({
         <p style={DESC_STYLE}>{t("description")}</p>
         <p style={TIER_NOTE_STYLE}>{t("tierNote")}</p>
       </header>
+
+      {contributors ? (
+        <div
+          aria-label={t("pulse.ariaLabel")}
+          style={{
+            padding: "10px 14px",
+            borderRadius: "var(--radius)",
+            border: "1px solid var(--rule)",
+            backgroundColor: "var(--bg-raised)",
+            fontSize: 13,
+            color: "var(--ink-2)",
+            lineHeight: 1.5,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--sans)",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "var(--ink-3)",
+              marginRight: 12,
+            }}
+          >
+            {t("pulse.eyebrow", { days: contributors.activity_window_days })}
+          </span>
+          {t("pulse.line", {
+            edits: contributors.populations_edited_recent,
+            events: contributors.breeding_events_recent,
+            census: contributors.populations_recent_census,
+            institutions: contributors.active_institutions_total,
+            countries: contributors.countries_represented,
+          })}
+        </div>
+      ) : null}
 
       {tokenConfigured ? null : <ConfigErrorBanner />}
 
