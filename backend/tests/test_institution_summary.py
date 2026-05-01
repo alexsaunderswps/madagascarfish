@@ -347,3 +347,145 @@ class TestEdgeCases:
         )
         resp = api_client.get(f"{ENDPOINT}?institution_id=999999")
         assert resp.status_code == 404
+
+
+@pytest.mark.django_db
+class TestRecentActivity:
+    def test_empty_when_no_audit_entries(
+        self, api_client: APIClient, institution_a: Institution
+    ) -> None:
+        api_client.force_authenticate(
+            user=_user(email="empty-feed@example.com", tier=2, institution=institution_a)
+        )
+        body = api_client.get(ENDPOINT).json()
+        assert body["recent_activity"] == []
+
+    def test_includes_population_edits_at_own_institution(
+        self,
+        api_client: APIClient,
+        institution_a: Institution,
+        species_paretroplus: Species,
+    ) -> None:
+        from audit.models import AuditEntry
+
+        pop = ExSituPopulation.objects.create(
+            species=species_paretroplus, institution=institution_a, count_total=10
+        )
+        keeper = _user(email="actor1@example.com", tier=2, institution=institution_a)
+        AuditEntry.objects.create(
+            target_type="populations.ExSituPopulation",
+            target_id=pop.pk,
+            actor_type=AuditEntry.ActorType.USER,
+            actor_user=keeper,
+            actor_institution_id=institution_a.pk,
+            action=AuditEntry.Action.UPDATE,
+            before={"count_total": 10},
+            after={"count_total": 12},
+            reason="",
+        )
+        api_client.force_authenticate(user=keeper)
+        body = api_client.get(ENDPOINT).json()
+        feed = body["recent_activity"]
+        assert len(feed) == 1
+        row = feed[0]
+        assert row["target_type"] == "populations.ExSituPopulation"
+        assert row["actor_email"] == "actor1@example.com"
+        assert row["is_own_institution"] is True
+        assert "Paretroplus menarambo" in row["target_label"]
+        assert row["changes_summary"] == "count_total"
+
+    def test_includes_coordinator_override_at_my_institution(
+        self,
+        api_client: APIClient,
+        institution_a: Institution,
+        institution_b: Institution,
+        species_paretroplus: Species,
+    ) -> None:
+        # A coordinator (institution_b) edits a population at institution_a.
+        # The owner-side viewer (institution_a) sees the row in their feed
+        # with is_own_institution=False — surfacing "coordinator did this."
+        from audit.models import AuditEntry
+
+        pop = ExSituPopulation.objects.create(
+            species=species_paretroplus, institution=institution_a, count_total=10
+        )
+        coord = _user(email="coord-edit@example.com", tier=3, institution=institution_b)
+        AuditEntry.objects.create(
+            target_type="populations.ExSituPopulation",
+            target_id=pop.pk,
+            actor_type=AuditEntry.ActorType.USER,
+            actor_user=coord,
+            actor_institution_id=institution_b.pk,
+            action=AuditEntry.Action.UPDATE,
+            before={"count_total": 10},
+            after={"count_total": 12},
+            reason="",
+        )
+        # Viewer is at institution_a, the population's owner
+        viewer = _user(email="viewer@example.com", tier=2, institution=institution_a)
+        api_client.force_authenticate(user=viewer)
+        body = api_client.get(ENDPOINT).json()
+        feed = body["recent_activity"]
+        assert len(feed) == 1
+        assert feed[0]["actor_email"] == "coord-edit@example.com"
+        assert feed[0]["is_own_institution"] is False
+
+    def test_excludes_other_institutions_targets(
+        self,
+        api_client: APIClient,
+        institution_a: Institution,
+        institution_b: Institution,
+        species_paretroplus: Species,
+    ) -> None:
+        from audit.models import AuditEntry
+
+        # An audit row for a population at institution_b — neither the
+        # actor nor the target is at institution_a, so viewer at A sees
+        # nothing.
+        pop = ExSituPopulation.objects.create(
+            species=species_paretroplus, institution=institution_b, count_total=20
+        )
+        keeper_b = _user(email="bee@example.com", tier=2, institution=institution_b)
+        AuditEntry.objects.create(
+            target_type="populations.ExSituPopulation",
+            target_id=pop.pk,
+            actor_type=AuditEntry.ActorType.USER,
+            actor_user=keeper_b,
+            actor_institution_id=institution_b.pk,
+            action=AuditEntry.Action.UPDATE,
+            before={"count_total": 20},
+            after={"count_total": 22},
+            reason="",
+        )
+        viewer = _user(email="viewer-a@example.com", tier=2, institution=institution_a)
+        api_client.force_authenticate(user=viewer)
+        body = api_client.get(ENDPOINT).json()
+        assert body["recent_activity"] == []
+
+    def test_capped_at_limit(
+        self,
+        api_client: APIClient,
+        institution_a: Institution,
+        species_paretroplus: Species,
+    ) -> None:
+        from audit.models import AuditEntry
+
+        pop = ExSituPopulation.objects.create(
+            species=species_paretroplus, institution=institution_a, count_total=10
+        )
+        for i in range(40):
+            AuditEntry.objects.create(
+                target_type="populations.ExSituPopulation",
+                target_id=pop.pk,
+                actor_type=AuditEntry.ActorType.USER,
+                actor_institution_id=institution_a.pk,
+                action=AuditEntry.Action.UPDATE,
+                before={"count_total": 10 + i},
+                after={"count_total": 11 + i},
+                reason="",
+            )
+        keeper = _user(email="lots@example.com", tier=2, institution=institution_a)
+        api_client.force_authenticate(user=keeper)
+        body = api_client.get(ENDPOINT).json()
+        # Default limit is 25.
+        assert len(body["recent_activity"]) == 25

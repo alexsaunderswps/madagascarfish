@@ -767,6 +767,28 @@
           "transientError": "Couldn't save. Please try again in a moment."
         }
       },
+      "activity": {
+        "heading": "Recent activity at your institution",
+        "subtitle": "Edits and entries logged in the last 90 days. Sky-blue dots are your team; amber dots are coordinator overrides.",
+        "empty": "No activity in the last 90 days yet. Edits, breeding-event entries, and field-program updates appear here.",
+        "systemActor": "System",
+        "changesLabel": "Changed:",
+        "coordinatorOverrideTag": "coordinator override",
+        "actions": {
+          "create": "logged",
+          "update": "updated",
+          "delete": "deleted",
+          "mirror_write": "mirrored",
+          "conflict_detected": "flagged a conflict on",
+          "conflict_resolved": "resolved a conflict on"
+        },
+        "targetKinds": {
+          "population": "a population",
+          "breedingEvent": "a breeding event",
+          "fieldProgram": "a field program",
+          "other": "a record"
+        }
+      },
       "aggregate": {
         "heading": "Your institution at a glance",
         "subtitle": "Where your institution sits in the global captive picture for the species you hold.",

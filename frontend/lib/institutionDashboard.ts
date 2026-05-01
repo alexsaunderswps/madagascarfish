@@ -281,6 +281,19 @@ export interface InstitutionSummaryRow {
   recent_breeding_events: number;
 }
 
+export interface ActivityRow {
+  id: number;
+  timestamp: string;
+  actor_email: string | null;
+  actor_kind: string;
+  action: string;
+  target_type: string;
+  target_id: number;
+  target_label: string;
+  changes_summary: string;
+  is_own_institution: boolean;
+}
+
 export interface InstitutionSummaryResponse {
   institution: { id: number; name: string };
   totals: {
@@ -291,6 +304,7 @@ export interface InstitutionSummaryResponse {
     stale_census_count: number;
   };
   species_breakdown: InstitutionSummaryRow[];
+  recent_activity: ActivityRow[];
 }
 
 export async function fetchInstitutionSummary(

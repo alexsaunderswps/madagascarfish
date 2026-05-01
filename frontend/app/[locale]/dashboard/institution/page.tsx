@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import ActivityFeed from "@/components/institution/ActivityFeed";
 import AggregatePanel from "@/components/institution/AggregatePanel";
 import { ApiError, apiFetch } from "@/lib/api";
 import { getServerDrfToken } from "@/lib/auth";
@@ -85,6 +86,10 @@ export default async function InstitutionDashboardPage() {
       </header>
 
       <AggregatePanel summary={summary} />
+
+      {summary?.recent_activity ? (
+        <ActivityFeed rows={summary.recent_activity} />
+      ) : null}
 
       {populations === null ? (
         <p
