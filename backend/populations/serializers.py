@@ -3,7 +3,7 @@ from __future__ import annotations
 from rest_framework import serializers
 
 from accounts.serializer_mixins import TierAwareSerializerMixin
-from populations.models import ExSituPopulation, HoldingRecord, Institution
+from populations.models import BreedingEvent, ExSituPopulation, HoldingRecord, Institution
 
 
 class InstitutionListSerializer(serializers.ModelSerializer):
@@ -124,4 +124,70 @@ class ExSituPopulationWriteSerializer(serializers.ModelSerializer):
             "last_census_date",
             "notes",
             "studbook_managed",
+        ]
+
+
+class BreedingEventListSerializer(serializers.ModelSerializer):
+    """Read-side breeding-event row.
+
+    Includes the population's species and institution as compact briefs so
+    the institution-dashboard list view can render without a second
+    round-trip per row.
+    """
+
+    population_id = serializers.IntegerField(read_only=True)
+    species = serializers.SerializerMethodField()
+    institution = serializers.SerializerMethodField()
+    reporter_email = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BreedingEvent
+        fields = [
+            "id",
+            "population_id",
+            "species",
+            "institution",
+            "event_type",
+            "event_date",
+            "count_delta_male",
+            "count_delta_female",
+            "count_delta_unsexed",
+            "notes",
+            "reporter_email",
+            "created_at",
+        ]
+
+    def get_species(self, obj: BreedingEvent) -> dict:
+        sp = obj.population.species
+        return {"id": sp.id, "scientific_name": sp.scientific_name}
+
+    def get_institution(self, obj: BreedingEvent) -> dict:
+        inst = obj.population.institution
+        return {"id": inst.id, "name": inst.name}
+
+    def get_reporter_email(self, obj: BreedingEvent) -> str | None:
+        return obj.reporter.email if obj.reporter else None
+
+
+class BreedingEventWriteSerializer(serializers.ModelSerializer):
+    """Tier-2-institution-scoped breeding-event create surface.
+
+    `reporter` is set server-side from `request.user` in the viewset's
+    `perform_create` hook — clients cannot spoof it. `population` is
+    required and must be at the user's institution (enforced by the
+    perm class on object-level + viewset queryset scoping on list/create).
+    """
+
+    notes = serializers.CharField(max_length=10_000, allow_blank=True, required=False)
+
+    class Meta:
+        model = BreedingEvent
+        fields = [
+            "population",
+            "event_type",
+            "event_date",
+            "count_delta_male",
+            "count_delta_female",
+            "count_delta_unsexed",
+            "notes",
         ]

@@ -920,6 +920,61 @@
           "badRequest": "Please review the form and try again.",
           "transientError": "Couldn't save. Please try again in a moment."
         }
+      },
+      "breedingEventsLink": "Log a breeding event →",
+      "breedingEvents": {
+        "metaTitle": "Breeding events — My Institution",
+        "metaDescription": "Log spawnings, hatchings, mortalities, and other reproductive events for your institution's populations.",
+        "eyebrow": "Institution dashboard",
+        "title": "Breeding events",
+        "subtitle": "Log time-stamped reproductive and demographic events for your institution's populations. Events are append-only — corrections are filed as follow-up entries.",
+        "logForm": {
+          "heading": "Log a new event",
+          "population": "Population",
+          "noPopulations": "Your institution has no populations yet. Ask your coordinator to register one before you can log events.",
+          "eventType": "Event type",
+          "eventDate": "Event date",
+          "deltaMale": "Δ Males",
+          "deltaFemale": "Δ Females",
+          "deltaUnsexed": "Δ Unsexed",
+          "deltaHelp": "Signed counts. Enter negative values for losses (e.g. -2 for a mortality of two).",
+          "notes": "Notes",
+          "notesPlaceholder": "Conditions, parents, water chemistry, anything worth knowing later…",
+          "logEvent": "Log event",
+          "logging": "Logging…"
+        },
+        "eventTypes": {
+          "spawning": "Spawning",
+          "hatching": "Hatching",
+          "mortality": "Mortality",
+          "acquisition": "Acquisition",
+          "disposition": "Disposition",
+          "other": "Other"
+        },
+        "errors": {
+          "populationRequired": "Pick a population before logging an event."
+        },
+        "actionErrors": {
+          "notSignedIn": "You're not signed in. Sign in and try again.",
+          "forbidden": "You don't have permission to log events for that population.",
+          "badRequest": "Please review the form and try again.",
+          "transientError": "Couldn't save. Please try again in a moment."
+        },
+        "recent": {
+          "heading": "Recent events at your institution",
+          "empty": "No events logged yet. Log the first one above and it will appear here.",
+          "table": {
+            "date": "Date",
+            "species": "Species",
+            "eventType": "Type",
+            "delta": "Counts",
+            "notes": "Notes",
+            "reporter": "Reporter"
+          },
+          "male": "♂",
+          "female": "♀",
+          "unsexed": "?"
+        }
       }
     }
   },

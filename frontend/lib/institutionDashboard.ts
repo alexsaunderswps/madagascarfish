@@ -154,3 +154,117 @@ export async function updateInstitutionPopulation(
     },
   };
 }
+
+
+// ---------- Gate 14: BreedingEvent ----------
+
+export type BreedingEventType =
+  | "spawning"
+  | "hatching"
+  | "mortality"
+  | "acquisition"
+  | "disposition"
+  | "other";
+
+export interface BreedingEventRow {
+  id: number;
+  population_id: number;
+  species: { id: number; scientific_name: string };
+  institution: { id: number; name: string };
+  event_type: BreedingEventType;
+  event_date: string;
+  count_delta_male: number | null;
+  count_delta_female: number | null;
+  count_delta_unsexed: number | null;
+  notes: string;
+  reporter_email: string | null;
+  created_at: string;
+}
+
+export interface BreedingEventListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: BreedingEventRow[];
+}
+
+export async function fetchBreedingEvents(
+  authToken: string,
+): Promise<BreedingEventListResponse | null> {
+  try {
+    return await apiFetch<BreedingEventListResponse>("/api/v1/breeding-events/", {
+      headers: authHeaders(authToken),
+      revalidate: 0,
+    });
+  } catch {
+    return null;
+  }
+}
+
+export interface CreateBreedingEventPayload {
+  population: number;
+  event_type: BreedingEventType;
+  event_date: string;
+  count_delta_male?: number | null;
+  count_delta_female?: number | null;
+  count_delta_unsexed?: number | null;
+  notes?: string;
+}
+
+export interface CreateBreedingEventError {
+  status: number;
+  fieldErrors?: Record<string, string[]>;
+  detail?: string;
+}
+
+export async function createBreedingEvent(
+  payload: CreateBreedingEventPayload,
+  authToken: string,
+): Promise<{ ok: true } | { ok: false; error: CreateBreedingEventError }> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  const url = `${baseUrl.replace(/\/$/, "")}/api/v1/breeding-events/`;
+  let resp: Response;
+  try {
+    resp = await fetch(url, {
+      method: "POST",
+      headers: { ...authHeaders(authToken), "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    });
+  } catch (err) {
+    return {
+      ok: false,
+      error: { status: 0, detail: err instanceof Error ? err.message : "network error" },
+    };
+  }
+  if (resp.ok) return { ok: true };
+  let body: unknown = null;
+  try {
+    body = await resp.json();
+  } catch {
+    body = null;
+  }
+  const fieldErrors: Record<string, string[]> = {};
+  let detail: string | undefined;
+  if (body && typeof body === "object") {
+    for (const [k, v] of Object.entries(body as Record<string, unknown>)) {
+      if (k === "detail" && typeof v === "string") {
+        detail = v;
+        continue;
+      }
+      if (Array.isArray(v)) {
+        fieldErrors[k] = v.filter((item): item is string => typeof item === "string");
+      } else if (typeof v === "string") {
+        fieldErrors[k] = [v];
+      }
+    }
+  }
+  return {
+    ok: false,
+    error: {
+      status: resp.status,
+      fieldErrors: Object.keys(fieldErrors).length ? fieldErrors : undefined,
+      detail,
+    },
+  };
+}

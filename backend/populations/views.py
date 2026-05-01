@@ -12,8 +12,10 @@ from rest_framework.permissions import AllowAny
 from accounts.permissions import InstitutionScopedPermission
 from audit.context import audit_actor
 from audit.models import AuditEntry
-from populations.models import ExSituPopulation, Institution
+from populations.models import BreedingEvent, ExSituPopulation, Institution
 from populations.serializers import (
+    BreedingEventListSerializer,
+    BreedingEventWriteSerializer,
     ExSituPopulationDetailSerializer,
     ExSituPopulationListSerializer,
     ExSituPopulationWriteSerializer,
@@ -162,3 +164,118 @@ def _json_safe(value):
     if isinstance(value, (datetime.date, datetime.datetime)):
         return value.isoformat()
     return value
+
+
+class BreedingEventFilter(filters.FilterSet):
+    population_id = filters.NumberFilter(field_name="population_id")
+    species_id = filters.NumberFilter(field_name="population__species_id")
+    institution_id = filters.NumberFilter(field_name="population__institution_id")
+    event_type = filters.CharFilter(field_name="event_type")
+
+    class Meta:
+        model = BreedingEvent
+        fields = ["population_id", "species_id", "institution_id", "event_type"]
+
+
+class _BreedingEventInstitutionScopedPermission(
+    InstitutionScopedPermission()  # type: ignore[misc]
+):
+    """BreedingEvent has no direct `institution_id` — it lives on the
+    parent population. Override `has_object_permission` to dereference.
+
+    Falls back to the standard `has_permission` from the parent factory
+    (Tier 2+ with institution OR Tier 3+ override).
+    """
+
+    def has_object_permission(self, request, view, obj):  # type: ignore[override]
+        # Promote the population's institution_id onto the breeding-event
+        # object for the parent permission check. Cleaner than duplicating
+        # the tier-and-institution-match logic.
+        adapter = type("_BEAdapter", (), {"institution_id": obj.population.institution_id})()
+        return super().has_object_permission(request, view, adapter)
+
+
+class BreedingEventViewSet(viewsets.ModelViewSet):
+    """Append-leaning breeding-event log.
+
+    Tier 2 institution staff can list (their institution's events),
+    retrieve, and POST new events for their institution's populations.
+    PATCH and DELETE are intentionally not exposed at MVP — events are
+    a ledger; corrections happen by posting a follow-up event with
+    explanatory notes (matches studbook practice). Tier 3+ can do the
+    same across all institutions.
+
+    Audit hook on create writes one ``AuditEntry`` per event with the
+    actor's institution snapshot, matching Gate 13's pattern.
+    """
+
+    permission_classes = [_BreedingEventInstitutionScopedPermission]
+    filterset_class = BreedingEventFilter
+    ordering = ["-event_date", "-created_at"]
+    http_method_names = ["get", "post", "head", "options"]
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = BreedingEvent.objects.select_related(
+            "population",
+            "population__species",
+            "population__institution",
+            "reporter",
+        )
+        if not user.is_authenticated:
+            return qs.none()
+        tier = getattr(user, "access_tier", 0)
+        if tier >= 3:
+            return qs
+        institution_id = getattr(user, "institution_id", None)
+        if institution_id is None:
+            return qs.none()
+        return qs.filter(population__institution_id=institution_id)
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return BreedingEventWriteSerializer
+        return BreedingEventListSerializer
+
+    def perform_create(self, serializer):
+        """Create the event under audit_actor; write a single AuditEntry
+        with the actor's institution snapshot.
+
+        Population-scope guard: a Tier 2 keeper at Aquarium A trying to
+        post an event for a population at Aquarium B (by including the
+        other population's id) is rejected here — the parent population
+        must satisfy the same institution-match rule the perm class
+        enforces on detail endpoints.
+        """
+        user = self.request.user
+        population: ExSituPopulation = serializer.validated_data["population"]
+        actor_institution_id = getattr(user, "institution_id", None)
+        tier = getattr(user, "access_tier", 0)
+        if tier < 3 and population.institution_id != actor_institution_id:
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied(
+                "Cannot log breeding events for a population at another institution."
+            )
+        with transaction.atomic():
+            with audit_actor(user=user, reason="breeding event created"):
+                instance: BreedingEvent = serializer.save(reporter=user)
+            AuditEntry.objects.create(
+                target_type="populations.BreedingEvent",
+                target_id=instance.pk,
+                actor_type=AuditEntry.ActorType.USER,
+                actor_user=user,
+                actor_institution_id=actor_institution_id,
+                action=AuditEntry.Action.CREATE,
+                before={},
+                after={
+                    "event_type": instance.event_type,
+                    "event_date": instance.event_date.isoformat(),
+                    "count_delta_male": instance.count_delta_male,
+                    "count_delta_female": instance.count_delta_female,
+                    "count_delta_unsexed": instance.count_delta_unsexed,
+                    "population_id": instance.population_id,
+                },
+                reason="breeding event created",
+            )
+        return instance
