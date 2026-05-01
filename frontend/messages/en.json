@@ -879,6 +879,11 @@
       "title": "Coordinator Dashboard",
       "description": "A triage view for ex-situ coordinators: where coverage is missing, which captive populations are at demographic risk, and whose census is overdue. The registry is the source of truth — this page is a read-only summary computed from it.",
       "tierNote": "Population-level detail. Visible to Tier 3+ accounts (Conservation Coordinator and above).",
+      "pulse": {
+        "ariaLabel": "Platform activity pulse",
+        "eyebrow": "{days}-day pulse",
+        "line": "{edits} edits · {events} breeding events · {census} fresh censuses · across {institutions} institutions in {countries} countries."
+      },
       "configError": {
         "title": "Coordinator data is temporarily unavailable.",
         "body": "The panels below couldn't reach the coordination API. Try refreshing the page; if the issue persists, contact the platform team."
