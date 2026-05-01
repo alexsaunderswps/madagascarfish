@@ -871,6 +871,78 @@
         "ariaLabel": "Platform activity pulse",
         "eyebrow": "{days}-day pulse",
         "line": "{edits} edits · {events} breeding events · {census} fresh censuses · across {institutions} institutions in {countries} countries."
+      },
+      "transferDraftsLink": "Draft and manage transfers →",
+      "transferDrafts": {
+        "metaTitle": "Transfer drafts — Coordinator Dashboard",
+        "metaDescription": "Draft and progress animal transfers between institutions. Tier 3+ only.",
+        "eyebrow": "Coordinator workflow",
+        "title": "Transfer drafts",
+        "subtitle": "Draft new transfers and progress existing ones through their lifecycle. Status changes are audit-logged with your account and institution.",
+        "transientError": "Transfer data is temporarily unavailable. Refresh in a moment.",
+        "statusHeadings": {
+          "proposed": "Proposed ({count})",
+          "approved": "Approved ({count})",
+          "in_transit": "In transit ({count})",
+          "completed": "Completed ({count})",
+          "cancelled": "Cancelled ({count})"
+        },
+        "statuses": {
+          "proposed": "Proposed",
+          "approved": "Approved",
+          "in_transit": "In transit",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "card": {
+          "edit": "Edit",
+          "proposedAt": "Proposed {date}",
+          "plannedAt": "planned {date}",
+          "actualAt": "completed {date}",
+          "draftedBy": "Drafted by {email}"
+        },
+        "createForm": {
+          "openButton": "+ Draft a new transfer",
+          "heading": "New transfer draft",
+          "species": "Species",
+          "source": "Source institution",
+          "destination": "Destination institution",
+          "status": "Status",
+          "proposedDate": "Proposed date",
+          "plannedDate": "Planned date",
+          "citesReference": "CITES reference",
+          "countMale": "Males",
+          "countFemale": "Females",
+          "countUnsexed": "Unsexed",
+          "notes": "Notes",
+          "create": "Save draft",
+          "creating": "Saving…",
+          "cancel": "Cancel"
+        },
+        "edit": {
+          "status": "Status",
+          "plannedDate": "Planned date",
+          "actualDate": "Actual date",
+          "citesReference": "CITES reference",
+          "countMale": "Males",
+          "countFemale": "Females",
+          "countUnsexed": "Unsexed",
+          "notes": "Notes",
+          "save": "Save changes",
+          "saving": "Saving…",
+          "cancel": "Cancel"
+        },
+        "errors": {
+          "requiredFields": "Pick a species, source, and destination before saving."
+        },
+        "actionErrors": {
+          "notSignedIn": "You're not signed in. Sign in and try again.",
+          "forbidden": "Tier 3+ access required to draft transfers.",
+          "notFound": "Transfer not found.",
+          "badRequest": "Please review the form and try again.",
+          "transientError": "Couldn't save. Please try again in a moment.",
+          "sameInstitution": "Source and destination must be different institutions."
+        }
       }
     },
     "institution": {

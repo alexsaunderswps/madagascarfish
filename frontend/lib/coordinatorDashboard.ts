@@ -346,3 +346,148 @@ export function fetchReproductiveActivity(
     options.authToken,
   );
 }
+
+
+// ---------- Transfer drafts (Tier 3+ write surface) ----------
+
+export type TransferStatusValue =
+  | "proposed"
+  | "approved"
+  | "in_transit"
+  | "completed"
+  | "cancelled";
+
+export interface TransferDetailRow {
+  id: number;
+  species: { id: number; scientific_name: string; iucn_status: string };
+  source_institution: { id: number; name: string; country: string };
+  destination_institution: { id: number; name: string; country: string };
+  status: TransferStatusValue;
+  proposed_date: string;
+  planned_date: string | null;
+  actual_date: string | null;
+  count_male: number | null;
+  count_female: number | null;
+  count_unsexed: number | null;
+  cites_reference: string;
+  notes: string;
+  created_by_email: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TransferListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: TransferDetailRow[];
+}
+
+export async function fetchTransferDrafts(
+  authToken: string,
+): Promise<TransferListResponse | null> {
+  try {
+    return await apiFetch<TransferListResponse>("/api/v1/transfers/", {
+      headers: coordinatorHeaders(authToken),
+      revalidate: 0,
+    });
+  } catch {
+    return null;
+  }
+}
+
+export interface TransferWritePayload {
+  species?: number;
+  source_institution?: number;
+  destination_institution?: number;
+  status?: TransferStatusValue;
+  proposed_date?: string;
+  planned_date?: string | null;
+  actual_date?: string | null;
+  count_male?: number | null;
+  count_female?: number | null;
+  count_unsexed?: number | null;
+  cites_reference?: string;
+  notes?: string;
+}
+
+export interface TransferWriteError {
+  status: number;
+  fieldErrors?: Record<string, string[]>;
+  detail?: string;
+}
+
+async function _transferWrite(
+  method: "POST" | "PATCH",
+  path: string,
+  payload: TransferWritePayload,
+  authToken: string,
+): Promise<{ ok: true; id?: number } | { ok: false; error: TransferWriteError }> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  const url = `${baseUrl.replace(/\/$/, "")}${path}`;
+  let resp: Response;
+  try {
+    resp = await fetch(url, {
+      method,
+      headers: { ...coordinatorHeaders(authToken), "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    });
+  } catch (err) {
+    return {
+      ok: false,
+      error: { status: 0, detail: err instanceof Error ? err.message : "network error" },
+    };
+  }
+  if (resp.ok) {
+    let id: number | undefined;
+    try {
+      const body = (await resp.json()) as { id?: number };
+      id = typeof body.id === "number" ? body.id : undefined;
+    } catch {
+      /* no body */
+    }
+    return { ok: true, id };
+  }
+  let body: unknown = null;
+  try {
+    body = await resp.json();
+  } catch {
+    body = null;
+  }
+  const fieldErrors: Record<string, string[]> = {};
+  let detail: string | undefined;
+  if (body && typeof body === "object") {
+    for (const [k, v] of Object.entries(body as Record<string, unknown>)) {
+      if (k === "detail" && typeof v === "string") {
+        detail = v;
+        continue;
+      }
+      if (Array.isArray(v)) {
+        fieldErrors[k] = v.filter((item): item is string => typeof item === "string");
+      } else if (typeof v === "string") {
+        fieldErrors[k] = [v];
+      }
+    }
+  }
+  return {
+    ok: false,
+    error: {
+      status: resp.status,
+      fieldErrors: Object.keys(fieldErrors).length ? fieldErrors : undefined,
+      detail,
+    },
+  };
+}
+
+export function createTransferDraft(payload: TransferWritePayload, authToken: string) {
+  return _transferWrite("POST", "/api/v1/transfers/", payload, authToken);
+}
+
+export function updateTransferDraft(
+  id: number,
+  payload: TransferWritePayload,
+  authToken: string,
+) {
+  return _transferWrite("PATCH", `/api/v1/transfers/${id}/`, payload, authToken);
+}

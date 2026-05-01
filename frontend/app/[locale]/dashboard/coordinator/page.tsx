@@ -165,6 +165,19 @@ export default async function CoordinatorDashboardPage({
         <h1 style={TITLE_STYLE}>{t("title")}</h1>
         <p style={DESC_STYLE}>{t("description")}</p>
         <p style={TIER_NOTE_STYLE}>{t("tierNote")}</p>
+        <p style={{ marginTop: 6 }}>
+          <a
+            href="/dashboard/coordinator/transfers"
+            style={{
+              fontSize: 13,
+              color: "var(--accent)",
+              textDecoration: "underline",
+              textUnderlineOffset: 2,
+            }}
+          >
+            {t("transferDraftsLink")}
+          </a>
+        </p>
       </header>
 
       {contributors ? (
