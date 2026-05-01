@@ -225,7 +225,16 @@ function ProgramCard({
     <article style={CARD_STYLE}>
       <h3 style={CARD_NAME}>{row.name}</h3>
       <p style={CARD_META}>
-        {row.lead_institution?.name ?? t("card.noLead")}
+        {row.lead_institution ? (
+          <Link
+            href={`/institutions/${row.lead_institution.id}`}
+            style={LINK_STYLE}
+          >
+            {row.lead_institution.name}
+          </Link>
+        ) : (
+          t("card.noLead")
+        )}
         {row.region ? ` · ${row.region}` : ""}
         {dateRange ? ` · ${dateRange}` : ""}
       </p>

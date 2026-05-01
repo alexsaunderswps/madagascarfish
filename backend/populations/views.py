@@ -7,7 +7,9 @@ from django.forms.models import model_to_dict
 from django.utils import timezone
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
 from accounts.permissions import InstitutionScopedPermission
 from audit.context import audit_actor
@@ -44,6 +46,52 @@ class InstitutionViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == "retrieve":
             return InstitutionDetailSerializer
         return InstitutionListSerializer
+
+    @action(detail=True, methods=["get"], permission_classes=[AllowAny])
+    def profile(self, request, pk=None):
+        """Public aggregate profile for an institution.
+
+        Bundles the detail view with a list of species the institution
+        holds (scientific name + IUCN status only — no counts; counts
+        stay Tier 2+ via the populations endpoint), plus a count of
+        led / partnered field programs and total populations. Used by
+        the public ``/institutions/<id>/`` page so a single round-trip
+        renders the whole profile.
+        """
+        from fieldwork.models import FieldProgram
+        from species.models import Species
+
+        institution = self.get_object()
+
+        species_held = list(
+            Species.objects.filter(ex_situ_populations__institution_id=institution.pk)
+            .distinct()
+            .values("id", "scientific_name", "iucn_status")
+            .order_by("scientific_name")
+        )
+        populations_count = ExSituPopulation.objects.filter(institution=institution).count()
+        led_programs = list(
+            FieldProgram.objects.filter(lead_institution=institution)
+            .values("id", "name", "status")
+            .order_by("name")
+        )
+        partner_programs = list(
+            institution.partner_programs.values("id", "name", "status").order_by("name")
+        )
+
+        institution_data = InstitutionDetailSerializer(
+            institution, context={"request": request}
+        ).data
+
+        return Response(
+            {
+                "institution": institution_data,
+                "species_held": species_held,
+                "populations_count": populations_count,
+                "led_programs": led_programs,
+                "partner_programs": partner_programs,
+            }
+        )
 
 
 class ExSituPopulationFilter(filters.FilterSet):
