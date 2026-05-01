@@ -2,9 +2,13 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import AggregatePanel from "@/components/institution/AggregatePanel";
 import { ApiError, apiFetch } from "@/lib/api";
 import { getServerDrfToken } from "@/lib/auth";
-import { fetchInstitutionPopulations } from "@/lib/institutionDashboard";
+import {
+  fetchInstitutionPopulations,
+  fetchInstitutionSummary,
+} from "@/lib/institutionDashboard";
 import type { MeResponse } from "@/lib/me";
 
 export const dynamic = "force-dynamic";
@@ -49,7 +53,10 @@ export default async function InstitutionDashboardPage() {
   }
 
   const t = await getTranslations("dashboard.institution");
-  const populations = await fetchInstitutionPopulations(drfToken);
+  const [populations, summary] = await Promise.all([
+    fetchInstitutionPopulations(drfToken),
+    fetchInstitutionSummary(drfToken),
+  ]);
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
@@ -70,6 +77,8 @@ export default async function InstitutionDashboardPage() {
           </Link>
         </p>
       </header>
+
+      <AggregatePanel summary={summary} />
 
       {populations === null ? (
         <p

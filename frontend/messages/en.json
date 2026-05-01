@@ -693,6 +693,26 @@
         "unknown": "Unknown"
       },
       "breedingEventsLink": "Log a breeding event →",
+      "aggregate": {
+        "heading": "Your institution at a glance",
+        "subtitle": "Where your institution sits in the global captive picture for the species you hold.",
+        "unavailable": "Aggregate data is temporarily unavailable. Try again in a moment.",
+        "stats": {
+          "populations": "Populations",
+          "species": "Species",
+          "breedingEvents": "Breeding events",
+          "breedingEventsHelp": "Logged in the last 12 months.",
+          "freshCensus": "Fresh census",
+          "freshCensusHelp": "Censused in the last 12 months."
+        },
+        "breakdown": {
+          "heading": "Your share of global captive holdings",
+          "shareLine": "{own} of {global} kept globally · {pct}%",
+          "barLabel": "{species}: {pct}% of global captive population",
+          "contextLine": "Held at {institutions} institutions · {events} breeding events logged globally in the last 12 months",
+          "more": "+{count} more species…"
+        }
+      },
       "breedingEvents": {
         "metaTitle": "Breeding events — My Institution",
         "metaDescription": "Log spawnings, hatchings, mortalities, and other reproductive events for your institution's populations.",

@@ -22,6 +22,7 @@ from species.views_coordinator_dashboard import (
 from species.views_dashboard import DashboardView
 from species.views_dwc import archive_zip, eml_xml, occurrence_tsv
 from species.views_genus import GenusSilhouetteView
+from species.views_institution_dashboard import InstitutionSummaryView
 from species.views_map import MapSummaryView, SpeciesLocalityGeoView, WatershedListView
 from species.views_site_map_asset import SiteMapAssetView
 
@@ -88,6 +89,12 @@ urlpatterns = [
         "site-map-assets/<str:slot>/",
         SiteMapAssetView.as_view(),
         name="site-map-asset",
+    ),
+    # Institution dashboard aggregate panel (Gate 13 follow-up)
+    path(
+        "institution-summary/",
+        InstitutionSummaryView.as_view(),
+        name="institution-summary",
     ),
     # Darwin Core export (Gate 15) — public, GBIF-publishable
     path("dwc/archive.zip", archive_zip, name="dwc-archive"),
