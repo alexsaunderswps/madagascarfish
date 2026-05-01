@@ -867,3 +867,51 @@ https://www.gbif.org/publishing-data):
 EML metadata (title, abstract, contact, license) lives in
 `backend/integration/darwincore.py` constants. Update there for changes that should appear
 on the GBIF dataset page; the next IPT pull picks them up.
+
+
+## Celery beat — scheduled tasks
+
+The staging compose file (`deploy/staging/docker-compose.yml`) runs three
+Celery-related services:
+
+- **redis** — broker + result backend.
+- **worker** — executes tasks (`celery -A config worker`).
+- **beat** — fires scheduled tasks (`celery -A config beat
+  --scheduler django_celery_beat.schedulers:DatabaseScheduler`). **Without this
+  service the public dashboard's `last_sync_at` stays NULL forever and the
+  IUCN sync never runs.** If you see "Waiting for first update" on the
+  dashboard sync indicator and beat is not in `docker compose ps`, that's
+  the cause.
+
+Schedules are managed in Django admin (`/admin/django_celery_beat/periodictask/`),
+not in code — change a cadence by editing the row.
+
+### Trigger an IUCN sync immediately
+
+The default schedule is weekly (Sundays 02:00 UTC). To populate `last_sync_at`
+right after first deploy, or to backfill after a missed Sunday, queue the task
+on demand:
+
+```bash
+docker compose exec -T web python -c "
+from integration.tasks import iucn_sync
+result = iucn_sync.delay()
+print('queued:', result.id)
+"
+```
+
+A worker picks it up within seconds. Verify completion:
+
+```bash
+docker compose exec -T web python manage.py shell -c "
+from integration.models import SyncJob
+j = SyncJob.objects.order_by('-id').first()
+print(f'id={j.id} status={j.status} processed={j.records_processed} '
+      f'created={j.records_created} updated={j.records_updated} '
+      f'errs={len(j.error_log)}')
+"
+```
+
+A full run takes a few minutes — one HTTP call per species with `iucn_taxon_id`
+set. The 24-hour cache (`IUCN_CACHE_TTL_SECONDS`) prevents follow-on runs from
+re-hitting the API for unchanged species.

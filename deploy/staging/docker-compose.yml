@@ -63,6 +63,28 @@ services:
       redis:
         condition: service_healthy
 
+  # Celery beat — fires scheduled tasks (e.g. weekly IUCN sync). Without
+  # this service, schedules defined in django_celery_beat_periodictask
+  # never run and the public dashboard's `last_sync_at` stays NULL.
+  # Use the DatabaseScheduler so schedules are managed via Django admin
+  # rather than baked into code.
+  beat:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    command: >
+      celery -A config beat -l info
+      --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
