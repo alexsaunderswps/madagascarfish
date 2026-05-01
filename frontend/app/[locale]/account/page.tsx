@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { ApiError, apiFetch } from "@/lib/api";
 import { getServerDrfToken } from "@/lib/auth";
+import type { MeResponse } from "@/lib/me";
 
 import LocalePicker from "./LocalePicker";
 import LogoutButton from "./LogoutButton";
@@ -17,23 +18,6 @@ export async function generateMetadata() {
 
 export const dynamic = "force-dynamic";
 
-interface InstitutionMembership {
-  institution_id: number | null;
-  institution_name: string | null;
-  claim_status: "none" | "pending" | "approved" | "rejected" | "withdrawn";
-  claim_id: number | null;
-  claim_requested_at: string | null;
-  claim_reviewed_at: string | null;
-  rejection_reason: string | null;
-}
-
-interface MeResponse {
-  email: string;
-  name: string;
-  access_tier: number;
-  locale?: string;
-  institution_membership?: InstitutionMembership;
-}
 
 export default async function AccountPage() {
   const drfToken = await getServerDrfToken();

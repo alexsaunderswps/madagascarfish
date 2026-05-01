@@ -92,7 +92,23 @@ class PendingInstitutionClaimAdmin(admin.ModelAdmin):
         return int(getattr(user, "access_tier", 0)) >= 3
 
     def has_change_permission(self, request: HttpRequest, obj=None) -> bool:
+        # Tier 3+ can transition claim state via the actions, but the per-row
+        # form must not let them rewrite reviewer/timestamps directly. The
+        # `readonly_fields` constraint covers this; allow viewing the form.
         return self.has_view_permission(request, obj)
+
+    def has_add_permission(self, request: HttpRequest) -> bool:
+        # Claims are created through signup, not in admin. Permitting `add`
+        # here would let a Tier 3+ user (or any is_staff user, per Django's
+        # default) create a fully-formed APPROVED claim and bypass the
+        # signup → review queue. Superuser-only as a break-glass.
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request: HttpRequest, obj=None) -> bool:
+        # Claims are append-only history. Deleting a row would erase
+        # forensic evidence (prior rejection, withdrawn claim). Superuser
+        # only as a break-glass for genuine data-correction needs.
+        return request.user.is_superuser
 
     @admin.action(description=_("Approve selected pending claims"))
     def approve_selected(self, request: HttpRequest, queryset):

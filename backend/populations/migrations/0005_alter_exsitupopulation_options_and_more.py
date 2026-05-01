@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('populations', '0004_breedingevent_breedingrecommendation'),
+        ("populations", "0004_breedingevent_breedingrecommendation"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='exsitupopulation',
-            options={'ordering': ['species__scientific_name', 'institution__name']},
+            name="exsitupopulation",
+            options={"ordering": ["species__scientific_name", "institution__name"]},
         ),
         migrations.AlterModelOptions(
-            name='institution',
-            options={'ordering': ['name']},
+            name="institution",
+            options={"ordering": ["name"]},
         ),
     ]

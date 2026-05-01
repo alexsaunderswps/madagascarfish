@@ -108,6 +108,11 @@ class ExSituPopulationWriteSerializer(serializers.ModelSerializer):
     via this surface.
     """
 
+    # Cap notes at the serializer layer — model is `TextField` (unbounded).
+    # Defends against payload bloat / audit-log inflation from a Tier 2
+    # writer.
+    notes = serializers.CharField(max_length=10_000, allow_blank=True, required=False)
+
     class Meta:
         model = ExSituPopulation
         fields = [

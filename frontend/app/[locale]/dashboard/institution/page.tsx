@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { getServerDrfToken } from "@/lib/auth";
 import { fetchInstitutionPopulations } from "@/lib/institutionDashboard";
+import type { MeResponse } from "@/lib/me";
 
 export const dynamic = "force-dynamic";
 
@@ -16,22 +17,6 @@ export async function generateMetadata() {
   };
 }
 
-interface InstitutionMembership {
-  institution_id: number | null;
-  institution_name: string | null;
-  claim_status: "none" | "pending" | "approved" | "rejected" | "withdrawn";
-  claim_id: number | null;
-  claim_requested_at: string | null;
-  claim_reviewed_at: string | null;
-  rejection_reason: string | null;
-}
-
-interface MeResponse {
-  email: string;
-  name: string;
-  access_tier: number;
-  institution_membership?: InstitutionMembership;
-}
 
 export default async function InstitutionDashboardPage() {
   const drfToken = await getServerDrfToken();

@@ -31,11 +31,19 @@ def approve_claim(
     - Sends `institution_claim_approved` email via `send_translated_email()`
       with `fail_silently=True` per R-arch-7.
 
-    Raises `ValueError` if the claim is not in PENDING state.
+    Raises `ValueError` if the claim is not in PENDING state, or if
+    `reviewer == claim.user` (privilege-escalation guard — a coordinator
+    must not approve their own claim; a superuser may, since superusers
+    already have full edit access).
     """
     if claim.status != PendingInstitutionClaim.Status.PENDING:
         raise ValueError(
             f"Cannot approve a claim in state {claim.status!r}; only pending claims are approvable."
+        )
+    if claim.user_id == reviewer.pk and not reviewer.is_superuser:
+        raise ValueError(
+            "A coordinator cannot approve their own institution claim. "
+            "Ask another coordinator (or a superuser) to review it."
         )
     with transaction.atomic():
         with audit_actor(user=reviewer, reason="institution claim approval"):
@@ -71,6 +79,11 @@ def reject_claim(
         raise ValueError(
             f"Cannot reject a claim in state {claim.status!r}; only pending claims are rejectable."
         )
+    if claim.user_id == reviewer.pk and not reviewer.is_superuser:
+        raise ValueError(
+            "A coordinator cannot reject their own institution claim. "
+            "Ask another coordinator (or a superuser) to review it."
+        )
     with transaction.atomic():
         claim.status = PendingInstitutionClaim.Status.REJECTED
         claim.reviewed_at = timezone.now()
@@ -88,11 +101,7 @@ def _send_claim_email(*, claim: PendingInstitutionClaim, template_base: str) -> 
     A failed email leaves the DB state intact (the user discovers their
     approval/rejection on next login).
     """
-    try:
-        from i18n.email import send_translated_email
-    except ImportError:
-        # i18n module not yet wired — skip silently.
-        return
+    from i18n.email import send_translated_email
 
     try:
         send_translated_email(

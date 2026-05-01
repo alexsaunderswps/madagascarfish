@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import datetime
+
 from django.db import transaction
 from django.forms.models import model_to_dict
 from django.utils import timezone
@@ -157,8 +159,6 @@ def _json_safe(value):
     default encoder doesn't. Coerce explicitly to keep the payload
     portable across encoder configurations.
     """
-    import datetime
-
     if isinstance(value, (datetime.date, datetime.datetime)):
         return value.isoformat()
     return value

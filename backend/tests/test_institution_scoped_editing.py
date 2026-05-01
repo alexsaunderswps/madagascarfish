@@ -519,6 +519,33 @@ class TestClaimQueue:
         assert claim.status == PendingInstitutionClaim.Status.REJECTED
         assert claim.review_notes == "not affiliated"
 
+    def test_self_approval_blocked(self, institution_a: Institution) -> None:
+        """Privilege-escalation guard: a coordinator cannot approve a claim
+        they themselves filed. Superuser is allowed (break-glass)."""
+        coord = _user(email="self-approve@example.com", tier=3)
+        claim = PendingInstitutionClaim.objects.create(
+            user=coord,
+            institution=institution_a,
+            status=PendingInstitutionClaim.Status.PENDING,
+        )
+        with pytest.raises(ValueError, match="cannot approve their own"):
+            approve_claim(claim=claim, reviewer=coord)
+        # Superuser exemption.
+        coord.is_superuser = True
+        coord.save(update_fields=["is_superuser"])
+        approved = approve_claim(claim=claim, reviewer=coord)
+        assert approved.status == PendingInstitutionClaim.Status.APPROVED
+
+    def test_self_rejection_blocked(self, institution_a: Institution) -> None:
+        coord = _user(email="self-reject@example.com", tier=3)
+        claim = PendingInstitutionClaim.objects.create(
+            user=coord,
+            institution=institution_a,
+            status=PendingInstitutionClaim.Status.PENDING,
+        )
+        with pytest.raises(ValueError, match="cannot reject their own"):
+            reject_claim(claim=claim, reviewer=coord)
+
     def test_approve_non_pending_raises(self, institution_a: Institution) -> None:
         applicant = _user(email="dbl@example.com", tier=2)
         coord = _user(email="rev3@example.com", tier=3)
@@ -569,19 +596,20 @@ class TestClaimQueue:
 # ----------------------------------------------------------------------------
 
 
+def _me(api_client: APIClient, user: User) -> dict:
+    api_client.force_authenticate(user=user)
+    resp = api_client.get("/api/v1/auth/me/")
+    assert resp.status_code == 200
+    return resp.json()
+
+
 @pytest.mark.django_db
 class TestMeMembership:
     """The /me/ institution_membership response per architecture §6.1."""
 
-    def _me(self, api_client: APIClient, user: User) -> dict:
-        api_client.force_authenticate(user=user)
-        resp = api_client.get("/api/v1/auth/me/")
-        assert resp.status_code == 200
-        return resp.json()
-
     def test_none_status_for_user_with_no_claims(self, api_client: APIClient) -> None:
         user = _user(email="none@example.com", tier=2, institution=None)
-        body = self._me(api_client, user)
+        body = _me(api_client, user)
         assert body["institution_membership"]["claim_status"] == "none"
         assert body["institution_membership"]["institution_id"] is None
         assert body["institution_membership"]["institution_name"] is None
@@ -593,7 +621,7 @@ class TestMeMembership:
         PendingInstitutionClaim.objects.create(
             user=user, institution=institution_a, status=PendingInstitutionClaim.Status.PENDING
         )
-        body = self._me(api_client, user)
+        body = _me(api_client, user)
         block = body["institution_membership"]
         assert block["claim_status"] == "pending"
         assert block["institution_id"] is None  # gated on approval
@@ -608,7 +636,7 @@ class TestMeMembership:
             institution=institution_a,
             status=PendingInstitutionClaim.Status.APPROVED,
         )
-        body = self._me(api_client, user)
+        body = _me(api_client, user)
         block = body["institution_membership"]
         assert block["claim_status"] == "approved"
         assert block["institution_id"] == institution_a.pk
@@ -624,7 +652,7 @@ class TestMeMembership:
             status=PendingInstitutionClaim.Status.REJECTED,
             review_notes="not affiliated",
         )
-        body = self._me(api_client, user)
+        body = _me(api_client, user)
         block = body["institution_membership"]
         assert block["claim_status"] == "rejected"
         assert block["institution_id"] is None
@@ -639,7 +667,7 @@ class TestMeMembership:
         # also defends against the gap.
         user = _user(email="legacy@example.com", tier=2, institution=institution_a)
         # No claim row created here.
-        body = self._me(api_client, user)
+        body = _me(api_client, user)
         block = body["institution_membership"]
         assert block["claim_status"] == "approved"
         assert block["institution_id"] == institution_a.pk

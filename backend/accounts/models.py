@@ -142,8 +142,18 @@ class PendingInstitutionClaim(models.Model):
         blank=True,
         related_name="institution_claims_reviewed",
     )
-    requester_note = models.TextField(blank=True, default="")
-    review_notes = models.TextField(blank=True, default="")
+    requester_notes = models.TextField(
+        blank=True,
+        default="",
+        max_length=4000,
+        help_text="Optional context the user provided when submitting the claim.",
+    )
+    review_notes = models.TextField(
+        blank=True,
+        default="",
+        max_length=4000,
+        help_text="Coordinator's note. Used as the rejection reason in the email.",
+    )
 
     class Meta:
         db_table = "accounts_pendinginstitutionclaim"

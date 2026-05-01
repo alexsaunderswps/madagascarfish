@@ -39,6 +39,11 @@ export interface InstitutionPopulationDetail extends InstitutionPopulationRow {
   updated_at?: string | null;
 }
 
+// Deliberately no service-token fallback (unlike `coordinatorHeaders` in
+// coordinatorDashboard.ts). Institution-scoped calls must authenticate as
+// the actual user — the perm class reads `request.user.institution_id` to
+// scope the query. A service token would bypass that and surface every
+// institution's data to a Tier 2 caller.
 function authHeaders(userDrfToken: string): HeadersInit {
   return { Authorization: `Token ${userDrfToken}` };
 }

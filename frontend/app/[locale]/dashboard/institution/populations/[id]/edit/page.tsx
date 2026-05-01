@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { ApiError, apiFetch } from "@/lib/api";
 import { getServerDrfToken } from "@/lib/auth";
 import { fetchInstitutionPopulationDetail } from "@/lib/institutionDashboard";
+import type { MeResponse } from "@/lib/me";
 
 import EditPopulationForm from "./EditPopulationForm";
 
@@ -17,16 +18,6 @@ export async function generateMetadata() {
   };
 }
 
-interface InstitutionMembership {
-  institution_id: number | null;
-  claim_status: "none" | "pending" | "approved" | "rejected" | "withdrawn";
-}
-
-interface MeResponse {
-  email: string;
-  access_tier: number;
-  institution_membership?: InstitutionMembership;
-}
 
 export default async function EditPopulationPage({
   params,
