@@ -81,8 +81,7 @@
     "signUp": "S'inscrire",
     "account": "Compte",
     "signOut": "Se déconnecter",
-    "institution": "My institution",
-    "fieldPrograms": "Field programs"
+    "institution": "My institution"
   },
   "home": {
     "hero": {
@@ -667,7 +666,8 @@
       "ariaLabel": "Programmes de terrain",
       "active": "Programmes de terrain actifs",
       "planned": "Prévus",
-      "completed": "Terminés"
+      "completed": "Terminés",
+      "browseAll": "Browse all field programs →"
     },
     "coordinator": {
       "metaTitle": "Tableau de bord du coordinateur — Poissons d'eau douce de Madagascar",

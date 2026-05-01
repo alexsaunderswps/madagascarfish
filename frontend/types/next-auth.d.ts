@@ -17,6 +17,7 @@ import "next-auth/jwt";
 declare module "next-auth" {
   interface Session {
     tier?: number;
+    claimStatus?: "none" | "pending" | "approved" | "rejected" | "withdrawn";
   }
 
   interface User {
@@ -30,5 +31,6 @@ declare module "next-auth/jwt" {
     tier?: number;
     drfToken?: string;
     tierFetchedAt?: number;
+    claimStatus?: "none" | "pending" | "approved" | "rejected" | "withdrawn";
   }
 }

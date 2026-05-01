@@ -481,6 +481,18 @@ export default async function DashboardPage() {
             <StatTile label={t("fieldPrograms.completed")} value={field_programs.completed} />
           </li>
         </ul>
+        <p style={{ margin: "12px 0 0", fontSize: 13 }}>
+          <Link
+            href="/field-programs/"
+            style={{
+              color: "var(--accent)",
+              textDecoration: "underline",
+              textUnderlineOffset: 2,
+            }}
+          >
+            {t("fieldPrograms.browseAll")}
+          </Link>
+        </p>
       </section>
     </main>
   );

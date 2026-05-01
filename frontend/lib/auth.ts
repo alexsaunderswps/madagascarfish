@@ -51,7 +51,12 @@ interface DjangoMeResponse {
   email: string;
   name: string;
   access_tier: number;
+  institution_membership?: {
+    claim_status: "none" | "pending" | "approved" | "rejected" | "withdrawn";
+  };
 }
+
+export type ClaimStatus = "none" | "pending" | "approved" | "rejected" | "withdrawn";
 
 export const authOptions: NextAuthOptions = {
   // JWT-mode session — required because we don't run a session DB and
@@ -110,6 +115,9 @@ export const authOptions: NextAuthOptions = {
         if (typeof u.tier === "number") token.tier = u.tier;
         if (typeof u.drfToken === "string") token.drfToken = u.drfToken;
         token.tierFetchedAt = Date.now();
+        // claim_status is fetched on the first /me/ refresh — login itself
+        // doesn't return it. Default to "none" until the refresh runs.
+        token.claimStatus = "none";
         return token;
       }
       // Subsequent requests — refresh the tier from `/me/` if the TTL has
@@ -118,14 +126,17 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      // SECURITY: project ONLY `tier` onto the session. NextAuth's
-      // `/api/auth/session` endpoint serializes whatever this callback
-      // returns and exposes it to client components via `useSession()`.
-      // Putting `drfToken` here would leak the credential to the browser.
-      // Server components that need the DRF token must read the JWT
-      // directly via `getServerDrfToken()` below.
+      // SECURITY: project ONLY `tier` and `claimStatus` onto the session.
+      // NextAuth's `/api/auth/session` endpoint serializes whatever this
+      // callback returns and exposes it to client components via
+      // `useSession()`. Putting `drfToken` here would leak the credential
+      // to the browser. Server components that need the DRF token must
+      // read the JWT directly via `getServerDrfToken()` below.
       if (typeof token.tier === "number") {
         session.tier = token.tier;
+      }
+      if (typeof token.claimStatus === "string") {
+        session.claimStatus = token.claimStatus as ClaimStatus;
       }
       return session;
     },
@@ -148,7 +159,12 @@ export const authOptions: NextAuthOptions = {
  *     everyone out on a transient Django blip)
  */
 export async function refreshTierIfStale<
-  T extends { tier?: number; drfToken?: string; tierFetchedAt?: number },
+  T extends {
+    tier?: number;
+    drfToken?: string;
+    tierFetchedAt?: number;
+    claimStatus?: string;
+  },
 >(token: T): Promise<T> {
   const fetchedAt = typeof token.tierFetchedAt === "number" ? token.tierFetchedAt : 0;
   if (Date.now() - fetchedAt <= TIER_REFRESH_TTL_MS) {
@@ -171,6 +187,14 @@ export async function refreshTierIfStale<
       const me = (await r.json()) as DjangoMeResponse;
       token.tier = me.access_tier;
       token.tierFetchedAt = Date.now();
+      // Mirror the institution-membership claim status onto the JWT so
+      // NavLinks can hide the "My institution" link until the user is
+      // actually approved. Same 5-minute TTL discipline as `tier` —
+      // approval surfaces within 5 min of the next /me/ refresh, which
+      // is acceptable per architecture §6.3 (where membership intentionally
+      // stayed off the JWT for the auth-gated *fetch* path; gating nav
+      // visibility off it is a separate concern with no cache hazard).
+      token.claimStatus = me.institution_membership?.claim_status ?? "none";
     }
   } catch {
     // Network-down should not log everyone out — keep the cached tier.

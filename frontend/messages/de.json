@@ -81,8 +81,7 @@
     "signUp": "Anmelden",
     "account": "Konto",
     "signOut": "Abmelden",
-    "institution": "My institution",
-    "fieldPrograms": "Field programs"
+    "institution": "My institution"
   },
   "home": {
     "hero": {
@@ -667,7 +666,8 @@
       "ariaLabel": "Feldprogramme",
       "active": "Aktuelle Feldprogramme",
       "planned": "Geplant",
-      "completed": "Abgeschlossen"
+      "completed": "Abgeschlossen",
+      "browseAll": "Browse all field programs →"
     },
     "coordinator": {
       "metaTitle": "Koordinatoren-Dashboard – Süßwasserfische aus Madagaskar",
