@@ -175,8 +175,19 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # DRF
 REST_FRAMEWORK = {
+    # Token-only auth on the API surface. SessionAuthentication is
+    # deliberately omitted: every browser-originated request to
+    # /api/v1/ goes through the Next.js server with
+    # `Authorization: Token <key>` forwarded from the JWT (see
+    # CLAUDE.md Auth Gate 11 §"DRF token never reaches the browser").
+    # The Django admin still uses Django's native session middleware
+    # — that's separate from DRF's auth class config.
+    #
+    # Eliminates the CSRF-confusion surface where a browser with a
+    # stale `/admin` session cookie could authenticate against the API
+    # via DRF's session path. With Token-only, the only way to mutate
+    # is to present a token, and tokens are not browser-readable.
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",

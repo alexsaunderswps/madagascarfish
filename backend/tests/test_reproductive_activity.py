@@ -116,7 +116,7 @@ def population_two(species_en: Species) -> ExSituPopulation:
 @pytest.mark.django_db
 class TestAuth:
     def test_anonymous_403(self, api_client: APIClient) -> None:
-        assert api_client.get(ENDPOINT).status_code == status.HTTP_403_FORBIDDEN
+        assert api_client.get(ENDPOINT).status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_tier2_403(self, api_client: APIClient, tier2_user: User) -> None:
         api_client.force_authenticate(user=tier2_user)
