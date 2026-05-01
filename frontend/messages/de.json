@@ -1381,5 +1381,33 @@
         "both": "{start} – {end}"
       }
     }
+  },
+  "publicInstitution": {
+    "metaTitle": {
+      "named": "{name} — Madagascar Freshwater Fish",
+      "fallback": "Institution — Madagascar Freshwater Fish"
+    },
+    "metaDescription": "{name} ({country}) — captive populations, field programs, and partnerships in the Madagascar Freshwater Fish Conservation Platform registry.",
+    "eyebrow": "Institution profile",
+    "memberOf": "Member of:",
+    "websiteLink": "Visit institution website",
+    "stats": {
+      "ariaLabel": "Institution at a glance",
+      "species": "Species held",
+      "populations": "Populations",
+      "programsLed": "Programs led",
+      "partnerPrograms": "Partner programs"
+    },
+    "speciesHeld": {
+      "heading": "Species held",
+      "subtitle": "Endemic Madagascar freshwater fish species this institution maintains in captivity. Counts and demographic detail are visible to coordinator-tier accounts only."
+    },
+    "ledPrograms": {
+      "heading": "Field programs led"
+    },
+    "partnerPrograms": {
+      "heading": "Field programs partnered"
+    },
+    "emptyState": "This institution is registered but has no captive populations or field programs recorded yet."
   }
 }

@@ -47,3 +47,38 @@ export async function fetchPublicFieldPrograms(): Promise<
     return null;
   }
 }
+
+
+// ---------- Institution profile (public) ----------
+
+export interface InstitutionProfileResponse {
+  institution: {
+    id: number;
+    name: string;
+    institution_type: string;
+    country: string;
+    city: string;
+    website: string;
+    zims_member: boolean;
+    eaza_member: boolean;
+    aza_member: boolean;
+    contact_email?: string;
+    species360_id?: string;
+  };
+  species_held: { id: number; scientific_name: string; iucn_status: string }[];
+  populations_count: number;
+  led_programs: { id: number; name: string; status: string }[];
+  partner_programs: { id: number; name: string; status: string }[];
+}
+
+export async function fetchInstitutionProfile(
+  id: number,
+): Promise<InstitutionProfileResponse | null> {
+  try {
+    return await apiFetch<InstitutionProfileResponse>(
+      `/api/v1/institutions/${id}/profile/`,
+    );
+  } catch {
+    return null;
+  }
+}
