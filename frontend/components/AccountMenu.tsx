@@ -138,13 +138,20 @@ export default function AccountMenu({ authVisible = false }: AccountMenuProps) {
             role="menuitem"
             onClick={handleSignOut}
             style={{
+              // `font: inherit` first to clear the user-agent button
+              // shorthand (often system-ui at the platform default size);
+              // the explicit MENU_ITEM_STYLE below then re-asserts
+              // fontFamily / fontSize / lineHeight so the button reads
+              // identical to the sibling Account <a>. Without this
+              // ordering, the `font` shorthand wins last-write and the
+              // button renders larger than the link.
+              font: "inherit",
               ...MENU_ITEM_STYLE,
               border: "none",
               background: "transparent",
               cursor: "pointer",
               width: "100%",
               textAlign: "left",
-              font: "inherit",
             }}
           >
             {t("signOut")}
