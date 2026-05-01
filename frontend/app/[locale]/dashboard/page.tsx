@@ -179,7 +179,14 @@ export default async function DashboardPage() {
     );
   }
 
-  const { species_counts, ex_situ_coverage, field_programs, coordination, last_updated } = data;
+  const {
+    species_counts,
+    ex_situ_coverage,
+    field_programs,
+    coordination,
+    contributors,
+    last_updated,
+  } = data;
   const programByType = coordination.active_programs_by_type;
   const formalPrograms =
     (programByType.ssp ?? 0) + (programByType.eep ?? 0) + (programByType.cares ?? 0);
@@ -381,6 +388,72 @@ export default async function DashboardPage() {
           </li>
         </ul>
       </section>
+
+      {contributors ? (
+        <section aria-label={t("contributors.ariaLabel")}>
+          <p style={SECTION_EYEBROW_STYLE}>{t("contributors.eyebrow")}</p>
+          <h2 style={SECTION_H2_STYLE}>{t("contributors.title")}</h2>
+          <p
+            style={{
+              margin: "8px 0 0",
+              fontSize: 14,
+              color: "var(--ink-2)",
+              lineHeight: 1.5,
+              maxWidth: 760,
+            }}
+          >
+            {t("contributors.caption", {
+              days: contributors.activity_window_days,
+            })}
+          </p>
+          <ul
+            role="list"
+            style={{
+              ...GRID_STYLE,
+              listStyle: "none",
+              margin: "16px 0 0",
+              padding: 0,
+            }}
+          >
+            <li>
+              <StatTile
+                label={t("contributors.activeInstitutions")}
+                value={contributors.active_institutions_total}
+                sublabel={t("contributors.activeInstitutionsSublabel", {
+                  countries: contributors.countries_represented,
+                })}
+              />
+            </li>
+            <li>
+              <StatTile
+                label={t("contributors.recentEdits", {
+                  days: contributors.activity_window_days,
+                })}
+                value={contributors.populations_edited_recent}
+                sublabel={t("contributors.recentEditsSublabel")}
+              />
+            </li>
+            <li>
+              <StatTile
+                label={t("contributors.recentBreedingEvents", {
+                  days: contributors.activity_window_days,
+                })}
+                value={contributors.breeding_events_recent}
+                sublabel={t("contributors.recentBreedingEventsSublabel")}
+              />
+            </li>
+            <li>
+              <StatTile
+                label={t("contributors.recentCensus", {
+                  days: contributors.activity_window_days,
+                })}
+                value={contributors.populations_recent_census}
+                sublabel={t("contributors.recentCensusSublabel")}
+              />
+            </li>
+          </ul>
+        </section>
+      ) : null}
 
       <section aria-label={t("fieldPrograms.ariaLabel")}>
         <p style={SECTION_EYEBROW_STYLE}>{t("fieldPrograms.eyebrow")}</p>
