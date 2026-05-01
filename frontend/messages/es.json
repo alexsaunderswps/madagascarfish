@@ -764,12 +764,18 @@
             "species": "Especies",
             "institution": "Institución",
             "lastSignal": "Última señal",
-            "staleFor": "Caducado desde"
+            "staleFor": "Caducado desde",
+            "lastEdited": "Last edit"
           },
           "neverCensused": "Nunca censado",
           "noneRecorded": "no hay datos registrados",
           "daysSuffix": "{count} días",
-          "monthsSuffix": "{count} meses"
+          "monthsSuffix": "{count} meses",
+          "lastEdited": {
+            "byInstitution": "{institution} staff · {at}",
+            "byCoordinator": "Coordinator · {at}",
+            "never": "Never edited"
+          }
         },
         "transfers": {
           "title": "Actividad de traspasos",

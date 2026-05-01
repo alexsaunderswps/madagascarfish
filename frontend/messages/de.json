@@ -764,12 +764,18 @@
             "species": "Art",
             "institution": "Einrichtung",
             "lastSignal": "Letztes Signal",
-            "staleFor": "Veraltet für"
+            "staleFor": "Veraltet für",
+            "lastEdited": "Last edit"
           },
           "neverCensused": "Nie erfasst",
           "noneRecorded": "keine erfasst",
           "daysSuffix": "{count} Tage",
-          "monthsSuffix": "{count} Monate"
+          "monthsSuffix": "{count} Monate",
+          "lastEdited": {
+            "byInstitution": "{institution} staff · {at}",
+            "byCoordinator": "Coordinator · {at}",
+            "never": "Never edited"
+          }
         },
         "transfers": {
           "title": "Transferaktivitäten",

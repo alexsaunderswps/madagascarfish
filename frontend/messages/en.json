@@ -821,7 +821,13 @@
             "species": "Species",
             "institution": "Institution",
             "lastSignal": "Last signal",
-            "staleFor": "Stale for"
+            "staleFor": "Stale for",
+            "lastEdited": "Last edit"
+          },
+          "lastEdited": {
+            "byInstitution": "{institution} staff · {at}",
+            "byCoordinator": "Coordinator · {at}",
+            "never": "Never edited"
           },
           "neverCensused": "Never censused",
           "noneRecorded": "none recorded",

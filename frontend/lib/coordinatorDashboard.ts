@@ -77,6 +77,12 @@ export interface SexRatioRiskResponse {
 
 // ---------- Panel 4: Stale census ----------
 
+export interface LastEditedByBlock {
+  kind: "institution" | "coordinator";
+  at: string;
+  institution_name: string | null;
+}
+
 export interface StaleCensusRow {
   population_id: number;
   species: { id: number; scientific_name: string };
@@ -85,6 +91,7 @@ export interface StaleCensusRow {
   most_recent_holding_record_date: string | null;
   effective_last_update: string | null;
   days_since_update: number | null;
+  last_edited_by: LastEditedByBlock | null;
 }
 
 export interface StaleCensusResponse {
