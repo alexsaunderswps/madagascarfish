@@ -915,3 +915,32 @@ print(f'id={j.id} status={j.status} processed={j.records_processed} '
 A full run takes a few minutes — one HTTP call per species with `iucn_taxon_id`
 set. The 24-hour cache (`IUCN_CACHE_TTL_SECONDS`) prevents follow-on runs from
 re-hitting the API for unchanged species.
+
+
+## Audit-trail CSV export
+
+`GET /api/v1/audit/export.csv` — Tier 3+ only. Streams audit rows as CSV
+for spreadsheet review or compliance archiving. Filterable via query params:
+
+- `institution_id=N` — match audit rows where the actor was at this
+  institution OR the target is owned by it (population, breeding event,
+  or field program).
+- `start=YYYY-MM-DD`, `end=YYYY-MM-DD` — inclusive timestamp range.
+- `target_type=populations.ExSituPopulation` (or `BreedingEvent`,
+  `FieldProgram`, `species.ConservationAssessment`, etc.) — exact match.
+- `limit=N` — caps at 5000 by default, max 50000.
+
+Example — pull a quarter's audit log for Aquarium A as a coordinator:
+
+```bash
+curl -H "Authorization: Token $YOUR_DRF_TOKEN" \
+  "https://api.malagasyfishes.org/api/v1/audit/export.csv?institution_id=5&start=2026-01-01&end=2026-03-31" \
+  -o aquarium-a-2026-q1.csv
+```
+
+CSV columns: `timestamp, actor_email, actor_kind, actor_system,
+actor_institution, action, target_type, target_id, target_label,
+field, before, after, reason`. The `before` and `after` cells are
+JSON-stringified; `target_label` resolves to a human-readable string
+("Paretroplus menarambo · Aquarium A", "Hatching · Bedotia geayi
+(2026-04-01)", program name) for the three ownership-tracked targets.

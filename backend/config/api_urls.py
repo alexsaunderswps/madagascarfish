@@ -2,6 +2,7 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
+from audit.views import AuditCSVExportView
 from config.views import health_check
 from fieldwork.views import FieldProgramViewSet
 from populations.views import (
@@ -95,6 +96,12 @@ urlpatterns = [
         "institution-summary/",
         InstitutionSummaryView.as_view(),
         name="institution-summary",
+    ),
+    # Audit-trail CSV export — Tier 3+ only
+    path(
+        "audit/export.csv",
+        AuditCSVExportView.as_view(),
+        name="audit-csv-export",
     ),
     # Darwin Core export (Gate 15) — public, GBIF-publishable
     path("dwc/archive.zip", archive_zip, name="dwc-archive"),
