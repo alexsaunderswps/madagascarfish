@@ -22,8 +22,8 @@ from accounts.serializers import (
     UserLocaleUpdateSerializer,
     UserProfileSerializer,
 )
-from populations.models import Institution
 from i18n.email import send_translated_email
+from populations.models import Institution
 
 signer = TimestampSigner()
 

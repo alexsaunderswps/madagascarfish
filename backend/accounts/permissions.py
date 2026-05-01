@@ -143,7 +143,8 @@ def InstitutionScopedPermission(  # noqa: N802
             user_institution_id = getattr(user, "institution_id", None)
             if user_institution_id is None:
                 return False
-            return getattr(obj, "institution_id", None) == user_institution_id
+            obj_institution_id = getattr(obj, "institution_id", None)
+            return bool(obj_institution_id == user_institution_id)
 
     _InstitutionScopedPermission.__name__ = (
         f"InstitutionScopedPermission_{min_tier}_{coordinator_tier}"

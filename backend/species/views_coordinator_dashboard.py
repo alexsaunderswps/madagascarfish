@@ -114,18 +114,15 @@ class StaleCensusView(APIView):
             # institution staffer for their own institution" from "edited by
             # a coordinator on someone else's behalf" so the coordinator
             # dashboard can render the right caption.
-            last_edited_by = None
+            last_edited_by: LastEditedByBlock | None = None
             if pop.last_edited_at is not None:
                 edit_inst_id = pop.last_edited_by_institution_id
                 kind = "institution" if edit_inst_id == pop.institution_id else "coordinator"
+                edit_inst = pop.last_edited_by_institution
                 last_edited_by = {
                     "kind": kind,
                     "at": pop.last_edited_at.isoformat(),
-                    "institution_name": (
-                        pop.last_edited_by_institution.name
-                        if pop.last_edited_by_institution_id
-                        else None
-                    ),
+                    "institution_name": edit_inst.name if edit_inst is not None else None,
                 }
             stale_rows.append(
                 {
