@@ -123,6 +123,12 @@ class TestRegister:
         assert resp.status_code == 400
 
     def test_register_with_institution(self, api_client: APIClient) -> None:
+        """Gate 13: signup with institution_id creates a PENDING claim,
+        not a direct User.institution write. Institution must be approved
+        by a coordinator before edit access is granted.
+        """
+        from accounts.models import PendingInstitutionClaim
+
         inst = Institution.objects.create(
             name="ABQ BioPark", institution_type="zoo", country="United States"
         )
@@ -137,7 +143,11 @@ class TestRegister:
         )
         assert resp.status_code == 201
         user = User.objects.get(email="zoo@example.com")
-        assert user.institution_id == inst.pk
+        # User.institution stays NULL until coordinator approves the claim.
+        assert user.institution_id is None
+        # A pending claim row exists for this (user, institution).
+        claim = PendingInstitutionClaim.objects.get(user=user, institution=inst)
+        assert claim.status == PendingInstitutionClaim.Status.PENDING
 
 
 # --- Email Verification tests ---

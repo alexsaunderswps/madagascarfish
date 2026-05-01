@@ -6,21 +6,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0001_initial'),
-        ('populations', '0001_initial'),
+        ("accounts", "0001_initial"),
+        ("populations", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='auditlog',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='audit_logs', to=settings.AUTH_USER_MODEL),
+            model_name="auditlog",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="audit_logs",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='institution',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='users', to='populations.institution'),
+            model_name="user",
+            name="institution",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="users",
+                to="populations.institution",
+            ),
         ),
     ]

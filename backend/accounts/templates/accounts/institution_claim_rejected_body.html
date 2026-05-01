@@ -1,0 +1,43 @@
+{% extends "email/base.html" %}
+{% load i18n %}
+
+{% block title %}{% blocktranslate with institution_name=institution.name %}Your {{ institution_name }} membership claim was not approved{% endblocktranslate %}{% endblock %}
+
+{% block preheader_text %}{% blocktranslate %}A coordinator reviewed your institution claim and was unable to approve it.{% endblocktranslate %}{% endblock %}
+
+{% block body %}
+  <h1 style="margin:0 0 16px; font-family: Georgia, 'Times New Roman', serif; font-size: 22px; font-weight: 600; color:#1f2933; letter-spacing:-0.01em;">
+    {% blocktranslate %}Your institution claim was not approved{% endblocktranslate %}
+  </h1>
+
+  <p style="margin:0 0 16px;">
+    {% blocktranslate with name=user.name %}Hello {{ name }},{% endblocktranslate %}
+  </p>
+
+  <p style="margin:0 0 16px;">
+    {% blocktranslate with institution_name=institution.name %}A coordinator reviewed your claim to be associated with {{ institution_name }} on the Madagascar Freshwater Fish Conservation Platform and was not able to approve it at this time.{% endblocktranslate %}
+  </p>
+
+  {% if review_notes %}
+    <p style="margin:16px 0 8px; font-weight: 600; color:#1f2933;">
+      {% blocktranslate %}Reason given:{% endblocktranslate %}
+    </p>
+    <p style="margin:0 0 16px; padding: 12px 14px; background: #f3f4f6; border-radius: 4px; color:#1f2933;">
+      {{ review_notes|linebreaksbr }}
+    </p>
+  {% endif %}
+
+  <p style="margin:0 0 16px;">
+    {% blocktranslate %}If you believe this is an error, please reply to this email with any additional context — affiliation letter, supervisor's email, or program reference. You can also submit a fresh claim from your account page once you have that information.{% endblocktranslate %}
+  </p>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 8px 0 24px;">
+    <tr>
+      <td bgcolor="#0e7490" style="border-radius: 6px;">
+        <a href="{{ frontend_base_url }}/account/" style="display:inline-block; padding: 12px 22px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; color:#ffffff; background:#0e7490; border-radius: 6px; text-decoration: none;">
+          {% blocktranslate %}Open my account{% endblocktranslate %}
+        </a>
+      </td>
+    </tr>
+  </table>
+{% endblock %}

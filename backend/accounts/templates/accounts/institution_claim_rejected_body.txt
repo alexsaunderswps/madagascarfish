@@ -1,0 +1,16 @@
+{% load i18n %}{% blocktranslate with name=user.name %}Hello {{ name }},{% endblocktranslate %}
+
+{% blocktranslate with institution_name=institution.name %}A coordinator reviewed your claim to be associated with {{ institution_name }} on the Madagascar Freshwater Fish Conservation Platform and was not able to approve it at this time.{% endblocktranslate %}
+
+{% if review_notes %}{% blocktranslate %}Reason given:{% endblocktranslate %}
+
+{{ review_notes }}
+
+{% endif %}{% blocktranslate %}If you believe this is an error, please reply to this email with any additional context — affiliation letter, supervisor's email, or program reference. You can also submit a fresh claim from your account page once you have that information.{% endblocktranslate %}
+
+{{ frontend_base_url }}/account/
+
+—
+{{ platform_short_name }}
+{{ frontend_base_url }}
+{{ platform_contact_email }}

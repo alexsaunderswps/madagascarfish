@@ -101,6 +101,7 @@ export default async function StaleCensusPanel({ data }: Props) {
                 <th style={TH_STYLE}>{t("table.institution")}</th>
                 <th style={TH_STYLE}>{t("table.lastSignal")}</th>
                 <th style={TH_STYLE}>{t("table.staleFor")}</th>
+                <th style={TH_STYLE}>{t("table.lastEdited")}</th>
               </tr>
             </thead>
             <tbody>
@@ -122,6 +123,26 @@ export default async function StaleCensusPanel({ data }: Props) {
                   </td>
                   <td style={TD_STYLE}>
                     {formatDaysStale(row.days_since_update, t as FormatRangeT)}
+                  </td>
+                  <td style={TD_STYLE}>
+                    {row.last_edited_by ? (
+                      row.last_edited_by.kind === "institution" ? (
+                        <span>
+                          {t("lastEdited.byInstitution", {
+                            institution: row.last_edited_by.institution_name ?? "",
+                            at: row.last_edited_by.at.slice(0, 10),
+                          })}
+                        </span>
+                      ) : (
+                        <span>
+                          {t("lastEdited.byCoordinator", {
+                            at: row.last_edited_by.at.slice(0, 10),
+                          })}
+                        </span>
+                      )
+                    ) : (
+                      <span style={NEVER_TAG_STYLE}>{t("lastEdited.never")}</span>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -15,7 +15,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from accounts.models import User
+from accounts.models import PendingInstitutionClaim, User
 from accounts.serializers import (
     LoginSerializer,
     RegisterSerializer,
@@ -23,6 +23,7 @@ from accounts.serializers import (
     UserProfileSerializer,
 )
 from i18n.email import send_translated_email
+from populations.models import Institution
 
 signer = TimestampSigner()
 
@@ -93,9 +94,21 @@ def register(request: Request) -> Response:
         is_active=False,
         locale=signup_locale,
     )
-    if data.get("institution_id"):
-        user.institution_id = data["institution_id"]
-        user.save(update_fields=["institution_id"])
+    # Per Gate 13: institution_id at signup creates a PENDING claim, NOT a
+    # direct User.institution write. The claim is reviewed by a coordinator
+    # in Django admin before edit access is granted. (Architecture §3.4.)
+    institution_id = data.get("institution_id")
+    if institution_id:
+        try:
+            institution = Institution.objects.get(pk=institution_id)
+        except Institution.DoesNotExist:
+            institution = None
+        if institution is not None:
+            PendingInstitutionClaim.objects.create(
+                user=user,
+                institution=institution,
+                status=PendingInstitutionClaim.Status.PENDING,
+            )
 
     # Send verification email
     token = signer.sign(str(user.pk))

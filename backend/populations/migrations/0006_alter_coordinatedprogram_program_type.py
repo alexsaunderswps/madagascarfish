@@ -4,15 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('populations', '0005_alter_exsitupopulation_options_and_more'),
+        ("populations", "0005_alter_exsitupopulation_options_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='coordinatedprogram',
-            name='program_type',
-            field=models.CharField(choices=[('ssp', 'AZA Species Survival Plan (SSP)'), ('eep', 'EAZA Ex-situ Programme (EEP)'), ('cares', 'CARES Priority Species'), ('independent', 'Independent coordinated program'), ('other', 'Other')], max_length=20),
+            model_name="coordinatedprogram",
+            name="program_type",
+            field=models.CharField(
+                choices=[
+                    ("ssp", "AZA Species Survival Plan (SSP)"),
+                    ("eep", "EAZA Ex-situ Programme (EEP)"),
+                    ("cares", "CARES Priority Species"),
+                    ("independent", "Independent coordinated program"),
+                    ("other", "Other"),
+                ],
+                max_length=20,
+            ),
         ),
     ]

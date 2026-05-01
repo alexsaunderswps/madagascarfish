@@ -32,6 +32,16 @@ export interface AuthNavItem {
 export const PRIMARY_NAV: NavLink[] = [
   { href: "/dashboard/", labelKey: "dashboard" },
   { href: "/dashboard/coordinator/", labelKey: "coordinator", minTier: 3 },
+  // Gate 13: Institution dashboard. minTier: 2 because the session JWT
+  // doesn't carry claim_status (architecture §6.3 — we deliberately keep
+  // institution_membership off the JWT). Tier 2+ users without an
+  // approved institution claim see the link but get redirected to
+  // /account when they click. Acceptable MVP UX trade for cache hygiene.
+  {
+    href: "/dashboard/institution/",
+    labelKey: "institution",
+    minTier: 2,
+  },
   { href: "/map/", labelKey: "map" },
   { href: "/species/", labelKey: "speciesDirectory" },
   { href: "/about/", labelKey: "about" },

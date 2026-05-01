@@ -1,0 +1,12 @@
+{% load i18n %}{% blocktranslate with name=user.name %}Hello {{ name }},{% endblocktranslate %}
+
+{% blocktranslate with institution_name=institution.name %}Your institution membership for {{ institution_name }} has been approved. You can now sign in and edit the populations your institution owns directly on the platform.{% endblocktranslate %}
+
+{{ frontend_base_url }}/dashboard/institution/
+
+{% blocktranslate %}If you weren't expecting this, please reply to this email and let us know.{% endblocktranslate %}
+
+—
+{{ platform_short_name }}
+{{ frontend_base_url }}
+{{ platform_contact_email }}

@@ -90,4 +90,38 @@ class ExSituPopulationDetailSerializer(ExSituPopulationListSerializer):
     holding_records = HoldingRecordSerializer(many=True, read_only=True)
 
     class Meta(ExSituPopulationListSerializer.Meta):
-        fields = [*ExSituPopulationListSerializer.Meta.fields, "holding_records"]
+        fields = [
+            *ExSituPopulationListSerializer.Meta.fields,
+            "holding_records",
+            "notes",
+            "last_edited_at",
+            "updated_at",
+        ]
+
+
+class ExSituPopulationWriteSerializer(serializers.ModelSerializer):
+    """Tier-2 institution-scoped edit surface.
+
+    Restricted to the eight AUDITED_FIELDS per Gate 13 §Data Model. Other
+    fields are read-only — `species`, `institution`, `date_established`,
+    `founding_source`, plus the audit-attribution columns are not editable
+    via this surface.
+    """
+
+    # Cap notes at the serializer layer — model is `TextField` (unbounded).
+    # Defends against payload bloat / audit-log inflation from a Tier 2
+    # writer.
+    notes = serializers.CharField(max_length=10_000, allow_blank=True, required=False)
+
+    class Meta:
+        model = ExSituPopulation
+        fields = [
+            "count_total",
+            "count_male",
+            "count_female",
+            "count_unsexed",
+            "breeding_status",
+            "last_census_date",
+            "notes",
+            "studbook_managed",
+        ]

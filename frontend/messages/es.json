@@ -80,7 +80,8 @@
     "signIn": "Iniciar sesión",
     "signUp": "Regístrate",
     "account": "Cuenta",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "institution": "My institution"
   },
   "home": {
     "hero": {
@@ -763,12 +764,18 @@
             "species": "Especies",
             "institution": "Institución",
             "lastSignal": "Última señal",
-            "staleFor": "Caducado desde"
+            "staleFor": "Caducado desde",
+            "lastEdited": "Last edit"
           },
           "neverCensused": "Nunca censado",
           "noneRecorded": "no hay datos registrados",
           "daysSuffix": "{count} días",
-          "monthsSuffix": "{count} meses"
+          "monthsSuffix": "{count} meses",
+          "lastEdited": {
+            "byInstitution": "{institution} staff · {at}",
+            "byCoordinator": "Coordinator · {at}",
+            "never": "Never edited"
+          }
         },
         "transfers": {
           "title": "Actividad de traspasos",
@@ -857,6 +864,63 @@
           "emDash": "—"
         }
       }
+    },
+    "institution": {
+      "metaTitle": "My Institution — Madagascar Freshwater Fish",
+      "metaDescription": "Update your institution's captive populations: counts, sex ratios, breeding status, and last-census date.",
+      "eyebrow": "Institution dashboard",
+      "title": "My populations",
+      "subtitle": "Populations held at {institution}. Edit counts, sex ratios, breeding status, and the last census date as the data changes.",
+      "transientError": "Population data is temporarily unavailable. Please try again in a moment.",
+      "emptyState": {
+        "message": "No populations attached to your institution yet.",
+        "contact": "Contact your coordinator at <email>alex.saunders@wildlifeprotectionsolutions.org</email> to add a population to your institution's registry."
+      },
+      "table": {
+        "species": "Species",
+        "count": "Total",
+        "breeding": "Breeding status",
+        "lastCensus": "Last census",
+        "actions": "Actions",
+        "edit": "Edit",
+        "never": "Not recorded"
+      },
+      "breedingStatus": {
+        "breeding": "Breeding",
+        "non-breeding": "Non-breeding",
+        "unknown": "Unknown"
+      },
+      "edit": {
+        "metaTitle": "Edit population — My Institution",
+        "metaDescription": "Update population data for your institution.",
+        "eyebrow": "Edit population",
+        "subtitle": "{institution}",
+        "save": "Save changes",
+        "saving": "Saving…",
+        "cancel": "Cancel",
+        "fields": {
+          "countTotal": "Total count",
+          "countMale": "Males",
+          "countFemale": "Females",
+          "countUnsexed": "Unsexed",
+          "breedingStatus": "Breeding status",
+          "lastCensusDate": "Last census date",
+          "notes": "Notes",
+          "studbookManaged": "Managed under a studbook"
+        },
+        "breedingStatus": {
+          "breeding": "Breeding",
+          "nonBreeding": "Non-breeding",
+          "unknown": "Unknown"
+        },
+        "actionErrors": {
+          "notSignedIn": "You're not signed in. Sign in and try again.",
+          "forbidden": "You don't have permission to edit this population.",
+          "notFound": "Population not found, or it does not belong to your institution.",
+          "badRequest": "Please review the form and try again.",
+          "transientError": "Couldn't save. Please try again in a moment."
+        }
+      }
     }
   },
   "account": {
@@ -897,6 +961,15 @@
       "french": "Francés",
       "german": "Alemán",
       "spanish": "Español"
+    },
+    "institutionMembership": {
+      "heading": "Institution membership",
+      "approved": "Your membership for {name} is approved. You can edit your institution's populations directly.",
+      "openDashboard": "Open my institution dashboard →",
+      "pending": "Your claim for {name} is pending coordinator review. We'll email you when it's approved.",
+      "rejected": "Your claim for {name} was not approved. If this is in error, reply to the rejection email or contact the platform team.",
+      "withdrawn": "Your claim for {name} was withdrawn. You can submit a fresh claim by signing up again or contacting the platform team.",
+      "reasonLabel": "Reason given:"
     }
   },
   "contribute": {

@@ -4,15 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0003_alter_user_options'),
+        ("accounts", "0003_alter_user_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='locale',
-            field=models.CharField(choices=[('en', 'English'), ('fr', 'Français'), ('de', 'Deutsch'), ('es', 'Español')], default='en', help_text='Preferred locale for transactional emails and (when logged in) the default UI locale on first visit. User-changeable from the account page.', max_length=5),
+            model_name="user",
+            name="locale",
+            field=models.CharField(
+                choices=[
+                    ("en", "English"),
+                    ("fr", "Français"),
+                    ("de", "Deutsch"),
+                    ("es", "Español"),
+                ],
+                default="en",
+                help_text="Preferred locale for transactional emails and (when logged in) the default UI locale on first visit. User-changeable from the account page.",
+                max_length=5,
+            ),
         ),
     ]

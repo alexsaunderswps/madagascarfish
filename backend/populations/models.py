@@ -70,6 +70,31 @@ class ExSituPopulation(models.Model):
     last_census_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    last_edited_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text=(
+            "Set by the institution-scoped edit path only "
+            "(populations.views.ExSituPopulationViewSet.perform_update). "
+            "NULL means the row has never been edited via the API write surface."
+        ),
+    )
+    last_edited_by_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    last_edited_by_institution = models.ForeignKey(
+        Institution,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
 
     class Meta:
         db_table = "populations_exsitupopulation"

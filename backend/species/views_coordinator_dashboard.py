@@ -51,6 +51,12 @@ COVERAGE_GAP_THREATENED = [
 _SEVERITY_RANK: dict[str, int] = {str(s): i for i, s in enumerate(COVERAGE_GAP_THREATENED)}
 
 
+class LastEditedByBlock(TypedDict, total=False):
+    kind: str  # "institution" or "coordinator"
+    at: str
+    institution_name: str | None
+
+
 class StalePopulationRow(TypedDict):
     population_id: int
     species: dict[str, object]
@@ -59,6 +65,7 @@ class StalePopulationRow(TypedDict):
     most_recent_holding_record_date: str | None
     effective_last_update: str | None
     days_since_update: int | None
+    last_edited_by: LastEditedByBlock | None
 
 
 def _effective_last_update(
@@ -85,7 +92,11 @@ class StaleCensusView(APIView):
         threshold_date = today - timedelta(days=STALE_CENSUS_THRESHOLD_DAYS)
 
         populations = (
-            ExSituPopulation.objects.select_related("species", "institution")
+            ExSituPopulation.objects.select_related(
+                "species",
+                "institution",
+                "last_edited_by_institution",
+            )
             .annotate(latest_holding=Max("holding_records__date"))
             .all()
         )
@@ -99,6 +110,20 @@ class StaleCensusView(APIView):
             if effective is not None and effective >= threshold_date:
                 continue
             days_since = (today - effective).days if effective else None
+            # Gate 13: last-edit attribution — distinguish "edited by an
+            # institution staffer for their own institution" from "edited by
+            # a coordinator on someone else's behalf" so the coordinator
+            # dashboard can render the right caption.
+            last_edited_by: LastEditedByBlock | None = None
+            if pop.last_edited_at is not None:
+                edit_inst_id = pop.last_edited_by_institution_id
+                kind = "institution" if edit_inst_id == pop.institution_id else "coordinator"
+                edit_inst = pop.last_edited_by_institution
+                last_edited_by = {
+                    "kind": kind,
+                    "at": pop.last_edited_at.isoformat(),
+                    "institution_name": edit_inst.name if edit_inst is not None else None,
+                }
             stale_rows.append(
                 {
                     "population_id": pop.id,
@@ -118,6 +143,7 @@ class StaleCensusView(APIView):
                     ),
                     "effective_last_update": effective.isoformat() if effective else None,
                     "days_since_update": days_since,
+                    "last_edited_by": last_edited_by,
                 }
             )
 
