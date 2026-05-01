@@ -9,6 +9,7 @@ from populations.views import (
     BreedingEventViewSet,
     ExSituPopulationViewSet,
     InstitutionViewSet,
+    TransferViewSet,
 )
 from species.views import SpeciesViewSet
 from species.views_coordinator_dashboard import (
@@ -32,6 +33,7 @@ router.register(r"species", SpeciesViewSet, basename="species")
 router.register(r"institutions", InstitutionViewSet, basename="institution")
 router.register(r"populations", ExSituPopulationViewSet, basename="population")
 router.register(r"breeding-events", BreedingEventViewSet, basename="breeding-event")
+router.register(r"transfers", TransferViewSet, basename="transfer")
 router.register(r"field-programs", FieldProgramViewSet, basename="field-program")
 
 urlpatterns = [

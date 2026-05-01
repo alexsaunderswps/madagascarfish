@@ -327,3 +327,121 @@ class BreedingEventViewSet(viewsets.ModelViewSet):
                 reason="breeding event created",
             )
         return instance
+
+
+class TransferFilter(filters.FilterSet):
+    species_id = filters.NumberFilter(field_name="species_id")
+    source_institution_id = filters.NumberFilter(field_name="source_institution_id")
+    destination_institution_id = filters.NumberFilter(field_name="destination_institution_id")
+    status = filters.CharFilter(field_name="status")
+
+    class Meta:
+        from populations.models import Transfer
+
+        model = Transfer
+        fields = ["species_id", "source_institution_id", "destination_institution_id", "status"]
+
+
+class TransferViewSet(viewsets.ModelViewSet):
+    """Tier 3+ coordinator transfer-draft surface.
+
+    Lifecycle: proposed → approved → in_transit → completed, or
+    cancelled at any point. The model already exists and has long been
+    admin-editable; this viewset gives coordinators a self-service API
+    so the same drafting flow can run from the coordinator dashboard
+    without bouncing into Django admin.
+
+    `created_by` is set server-side on POST. Updates write one
+    AuditEntry per write with the actor's institution snapshot.
+    DELETE is intentionally not exposed — cancel a transfer by setting
+    `status = cancelled`, don't drop the row (coordination history is
+    valuable even for transfers that never happened).
+    """
+
+    from accounts.permissions import TierPermission
+    from populations.serializers import TransferReadSerializer, TransferWriteSerializer
+
+    permission_classes = [TierPermission(3)]
+    filterset_class = TransferFilter
+    ordering = ["-proposed_date"]
+    http_method_names = ["get", "post", "patch", "head", "options"]
+
+    AUDITED_FIELDS: tuple[str, ...] = (
+        "status",
+        "proposed_date",
+        "planned_date",
+        "actual_date",
+        "count_male",
+        "count_female",
+        "count_unsexed",
+        "cites_reference",
+        "notes",
+    )
+
+    def get_queryset(self):
+        from populations.models import Transfer
+
+        return Transfer.objects.select_related(
+            "species",
+            "source_institution",
+            "destination_institution",
+            "created_by",
+            "coordinated_program",
+        )
+
+    def get_serializer_class(self):
+        from populations.serializers import TransferReadSerializer, TransferWriteSerializer
+
+        if self.action in ("create", "partial_update", "update"):
+            return TransferWriteSerializer
+        return TransferReadSerializer
+
+    def perform_create(self, serializer):
+        from audit.models import AuditEntry
+
+        user = self.request.user
+        actor_institution_id = getattr(user, "institution_id", None)
+        with transaction.atomic():
+            with audit_actor(user=user, reason="transfer drafted"):
+                instance = serializer.save(created_by=user)
+            AuditEntry.objects.create(
+                target_type="populations.Transfer",
+                target_id=instance.pk,
+                actor_type=AuditEntry.ActorType.USER,
+                actor_user=user,
+                actor_institution_id=actor_institution_id,
+                action=AuditEntry.Action.CREATE,
+                before={},
+                after={
+                    field: _json_safe(getattr(instance, field)) for field in self.AUDITED_FIELDS
+                },
+                reason="transfer drafted",
+            )
+        return instance
+
+    def perform_update(self, serializer):
+        from audit.models import AuditEntry
+
+        instance_before = serializer.instance
+        before = model_to_dict(instance_before, fields=self.AUDITED_FIELDS)
+        user = self.request.user
+        actor_institution_id = getattr(user, "institution_id", None)
+        with transaction.atomic():
+            with audit_actor(user=user, reason="transfer updated"):
+                instance = serializer.save()
+            after = model_to_dict(instance, fields=self.AUDITED_FIELDS)
+            changed_keys = [k for k in self.AUDITED_FIELDS if before[k] != after[k]]
+            if not changed_keys:
+                return instance
+            AuditEntry.objects.create(
+                target_type="populations.Transfer",
+                target_id=instance.pk,
+                actor_type=AuditEntry.ActorType.USER,
+                actor_user=user,
+                actor_institution_id=actor_institution_id,
+                action=AuditEntry.Action.UPDATE,
+                before={k: _json_safe(before[k]) for k in changed_keys},
+                after={k: _json_safe(after[k]) for k in changed_keys},
+                reason="transfer updated",
+            )
+        return instance
