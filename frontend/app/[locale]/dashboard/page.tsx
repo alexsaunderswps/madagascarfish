@@ -468,7 +468,11 @@ export default async function DashboardPage() {
           }}
         >
           <li>
-            <StatTile label={t("fieldPrograms.active")} value={field_programs.active} />
+            <StatTile
+              label={t("fieldPrograms.active")}
+              value={field_programs.active}
+              href="/field-programs/"
+            />
           </li>
           <li>
             <StatTile label={t("fieldPrograms.planned")} value={field_programs.planned} />

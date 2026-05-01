@@ -44,6 +44,7 @@ export const PRIMARY_NAV: NavLink[] = [
   },
   { href: "/map/", labelKey: "map" },
   { href: "/species/", labelKey: "speciesDirectory" },
+  { href: "/field-programs/", labelKey: "fieldPrograms" },
   { href: "/about/", labelKey: "about" },
 ];
 

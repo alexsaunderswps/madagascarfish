@@ -81,7 +81,8 @@
     "signUp": "Regístrate",
     "account": "Cuenta",
     "signOut": "Cerrar sesión",
-    "institution": "My institution"
+    "institution": "My institution",
+    "fieldPrograms": "Field programs"
   },
   "home": {
     "hero": {
@@ -1352,5 +1353,33 @@
     },
     "license": "Plataforma para la Conservación de los Peces de Agua Dulce de Madagascar — Apache-2.0",
     "dataNote": "Datos extraídos de la UICN, FishBase, GBIF, ZIMS, SHOAL y CARES."
+  },
+  "publicFieldPrograms": {
+    "metaTitle": "Field programs — Madagascar Freshwater Fish",
+    "metaDescription": "In-situ conservation programs for Madagascar's endemic freshwater fish — habitat surveys, community management, monitoring. Run by zoos, NGOs, research orgs, and partner institutions.",
+    "eyebrow": "In-situ programs",
+    "title": "Active field programs",
+    "lead": "In-situ work for Madagascar's endemic freshwater fish — habitat surveys, monitoring, community management, and reintroduction. Programs are registered and maintained by their lead institutions.",
+    "transientError": "Field-program data is temporarily unavailable. Refresh the page in a moment.",
+    "statusHeadings": {
+      "active": "Active programs ({count})",
+      "planned": "Planned ({count})",
+      "completed": "Completed ({count})"
+    },
+    "emptyState": {
+      "heading": "No field programs registered yet",
+      "body": "Are you running an in-situ program for a Madagascar freshwater fish species? <signupLink>Register your institution</signupLink> and add it from your dashboard."
+    },
+    "card": {
+      "noLead": "No lead institution recorded",
+      "focalSpeciesLabel": "Focal species:",
+      "partnersLabel": "Partners:",
+      "websiteLabel": "Program website",
+      "dateRange": {
+        "fromOnly": "since {start}",
+        "untilOnly": "through {end}",
+        "both": "{start} – {end}"
+      }
+    }
   }
 }
