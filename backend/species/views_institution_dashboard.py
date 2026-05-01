@@ -29,12 +29,19 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from audit.models import AuditEntry
+from fieldwork.models import FieldProgram
 from populations.models import BreedingEvent, ExSituPopulation, Institution
 
 # Census-freshness threshold matches the coordinator dashboard's
 # stale-census panel for consistency.
 FRESH_CENSUS_THRESHOLD_DAYS = 365
 RECENT_EVENTS_THRESHOLD_DAYS = 365
+
+# Recent activity feed cap — keep small; UI shows a "show more" only if a
+# future iteration adds pagination.
+RECENT_ACTIVITY_LIMIT = 25
+RECENT_ACTIVITY_WINDOW_DAYS = 90
 
 
 class InstitutionBrief(TypedDict):
@@ -65,10 +72,24 @@ class SpeciesBreakdownRow(TypedDict):
     recent_breeding_events: int
 
 
+class ActivityRow(TypedDict):
+    id: int
+    timestamp: str
+    actor_email: str | None
+    actor_kind: str
+    action: str
+    target_type: str
+    target_id: int
+    target_label: str
+    changes_summary: str
+    is_own_institution: bool
+
+
 class InstitutionSummary(TypedDict):
     institution: InstitutionBrief
     totals: TotalsBlock
     species_breakdown: list[SpeciesBreakdownRow]
+    recent_activity: list[ActivityRow]
 
 
 def _resolve_institution(request: Request) -> Institution:
@@ -199,6 +220,8 @@ def _build_summary(institution: Institution) -> InstitutionSummary:
         )
     breakdown.sort(key=lambda r: r["share_pct"], reverse=True)
 
+    recent_activity = _build_recent_activity(institution)
+
     return {
         "institution": {"id": institution.pk, "name": institution.name},
         "totals": {
@@ -209,7 +232,127 @@ def _build_summary(institution: Institution) -> InstitutionSummary:
             "stale_census_count": stale_count,
         },
         "species_breakdown": breakdown,
+        "recent_activity": recent_activity,
     }
+
+
+def _build_recent_activity(institution: Institution) -> list[ActivityRow]:
+    """Last N audit entries touching this institution.
+
+    Two paths land here:
+    - Direct: AuditEntry rows whose `actor_institution_id` matches.
+    - Owned-target: rows whose target is an ExSituPopulation,
+      BreedingEvent, or FieldProgram owned by this institution, even
+      if the actor was a coordinator from elsewhere (so the keepers
+      see "your coordinator did X" alongside their own edits).
+
+    `is_own_institution` flags whether the actor was at the same
+    institution as the target — useful for rendering "your team did
+    this" vs "coordinator override" differently.
+    """
+    cutoff = timezone.now() - timedelta(days=RECENT_ACTIVITY_WINDOW_DAYS)
+
+    # Pull a generous over-fetch so we can dedup and target-resolve in
+    # Python; the dataset is small enough that this stays cheap.
+    target_population_ids = list(
+        ExSituPopulation.objects.filter(institution=institution).values_list("id", flat=True)
+    )
+    target_event_ids = list(
+        BreedingEvent.objects.filter(population__institution=institution).values_list(
+            "id", flat=True
+        )
+    )
+    target_program_ids = list(
+        FieldProgram.objects.filter(lead_institution=institution).values_list("id", flat=True)
+    )
+
+    # Single OR-joined filter — `select_related` works after this whereas
+    # it would fail after `.union(...)`. Trade: this query is wide (4 OR
+    # clauses), but the dataset is small and the LIMIT keeps it cheap.
+    rows = (
+        AuditEntry.objects.filter(
+            Q(actor_institution_id=institution.pk)
+            | Q(
+                target_type="populations.ExSituPopulation",
+                target_id__in=target_population_ids,
+            )
+            | Q(
+                target_type="populations.BreedingEvent",
+                target_id__in=target_event_ids,
+            )
+            | Q(
+                target_type="fieldwork.FieldProgram",
+                target_id__in=target_program_ids,
+            ),
+            timestamp__gte=cutoff,
+        )
+        .select_related("actor_user")
+        .order_by("-timestamp")[:RECENT_ACTIVITY_LIMIT]
+    )
+
+    # Resolve target labels in batches.
+    pop_ids = {r.target_id for r in rows if r.target_type == "populations.ExSituPopulation"}
+    event_ids = {r.target_id for r in rows if r.target_type == "populations.BreedingEvent"}
+    program_ids = {r.target_id for r in rows if r.target_type == "fieldwork.FieldProgram"}
+
+    pop_labels: dict[int, str] = {}
+    if pop_ids:
+        for pop in ExSituPopulation.objects.filter(id__in=pop_ids).select_related(
+            "species", "institution"
+        ):
+            pop_labels[pop.pk] = f"{pop.species.scientific_name} · {pop.institution.name}"
+
+    event_labels: dict[int, str] = {}
+    if event_ids:
+        for ev in BreedingEvent.objects.filter(id__in=event_ids).select_related(
+            "population__species", "population__institution"
+        ):
+            event_labels[ev.pk] = (
+                f"{ev.get_event_type_display()} · "
+                f"{ev.population.species.scientific_name} "
+                f"({ev.event_date.isoformat()})"
+            )
+
+    program_labels: dict[int, str] = {}
+    if program_ids:
+        for fp in FieldProgram.objects.filter(id__in=program_ids):
+            program_labels[fp.pk] = fp.name
+
+    out: list[ActivityRow] = []
+    for r in rows:
+        if r.target_type == "populations.ExSituPopulation":
+            label = pop_labels.get(r.target_id, f"Population #{r.target_id}")
+        elif r.target_type == "populations.BreedingEvent":
+            label = event_labels.get(r.target_id, f"Breeding event #{r.target_id}")
+        elif r.target_type == "fieldwork.FieldProgram":
+            label = program_labels.get(r.target_id, f"Field program #{r.target_id}")
+        else:
+            label = f"{r.target_type} #{r.target_id}"
+
+        # Diff summary: keys that changed in this audit row.
+        changed_keys = []
+        if isinstance(r.after, dict):
+            changed_keys = list(r.after.keys())
+        changes_summary = ", ".join(changed_keys[:6])
+        if len(changed_keys) > 6:
+            changes_summary += f" (+{len(changed_keys) - 6})"
+
+        actor_email = r.actor_user.email if r.actor_user else None
+        out.append(
+            {
+                "id": r.pk,
+                "timestamp": r.timestamp.isoformat(),
+                "actor_email": actor_email,
+                "actor_kind": r.actor_type,
+                "action": r.action,
+                "target_type": r.target_type,
+                "target_id": r.target_id,
+                "target_label": label,
+                "changes_summary": changes_summary,
+                "is_own_institution": r.actor_institution_id == institution.pk,
+            }
+        )
+    return out
 
 
 class InstitutionSummaryView(APIView):
