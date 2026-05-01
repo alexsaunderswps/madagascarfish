@@ -678,7 +678,6 @@
       },
       "panels": {
         "coverage": {
-          "eyebrow": "Bild 1",
           "title": "Versorgungslücke",
           "titleWithCount": "Versorgungslücke —{total}  {scope} Arten",
           "scopeEndemic": "endemisch",
@@ -710,7 +709,6 @@
           }
         },
         "studbook": {
-          "eyebrow": "Bild 2",
           "title": "Zuchtbuchstatus",
           "captionShort": "Klassifizierung der Programme nach Arten.",
           "captionFull": "Wo jede Art auf dem Spektrum der Haltung in Gefangenschaft angesiedelt ist, von offiziell geführten Zuchtbüchern bis hin zu gar keiner Haltung. Der Unterschied zwischen Zucht und Zuchtbuch ist von Bedeutung: Er bringt Ad-hoc-Populationen ans Licht, die sich zwar fortpflanzen, deren Abstammung jedoch nicht erfasst wird – eine Anfälligkeit, die verborgen bleibt, wenn diese Arten mit Zuchtbuchprogrammen in einen Topf geworfen werden.",
@@ -735,7 +733,6 @@
           }
         },
         "sexRatio": {
-          "eyebrow": "Bild 3",
           "title": "Risiko im Zusammenhang mit dem Geschlechterverhältnis",
           "titleWithCount": "Risiko im Zusammenhang mit dem Geschlechterverhältnis –{atRisk}von{total}Populationen",
           "captionShort": "Bevölkerungsgruppen mit demografischem Ungleichgewicht.",
@@ -756,7 +753,6 @@
           }
         },
         "staleCensus": {
-          "eyebrow": "Bild 4",
           "title": "Veraltete Volkszählungsdaten",
           "titleWithCount": "Veraltete Volkszählungsdaten —{stale}  der{total}  Bevölkerung",
           "captionShort": "Bevölkerungsgruppen, bei denen eine Aktualisierung der Volkszählungsdaten überfällig ist.",
@@ -775,7 +771,6 @@
           "monthsSuffix": "{count} Monate"
         },
         "transfers": {
-          "eyebrow": "Bild 5",
           "title": "Transferaktivitäten",
           "titleWithCount": "Transferaktivitäten –{inFlight}  laufend,{recent}  aktuell",
           "captionShort": "Verbringung von Tieren zwischen Einrichtungen.",
@@ -804,7 +799,6 @@
           "emDash": "—"
         },
         "openRecs": {
-          "eyebrow": "Bild 6",
           "title": "Allgemeine Zuchtempfehlungen",
           "titleWithCount": "Empfehlungen zur offenen Zucht — {total}",
           "titleWithOverdue": "Empfehlungen zur offenen Zucht —{total}  ({overdue}überfällig)",
@@ -840,7 +834,6 @@
           "emDash": "—"
         },
         "reproductive": {
-          "eyebrow": "Bild 7",
           "title": "Jüngste Fortpflanzungsaktivitäten",
           "titleWithCount": "Recent reproductive activity — {count, plural, one {# event} other {# events}}",
           "captionShort": "Ereignisprotokoll pro Population.",

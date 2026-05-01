@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { CSSProperties } from "react";
 
+import { Link } from "@/i18n/routing";
 import type {
   TransferActivityResponse,
   TransferRow,
@@ -8,6 +9,12 @@ import type {
 } from "@/lib/coordinatorDashboard";
 
 import PanelShell from "./PanelShell";
+
+const SPECIES_LINK_STYLE: CSSProperties = {
+  color: "inherit",
+  textDecoration: "none",
+  borderBottom: "1px dotted var(--rule)",
+};
 
 const STATUS_TAG_STYLE: Record<TransferStatus, CSSProperties> = {
   proposed: {
@@ -141,7 +148,12 @@ function TransferTable({
             return (
               <tr key={row.transfer_id}>
                 <td style={{ ...TD_STYLE, fontStyle: "italic" }}>
-                  {row.species.scientific_name}
+                  <Link
+                    href={`/species/${row.species.id}`}
+                    style={SPECIES_LINK_STYLE}
+                  >
+                    {row.species.scientific_name}
+                  </Link>
                 </td>
                 <td style={TD_STYLE}>
                   {row.source_institution.name} → {row.destination_institution.name}
@@ -187,7 +199,6 @@ export default async function TransferActivityPanel({ data }: Props) {
   if (!data) {
     return (
       <PanelShell
-        eyebrow={t("eyebrow")}
         title={t("title")}
         caption={t("captionShort")}
       >
@@ -202,7 +213,6 @@ export default async function TransferActivityPanel({ data }: Props) {
 
   return (
     <PanelShell
-      eyebrow={t("eyebrow")}
       title={t("titleWithCount", {
         inFlight: in_flight.length,
         recent: recent_completed.length,

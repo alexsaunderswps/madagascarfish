@@ -678,7 +678,6 @@
       },
       "panels": {
         "coverage": {
-          "eyebrow": "Panneau 1",
           "title": "Lacune de couverture",
           "titleWithCount": "Lacune de couverture — {total} espèces {scope}",
           "scopeEndemic": "endémiques",
@@ -710,7 +709,6 @@
           }
         },
         "studbook": {
-          "eyebrow": "Panneau 2",
           "title": "Statut des registres généalogiques",
           "captionShort": "Classification des programmes par espèce.",
           "captionFull": "Où chaque espèce se situe sur le spectre de la gestion en captivité, du livre généalogique formellement géré à l'absence totale de détentions. La ligne « élevage sans livre généalogique » importe : elle fait remonter les populations ad hoc qui se reproduisent mais dont le pedigree n'est pas suivi — une fragilité qui se cache lorsque ces espèces sont regroupées avec les programmes à livre généalogique.",
@@ -735,7 +733,6 @@
           }
         },
         "sexRatio": {
-          "eyebrow": "Panneau 3",
           "title": "Risque de sex-ratio",
           "titleWithCount": "Risque de sex-ratio — {atRisk} populations sur {total}",
           "captionShort": "Populations à déséquilibre démographique.",
@@ -756,7 +753,6 @@
           }
         },
         "staleCensus": {
-          "eyebrow": "Panneau 4",
           "title": "Recensement périmé",
           "titleWithCount": "Recensement périmé — {stale} populations sur {total}",
           "captionShort": "Populations en attente d'une mise à jour de recensement.",
@@ -775,7 +771,6 @@
           "monthsSuffix": "{count} mois"
         },
         "transfers": {
-          "eyebrow": "Panneau 5",
           "title": "Activité de transfert",
           "titleWithCount": "Activité de transfert — {inFlight} en cours, {recent} récents",
           "captionShort": "Mouvements d'animaux entre institutions.",
@@ -804,7 +799,6 @@
           "emDash": "—"
         },
         "openRecs": {
-          "eyebrow": "Panneau 6",
           "title": "Recommandations d'élevage en cours",
           "titleWithCount": "Recommandations d'élevage en cours — {total}",
           "titleWithOverdue": "Recommandations d'élevage en cours — {total} ({overdue} en retard)",
@@ -840,7 +834,6 @@
           "emDash": "—"
         },
         "reproductive": {
-          "eyebrow": "Panneau 7",
           "title": "Activité reproductive récente",
           "titleWithCount": "Activité reproductive récente — {count, plural, one {# événement} other {# événements}}",
           "captionShort": "Registre d'événements par population.",
