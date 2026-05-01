@@ -702,6 +702,58 @@ export default async function SpeciesProfilePage({
               />
             </div>
           )}
+          {sp.ex_situ_summary.institutions_holding_list.length > 0 ? (
+            <div style={{ marginTop: 24 }}>
+              <p
+                style={{
+                  margin: "0 0 8px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-3)",
+                }}
+              >
+                {t("captive.heldAtLabel")}
+              </p>
+              <ul
+                role="list"
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: 0,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 6,
+                }}
+              >
+                {sp.ex_situ_summary.institutions_holding_list.map((inst) => (
+                  <li key={inst.id}>
+                    <Link
+                      href={`/institutions/${inst.id}`}
+                      style={{
+                        display: "inline-block",
+                        padding: "4px 10px",
+                        borderRadius: 999,
+                        fontSize: 13,
+                        color: "var(--ink)",
+                        backgroundColor: "var(--bg-raised)",
+                        border: "1px solid var(--rule)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {inst.name}
+                      {inst.country ? (
+                        <span style={{ marginLeft: 6, color: "var(--ink-3)" }}>
+                          · {inst.country}
+                        </span>
+                      ) : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </section>
 
         {/* Field Programs — sits under Captive population */}

@@ -295,7 +295,8 @@
         "noneTrackedNonThreatened": "Ninguna institución ha registrado ejemplares de esta especie.",
         "institutionsLabel": "Instituciones",
         "individualsLabel": "Particulares",
-        "breedingProgramsLabel": "Programas de cría en marcha"
+        "breedingProgramsLabel": "Programas de cría en marcha",
+        "heldAtLabel": "Held at"
       },
       "field": {
         "eyebrow": "Programas sobre el terreno",

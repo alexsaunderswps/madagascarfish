@@ -15,10 +15,18 @@ export interface FieldProgramBrief {
   status: string;
 }
 
+export interface InstitutionHoldingBrief {
+  id: number;
+  name: string;
+  country: string;
+  institution_type: string;
+}
+
 export interface ExSituSummary {
   institutions_holding: number;
   total_individuals: number;
   breeding_programs: number;
+  institutions_holding_list: InstitutionHoldingBrief[];
 }
 
 export interface SpeciesDetail extends SpeciesListItem {

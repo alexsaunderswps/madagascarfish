@@ -35,7 +35,12 @@ function makeSp(overrides: Partial<SpeciesDetail> = {}): SpeciesDetail {
     locality_count: 0,
     conservation_assessments: [],
     field_programs: [],
-    ex_situ_summary: { institutions_holding: 0, total_individuals: 0, breeding_programs: 0 },
+    ex_situ_summary: {
+      institutions_holding: 0,
+      total_individuals: 0,
+      breeding_programs: 0,
+      institutions_holding_list: [],
+    },
     has_localities: false,
     has_husbandry: false,
     difficulty_factor_count: 0,
