@@ -81,8 +81,7 @@
     "signUp": "Regístrate",
     "account": "Cuenta",
     "signOut": "Cerrar sesión",
-    "institution": "My institution",
-    "fieldPrograms": "Field programs"
+    "institution": "My institution"
   },
   "home": {
     "hero": {
@@ -667,7 +666,8 @@
       "ariaLabel": "Programas sobre el terreno",
       "active": "Programas de campo en curso",
       "planned": "Previsto",
-      "completed": "Finalizado"
+      "completed": "Finalizado",
+      "browseAll": "Browse all field programs →"
     },
     "coordinator": {
       "metaTitle": "Panel de control del coordinador — Peces de agua dulce de Madagascar",

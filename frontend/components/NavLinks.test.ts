@@ -94,6 +94,49 @@ describe("visibleNavLinks", () => {
   });
 });
 
+describe("visibleNavLinks — requireClaimApproved", () => {
+  const links: NavLink[] = [
+    { href: "/dashboard/", labelKey: "dashboard" },
+    {
+      href: "/dashboard/institution/",
+      labelKey: "institution",
+      minTier: 2,
+      requireClaimApproved: true,
+    },
+  ];
+
+  it("hides claim-gated links when claim_status is 'none'", () => {
+    expect(visibleNavLinks(links, 2, "none").map((l) => l.labelKey)).toEqual([
+      "dashboard",
+    ]);
+  });
+
+  it("hides claim-gated links when claim is pending", () => {
+    expect(
+      visibleNavLinks(links, 2, "pending").map((l) => l.labelKey),
+    ).toEqual(["dashboard"]);
+  });
+
+  it("hides claim-gated links when claim was rejected", () => {
+    expect(
+      visibleNavLinks(links, 2, "rejected").map((l) => l.labelKey),
+    ).toEqual(["dashboard"]);
+  });
+
+  it("shows claim-gated links once claim is approved", () => {
+    expect(
+      visibleNavLinks(links, 2, "approved").map((l) => l.labelKey),
+    ).toEqual(["dashboard", "institution"]);
+  });
+
+  it("still requires minTier even with approved claim", () => {
+    // A Tier-1 user with an approved claim is still gated by minTier.
+    expect(
+      visibleNavLinks(links, 1, "approved").map((l) => l.labelKey),
+    ).toEqual(["dashboard"]);
+  });
+});
+
 describe("authNavItems", () => {
   it("renders nothing when the feature flag is off (Story 3 AC-3.3)", () => {
     expect(authNavItems(false, false)).toEqual([]);

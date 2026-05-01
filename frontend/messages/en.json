@@ -77,7 +77,6 @@
     "institution": "My institution",
     "map": "Map",
     "speciesDirectory": "Species Directory",
-    "fieldPrograms": "Field programs",
     "about": "About",
     "signIn": "Sign in",
     "signUp": "Sign up",
@@ -681,7 +680,8 @@
       "ariaLabel": "Field programs",
       "active": "Active field programs",
       "planned": "Planned",
-      "completed": "Completed"
+      "completed": "Completed",
+      "browseAll": "Browse all field programs →"
     },
     "institution": {
       "metaTitle": "My Institution — Madagascar Freshwater Fish",

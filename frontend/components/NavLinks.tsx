@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 // navigation works AND the active-pill highlight matches against the
 // de-localized path (`/dashboard/` even when URL is `/fr/dashboard/`).
 import { Link, usePathname } from "@/i18n/routing";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
-import { djangoLogoutAction } from "@/app/[locale]/account/actions";
+import AccountMenu from "@/components/AccountMenu";
 
 export interface NavLink {
   href: string;
@@ -20,7 +20,21 @@ export interface NavLink {
    * use, which would bounce them to login.
    */
   minTier?: number;
+  /**
+   * If true, the link is hidden until the viewer's institution membership
+   * `claim_status` is `"approved"`. Used for "My institution" so a user
+   * with a pending or rejected claim doesn't see a link that would bounce
+   * them to /account on click.
+   */
+  requireClaimApproved?: boolean;
 }
+
+export type ClaimStatus =
+  | "none"
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "withdrawn";
 
 export interface AuthNavItem {
   kind: "link" | "logout";
@@ -32,19 +46,21 @@ export interface AuthNavItem {
 export const PRIMARY_NAV: NavLink[] = [
   { href: "/dashboard/", labelKey: "dashboard" },
   { href: "/dashboard/coordinator/", labelKey: "coordinator", minTier: 3 },
-  // Gate 13: Institution dashboard. minTier: 2 because the session JWT
-  // doesn't carry claim_status (architecture §6.3 — we deliberately keep
-  // institution_membership off the JWT). Tier 2+ users without an
-  // approved institution claim see the link but get redirected to
-  // /account when they click. Acceptable MVP UX trade for cache hygiene.
+  // Gate 13: Institution dashboard. The JWT carries `claimStatus` after
+  // the first /me/ refresh (lib/auth.ts), so we can hide the link until
+  // the user's claim is genuinely approved — no more "click → bounce to
+  // /account" UX wart.
   {
     href: "/dashboard/institution/",
     labelKey: "institution",
     minTier: 2,
+    requireClaimApproved: true,
   },
   { href: "/map/", labelKey: "map" },
   { href: "/species/", labelKey: "speciesDirectory" },
-  { href: "/field-programs/", labelKey: "fieldPrograms" },
+  // /field-programs/ is intentionally NOT in the top nav. Surface from
+  // the public dashboard's Field Programs section to keep the top bar
+  // focused on actionable items + headline data delivery.
   { href: "/about/", labelKey: "about" },
 ];
 
@@ -56,10 +72,13 @@ export const PRIMARY_NAV: NavLink[] = [
 export function visibleNavLinks(
   links: readonly NavLink[],
   viewerTier: number,
+  claimStatus: ClaimStatus = "none",
 ): NavLink[] {
-  return links.filter(
-    (link) => link.minTier === undefined || viewerTier >= link.minTier,
-  );
+  return links.filter((link) => {
+    if (link.minTier !== undefined && viewerTier < link.minTier) return false;
+    if (link.requireClaimApproved && claimStatus !== "approved") return false;
+    return true;
+  });
 }
 
 function normalize(path: string): string {
@@ -145,14 +164,6 @@ function itemStyle(active: boolean): React.CSSProperties {
   };
 }
 
-async function performLogout(): Promise<void> {
-  // Best-effort dual fire: delete the DRF token server-side, then clear the
-  // NextAuth cookie. Even if the Django call fails (network blip), the
-  // cookie still clears so the user is logged out from the browser.
-  await djangoLogoutAction();
-  await signOut({ callbackUrl: "/" });
-}
-
 export interface NavLinksProps {
   authVisible?: boolean;
 }
@@ -160,89 +171,54 @@ export interface NavLinksProps {
 export default function NavLinks({ authVisible = false }: NavLinksProps = {}) {
   const t = useTranslations("nav");
   const pathname = usePathname() ?? "/";
-  // Resolve auth state client-side so the server-rendered HTML stays static
-  // (preserves ISR for the public surface). During hydration `status` is
-  // "loading" — render no auth nav items and treat tier as 0 so links with
-  // a `minTier` stay hidden until we know what the viewer can see.
+  // Resolve auth state client-side so the server-rendered HTML stays
+  // static (preserves ISR for the public surface). During hydration
+  // `status` is "loading" — render with viewerTier = 0 so links with a
+  // `minTier` stay hidden until we know what the viewer can see.
   const { data: session, status } = useSession();
-  const authenticated = status === "authenticated";
   const authResolved = status !== "loading";
   const viewerTier =
     authResolved && typeof session?.tier === "number" ? session.tier : 0;
-  const primaryLinks = visibleNavLinks(PRIMARY_NAV, viewerTier);
+  const claimStatus: ClaimStatus = (session?.claimStatus ?? "none") as ClaimStatus;
+  const primaryLinks = visibleNavLinks(PRIMARY_NAV, viewerTier, claimStatus);
   const activeHref = mostSpecificActiveHref(pathname, primaryLinks);
-  const authItems = authResolved ? authNavItems(authVisible, authenticated) : [];
 
   return (
-    <ul
+    <div
       style={{
-        listStyle: "none",
-        margin: 0,
-        padding: 0,
         display: "flex",
-        flexWrap: "wrap",
+        flexWrap: "nowrap",
         alignItems: "center",
-        gap: "4px 16px",
+        gap: 16,
       }}
     >
-      {primaryLinks.map((link) => {
-        const active = activeHref === link.href;
-        return (
-          <li key={link.href}>
-            <Link
-              href={link.href}
-              aria-current={active ? "page" : undefined}
-              style={itemStyle(active)}
-            >
-              {t(link.labelKey)}
-            </Link>
-          </li>
-        );
-      })}
-      {authItems.length > 0 ? (
-        <li
-          aria-hidden="true"
-          style={{ width: 1, height: 18, backgroundColor: "var(--rule)" }}
-        />
-      ) : null}
-      {authItems.map((item) => {
-        if (item.kind === "logout") {
+      <ul
+        style={{
+          listStyle: "none",
+          margin: 0,
+          padding: 0,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: "4px 12px",
+        }}
+      >
+        {primaryLinks.map((link) => {
+          const active = activeHref === link.href;
           return (
-            <li key="logout">
-              <button
-                type="button"
-                onClick={performLogout}
-                style={{
-                  // `font: inherit` first to clear the user-agent button
-                  // default (often system-ui at the platform default size);
-                  // then itemStyle's explicit fontFamily / fontSize /
-                  // fontWeight / lineHeight win and match the sibling
-                  // <a> elements (Sign in / Sign up / Account).
-                  font: "inherit",
-                  ...itemStyle(false),
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                }}
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                style={itemStyle(active)}
               >
-                {t(item.labelKey)}
-              </button>
+                {t(link.labelKey)}
+              </Link>
             </li>
           );
-        }
-        const active = isActive(pathname, item.href);
-        return (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              aria-current={active ? "page" : undefined}
-              style={itemStyle(active)}
-            >
-              {t(item.labelKey)}
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
+        })}
+      </ul>
+      <AccountMenu authVisible={authVisible} />
+    </div>
   );
 }
