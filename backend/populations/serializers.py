@@ -191,3 +191,78 @@ class BreedingEventWriteSerializer(serializers.ModelSerializer):
             "count_delta_unsexed",
             "notes",
         ]
+
+
+# ---------- Transfer (Tier 3+ coordinator drafts) ----------
+
+
+class TransferReadSerializer(serializers.ModelSerializer):
+    """Coordinator-readable transfer row.
+
+    Surfaces compact briefs for species + source + destination so the
+    coordinator dashboard can render without per-row joins.
+    """
+
+    species = _SpeciesBriefSerializer(read_only=True)
+    source_institution = _InstitutionBriefSerializer(read_only=True)
+    destination_institution = _InstitutionBriefSerializer(read_only=True)
+    created_by_email = serializers.SerializerMethodField()
+
+    class Meta:
+        from populations.models import Transfer
+
+        model = Transfer
+        fields = [
+            "id",
+            "species",
+            "source_institution",
+            "destination_institution",
+            "status",
+            "proposed_date",
+            "planned_date",
+            "actual_date",
+            "count_male",
+            "count_female",
+            "count_unsexed",
+            "cites_reference",
+            "notes",
+            "created_by_email",
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_created_by_email(self, obj) -> str | None:
+        return obj.created_by.email if obj.created_by else None
+
+
+class TransferWriteSerializer(serializers.ModelSerializer):
+    """Coordinator transfer-draft create / update surface.
+
+    `created_by` is server-set on create from `request.user`. Status
+    transitions are open — the coordinator picks the next state directly
+    (proposed → approved → in_transit → completed, or cancelled at any
+    point). The model's CheckConstraint enforces source ≠ destination.
+    """
+
+    notes = serializers.CharField(max_length=10_000, allow_blank=True, required=False)
+    cites_reference = serializers.CharField(max_length=100, allow_blank=True, required=False)
+
+    class Meta:
+        from populations.models import Transfer
+
+        model = Transfer
+        fields = [
+            "species",
+            "source_institution",
+            "destination_institution",
+            "status",
+            "proposed_date",
+            "planned_date",
+            "actual_date",
+            "count_male",
+            "count_female",
+            "count_unsexed",
+            "cites_reference",
+            "coordinated_program",
+            "notes",
+        ]
