@@ -12,13 +12,24 @@ from rest_framework.views import APIView
 
 from fieldwork.models import FieldProgram
 from integration.models import SyncJob
-from populations.models import CoordinatedProgram, ExSituPopulation, Institution, Transfer
+from populations.models import (
+    BreedingEvent,
+    CoordinatedProgram,
+    ExSituPopulation,
+    Institution,
+    Transfer,
+)
 from species.models import Species
 
-# Bumped to v2 because the response shape gained a `coordination` block —
-# stale v1 cached payloads must not bleed into a v2 deploy.
-DASHBOARD_CACHE_KEY = "api:dashboard:v2"
+# Bumped to v3 because the response shape gained a `contributors` block —
+# stale v2 cached payloads must not bleed into a v3 deploy.
+DASHBOARD_CACHE_KEY = "api:dashboard:v3"
 DASHBOARD_CACHE_TTL = 300  # 5 minutes
+
+# "Recent activity" window for the contributors panel. 30 days is short
+# enough to feel like a pulse and long enough that a small data set still
+# usually has *something* in it.
+CONTRIBUTORS_ACTIVITY_WINDOW_DAYS = 30
 
 # Window for "recent transfer activity" on the public dashboard. Matches the
 # coordinator-dashboard Panel 5 window so the two views read on the same
@@ -111,6 +122,42 @@ class DashboardView(APIView):
             actual_date__gte=transfer_window_start,
         ).count()
 
+        # Contributors block — public, aggregate-only. Counts institutions
+        # that actually contribute (i.e. have at least one ExSituPopulation),
+        # bucketed by type, plus the number of distinct countries those
+        # institutions represent. Pulse counters (last 30 days) show the
+        # platform is alive: breeding events logged, populations edited,
+        # populations re-censused.
+        contributors_window_start = timezone.now() - timedelta(
+            days=CONTRIBUTORS_ACTIVITY_WINDOW_DAYS
+        )
+        # Use a subquery for the institution-type bucket so the parent
+        # `.distinct()` doesn't interact with `Count(distinct=True)` and
+        # produce one-row-per-population over-counts.
+        active_institution_ids = list(
+            Institution.objects.filter(ex_situ_populations__isnull=False)
+            .values_list("id", flat=True)
+            .distinct()
+        )
+        active_institutions_qs = Institution.objects.filter(id__in=active_institution_ids)
+        institutions_by_type = dict(
+            active_institutions_qs.values("institution_type")
+            .annotate(c=Count("id"))
+            .values_list("institution_type", "c")
+        )
+        countries_represented = (
+            active_institutions_qs.values_list("country", flat=True).distinct().count()
+        )
+        breeding_events_recent = BreedingEvent.objects.filter(
+            event_date__gte=contributors_window_start.date()
+        ).count()
+        populations_edited_recent = ExSituPopulation.objects.filter(
+            last_edited_at__gte=contributors_window_start
+        ).count()
+        populations_recent_census = ExSituPopulation.objects.filter(
+            last_census_date__gte=contributors_window_start.date()
+        ).count()
+
         return {
             "species_counts": {
                 "total": total_species,
@@ -143,6 +190,18 @@ class DashboardView(APIView):
                 "transfer_window_days": PUBLIC_TRANSFER_ACTIVITY_WINDOW_DAYS,
                 "transfers_in_flight": transfers_in_flight,
                 "transfers_recent_completed": transfers_recent_completed,
+            },
+            "contributors": {
+                "active_institutions_total": len(active_institution_ids),
+                "by_type": {
+                    str(it): institutions_by_type.get(it, 0)
+                    for it, _ in Institution.InstitutionType.choices
+                },
+                "countries_represented": countries_represented,
+                "activity_window_days": CONTRIBUTORS_ACTIVITY_WINDOW_DAYS,
+                "breeding_events_recent": breeding_events_recent,
+                "populations_edited_recent": populations_edited_recent,
+                "populations_recent_census": populations_recent_census,
             },
             "last_updated": timezone.now().isoformat(),
             "last_sync_at": last_sync.isoformat() if last_sync else None,

@@ -997,6 +997,20 @@
           "more": "+{count} more species…"
         }
       }
+    },
+    "contributors": {
+      "eyebrow": "Platform contributors",
+      "title": "Who's contributing",
+      "ariaLabel": "Platform contributors",
+      "caption": "Institutions actively contributing populations data, plus a {days}-day pulse of edits, breeding-event entries, and fresh censuses across the network.",
+      "activeInstitutions": "Active institutions",
+      "activeInstitutionsSublabel": "Across {countries} countries.",
+      "recentEdits": "Edits in the last {days} days",
+      "recentEditsSublabel": "Population records updated by institution staff or coordinators.",
+      "recentBreedingEvents": "Breeding events ({days}d)",
+      "recentBreedingEventsSublabel": "Spawnings, hatchings, mortalities — logged across the network.",
+      "recentCensus": "Fresh censuses ({days}d)",
+      "recentCensusSublabel": "Populations re-counted in the window."
     }
   },
   "account": {

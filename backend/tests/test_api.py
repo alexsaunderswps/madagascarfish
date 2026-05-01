@@ -750,6 +750,24 @@ class TestDashboard:
         assert coord["transfers_in_flight"] == 0
         assert coord["transfers_recent_completed"] == 0
         assert coord["transfer_window_days"] == 90
+        # Contributors block — present and zero on a fresh DB.
+        contrib = data["contributors"]
+        assert contrib["active_institutions_total"] == 0
+        assert contrib["countries_represented"] == 0
+        assert contrib["activity_window_days"] == 30
+        assert contrib["breeding_events_recent"] == 0
+        assert contrib["populations_edited_recent"] == 0
+        assert contrib["populations_recent_census"] == 0
+        # Stable contract: every institution type is a key.
+        assert set(contrib["by_type"].keys()) == {
+            "zoo",
+            "aquarium",
+            "research_org",
+            "hobbyist_program",
+            "hobbyist_keeper",
+            "ngo",
+            "government",
+        }
 
     def test_coordination_block_counts_active_programs_and_transfers(
         self,
@@ -822,6 +840,69 @@ class TestDashboard:
         assert coord["active_programs_by_type"]["cares"] == 0  # PLANNING excluded
         assert coord["transfers_in_flight"] == 1
         assert coord["transfers_recent_completed"] == 1  # 180-day-old completion excluded
+
+    def test_contributors_block_counts_active_institutions_and_pulse(
+        self, api_client: APIClient, species_cr: Species
+    ) -> None:
+        """Contributors panel: active institutions (those with at least one
+        ExSituPopulation), bucketed by type, distinct countries, plus a
+        30-day pulse of breeding events and edits.
+        """
+        from datetime import date, timedelta
+
+        from django.utils import timezone
+
+        from populations.models import BreedingEvent, ExSituPopulation, Institution
+
+        # Two active institutions — one zoo (US), one hobbyist program (DE).
+        zoo = Institution.objects.create(name="ABQ BioPark", institution_type="zoo", country="US")
+        cares = Institution.objects.create(
+            name="Citizen Conservation",
+            institution_type="hobbyist_program",
+            country="DE",
+        )
+        # An institution WITHOUT a population — must NOT count as active.
+        Institution.objects.create(name="Empty Aquarium", institution_type="aquarium", country="FR")
+
+        pop_zoo = ExSituPopulation.objects.create(
+            species=species_cr, institution=zoo, count_total=10
+        )
+        ExSituPopulation.objects.create(species=species_cr, institution=cares, count_total=20)
+
+        # Recent activity at zoo: 1 breeding event (recent), 1 outside window.
+        today = date.today()
+        BreedingEvent.objects.create(
+            population=pop_zoo, event_type="hatching", event_date=today - timedelta(days=10)
+        )
+        BreedingEvent.objects.create(
+            population=pop_zoo, event_type="mortality", event_date=today - timedelta(days=60)
+        )
+
+        # Edit recency — bump pop_zoo.last_edited_at into the window.
+        ExSituPopulation.objects.filter(pk=pop_zoo.pk).update(
+            last_edited_at=timezone.now() - timedelta(days=5)
+        )
+
+        # Census recency — pop_zoo censused 10 days ago, cares censused 60 days ago.
+        ExSituPopulation.objects.filter(pk=pop_zoo.pk).update(
+            last_census_date=today - timedelta(days=10)
+        )
+
+        # Bust the dashboard cache so test sees fresh values.
+        from django.core.cache import cache
+
+        cache.delete("api:dashboard:v3")
+
+        resp = api_client.get("/api/v1/dashboard/")
+        contrib = resp.json()["contributors"]
+        assert contrib["active_institutions_total"] == 2  # empty aquarium excluded
+        assert contrib["by_type"]["zoo"] == 1
+        assert contrib["by_type"]["hobbyist_program"] == 1
+        assert contrib["by_type"]["aquarium"] == 0  # empty one excluded
+        assert contrib["countries_represented"] == 2  # US + DE; FR excluded
+        assert contrib["breeding_events_recent"] == 1  # 60-day event outside window
+        assert contrib["populations_edited_recent"] == 1
+        assert contrib["populations_recent_census"] == 1  # only pop_zoo censused recently
 
 
 # ============================================================

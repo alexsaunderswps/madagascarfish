@@ -32,6 +32,19 @@ export interface DashboardResponse {
     transfers_in_flight: number;
     transfers_recent_completed: number;
   };
+  // Contributors block — added with the public dashboard "platform contributors"
+  // panel. Optional on the type so a backend running an older v2 payload
+  // still renders the rest of the page; the panel itself short-circuits to
+  // null when the field is missing.
+  contributors?: {
+    active_institutions_total: number;
+    by_type: Record<string, number>;
+    countries_represented: number;
+    activity_window_days: number;
+    breeding_events_recent: number;
+    populations_edited_recent: number;
+    populations_recent_census: number;
+  };
   last_updated: string;
   last_sync_at: string | null;
 }
