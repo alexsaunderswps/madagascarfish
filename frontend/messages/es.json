@@ -996,6 +996,65 @@
           "contextLine": "Held at {institutions} institutions · {events} breeding events logged globally in the last 12 months",
           "more": "+{count} more species…"
         }
+      },
+      "fieldProgramsLink": "Field programs →",
+      "fieldPrograms": {
+        "metaTitle": "Field programs — My Institution",
+        "metaDescription": "Manage your institution's in-situ field programs: status, dates, funding, partners.",
+        "eyebrow": "Institution dashboard",
+        "title": "Field programs",
+        "subtitle": "In-situ work led or partnered by your institution. Edit status, dates, region, and funding as the work evolves.",
+        "transientError": "Field-program data is temporarily unavailable. Please try again in a moment.",
+        "mine": {
+          "heading": "Your institution's programs",
+          "empty": "No field programs attached to your institution yet. Use the button above to create one."
+        },
+        "others": {
+          "heading": "Other programs in the registry"
+        },
+        "card": {
+          "edit": "Edit",
+          "noLead": "No lead institution recorded",
+          "focalSpecies": "Focal species:"
+        },
+        "statuses": {
+          "planned": "Planned",
+          "active": "Active",
+          "completed": "Completed"
+        },
+        "createForm": {
+          "openButton": "+ Start a new field program",
+          "heading": "New field program",
+          "name": "Name",
+          "description": "Description",
+          "region": "Region",
+          "status": "Status",
+          "startDate": "Start date",
+          "create": "Create program",
+          "creating": "Creating…",
+          "cancel": "Cancel"
+        },
+        "edit": {
+          "heading": "Edit program",
+          "name": "Name",
+          "description": "Description",
+          "region": "Region",
+          "status": "Status",
+          "startDate": "Start date",
+          "endDate": "End date",
+          "fundingSources": "Funding sources",
+          "website": "Website",
+          "save": "Save changes",
+          "saving": "Saving…",
+          "cancel": "Cancel"
+        },
+        "actionErrors": {
+          "notSignedIn": "You're not signed in. Sign in and try again.",
+          "forbidden": "You don't have permission to edit that program.",
+          "notFound": "Program not found, or it does not belong to your institution.",
+          "badRequest": "Please review the form and try again.",
+          "transientError": "Couldn't save. Please try again in a moment."
+        }
       }
     },
     "contributors": {
