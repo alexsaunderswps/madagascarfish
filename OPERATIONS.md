@@ -833,3 +833,37 @@ docker compose restart worker beat          # if Celery tasks changed
 
 The GitHub Actions deploy does all of this automatically on green CI — you only
 run it by hand when the automation didn't run (red CI) or when iterating.
+
+
+## Darwin Core / GBIF publishing
+
+The platform exposes a Darwin Core Archive for ingestion by GBIF's
+Integrated Publishing Toolkit (IPT). Endpoints (public, no auth):
+
+- `GET /api/v1/dwc/archive.zip` — full DwC-A (occurrence.txt + eml.xml + meta.xml).
+- `GET /api/v1/dwc/occurrence.txt` — TSV body alone.
+- `GET /api/v1/dwc/eml.xml` — dataset metadata.
+
+Coordinate generalization is automatic: any locality whose species is IUCN CR/EN/VU,
+flagged `location_sensitivity=override_sensitive`, or per-record `is_sensitive=True`
+publishes the 0.1° (~11 km) generalized point with `coordinateUncertaintyInMeters=11000`
+and the DwC `dataGeneralizations` term populated. Records with `needs_review=True` are
+excluded entirely.
+
+Cache: each endpoint sets `Cache-Control: public, max-age=3600`. If a data correction
+needs immediate visibility, restart the web container or invalidate the CDN edge.
+
+### One-time registration with GBIF
+
+Done by Aleksei post-workshop. The pattern (per
+https://www.gbif.org/publishing-data):
+
+1. Register an organization with GBIF (a one-time application; takes a few days for review).
+2. Stand up an IPT instance (or use a partner's). Point the IPT at
+   `https://malagasyfishes.org/api/v1/dwc/archive.zip` as a "URL of an existing DwC archive."
+3. The IPT pulls on a schedule (default daily); GBIF then re-ingests on its own cadence.
+4. Once registered, the dataset gets a GBIF DOI — link it from the About page.
+
+EML metadata (title, abstract, contact, license) lives in
+`backend/integration/darwincore.py` constants. Update there for changes that should appear
+on the GBIF dataset page; the next IPT pull picks them up.
