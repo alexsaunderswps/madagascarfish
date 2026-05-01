@@ -20,6 +20,7 @@ from species.views_coordinator_dashboard import (
     TransferActivityView,
 )
 from species.views_dashboard import DashboardView
+from species.views_dwc import archive_zip, eml_xml, occurrence_tsv
 from species.views_genus import GenusSilhouetteView
 from species.views_map import MapSummaryView, SpeciesLocalityGeoView, WatershedListView
 from species.views_site_map_asset import SiteMapAssetView
@@ -88,6 +89,10 @@ urlpatterns = [
         SiteMapAssetView.as_view(),
         name="site-map-asset",
     ),
+    # Darwin Core export (Gate 15) — public, GBIF-publishable
+    path("dwc/archive.zip", archive_zip, name="dwc-archive"),
+    path("dwc/occurrence.txt", occurrence_tsv, name="dwc-occurrence"),
+    path("dwc/eml.xml", eml_xml, name="dwc-eml"),
     # Map endpoints
     path("map/localities/", SpeciesLocalityGeoView.as_view(), name="map-localities"),
     path("map/watersheds/", WatershedListView.as_view(), name="map-watersheds"),

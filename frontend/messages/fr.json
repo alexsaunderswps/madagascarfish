@@ -475,7 +475,8 @@
       "citation2": "UICN. Red List of Threatened Species. Version consultée à la compilation ; catégorie et critères repris de la dernière évaluation acceptée pour chaque espèce.",
       "citation3": "SHOAL. 1,000 Fishes Blueprint — priorités mondiales pour la conservation des poissons d'eau douce.",
       "citation4": "GBIF. Norme Darwin Core Archive et recommandations de généralisation des coordonnées pour les espèces sensibles.",
-      "staffSignIn": "Connexion du personnel"
+      "staffSignIn": "Connexion du personnel",
+      "dwcLine": "The platform's Darwin Core Archive — used by GBIF's Integrated Publishing Toolkit — is available for direct download as <dwcLink>mffcp-occurrences.zip</dwcLink>. Threatened-species coordinates are generalized to a 0.1° (≈11 km) grid; exact coordinates remain on the platform behind the coordinator-tier gate."
     },
     "data": {
       "metaTitle": "Comment nous traitons les données — Plateforme pour la conservation des poissons d'eau douce de Madagascar",

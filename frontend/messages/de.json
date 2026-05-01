@@ -475,7 +475,8 @@
       "citation2": "IUCN. Rote Liste gefährdeter Arten. Zum Zeitpunkt der Erstellung konsultierte Version; Kategorie und Kriterien entsprechen der jeweils aktuellsten anerkannten Bewertung für jede Art.",
       "citation3": "SHOAL. 1.000-Fische-Plan – Globale Prioritäten für den Schutz von Süßwasserfischen.",
       "citation4": "GBIF. Der Darwin-Core-Archivstandard und Leitlinien zur Koordinatenverallgemeinerung für empfindliche Arten.",
-      "staffSignIn": "Mitarbeiter-Anmeldung"
+      "staffSignIn": "Mitarbeiter-Anmeldung",
+      "dwcLine": "The platform's Darwin Core Archive — used by GBIF's Integrated Publishing Toolkit — is available for direct download as <dwcLink>mffcp-occurrences.zip</dwcLink>. Threatened-species coordinates are generalized to a 0.1° (≈11 km) grid; exact coordinates remain on the platform behind the coordinator-tier gate."
     },
     "data": {
       "metaTitle": "Wie wir mit den Daten umgehen – Plattform zum Schutz der Süßwasserfische Madagaskars",

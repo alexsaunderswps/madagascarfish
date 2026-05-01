@@ -475,7 +475,8 @@
       "citation2": "UICN. Lista Roja de Especies Amenazadas. Versión consultada en el momento de la elaboración; la categoría y los criterios se han tomado de la evaluación más reciente aceptada para cada especie.",
       "citation3": "SHOAL. Plan de acción «1.000 peces»: prioridades mundiales en materia de conservación de los peces de agua dulce.",
       "citation4": "GBIF. Estándar Darwin Core Archive y directrices sobre la generalización de coordenadas de especies sensibles.",
-      "staffSignIn": "Inicio de sesión para el personal"
+      "staffSignIn": "Inicio de sesión para el personal",
+      "dwcLine": "The platform's Darwin Core Archive — used by GBIF's Integrated Publishing Toolkit — is available for direct download as <dwcLink>mffcp-occurrences.zip</dwcLink>. Threatened-species coordinates are generalized to a 0.1° (≈11 km) grid; exact coordinates remain on the platform behind the coordinator-tier gate."
     },
     "data": {
       "metaTitle": "Cómo gestionamos los datos — Plataforma para la Conservación de los Peces de Agua Dulce de Madagascar",

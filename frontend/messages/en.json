@@ -460,6 +460,7 @@
       "provenanceEyebrow": "Provenance",
       "provenanceTitle": "Data sources",
       "provenancePara1": "Species and assessment data are pulled from the IUCN Red List and FishBase. Occurrence records follow the Darwin Core standard and can be published to GBIF. Captive-population figures are entered by partner institutions and, where available, reconciled with ZIMS (Species360). Priority lists from SHOAL (1,000 Fishes Blueprint) and CARES inform filtering and sort order but do not override IUCN categories.",
+      "dwcLine": "The platform's Darwin Core Archive — used by GBIF's Integrated Publishing Toolkit — is available for direct download as <dwcLink>mffcp-occurrences.zip</dwcLink>. Threatened-species coordinates are generalized to a 0.1° (≈11 km) grid; exact coordinates remain on the platform behind the coordinator-tier gate.",
       "provenancePara2": "For a fuller account of provenance, the mirror policy for IUCN status, coordinate generalization, and known limitations, see <dataLink>how we handle the data</dataLink>.",
       "provenancePara3": "Definitions of IUCN categories, CARES, Darwin Core, and other terminology used across the site are collected in the <glossaryLink>glossary</glossaryLink>.",
       "stewardshipEyebrow": "Stewardship",

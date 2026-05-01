@@ -162,6 +162,19 @@ export default async function AboutPage() {
         <Section eyebrow={t("provenanceEyebrow")} title={t("provenanceTitle")}>
           <p style={BODY_STYLE}>{t("provenancePara1")}</p>
           <p style={BODY_STYLE}>
+            {t.rich("dwcLine", {
+              dwcLink: (chunks) => (
+                <a
+                  href="/api/v1/dwc/archive.zip"
+                  style={LINK_STYLE}
+                  download="mffcp-occurrences.zip"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
+          <p style={BODY_STYLE}>
             {t.rich("provenancePara2", {
               dataLink: (chunks) => (
                 <Link href="/about/data/" style={LINK_STYLE}>
