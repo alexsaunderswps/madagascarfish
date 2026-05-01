@@ -496,7 +496,7 @@ class TestInactiveUser:
 
         api_client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
         resp = api_client.get(ENDPOINT)
-        assert resp.status_code == status.HTTP_403_FORBIDDEN, (
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED, (
             "A deactivated user's retained token must be rejected — "
             "DRF TokenAuthentication checks is_active before setting request.user"
         )
@@ -551,7 +551,7 @@ class TestAuthorizationHeaderInjection:
         ]
         for payload in injection_payloads:
             resp = api_client.get(ENDPOINT, HTTP_AUTHORIZATION=f"Bearer {payload}")
-            assert resp.status_code == status.HTTP_403_FORBIDDEN, (
+            assert resp.status_code == status.HTTP_401_UNAUTHORIZED, (
                 f"Injection payload {payload!r} must not grant access"
             )
 
@@ -562,7 +562,7 @@ class TestAuthorizationHeaderInjection:
     ) -> None:
         settings.COORDINATOR_API_TOKEN = "real-secret-token"  # type: ignore[attr-defined]
         resp = api_client.get(ENDPOINT, HTTP_AUTHORIZATION="Bearer real-secret-token\x00extra")
-        assert resp.status_code == status.HTTP_403_FORBIDDEN
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_correct_token_still_grants_access(
         self,

@@ -624,9 +624,10 @@ class TestInstitution:
 
 @pytest.mark.django_db
 class TestPopulations:
-    def test_anonymous_403(self, api_client: APIClient) -> None:
+    def test_anonymous_unauthorized(self, api_client: APIClient) -> None:
+        # Token-only DRF auth: anonymous → 401 (no credentials), not 403.
         resp = api_client.get("/api/v1/populations/")
-        assert resp.status_code == 403
+        assert resp.status_code == 401
 
     def test_tier2_403(self, api_client: APIClient, tier2_user: User) -> None:
         _auth_client(api_client, tier2_user)

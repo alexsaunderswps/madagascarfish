@@ -98,7 +98,7 @@ def _mk_transfer(
 @pytest.mark.django_db
 class TestTransferActivityAuth:
     def test_anonymous_403(self, api_client: APIClient) -> None:
-        assert api_client.get(ENDPOINT).status_code == status.HTTP_403_FORBIDDEN
+        assert api_client.get(ENDPOINT).status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_tier2_403(self, api_client: APIClient, tier2_user: User) -> None:
         api_client.force_authenticate(user=tier2_user)
@@ -123,7 +123,7 @@ class TestTransferActivityAuth:
     def test_wrong_token_rejected(self, api_client: APIClient, settings: object) -> None:
         settings.COORDINATOR_API_TOKEN = "test-service-token"  # type: ignore[attr-defined]
         resp = api_client.get(ENDPOINT, HTTP_AUTHORIZATION="Bearer wrong")
-        assert resp.status_code == status.HTTP_403_FORBIDDEN
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 @pytest.mark.django_db

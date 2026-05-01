@@ -341,9 +341,11 @@ class TestTierEscalation:
     # --- /populations/ endpoint (min Tier 3) ---
 
     def test_anonymous_cannot_access_populations_list(self, api_client: APIClient) -> None:
-        # Spec BE-05-4: anonymous is Tier 1; populations requires Tier 3
+        # Spec BE-05-4: anonymous is Tier 1; populations requires Tier 2+
+        # institution scope (or Tier 3+ override). Token-only DRF auth →
+        # anonymous returns 401 (no credentials), not 403.
         resp = api_client.get("/api/v1/populations/")
-        assert resp.status_code == 403
+        assert resp.status_code == 401
 
     def test_tier1_authenticated_cannot_access_populations_list(
         self, api_client: APIClient, tier1_user: User
@@ -490,11 +492,14 @@ class TestInactiveUser:
     def test_inactive_tier3_cannot_access_populations(
         self, api_client: APIClient, inactive_tier3_user: User
     ) -> None:
-        # is_active=False means DRF's IsAuthenticated rejects the user
+        # is_active=False means DRF's TokenAuthentication rejects the
+        # token. With Token-only auth, that's 401 (no successful auth)
+        # rather than 403 (authenticated but denied).
         _auth_client(api_client, inactive_tier3_user)
         resp = api_client.get("/api/v1/populations/")
-        # Must be 403 (permission denied), not 200
-        assert resp.status_code == 403
+        # Must NOT be 200; either 401 (token rejected) or 403 (perm denied)
+        # is acceptable. The important invariant is "no access".
+        assert resp.status_code in (401, 403)
 
     def test_inactive_tier3_cannot_see_contact_email(
         self, api_client: APIClient, inactive_tier3_user: User, institution: Institution
