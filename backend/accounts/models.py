@@ -99,6 +99,67 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
+class PendingInstitutionClaim(models.Model):
+    """Coordinator-moderated queue of institution-membership claims.
+
+    A signup with `institution_id` lands as a row here with `status=PENDING`,
+    not as a direct `User.institution` write. A coordinator (Tier 3+) reviews
+    in Django admin and approves or rejects. Approval flips
+    `User.institution` atomically; rejection leaves it NULL.
+
+    History is preserved across re-claims and rejections — see Gate 13
+    architecture §3.2.
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "pending", _("Pending")
+        APPROVED = "approved", _("Approved")
+        REJECTED = "rejected", _("Rejected")
+        WITHDRAWN = "withdrawn", _("Withdrawn")
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="institution_claims",
+    )
+    institution = models.ForeignKey(
+        "populations.Institution",
+        on_delete=models.CASCADE,
+        related_name="pending_claims",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True,
+    )
+    requested_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="institution_claims_reviewed",
+    )
+    requester_note = models.TextField(blank=True, default="")
+    review_notes = models.TextField(blank=True, default="")
+
+    class Meta:
+        db_table = "accounts_pendinginstitutionclaim"
+        ordering = ["-requested_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "institution"],
+                condition=models.Q(status="pending"),
+                name="one_pending_claim_per_user_institution",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user.email} -> {self.institution.name} ({self.status})"
+
+
 class AuditLog(models.Model):
     class Action(models.TextChoices):
         CREATE = "create"

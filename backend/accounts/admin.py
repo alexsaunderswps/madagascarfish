@@ -1,8 +1,11 @@
-from django.contrib import admin
+from __future__ import annotations
+
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.http import HttpRequest
+from django.utils.translation import gettext_lazy as _
 
-from accounts.models import AuditLog, User
+from accounts.models import AuditLog, PendingInstitutionClaim, User
 
 # Fields that only superusers may edit — prevents privilege escalation
 _PRIVILEGE_FIELDS = ("access_tier", "is_active", "is_staff", "is_superuser")
@@ -53,6 +56,87 @@ class UserAdmin(BaseUserAdmin):
         if not request.user.is_superuser:
             readonly.extend(f for f in _PRIVILEGE_FIELDS if f not in readonly)
         return readonly
+
+
+@admin.register(PendingInstitutionClaim)
+class PendingInstitutionClaimAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "institution",
+        "status",
+        "requested_at",
+        "reviewed_at",
+        "reviewed_by",
+    ]
+    list_filter = ["status", "institution"]
+    search_fields = [
+        "user__email",
+        "user__name",
+        "institution__name",
+        "review_notes",
+    ]
+    autocomplete_fields = ["user", "institution", "reviewed_by"]
+    readonly_fields = ["requested_at", "reviewed_at", "reviewed_by"]
+    actions = ["approve_selected", "reject_selected"]
+    ordering = ["-requested_at"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("user", "institution", "reviewed_by")
+
+    def has_view_permission(self, request: HttpRequest, obj=None) -> bool:
+        user = request.user
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser:
+            return True
+        return int(getattr(user, "access_tier", 0)) >= 3
+
+    def has_change_permission(self, request: HttpRequest, obj=None) -> bool:
+        return self.has_view_permission(request, obj)
+
+    @admin.action(description=_("Approve selected pending claims"))
+    def approve_selected(self, request: HttpRequest, queryset):
+        from accounts.services import approve_claim
+
+        pending = queryset.filter(status=PendingInstitutionClaim.Status.PENDING)
+        approved = 0
+        skipped = queryset.exclude(status=PendingInstitutionClaim.Status.PENDING).count()
+        for claim in pending.select_related("user", "institution"):
+            approve_claim(claim=claim, reviewer=request.user, review_notes="")
+            approved += 1
+        if approved:
+            messages.success(
+                request,
+                _("Approved %(n)d institution claim(s).") % {"n": approved},
+            )
+        if skipped:
+            messages.warning(
+                request,
+                _("Skipped %(n)d non-pending claim(s) — only pending claims can be approved.")
+                % {"n": skipped},
+            )
+
+    @admin.action(description=_("Reject selected pending claims"))
+    def reject_selected(self, request: HttpRequest, queryset):
+        from accounts.services import reject_claim
+
+        pending = queryset.filter(status=PendingInstitutionClaim.Status.PENDING)
+        rejected = 0
+        skipped = queryset.exclude(status=PendingInstitutionClaim.Status.PENDING).count()
+        for claim in pending.select_related("user", "institution"):
+            reject_claim(claim=claim, reviewer=request.user, review_notes="")
+            rejected += 1
+        if rejected:
+            messages.success(
+                request,
+                _("Rejected %(n)d institution claim(s).") % {"n": rejected},
+            )
+        if skipped:
+            messages.warning(
+                request,
+                _("Skipped %(n)d non-pending claim(s) — only pending claims can be rejected.")
+                % {"n": skipped},
+            )
 
 
 @admin.register(AuditLog)

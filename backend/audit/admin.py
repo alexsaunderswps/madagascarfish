@@ -16,14 +16,16 @@ class AuditEntryAdmin(admin.ModelAdmin):
         "action",
         "actor_type",
         "actor_user",
+        "actor_institution",
         "actor_system",
     ]
-    list_filter = ["target_type", "actor_type", "action", "timestamp"]
+    list_filter = ["target_type", "actor_type", "action", "actor_institution", "timestamp"]
     search_fields = [
         "target_type",
         "target_id",
         "actor_user__email",
         "actor_user__name",
+        "actor_institution__name",
         "actor_system",
         "reason",
     ]
@@ -33,6 +35,7 @@ class AuditEntryAdmin(admin.ModelAdmin):
         "field",
         "actor_type",
         "actor_user",
+        "actor_institution",
         "actor_system",
         "action",
         "before",

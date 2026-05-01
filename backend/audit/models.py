@@ -43,6 +43,17 @@ class AuditEntry(models.Model):
         blank=True,
         related_name="audit_entries",
     )
+    actor_institution = models.ForeignKey(
+        "populations.Institution",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text=(
+            "Snapshot of the actor's institution at edit time. Defends "
+            "against later User.institution reassignment obscuring history."
+        ),
+    )
     actor_system = models.CharField(max_length=50, blank=True, default="")
     action = models.CharField(max_length=30, choices=Action.choices)
     before = models.JSONField(default=dict, blank=True)
