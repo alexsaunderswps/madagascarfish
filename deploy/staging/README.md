@@ -92,10 +92,10 @@ Edit `.env` and fill in the placeholders. Generate the two secrets:
 
 ```bash
 # DJANGO_SECRET_KEY
-python3 -c 'import secrets; print(secrets.token_urlsafe(64))'
+coopython3 -c 'import secrets; print(secrets.token_urlsafe(64))' = nniuycQufdx4u3DMHOvMC8ScYuUoRUTBUjELrS_Yhs7A4qvmh6qKkEAI4zVN--VSnymL2BwK9xI8p5-HHZbIGA
 
 # POSTGRES_PASSWORD — use the same value in both POSTGRES_PASSWORD and DATABASE_URL
-openssl rand -base64 32 | tr -d '/+=' | head -c 32
+openssl rand -base64 32 | tr -d '/+=' | head -c 32 = AjzF006zVdpuhkFIUIF51iG09fhb7TNFd
 ```
 
 Verify `CADDY_DOMAIN=api.malagasyfishes.org` and `DJANGO_ALLOWED_HOSTS=api.malagasyfishes.org` are set.
