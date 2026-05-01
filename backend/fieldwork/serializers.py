@@ -32,9 +32,39 @@ class FieldProgramListSerializer(serializers.ModelSerializer):
             "region",
             "status",
             "start_date",
+            "end_date",
+            "funding_sources",
+            "website",
             "focal_species",
             "partner_institutions",
         ]
 
     def get_partner_institutions(self, obj: FieldProgram) -> list[dict]:
         return list(obj.partner_institutions.values("id", "name", "country"))
+
+
+class FieldProgramWriteSerializer(serializers.ModelSerializer):
+    """Tier-2-institution-scoped field-program edit surface.
+
+    Editable fields are operational metadata; the M2M relations
+    (`focal_species`, `partner_institutions`) and the structural FK
+    (`lead_institution`) are NOT editable here — they need a coordinator-
+    grade UI and live on the read serializer for visibility only.
+    `name` stays editable (renames happen) but cannot be wiped to blank.
+    """
+
+    description = serializers.CharField(max_length=10_000, allow_blank=True, required=False)
+    funding_sources = serializers.CharField(max_length=10_000, allow_blank=True, required=False)
+
+    class Meta:
+        model = FieldProgram
+        fields = [
+            "name",
+            "description",
+            "region",
+            "status",
+            "start_date",
+            "end_date",
+            "funding_sources",
+            "website",
+        ]

@@ -308,3 +308,148 @@ export async function fetchInstitutionSummary(
     return null;
   }
 }
+
+
+// ---------- Field programs ----------
+
+export type FieldProgramStatus = "active" | "completed" | "planned";
+
+export interface FieldProgramRow {
+  id: number;
+  name: string;
+  description: string;
+  lead_institution: { id: number; name: string; country: string } | null;
+  region: string;
+  status: FieldProgramStatus;
+  start_date: string | null;
+  end_date: string | null;
+  funding_sources: string;
+  website: string;
+  focal_species: { id: number; scientific_name: string; iucn_status: string }[];
+  partner_institutions: { id: number; name: string; country: string }[];
+}
+
+export interface FieldProgramListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: FieldProgramRow[];
+}
+
+export async function fetchFieldPrograms(
+  authToken: string,
+  options: { institutionId?: number } = {},
+): Promise<FieldProgramListResponse | null> {
+  // The list endpoint is public; we call with auth so any future
+  // tier-aware fields (none today) come through too.
+  const params = new URLSearchParams();
+  if (options.institutionId) {
+    // Note: API doesn't currently expose a `lead_institution_id` filter
+    // — we filter client-side after fetch. Cheap given the dataset size.
+  }
+  const qs = params.toString();
+  const path = `/api/v1/field-programs/${qs ? `?${qs}` : ""}`;
+  try {
+    return await apiFetch<FieldProgramListResponse>(path, {
+      headers: authHeaders(authToken),
+      revalidate: 0,
+    });
+  } catch {
+    return null;
+  }
+}
+
+export interface FieldProgramWritePayload {
+  name?: string;
+  description?: string;
+  region?: string;
+  status?: FieldProgramStatus;
+  start_date?: string | null;
+  end_date?: string | null;
+  funding_sources?: string;
+  website?: string;
+}
+
+export interface FieldProgramWriteError {
+  status: number;
+  fieldErrors?: Record<string, string[]>;
+  detail?: string;
+}
+
+async function _fieldProgramWrite(
+  method: "POST" | "PATCH",
+  path: string,
+  payload: FieldProgramWritePayload,
+  authToken: string,
+): Promise<{ ok: true; id?: number } | { ok: false; error: FieldProgramWriteError }> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  const url = `${baseUrl.replace(/\/$/, "")}${path}`;
+  let resp: Response;
+  try {
+    resp = await fetch(url, {
+      method,
+      headers: { ...authHeaders(authToken), "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    });
+  } catch (err) {
+    return {
+      ok: false,
+      error: { status: 0, detail: err instanceof Error ? err.message : "network error" },
+    };
+  }
+  if (resp.ok) {
+    let id: number | undefined;
+    try {
+      const body = (await resp.json()) as { id?: number };
+      id = typeof body.id === "number" ? body.id : undefined;
+    } catch {
+      /* no body */
+    }
+    return { ok: true, id };
+  }
+  let body: unknown = null;
+  try {
+    body = await resp.json();
+  } catch {
+    body = null;
+  }
+  const fieldErrors: Record<string, string[]> = {};
+  let detail: string | undefined;
+  if (body && typeof body === "object") {
+    for (const [k, v] of Object.entries(body as Record<string, unknown>)) {
+      if (k === "detail" && typeof v === "string") {
+        detail = v;
+        continue;
+      }
+      if (Array.isArray(v)) {
+        fieldErrors[k] = v.filter((item): item is string => typeof item === "string");
+      } else if (typeof v === "string") {
+        fieldErrors[k] = [v];
+      }
+    }
+  }
+  return {
+    ok: false,
+    error: {
+      status: resp.status,
+      fieldErrors: Object.keys(fieldErrors).length ? fieldErrors : undefined,
+      detail,
+    },
+  };
+}
+
+export function createFieldProgram(
+  payload: FieldProgramWritePayload,
+  authToken: string,
+) {
+  return _fieldProgramWrite("POST", "/api/v1/field-programs/", payload, authToken);
+}
+
+export function updateFieldProgram(
+  id: number,
+  payload: FieldProgramWritePayload,
+  authToken: string,
+) {
+  return _fieldProgramWrite("PATCH", `/api/v1/field-programs/${id}/`, payload, authToken);
+}
