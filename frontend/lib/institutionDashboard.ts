@@ -268,3 +268,43 @@ export async function createBreedingEvent(
     },
   };
 }
+
+
+// ---------- Aggregate panel ----------
+
+export interface InstitutionSummaryRow {
+  species: { id: number; scientific_name: string; iucn_status: string | null };
+  this_institution_count: number;
+  global_count: number;
+  share_pct: number;
+  institutions_holding: number;
+  recent_breeding_events: number;
+}
+
+export interface InstitutionSummaryResponse {
+  institution: { id: number; name: string };
+  totals: {
+    populations: number;
+    species: number;
+    breeding_events_last_12_months: number;
+    fresh_census_count: number;
+    stale_census_count: number;
+  };
+  species_breakdown: InstitutionSummaryRow[];
+}
+
+export async function fetchInstitutionSummary(
+  authToken: string,
+): Promise<InstitutionSummaryResponse | null> {
+  try {
+    return await apiFetch<InstitutionSummaryResponse>(
+      "/api/v1/institution-summary/",
+      {
+        headers: authHeaders(authToken),
+        revalidate: 0,
+      },
+    );
+  } catch {
+    return null;
+  }
+}
