@@ -295,7 +295,8 @@
         "noneTrackedNonThreatened": "No institution has registered holdings for this species.",
         "institutionsLabel": "Institutions",
         "individualsLabel": "Individuals",
-        "breedingProgramsLabel": "Active breeding programs"
+        "breedingProgramsLabel": "Active breeding programs",
+        "heldAtLabel": "Held at"
       },
       "field": {
         "eyebrow": "Field Programs",

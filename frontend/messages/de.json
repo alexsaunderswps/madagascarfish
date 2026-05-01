@@ -295,7 +295,8 @@
         "noneTrackedNonThreatened": "Keine Einrichtung hat Bestände dieser Art gemeldet.",
         "institutionsLabel": "Institutionen",
         "individualsLabel": "Einzelpersonen",
-        "breedingProgramsLabel": "Aktive Zuchtprogramme"
+        "breedingProgramsLabel": "Aktive Zuchtprogramme",
+        "heldAtLabel": "Held at"
       },
       "field": {
         "eyebrow": "Feldprogramme",

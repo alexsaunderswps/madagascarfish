@@ -223,7 +223,7 @@ class SpeciesDetailSerializer(
     def get_ex_situ_summary(self, obj: Species) -> dict:
         from django.db.models import Count, Sum
 
-        from populations.models import ExSituPopulation
+        from populations.models import ExSituPopulation, Institution
 
         qs = ExSituPopulation.objects.filter(species=obj)
         agg = qs.aggregate(
@@ -231,8 +231,18 @@ class SpeciesDetailSerializer(
             total_individuals=Sum("count_total"),
             breeding_programs=Count("pk", filter=db_models.Q(breeding_status="breeding")),
         )
+        # Public list of institutions holding this species — id + name +
+        # country only. Counts/breeding state stay tier-gated; this is the
+        # same shape as Institution profile's reverse mapping.
+        institutions_qs = (
+            Institution.objects.filter(ex_situ_populations__species=obj)
+            .distinct()
+            .values("id", "name", "country", "institution_type")
+            .order_by("name")
+        )
         return {
             "institutions_holding": agg["institutions_holding"] or 0,
             "total_individuals": agg["total_individuals"] or 0,
             "breeding_programs": agg["breeding_programs"] or 0,
+            "institutions_holding_list": list(institutions_qs),
         }

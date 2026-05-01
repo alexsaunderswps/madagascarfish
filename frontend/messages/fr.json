@@ -295,7 +295,8 @@
         "noneTrackedNonThreatened": "Aucune institution n'a déclaré de détention pour cette espèce.",
         "institutionsLabel": "Institutions",
         "individualsLabel": "Individus",
-        "breedingProgramsLabel": "Programmes d'élevage actifs"
+        "breedingProgramsLabel": "Programmes d'élevage actifs",
+        "heldAtLabel": "Held at"
       },
       "field": {
         "eyebrow": "Programmes de terrain",
