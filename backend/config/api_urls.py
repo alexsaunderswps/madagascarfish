@@ -4,7 +4,11 @@ from rest_framework.routers import DefaultRouter
 
 from config.views import health_check
 from fieldwork.views import FieldProgramViewSet
-from populations.views import ExSituPopulationViewSet, InstitutionViewSet
+from populations.views import (
+    BreedingEventViewSet,
+    ExSituPopulationViewSet,
+    InstitutionViewSet,
+)
 from species.views import SpeciesViewSet
 from species.views_coordinator_dashboard import (
     CoverageGapView,
@@ -24,6 +28,7 @@ router = DefaultRouter()
 router.register(r"species", SpeciesViewSet, basename="species")
 router.register(r"institutions", InstitutionViewSet, basename="institution")
 router.register(r"populations", ExSituPopulationViewSet, basename="population")
+router.register(r"breeding-events", BreedingEventViewSet, basename="breeding-event")
 router.register(r"field-programs", FieldProgramViewSet, basename="field-program")
 
 urlpatterns = [

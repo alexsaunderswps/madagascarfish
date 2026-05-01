@@ -61,6 +61,14 @@ export default async function InstitutionDashboardPage() {
         <p className="mt-3 max-w-3xl text-sm text-slate-600">
           {t("subtitle", { institution: membership.institution_name ?? "" })}
         </p>
+        <p className="mt-3">
+          <Link
+            href="/dashboard/institution/breeding-events"
+            className="text-sm text-sky-700 underline underline-offset-2 hover:text-sky-900"
+          >
+            {t("breedingEventsLink")}
+          </Link>
+        </p>
       </header>
 
       {populations === null ? (
