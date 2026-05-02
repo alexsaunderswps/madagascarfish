@@ -893,12 +893,17 @@ right after first deploy, or to backfill after a missed Sunday, queue the task
 on demand:
 
 ```bash
-docker compose exec -T web python -c "
+docker compose exec -T web python manage.py shell -c "
 from integration.tasks import iucn_sync
 result = iucn_sync.delay()
 print('queued:', result.id)
 "
 ```
+
+Use `manage.py shell -c`, not `python -c` — the latter skips Django's
+app-registry bootstrap and trips
+``django.core.exceptions.AppRegistryNotReady`` on the first model
+import.
 
 A worker picks it up within seconds. Verify completion:
 
