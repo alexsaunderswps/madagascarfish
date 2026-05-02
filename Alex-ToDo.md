@@ -13,13 +13,34 @@ round of development. I'll maintain it as items land or become obsolete.
 - **Don't delete completed items** — move them to the "Done" section at
   the bottom with a short note on what it unlocked.
 
-**Last updated:** 2026-04-30 (Gate L4 / L5 / L6 i18n shipped — French
-content + UI is human-review-ready, German + Spanish are MT-staged
-post-ABQ. **§2.11 added below for the language-comparison approval
-pass (143 FR rows in `writer_reviewed` waiting for you).** Also a
-demo-shaped coordinator-dashboard seed landed in
-`data/seed/coordinator-demo/` so the panels render non-empty even
-before §2.1 / §2.7 entries land — see §2.1 update.)
+**Last updated:** 2026-05-02. Between 2026-04-30 and now: Gates 13–16
+shipped (institution-scoped editing, BreedingEvent ledger, GBIF
+Darwin Core Archive export, FieldProgram CRUD), the Tier 3+ transfer-
+drafting UI is live (PR #185 / #186 / #189), the staging beat
+container deploy regression was fixed (PR #173 / #188) so weekly
+IUCN sync is now firing on prod, the coordinator institution-claim
+audit row landed (PR #190, closes Gate 13 R-arch-1), and the ABQ
+demo script shipped at `docs/demo/abq-workshop-demo.md` (PR #191,
+PDF in `docs/pdf/`). §4.2 auto-resolved → moved to Done.
+
+---
+
+## 🚨 Start here next
+
+The single highest-leverage thing you can do this week is **§2.7 —
+seed the two real EAZA EEP rows.** Thirty minutes of admin clicking,
+two real program rows, and Panel 2 + Panel 5 of the coordinator
+dashboard immediately stop reading as "empty platform". It's the
+warm-up lap before §2.1 (CARES population data) and the smallest
+investment for the biggest visible-progress signal at ABQ.
+
+After §2.7 lands, the rest of the pre-ABQ critical path — in order —
+is **§2.1 (CARES populations) → §2.4 (CoordinatedProgram CARES rows
+alongside §2.1) → §2.11 (FR approval pass to flip the French flag)
+→ §4.1 (demo dry-run, script is now drafted at
+`docs/demo/abq-workshop-demo.md`).**
+
+Everything else is real work but not workshop-critical.
 
 ---
 
@@ -720,6 +741,12 @@ workflows for both are in §2.8 and §2.9 above.
 
 **Priority:** high, closer to event.
 
+**Update 2026-05-02:** the demo script is drafted —
+`docs/demo/abq-workshop-demo.md` (PDF: `docs/pdf/docs__demo__abq-workshop-demo.pdf`).
+Twelve-minute walkthrough with a pre-flight checklist, four scripted
+segments with talking points, and a live-failure-recovery table.
+The act of *running through it against staging* is still your TODO.
+
 **Steps:** walk through `/dashboard/coordinator` end-to-end with real
 seeded data, ideally in the week before ABQ. Check:
 
@@ -731,31 +758,11 @@ seeded data, ideally in the week before ABQ. Check:
 - Panel 4 catches populations you know are overdue
 - Coordinator nav link highlights correctly when you're on the page
   (and doesn't double-highlight with Dashboard)
+- Walk the demo-script appendix table — each "Symptom" row is a
+  failure mode you should be able to skip past gracefully on the day
 
 **How to verify:** the person demoing (presumably you) can talk through
 each panel without awkward empty states or visible bugs.
-
-### 4.2 Decide whether to keep the Coordinator nav link visible at ABQ
-
-**Priority:** low. The link is live as of PR #102 — anyone on the site
-sees it. You can still hide it before the demo if the "invited to see
-this" framing matters more than discoverability.
-
-**If you want to hide it for ABQ:** ping me and I'll drop the nav entry
-on a short branch; can put it back after the workshop. Keeping it
-visible is the default.
-
-**Update 2026-04-28:** with `NEXT_PUBLIC_FEATURE_AUTH=true` now flipped
-on, the nav also shows Sign in / Sign up to anonymous visitors. Same
-question applies — keep or hide for ABQ. Default is keep.
-
-**Update 2026-04-29:** mostly self-resolves now that the Coordinator
-nav link auto-hides for anonymous + Tier 1/2 viewers (see latest
-tier-gate fix). Anyone visiting without a Tier 3+ session never sees
-the link. Remaining open question is narrower: while you're demoing
-_signed in as Tier 3+_, the link IS visible — does that matter for
-the "invited to see this" framing with attendees looking over your
-shoulder? Default still: keep.
 
 ### 4.3 Audit test-data hygiene before the demo
 
@@ -840,6 +847,21 @@ Listing these so you know they're not on your plate.
 Completed items are archived here. We keep the full how-to for each so
 there's a runbook to refer back to when something needs to be re-done
 (e.g. secret rotation). Newest at the top.
+
+### 4.2 Decide whether to keep the Coordinator nav link visible at ABQ — DONE
+
+**Completed:** auto-resolved 2026-04-29; archived 2026-05-02.
+**Resolution:** the Coordinator nav link auto-hides for anonymous +
+Tier 1/2 viewers via the latest tier-gate fix. Anyone visiting
+without a Tier 3+ session never sees the link, so the "invited to see
+this" framing is preserved by default. While demoing signed in as
+Tier 3+ the link is visible to over-the-shoulder viewers, but that's
+acceptable — the page itself still 401s anyone who clicks through
+without a session. **Default: keep visible.** No further action
+required for ABQ.
+
+**On reversal (if you want it hidden anyway):** ping me; one-line
+nav config change. Can put it back after the workshop.
 
 ### 1.9 Verify the cookie-domain check on production — DONE
 
