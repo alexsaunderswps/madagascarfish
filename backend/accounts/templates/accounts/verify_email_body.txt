@@ -1,4 +1,4 @@
-{% load i18n %}{% blocktranslate %}Welcome to the Madagascar Freshwater Fish Conservation Platform.{% endblocktranslate %}
+{% load i18n %}{% blocktranslate %}Welcome to the Malagasy Freshwater Fishes Conservation Platform.{% endblocktranslate %}
 
 {% blocktranslate %}To finish creating your account, click the verification link below. The link is valid for 48 hours.{% endblocktranslate %}
 

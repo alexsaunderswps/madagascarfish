@@ -1,4 +1,4 @@
-# Madagascar Freshwater Fish Conservation Platform
+# Malagasy Freshwater Fishes Conservation Platform
 
 ## Project Overview
 

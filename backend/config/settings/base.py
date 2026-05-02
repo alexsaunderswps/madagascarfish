@@ -206,7 +206,7 @@ REST_FRAMEWORK = {
 # drf-spectacular
 SPECTACULAR_SETTINGS = {
     "TITLE": "MFFCP API",
-    "DESCRIPTION": "Madagascar Freshwater Fish Conservation Platform API",
+    "DESCRIPTION": "Malagasy Freshwater Fishes Conservation Platform API",
     "VERSION": "1.0.0",
 }
 

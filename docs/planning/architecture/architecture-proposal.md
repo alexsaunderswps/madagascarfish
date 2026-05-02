@@ -1,4 +1,4 @@
-# Architecture Proposal: Madagascar Freshwater Fish Conservation Platform
+# Architecture Proposal: Malagasy Freshwater Fishes Conservation Platform
 
 **Date:** 2026-04-09
 **Status:** Draft -- Awaiting Human Review
@@ -7,7 +7,7 @@
 
 ## System Overview
 
-The Madagascar Freshwater Fish Conservation Platform is an open-source web application that serves as the centralized data infrastructure for Madagascar's approximately 79 endemic freshwater fish species -- one of the world's most threatened freshwater faunas, with 63% of species facing extinction. The platform integrates four capabilities that no existing system combines: (a) public-facing species profiles drawing from IUCN, FishBase, and field data; (b) restricted coordination tools for tracking ex-situ populations across zoos, aquariums, and private breeders; (c) field program monitoring that links in-situ surveys to ex-situ management; and (d) cross-sector networking between professional institutions and hobbyist communities. It complements rather than replaces existing systems (ZIMS, IUCN Red List, FishBase, GBIF), filling the documented gap in which data fragmentation across a dozen disconnected systems is explicitly identified in peer-reviewed literature as a barrier to preventing extinctions.
+The Malagasy Freshwater Fishes Conservation Platform is an open-source web application that serves as the centralized data infrastructure for Madagascar's approximately 79 endemic freshwater fish species -- one of the world's most threatened freshwater faunas, with 63% of species facing extinction. The platform integrates four capabilities that no existing system combines: (a) public-facing species profiles drawing from IUCN, FishBase, and field data; (b) restricted coordination tools for tracking ex-situ populations across zoos, aquariums, and private breeders; (c) field program monitoring that links in-situ surveys to ex-situ management; and (d) cross-sector networking between professional institutions and hobbyist communities. It complements rather than replaces existing systems (ZIMS, IUCN Red List, FishBase, GBIF), filling the documented gap in which data fragmentation across a dozen disconnected systems is explicitly identified in peer-reviewed literature as a barrier to preventing extinctions.
 
 The platform serves a small but internationally distributed community: Malagasy researchers, European and North American zoo staff, TAG coordinators, hobbyist breeders (CARES, Citizen Conservation), SHOAL and IUCN FFSG leadership, and in-country NGO partners. Public-facing species profiles serve a broader audience including educators, policymakers, journalists, and conservation funders.
 
@@ -387,7 +387,7 @@ Single Docker image for Django serves web, API, and worker roles -- differentiat
 
 ### Open Questions Requiring Human Input
 
-1. **Governance model (initial phase resolved).** The project lead (Aleksei Saunders) will own and host the platform at launch, positioning it as an MVP proposal to present to stakeholders. Long-term handover — to the informal Madagascar Freshwater Fish Conservation Group, SHOAL, a proposed Malagasy NGO, or an existing institution (e.g., Cologne Zoo, ZSL) — remains open and will be negotiated with stakeholders after the MVP is demonstrated. **Architecture implication:** hosting setup should be straightforward to transfer (avoid lock-in to personal accounts; prefer org-level credentials from the start).
+1. **Governance model (initial phase resolved).** The project lead (Aleksei Saunders) will own and host the platform at launch, positioning it as an MVP proposal to present to stakeholders. Long-term handover — to the informal Malagasy Freshwater Fishes Conservation Group, SHOAL, a proposed Malagasy NGO, or an existing institution (e.g., Cologne Zoo, ZSL) — remains open and will be negotiated with stakeholders after the MVP is demonstrated. **Architecture implication:** hosting setup should be straightforward to transfer (avoid lock-in to personal accounts; prefer org-level credentials from the start).
 
 2. **SHOAL database coordination.** SHOAL has hired a data officer (Georgie Bull) who is building a freshwater fish conservation project database. Should this platform integrate with SHOAL's database, feed into it, or maintain independence? The January 2026 workshop noted that SHOAL will send a link for adding project information. **Needs clarification on SHOAL's data architecture and API plans.**
 

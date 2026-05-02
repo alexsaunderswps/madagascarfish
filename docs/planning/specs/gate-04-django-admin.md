@@ -16,7 +16,7 @@ Configure Django Admin so that conservation coordinators can manage all MVP data
 
 - All MVP models registered in Django Admin with configuration specified below
 - Tier 5 admins can manage all data; Tier 3–4 users restricted to records for their affiliated institution (enforced via `get_queryset()` overrides on ModelAdmin subclasses)
-- Admin branding: site header "Madagascar Freshwater Fish Conservation Platform", site title "MFFCP Admin"
+- Admin branding: site header "Malagasy Freshwater Fishes Conservation Platform", site title "MFFCP Admin"
 
 ---
 

@@ -79,7 +79,7 @@ def send_translated_email(
     # the base layout doesn't have to be edited per email.
     ctx.setdefault("locale", chosen)
     ctx.setdefault("frontend_base_url", settings.FRONTEND_BASE_URL)
-    ctx.setdefault("platform_name", "Madagascar Freshwater Fish Conservation Platform")
+    ctx.setdefault("platform_name", "Malagasy Freshwater Fishes Conservation Platform")
     ctx.setdefault("platform_short_name", "Madagascar Fish")
     ctx.setdefault(
         "platform_contact_email",

@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 import { resolveBaseUrl } from "./api";
 
 /**
- * NextAuth configuration for the Madagascar Freshwater Fish Conservation
+ * NextAuth configuration for the Malagasy Freshwater Fishes Conservation
  * Platform — Gate 11 MVP.
  *
  * Architecture: `docs/planning/architecture/auth-c-d.md`

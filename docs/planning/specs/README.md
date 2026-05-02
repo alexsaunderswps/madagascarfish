@@ -1,6 +1,6 @@
 # Gate Specifications Index
 
-**Project:** Madagascar Freshwater Fish Conservation Platform
+**Project:** Malagasy Freshwater Fishes Conservation Platform
 **Hard Deadline:** June 1-5, 2026 — CPSG Ex-situ Conservation Assessment Workshop, ABQ BioPark
 **As of:** 2026-04-12
 

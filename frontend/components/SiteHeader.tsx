@@ -66,7 +66,7 @@ export default function SiteHeader() {
               letterSpacing: "-0.01em",
             }}
           >
-            Madagascar Freshwater Fish
+            Malagasy Freshwater Fishes
           </span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>

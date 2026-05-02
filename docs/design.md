@@ -1,9 +1,9 @@
-# Developer Handoff — Madagascar Freshwater Fish Registry
+# Developer Handoff — Malagasy Freshwater Fishes Registry
 
 **Audience:** the engineering team implementing the redesigned registry in the production codebase.
 **Scope:** what the prototype shows, which parts are placeholder, and what must be wired to live data / real assets before shipping.
 
-The prototype (`Madagascar Freshwater Fish redesign.html`) is a self-contained React + Babel app with dummy SVG silhouettes and a hand-drawn SVG island. **None of those visual assets ship.** This document tells the coding team which real data sources, tiles, and image libraries to point the page at instead.
+The prototype (`Malagasy Freshwater Fishes redesign.html`) is a self-contained React + Babel app with dummy SVG silhouettes and a hand-drawn SVG island. **None of those visual assets ship.** This document tells the coding team which real data sources, tiles, and image libraries to point the page at instead.
 
 ---
 
@@ -495,7 +495,7 @@ A single page, four sections top → bottom. **Use the "stat" hero (coverage gap
 **Section A — Hero (stat variant)**
 
 - Container padding `56px 28px 64px`
-- Small eyebrow line: "Madagascar Freshwater Fish · Conservation Registry"
+- Small eyebrow line: "Malagasy Freshwater Fishes · Conservation Registry"
 - H1 (Spectral 48px / 1.08 line-height / 500, max-width 680px): *"A shared record for Madagascar's endemic freshwater fish."*
 - 2-column grid 56px gap, `1.1fr 0.9fr`:
   - **Left:** coverage-gap stat (§15.8) + standfirst + primary & secondary CTAs
@@ -634,7 +634,7 @@ These are pixel-accurate to the prototype. Production should match layout, propo
 
 ## Quick prompt for the coding agent
 
-> Port the prototype at `Madagascar Freshwater Fish redesign.html` (source in `prototype/`) into the WPS production codebase. Follow both parts of `Developer Handoff.md`.
+> Port the prototype at `Malagasy Freshwater Fishes redesign.html` (source in `prototype/`) into the WPS production codebase. Follow both parts of `Developer Handoff.md`.
 >
 > **Part 1 — data & plumbing:**
 > 1. Replace the `MadagascarOutline` component everywhere it's used with the existing WPS site map widget. Locality dots must come from the canonical locality endpoint, filtered by species ID where the prototype passes a single-species context.

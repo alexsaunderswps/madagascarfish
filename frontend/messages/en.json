@@ -1,8 +1,8 @@
 {
   "common": {
     "skipToContent": "Skip to content",
-    "siteTitle": "Madagascar Freshwater Fish",
-    "siteTitleFull": "Madagascar Freshwater Fish Conservation Platform",
+    "siteTitle": "Malagasy Freshwater Fishes",
+    "siteTitleFull": "Malagasy Freshwater Fishes Conservation Platform",
     "siteDescription": "Open-source platform for Madagascar's endemic freshwater fish — species profiles, distribution, and conservation coordination.",
     "language": "Language",
     "loading": "Loading…",
@@ -85,7 +85,7 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Madagascar Freshwater Fish Conservation Platform",
+      "eyebrow": "Malagasy Freshwater Fishes Conservation Platform",
       "title": "A shared record for Madagascar's endemic freshwater fish.",
       "subtitle": "An open platform that brings together species profiles, ex-situ breeding coordination, and field program tracking for the roughly 79 freshwater fish species found only in Madagascar. Built to complement IUCN, GBIF, FishBase, and ZIMS — not replace them."
     },
@@ -122,7 +122,7 @@
     "directory": {
       "title": "Species Directory",
       "subtitle": "Endemic freshwater fishes of Madagascar",
-      "metaTitle": "Species Directory — Madagascar Freshwater Fish",
+      "metaTitle": "Species Directory — Malagasy Freshwater Fishes",
       "metaDescription": "Browse endemic freshwater fish species of Madagascar. Filter by IUCN Red List category, family, and captive-population coverage.",
       "headerCounts": "{total} endemic freshwater fish species ({described} described, {undescribed} undescribed)",
       "headerCountsLoading": "Species count is loading…",
@@ -209,9 +209,9 @@
       }
     },
     "profile": {
-      "metaTitleTemplate": "{name} — Madagascar Freshwater Fish",
+      "metaTitleTemplate": "{name} — Malagasy Freshwater Fishes",
       "metaDescriptionFallback": "Species profile for {name}.",
-      "metaTitleNotFound": "Species not found — Madagascar Freshwater Fish",
+      "metaTitleNotFound": "Species not found — Malagasy Freshwater Fishes",
       "errorState": {
         "title": "Species profile temporarily unavailable",
         "body": "The species data service is unreachable. Try again in a moment, or return to the directory.",
@@ -381,7 +381,7 @@
   "map": {
     "title": "Distribution Map",
     "subtitle": "Locality records for endemic freshwater fish",
-    "metaTitle": "Distribution Map — Madagascar Freshwater Fish",
+    "metaTitle": "Distribution Map — Malagasy Freshwater Fishes",
     "metaDescription": "Locality records for endemic freshwater fish across Madagascar, color-coded by IUCN Red List category. Exact coordinates for threatened species are generalized per GBIF sensitive-species guidance.",
     "loading": "Loading distribution map…",
     "eyebrow": "Distribution Map",
@@ -444,8 +444,8 @@
   },
   "about": {
     "page": {
-      "metaTitle": "About — Madagascar Freshwater Fish Conservation Platform",
-      "metaDescription": "About the Madagascar Freshwater Fish Conservation Platform: mission, data sources, ownership, and citations.",
+      "metaTitle": "About — Malagasy Freshwater Fishes Conservation Platform",
+      "metaDescription": "About the Malagasy Freshwater Fishes Conservation Platform: mission, data sources, ownership, and citations.",
       "heroEyebrow": "About",
       "heroTitle": "A shared record of Madagascar's endemic freshwater fish.",
       "heroSubtitle": "An open platform for species profiles, ex-situ breeding coordination, and field program tracking — built to complement IUCN, GBIF, FishBase, and ZIMS, not replace them.",
@@ -480,7 +480,7 @@
       "staffSignIn": "Staff sign-in"
     },
     "data": {
-      "metaTitle": "How we handle the data — Madagascar Freshwater Fish Conservation Platform",
+      "metaTitle": "How we handle the data — Malagasy Freshwater Fishes Conservation Platform",
       "metaDescription": "Where the platform's species data comes from, how conservation status is mirrored from IUCN, how sensitive locations are generalized, and the limitations we are honest about.",
       "backToAbout": "← About",
       "title": "How we handle the data",
@@ -551,7 +551,7 @@
       }
     },
     "glossary": {
-      "metaTitle": "Glossary — Madagascar Freshwater Fish Conservation Platform",
+      "metaTitle": "Glossary — Malagasy Freshwater Fishes Conservation Platform",
       "metaDescription": "Definitions of IUCN categories, CARES, SHOAL, Darwin Core, GBIF, ex-situ / in-situ, studbook, and endemic as used on this platform.",
       "backToAbout": "← About",
       "title": "Glossary",
@@ -629,7 +629,7 @@
     }
   },
   "dashboard": {
-    "metaTitle": "Conservation Dashboard — Madagascar Freshwater Fish",
+    "metaTitle": "Conservation Dashboard — Malagasy Freshwater Fishes",
     "metaDescription": "Counts of endemic freshwater fish species, IUCN Red List breakdown, ex-situ coverage, and field programs in Madagascar. Refreshed hourly.",
     "eyebrow": "Conservation Dashboard",
     "title": "Madagascar freshwater fish at a glance",
@@ -684,7 +684,7 @@
       "browseAll": "Browse all field programs →"
     },
     "institution": {
-      "metaTitle": "My Institution — Madagascar Freshwater Fish",
+      "metaTitle": "My Institution — Malagasy Freshwater Fishes",
       "metaDescription": "Update your institution's captive populations: counts, sex ratios, breeding status, and last-census date.",
       "eyebrow": "Institution dashboard",
       "title": "My populations",
@@ -897,7 +897,7 @@
       }
     },
     "coordinator": {
-      "metaTitle": "Coordinator Dashboard — Madagascar Freshwater Fish",
+      "metaTitle": "Coordinator Dashboard — Malagasy Freshwater Fishes",
       "metaDescription": "Ex-situ coordinator triage view: coverage gaps, studbook status, demographic risk, and census staleness.",
       "eyebrow": "Ex-situ coordination",
       "title": "Coordinator Dashboard",
@@ -1178,7 +1178,7 @@
     }
   },
   "account": {
-    "metaTitle": "Account — Madagascar Freshwater Fish",
+    "metaTitle": "Account — Malagasy Freshwater Fishes",
     "metaDescription": "Your account profile and access tier.",
     "title": "Your profile",
     "nameLabel": "Name",
@@ -1228,7 +1228,7 @@
   },
   "contribute": {
     "husbandry": {
-      "metaTitle": "Contribute husbandry updates — Madagascar Freshwater Fish",
+      "metaTitle": "Contribute husbandry updates — Malagasy Freshwater Fishes",
       "title": "Contribute husbandry updates",
       "bodyPrefix": "The contribution form is not yet live. In the meantime, please email ",
       "bodySuffix": " with your corrections or additional content. Reference the species URL so we can route the update to the right record.",
@@ -1256,8 +1256,8 @@
       "other": "Other"
     },
     "showMoreFactors": "{count, plural, one {Show # more factor} other {Show # more factors}}",
-    "metaTitleTemplate": "Keeping {name} — Madagascar Freshwater Fish",
-    "metaTitleNotFound": "Husbandry not found — Madagascar Freshwater Fish",
+    "metaTitleTemplate": "Keeping {name} — Malagasy Freshwater Fishes",
+    "metaTitleNotFound": "Husbandry not found — Malagasy Freshwater Fishes",
     "metaDescriptionFallback": "Husbandry and breeding guidance for {name}.",
     "errorState": {
       "title": "Husbandry guidance temporarily unavailable",
@@ -1351,7 +1351,7 @@
   "auth": {
     "accountEyebrow": "Account",
     "login": {
-      "metaTitle": "Sign in — Madagascar Freshwater Fish",
+      "metaTitle": "Sign in — Malagasy Freshwater Fishes",
       "metaDescription": "Sign in to access tier-restricted content.",
       "title": "Sign in",
       "subtitle": "Sign in unlocks tier-restricted views — exact locality coordinates for sensitive species, the coordinator dashboard, and partner-only data. Species profiles, the public map, and the conservation dashboard are open without an account.",
@@ -1367,7 +1367,7 @@
       "createAccountLink": "Create an account"
     },
     "signup": {
-      "metaTitle": "Create an account — Madagascar Freshwater Fish",
+      "metaTitle": "Create an account — Malagasy Freshwater Fishes",
       "metaDescription": "Create a researcher account to access tier-restricted occurrence data and submit observations.",
       "title": "Create an account",
       "subtitle": "New accounts start as Tier 2 (Registered Researcher), which adds access to occurrence datasets and observation submission. Higher tiers — for ex-situ coordinators and program managers — are assigned by the platform operator on request. Public profiles, the map, and the conservation dashboard remain open without an account.",
@@ -1390,7 +1390,7 @@
       }
     },
     "verify": {
-      "metaTitle": "Verify your account — Madagascar Freshwater Fish",
+      "metaTitle": "Verify your account — Malagasy Freshwater Fishes",
       "metaDescription": "Activate your account by verifying the email link.",
       "title": "Verification link",
       "missingToken": {
@@ -1422,7 +1422,7 @@
     "tryAgain": "Try again",
     "homeLink": "Return home",
     "notFound": {
-      "metaTitle": "Page not found — Madagascar Freshwater Fish",
+      "metaTitle": "Page not found — Malagasy Freshwater Fishes",
       "title": "Page not found",
       "body": "This address does not match any page on the platform. The link may be out of date, or the page may have moved.",
       "homeLink": "Return home",
@@ -1450,15 +1450,15 @@
       "husbandryReports": "Husbandry Reports",
       "github": "GitHub"
     },
-    "license": "Madagascar Freshwater Fish Conservation Platform — Apache-2.0",
+    "license": "Malagasy Freshwater Fishes Conservation Platform — Apache-2.0",
     "dataNote": "Data mirrored from IUCN, FishBase, GBIF, ZIMS, SHOAL, and CARES."
   },
   "publicInstitution": {
     "metaTitle": {
-      "named": "{name} — Madagascar Freshwater Fish",
-      "fallback": "Institution — Madagascar Freshwater Fish"
+      "named": "{name} — Malagasy Freshwater Fishes",
+      "fallback": "Institution — Malagasy Freshwater Fishes"
     },
-    "metaDescription": "{name} ({country}) — captive populations, field programs, and partnerships in the Madagascar Freshwater Fish Conservation Platform registry.",
+    "metaDescription": "{name} ({country}) — captive populations, field programs, and partnerships in the Malagasy Freshwater Fishes Conservation Platform registry.",
     "eyebrow": "Institution profile",
     "memberOf": "Member of:",
     "websiteLink": "Visit institution website",
@@ -1482,7 +1482,7 @@
     "emptyState": "This institution is registered but has no captive populations or field programs recorded yet."
   },
   "publicFieldPrograms": {
-    "metaTitle": "Field programs — Madagascar Freshwater Fish",
+    "metaTitle": "Field programs — Malagasy Freshwater Fishes",
     "metaDescription": "In-situ conservation programs for Madagascar's endemic freshwater fish — habitat surveys, community management, monitoring. Run by zoos, NGOs, research orgs, and partner institutions.",
     "eyebrow": "In-situ programs",
     "title": "Active field programs",

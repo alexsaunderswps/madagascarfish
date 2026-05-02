@@ -32,7 +32,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Madagascar Freshwater Fish Conservation Platform",
+  title: "Malagasy Freshwater Fishes Conservation Platform",
   description:
     "Open-source platform for Madagascar's endemic freshwater fish — species profiles, distribution, and conservation coordination.",
 };

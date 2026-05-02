@@ -1,6 +1,6 @@
 # MFFCP Administration Guide
 
-A task-oriented reference for operators of the Madagascar Freshwater Fish
+A task-oriented reference for operators of the Malagasy Freshwater Fishes
 Conservation Platform Django admin.
 
 **Admin URL:** https://api.malagasyfishes.org/admin/
