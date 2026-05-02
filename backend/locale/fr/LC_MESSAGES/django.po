@@ -1,4 +1,4 @@
-# French translation catalog for the Madagascar Freshwater Fish
+# French translation catalog for the Malagasy Freshwater Fishes
 # Conservation Platform. Source-of-truth file; .mo is built at image-build
 # time. Voice/glossary follows .claude/agents/conservation-writer.md.
 #
@@ -75,7 +75,7 @@ msgid "If you didn't sign up for an account, you can safely ignore this email."
 msgstr "Si vous n'avez pas créé de compte, vous pouvez ignorer cet e-mail en toute sécurité."
 
 #: accounts/templates/accounts/verify_email_body.txt:1
-msgid "Welcome to the Madagascar Freshwater Fish Conservation Platform."
+msgid "Welcome to the Malagasy Freshwater Fishes Conservation Platform."
 msgstr "Bienvenue sur la plateforme de conservation des poissons d'eau douce de Madagascar."
 
 #: accounts/templates/accounts/verify_email_body.txt:7

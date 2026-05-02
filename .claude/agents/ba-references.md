@@ -1,6 +1,6 @@
-# Madagascar Freshwater Fish Conservation Platform: Complete Reference Library
+# Malagasy Freshwater Fishes Conservation Platform: Complete Reference Library
 
-This document compiles the full bibliographic, technical, and institutional reference base for the Madagascar Freshwater Fish Conservation Platform. It serves two audiences simultaneously: **conservation professionals** who need peer-reviewed citations, institutional contacts, and framework documentation, and **developers** who need API endpoints, data schemas, and technical specifications. Every entry includes a full citation, URL, and annotation explaining its relevance to the platform.
+This document compiles the full bibliographic, technical, and institutional reference base for the Malagasy Freshwater Fishes Conservation Platform. It serves two audiences simultaneously: **conservation professionals** who need peer-reviewed citations, institutional contacts, and framework documentation, and **developers** who need API endpoints, data schemas, and technical specifications. Every entry includes a full citation, URL, and annotation explaining its relevance to the platform.
 
 ---
 
@@ -410,9 +410,9 @@ This document compiles the full bibliographic, technical, and institutional refe
 - **IUCN SSC Guidelines PDF:** https://www.cpsg.org/sites/default/files/2024-05/IUCN_SSC_ex_situ_guidelines_FINAL.pdf
 - **Annotation:** The authoritative decision framework the platform must support. The five-step ECA process should map to platform data fields: status assessment, potential ex-situ roles, program dimensions, feasibility appraisal, and final recommendation.
 
-### Madagascar Freshwater Fish Conservation Group meeting (January 2026)
+### Malagasy Freshwater Fishes Conservation Group meeting (January 2026)
 
-- **Citation:** Madagascar Freshwater Fish Conservation Group. (2026, January). *Meeting proceedings* [Internal document, PDF].
+- **Citation:** Malagasy Freshwater Fishes Conservation Group. (2026, January). *Meeting proceedings* [Internal document, PDF].
 - **Access:** Internal to project team
 - **Annotation:** Internal planning meeting whose outcomes inform the platform's priorities and institutional partnerships. Should be cited in platform documentation but is not publicly available.
 

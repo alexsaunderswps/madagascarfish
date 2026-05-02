@@ -101,7 +101,7 @@ class TestAdminBranding:
         c.force_login(admin_user)
         resp = c.get("/admin/")
         content = resp.content.decode()
-        assert "Madagascar Freshwater Fish Conservation Platform" in content
+        assert "Malagasy Freshwater Fishes Conservation Platform" in content
 
     def test_site_title(self, admin_user: User) -> None:
         from django.contrib import admin

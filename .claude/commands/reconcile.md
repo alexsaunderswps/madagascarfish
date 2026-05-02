@@ -1,6 +1,6 @@
 Reconcile the implementation of gate $ARGUMENTS against its specification.
 
-You are performing a spec-vs-implementation reconciliation for the Madagascar Freshwater Fish Conservation Platform. This creates an auditable paper trail of what was planned, what was actually built, and why they diverge.
+You are performing a spec-vs-implementation reconciliation for the Malagasy Freshwater Fishes Conservation Platform. This creates an auditable paper trail of what was planned, what was actually built, and why they diverge.
 
 ## Instructions
 

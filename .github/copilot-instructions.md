@@ -1,4 +1,4 @@
-# Copilot Instructions — Madagascar Freshwater Fish Conservation Platform
+# Copilot Instructions — Malagasy Freshwater Fishes Conservation Platform
 
 ## Project Purpose
 

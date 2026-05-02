@@ -5,7 +5,7 @@
 **Target milestone:** Gate 1 shipped before ABQ BioPark (June 1–5, 2026)
 **Source handoff:** [`docs/design.md`](../../design.md) — developer handoff from the Claude design session
 
-This folder is the canonical reference for the Madagascar Freshwater Fish Registry redesign. Any new session, any agent, should read this file first to understand the shape of the work and the decisions already made.
+This folder is the canonical reference for the Malagasy Freshwater Fishes Registry redesign. Any new session, any agent, should read this file first to understand the shape of the work and the decisions already made.
 
 ---
 

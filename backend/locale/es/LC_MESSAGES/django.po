@@ -71,7 +71,7 @@ msgid "If you didn't sign up for an account, you can safely ignore this email."
 msgstr "Si no te has registrado, puedes ignorar este correo electrónico sin ningún problema."
 
 #: accounts/templates/accounts/verify_email_body.txt:1
-msgid "Welcome to the Madagascar Freshwater Fish Conservation Platform."
+msgid "Welcome to the Malagasy Freshwater Fishes Conservation Platform."
 msgstr "Bienvenidos a la Plataforma para la Conservación de los Peces de Agua Dulce de Madagascar."
 
 #: accounts/templates/accounts/verify_email_body.txt:7

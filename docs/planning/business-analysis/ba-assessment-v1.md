@@ -1,4 +1,4 @@
-# BA Assessment v1: Madagascar Freshwater Fish Conservation Platform
+# BA Assessment v1: Malagasy Freshwater Fishes Conservation Platform
 
 **Date:** 2026-04-12 (rev 3)
 **Status:** Draft -- Open Questions Resolved; Pending PM Integration

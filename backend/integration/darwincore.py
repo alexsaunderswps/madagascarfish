@@ -57,13 +57,13 @@ from species.models import Species, SpeciesLocality
 
 # Dataset identity. These are visible in GBIF's portal once published, so
 # wording matters; keep them aligned with the About-page copy.
-DATASET_TITLE = "Madagascar Freshwater Fish — Endemic Species Occurrences"
+DATASET_TITLE = "Malagasy Freshwater Fishes — Endemic Species Occurrences"
 DATASET_SHORTNAME = "mffcp-occurrences"
 DATASET_LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/"
 DATASET_LICENSE_NAME = "Creative Commons Attribution 4.0 International (CC BY 4.0)"
 DATASET_LANGUAGE = "en"
-DATASET_RIGHTS_HOLDER = "Madagascar Freshwater Fish Conservation Platform"
-DATASET_PUBLISHER = "Madagascar Freshwater Fish Conservation Platform"
+DATASET_RIGHTS_HOLDER = "Malagasy Freshwater Fishes Conservation Platform"
+DATASET_PUBLISHER = "Malagasy Freshwater Fishes Conservation Platform"
 DEFAULT_CONTACT_EMAIL = "alex.saunders@wildlifeprotectionsolutions.org"
 DEFAULT_CONTACT_NAME = "Aleksei Saunders"
 
@@ -370,7 +370,7 @@ def render_eml_xml(
     title = xml_escape(DATASET_TITLE)
     abstract = xml_escape(
         f"Occurrence records ({record_count:,}) for Madagascar's endemic "
-        "freshwater fish, drawn from the Madagascar Freshwater Fish "
+        "freshwater fish, drawn from the Malagasy Freshwater Fishes "
         "Conservation Platform's curated species-locality registry. "
         "Records on IUCN-threatened species (CR, EN, VU) publish with "
         "coordinates generalized to a 0.1° (~11 km) grid per GBIF "

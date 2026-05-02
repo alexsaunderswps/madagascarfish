@@ -1,7 +1,7 @@
-# Operations Manual — Madagascar Freshwater Fish Conservation Platform
+# Operations Manual — Malagasy Freshwater Fishes Conservation Platform
 
 A single-document reference for running, maintaining, and adding content to
-the Madagascar Freshwater Fish Conservation Platform (MFFCP / "malagasyfishes").
+the Malagasy Freshwater Fishes Conservation Platform (MFFCP / "malagasyfishes").
 Targets Aleksei (project owner) and any future maintainer or content
 contributor who needs to do day-to-day work without re-reading the planning
 docs.
@@ -1649,7 +1649,7 @@ once; come back when something doesn't ring a bell.
 | **writer_reviewed**        | Second state. The `@conservation-writer` agent has reviewed the translation for voice/idiom; awaiting human approval.                                          |
 | **human_approved**         | Third state. A reviewer (you) has signed off. With `I18N_ENFORCE_REVIEW_GATE=true`, this is the gate to public-site visibility in the target locale.            |
 | **published**              | Fourth state. Reserved for content explicitly flagged as final / archival; treated equivalently to `human_approved` by the public-site review gate.            |
-| **MFFCP**                  | Madagascar Freshwater Fish Conservation Platform — this project's internal abbreviation, also the name of the local Postgres database (`mffcp`).               |
+| **MFFCP**                  | Malagasy Freshwater Fishes Conservation Platform — this project's internal abbreviation, also the name of the local Postgres database (`mffcp`).               |
 | **MPTT**                   | Modified Preorder Tree Traversal — the algorithm used by `django-mptt` to store the `Taxon` hierarchy.                                                        |
 | **PostGIS**                | The spatial extension to PostgreSQL. Stores point geometries on `SpeciesLocality` and polygon geometries on `Watershed` and `ProtectedArea`.                  |
 | **HydroBASINS**            | A global watershed-boundaries dataset. Loaded via `load_reference_layers --watersheds`.                                                                       |

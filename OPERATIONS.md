@@ -1,6 +1,6 @@
 # Operations Runbook
 
-Day-to-day operational tasks for the Madagascar Freshwater Fish Conservation Platform
+Day-to-day operational tasks for the Malagasy Freshwater Fishes Conservation Platform
 (MFFCP). Focused on the **staging environment** (Hetzner-hosted) and the **local
 development** equivalents.
 

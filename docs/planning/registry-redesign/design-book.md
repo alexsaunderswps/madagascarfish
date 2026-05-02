@@ -511,7 +511,7 @@ export default async function AboutPage() {
       }}>
         <div style={{ ...containerStyle, padding: "24px 28px 40px" }}>
           <p style={eyebrowStyle}>About</p>
-          <h1 style={heroH1StyleNonItalic}>Madagascar Freshwater Fish</h1>
+          <h1 style={heroH1StyleNonItalic}>Malagasy Freshwater Fishes</h1>
           <p style={{ /* lead paragraph style */ }}>…</p>
         </div>
       </section>

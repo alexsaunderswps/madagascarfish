@@ -950,7 +950,7 @@
       }
     },
     "institution": {
-      "metaTitle": "My Institution — Madagascar Freshwater Fish",
+      "metaTitle": "My Institution — Malagasy Freshwater Fishes",
       "metaDescription": "Update your institution's captive populations: counts, sex ratios, breeding status, and last-census date.",
       "eyebrow": "Institution dashboard",
       "title": "My populations",
@@ -1454,7 +1454,7 @@
     "dataNote": "Données issues de l'UICN, de FishBase, de GBIF, de ZIMS, de SHOAL et de CARES."
   },
   "publicFieldPrograms": {
-    "metaTitle": "Field programs — Madagascar Freshwater Fish",
+    "metaTitle": "Field programs — Malagasy Freshwater Fishes",
     "metaDescription": "In-situ conservation programs for Madagascar's endemic freshwater fish — habitat surveys, community management, monitoring. Run by zoos, NGOs, research orgs, and partner institutions.",
     "eyebrow": "In-situ programs",
     "title": "Active field programs",
@@ -1483,10 +1483,10 @@
   },
   "publicInstitution": {
     "metaTitle": {
-      "named": "{name} — Madagascar Freshwater Fish",
-      "fallback": "Institution — Madagascar Freshwater Fish"
+      "named": "{name} — Malagasy Freshwater Fishes",
+      "fallback": "Institution — Malagasy Freshwater Fishes"
     },
-    "metaDescription": "{name} ({country}) — captive populations, field programs, and partnerships in the Madagascar Freshwater Fish Conservation Platform registry.",
+    "metaDescription": "{name} ({country}) — captive populations, field programs, and partnerships in the Malagasy Freshwater Fishes Conservation Platform registry.",
     "eyebrow": "Institution profile",
     "memberOf": "Member of:",
     "websiteLink": "Visit institution website",

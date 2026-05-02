@@ -228,7 +228,7 @@ to a non-existent husbandry page is a legitimate 404.
 **Given** a published husbandry page
 **When** a crawler or social share card requests the URL
 **Then** `generateMetadata` returns a title of the form "Keeping *{Species
-name}* — Madagascar Freshwater Fish" and a description derived from the
+name}* — Malagasy Freshwater Fishes" and a description derived from the
 narrative (first ~160 chars, collapsed whitespace).
 
 ### AC-09.11 — Sourcing-ethics component is wired unchanged

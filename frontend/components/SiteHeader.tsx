@@ -42,15 +42,32 @@ export default function SiteHeader() {
         <Link
           href="/"
           style={{
-            fontFamily: "var(--serif)",
-            fontSize: 15,
-            fontWeight: 500,
-            letterSpacing: "-0.01em",
-            color: "var(--ink)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 12,
+            minHeight: 44,
             textDecoration: "none",
+            color: "var(--ink)",
           }}
         >
-          Madagascar Freshwater Fish
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt=""
+            width={32}
+            height={48}
+            style={{ height: 48, width: "auto", display: "block" }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: 15,
+              fontWeight: 500,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Malagasy Freshwater Fishes
+          </span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <nav aria-label="Primary">

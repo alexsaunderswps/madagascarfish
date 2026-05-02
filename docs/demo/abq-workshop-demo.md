@@ -1,6 +1,6 @@
 # ABQ ECA Workshop demo script
 
-A walkthrough of the Madagascar Freshwater Fish Conservation Platform for the
+A walkthrough of the Malagasy Freshwater Fishes Conservation Platform for the
 Extinction Crisis ABQ BioPark workshop, June 1–5, 2026.
 
 The script is opinionated: it demos the **loop** (public profile →

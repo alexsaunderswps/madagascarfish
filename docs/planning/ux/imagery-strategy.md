@@ -1,4 +1,4 @@
-# Imagery Strategy — Madagascar Freshwater Fish Conservation Platform
+# Imagery Strategy — Malagasy Freshwater Fishes Conservation Platform
 
 **Date:** 2026-04-18
 **Reviewer:** ux-reviewer agent
