@@ -91,6 +91,34 @@ export default async function SiteFooter() {
       >
         <div
           style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 32,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt=""
+            width={21}
+            height={32}
+            style={{ height: 32, width: "auto", display: "block" }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: 13,
+              fontWeight: 500,
+              letterSpacing: "-0.01em",
+              color: "var(--ink)",
+            }}
+          >
+            Malagasy Freshwater Fishes
+          </span>
+        </div>
+        <div
+          style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
             gap: 40,
