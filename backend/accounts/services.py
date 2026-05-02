@@ -16,6 +16,7 @@ from django.utils import timezone
 
 from accounts.models import PendingInstitutionClaim, User
 from audit.context import audit_actor
+from audit.models import AuditEntry
 
 
 def approve_claim(
@@ -46,10 +47,29 @@ def approve_claim(
             "Ask another coordinator (or a superuser) to review it."
         )
     with transaction.atomic():
+        user = claim.user
+        institution_before = user.institution_id
         with audit_actor(user=reviewer, reason="institution claim approval"):
-            user = claim.user
             user.institution = claim.institution
             user.save(update_fields=["institution"])
+        # Coordinator-override audit row (Gate 13 R-arch-1). The
+        # User.institution field isn't covered by the global signal-driven
+        # audit, so we write the entry explicitly. Snapshots
+        # actor_institution = reviewer.institution at decision time, which
+        # defends against later reassignment of the reviewer obscuring
+        # who approved the claim.
+        AuditEntry.objects.create(
+            target_type="accounts.User",
+            target_id=user.pk,
+            field="institution",
+            actor_type=AuditEntry.ActorType.USER,
+            actor_user=reviewer,
+            actor_institution_id=getattr(reviewer, "institution_id", None),
+            action=AuditEntry.Action.UPDATE,
+            before={"institution_id": institution_before},
+            after={"institution_id": claim.institution_id},
+            reason="institution claim approval",
+        )
         claim.status = PendingInstitutionClaim.Status.APPROVED
         claim.reviewed_at = timezone.now()
         claim.reviewed_by = reviewer
