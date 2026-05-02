@@ -52,7 +52,15 @@ jobs:
           git reset --hard origin/main
           cd deploy/staging
           docker compose pull || true
-          docker compose up -d --build web worker
+          # Bring up every service the compose file declares (web, worker,
+          # beat, db, redis, caddy). The previous form named `web worker`
+          # explicitly and silently skipped `beat` when it landed in PR #173,
+          # leaving scheduled tasks (weekly IUCN sync) unfired in production
+          # for days. Naming services here is a foot-gun: it works until
+          # someone adds a new service, and then it doesn't, and the failure
+          # mode is silent. Bring up everything; `--build` only rebuilds
+          # services that need it.
+          docker compose up -d --build
           # Migrations run in the web container's entrypoint (manage.py migrate
           # --noinput); no separate step needed.
           docker compose ps
