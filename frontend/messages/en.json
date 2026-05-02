@@ -86,8 +86,8 @@
   "home": {
     "hero": {
       "eyebrow": "Malagasy Freshwater Fishes Conservation Platform",
-      "title": "A shared record for Madagascar's endemic freshwater fish.",
-      "subtitle": "An open platform that brings together species profiles, ex-situ breeding coordination, and field program tracking for the roughly 79 freshwater fish species found only in Madagascar. Built to complement IUCN, GBIF, FishBase, and ZIMS — not replace them."
+      "title": "A shared record for Madagascar's endemic freshwater fishes.",
+      "subtitle": "Roughly 79 endemic species. The majority threatened with extinction — the island's most imperiled vertebrate group. One place to find what's known about them, and what isn't."
     },
     "redListSection": {
       "eyebrow": "Red List breakdown",
@@ -447,7 +447,7 @@
       "metaTitle": "About — Malagasy Freshwater Fishes Conservation Platform",
       "metaDescription": "About the Malagasy Freshwater Fishes Conservation Platform: mission, data sources, ownership, and citations.",
       "heroEyebrow": "About",
-      "heroTitle": "A shared record of Madagascar's endemic freshwater fish.",
+      "heroTitle": "A shared record of Madagascar's endemic freshwater fishes.",
       "heroSubtitle": "An open platform for species profiles, ex-situ breeding coordination, and field program tracking — built to complement IUCN, GBIF, FishBase, and ZIMS, not replace them.",
       "missionEyebrow": "Mission",
       "missionTitle": "Why this platform exists",
