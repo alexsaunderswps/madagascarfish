@@ -518,6 +518,35 @@ class TestClaimQueue:
         assert claim.status == PendingInstitutionClaim.Status.REJECTED
         assert claim.review_notes == "not affiliated"
 
+    def test_approve_writes_audit_row(
+        self, institution_a: Institution, institution_b: Institution
+    ) -> None:
+        """Gate 13 R-arch-1: approving a claim writes an AuditEntry row
+        capturing the coordinator override, with the reviewer's institution
+        snapshotted at decision time."""
+        applicant = _user(email="audit-applicant@example.com", tier=2, institution=None)
+        coord = _user(email="audit-reviewer@example.com", tier=3, institution=institution_b)
+        claim = PendingInstitutionClaim.objects.create(
+            user=applicant,
+            institution=institution_a,
+            status=PendingInstitutionClaim.Status.PENDING,
+        )
+        approve_claim(claim=claim, reviewer=coord, review_notes="welcome")
+        entries = AuditEntry.objects.filter(
+            target_type="accounts.User",
+            target_id=applicant.pk,
+            field="institution",
+        )
+        assert entries.count() == 1
+        entry = entries.get()
+        assert entry.action == AuditEntry.Action.UPDATE
+        assert entry.actor_type == AuditEntry.ActorType.USER
+        assert entry.actor_user_id == coord.pk
+        assert entry.actor_institution_id == institution_b.pk
+        assert entry.before == {"institution_id": None}
+        assert entry.after == {"institution_id": institution_a.pk}
+        assert entry.reason == "institution claim approval"
+
     def test_self_approval_blocked(self, institution_a: Institution) -> None:
         """Privilege-escalation guard: a coordinator cannot approve a claim
         they themselves filed. Superuser is allowed (break-glass)."""
