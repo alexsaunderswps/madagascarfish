@@ -61,7 +61,11 @@ async function _fetchAll<T>(path: string, pageSize = 200): Promise<T[]> {
   return out;
 }
 
-export default async function CoordinatorTransfersPage() {
+export default async function CoordinatorTransfersPage({
+  searchParams,
+}: {
+  searchParams?: { edit?: string };
+}) {
   // Tier 3+ gate. Middleware already redirects sub-tier-3 to /login,
   // but defense-in-depth.
   const tier = await getServerTier();
@@ -80,11 +84,16 @@ export default async function CoordinatorTransfersPage() {
     _fetchAll<InstitutionBrief>("/api/v1/institutions/"),
   ]);
 
+  const editParam = searchParams?.edit;
+  const autoEditId =
+    editParam && /^\d+$/.test(editParam) ? Number(editParam) : null;
+
   return (
     <TransferDraftsView
       transfers={transfers}
       species={species}
       institutions={institutions}
+      autoEditId={autoEditId}
     />
   );
 }

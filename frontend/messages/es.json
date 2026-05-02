@@ -797,7 +797,11 @@
             "proposed": "Propuesto",
             "completed": "Finalizado",
             "mfu": "M.F.U",
-            "cites": "CITES"
+            "cites": "CITES",
+            "actions": "Acciones"
+          },
+          "actions": {
+            "edit": "Editar →"
           },
           "statuses": {
             "proposed": "Propuesto",

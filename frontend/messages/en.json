@@ -1101,7 +1101,11 @@
             "proposed": "Proposed",
             "completed": "Completed",
             "mfu": "M.F.U",
-            "cites": "CITES"
+            "cites": "CITES",
+            "actions": "Actions"
+          },
+          "actions": {
+            "edit": "Edit →"
           },
           "statuses": {
             "proposed": "Proposed",

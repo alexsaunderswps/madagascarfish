@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import type {
   TransferDetailRow,
@@ -48,10 +48,12 @@ export default function TransferDraftsView({
   transfers,
   species,
   institutions,
+  autoEditId,
 }: {
   transfers: TransferListResponse | null;
   species: SpeciesBrief[];
   institutions: InstitutionBrief[];
+  autoEditId?: number | null;
 }) {
   const t = useTranslations("dashboard.coordinator.transferDrafts");
   const grouped = groupByStatus(transfers?.results ?? []);
@@ -92,6 +94,7 @@ export default function TransferDraftsView({
                       transfer={tr}
                       species={species}
                       institutions={institutions}
+                      startInEdit={tr.id === autoEditId}
                     />
                   ))}
                 </ul>
@@ -373,13 +376,22 @@ function TransferCard({
   transfer,
   species,
   institutions,
+  startInEdit = false,
 }: {
   transfer: TransferDetailRow;
   species: SpeciesBrief[];
   institutions: InstitutionBrief[];
+  startInEdit?: boolean;
 }) {
   const t = useTranslations("dashboard.coordinator.transferDrafts");
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(startInEdit);
+  const anchorId = `transfer-${transfer.id}`;
+  useEffect(() => {
+    if (startInEdit) {
+      const el = document.getElementById(anchorId);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [startInEdit, anchorId]);
   if (editing) {
     return (
       <EditForm
@@ -387,11 +399,12 @@ function TransferCard({
         species={species}
         institutions={institutions}
         onClose={() => setEditing(false)}
+        anchorId={anchorId}
       />
     );
   }
   return (
-    <li className="rounded border border-slate-200 bg-white p-5">
+    <li id={anchorId} className="rounded border border-slate-200 bg-white p-5">
       <div className="flex items-baseline justify-between gap-3">
         <div>
           <h3 className="font-serif text-lg italic text-slate-900">
@@ -437,11 +450,13 @@ function EditForm({
   species: _species,
   institutions: _institutions,
   onClose,
+  anchorId,
 }: {
   transfer: TransferDetailRow;
   species: SpeciesBrief[];
   institutions: InstitutionBrief[];
   onClose: () => void;
+  anchorId?: string;
 }) {
   const t = useTranslations("dashboard.coordinator.transferDrafts");
   const router = useRouter();
@@ -504,7 +519,7 @@ function EditForm({
   }
 
   return (
-    <li className="rounded border border-sky-300 bg-white p-5">
+    <li id={anchorId} className="rounded border border-sky-300 bg-white p-5">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-baseline justify-between">
           <h3 className="font-serif text-lg italic text-slate-900">

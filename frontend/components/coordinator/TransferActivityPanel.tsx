@@ -106,6 +106,10 @@ interface PanelTranslations {
     completed: string;
     mfu: string;
     cites: string;
+    actions: string;
+  };
+  actions: {
+    edit: string;
   };
   emDash: string;
 }
@@ -139,6 +143,7 @@ function TransferTable({
             <th style={TH_STYLE}>{showActual ? tx.table.completed : tx.table.proposed}</th>
             <th style={TH_STYLE}>{tx.table.mfu}</th>
             <th style={TH_STYLE}>{tx.table.cites}</th>
+            <th style={TH_STYLE}>{tx.table.actions}</th>
           </tr>
         </thead>
         <tbody>
@@ -170,6 +175,14 @@ function TransferTable({
                     <span style={{ color: "var(--ink-3)" }}>{tx.emDash}</span>
                   )}
                 </td>
+                <td style={TD_STYLE}>
+                  <Link
+                    href={`/dashboard/coordinator/transfers/?edit=${row.transfer_id}`}
+                    style={SPECIES_LINK_STYLE}
+                  >
+                    {tx.actions.edit}
+                  </Link>
+                </td>
               </tr>
             );
           })}
@@ -192,6 +205,10 @@ export default async function TransferActivityPanel({ data }: Props) {
       completed: t("table.completed"),
       mfu: t("table.mfu"),
       cites: t("table.cites"),
+      actions: t("table.actions"),
+    },
+    actions: {
+      edit: t("actions.edit"),
     },
     emDash: t("emDash"),
   };

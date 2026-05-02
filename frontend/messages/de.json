@@ -797,7 +797,11 @@
             "proposed": "Vorgeschlagen",
             "completed": "Abgeschlossen",
             "mfu": "M.F.U.",
-            "cites": "CITES"
+            "cites": "CITES",
+            "actions": "Aktionen"
+          },
+          "actions": {
+            "edit": "Bearbeiten →"
           },
           "statuses": {
             "proposed": "Vorgeschlagen",
